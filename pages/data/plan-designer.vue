@@ -5,7 +5,12 @@
             <USelectMenu
                 v-model="selected"
                 icon="i-heroicons-magnifying-glass-20-solid"
-                searchable
+                :searchable="
+                    (query: string) => {
+                        outerQuery = query;
+                        return selections.filter((selection: string) => selection.includes(query));
+                    }
+                "
                 searchable-placeholder="Search for a dataset..."
                 class="w-full lg:w-72 relative"
                 placeholder="Select / search for a dataset"
@@ -24,7 +29,7 @@
         >
             <FileBrowser
                 v-show="showFileBrowser"
-                :files="selections"
+                :files="filteredSelections"
                 :selected="selected"
                 class="mt-8"
                 @selectionChanged="changeSelection"
@@ -43,4 +48,10 @@ const selected = ref<string>('');
 const changeSelection = (value: string) => (selected.value = value);
 
 const showFileBrowser = ref<boolean>(false);
+
+const filteredSelections = computed(() =>
+    outerQuery.value ? selections.filter((selection: string) => selection.includes(outerQuery.value)) : selections,
+);
+
+const outerQuery = ref('');
 </script>
