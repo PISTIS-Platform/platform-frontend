@@ -5,12 +5,12 @@
                 v-for="file in files"
                 :key="file"
                 :class="[
-                    'w-20 flex flex-col justify-center items-center cursor-pointer',
-                    file === innerSelected ? 'bg-gray-200' : '',
+                    'w-24 flex flex-col gap-2 justify-center items-center cursor-pointer p-2 rounded-xl border-2 border-gray-500 border-opacity-0',
+                    file === innerSelected ? 'bg-gray-100 border-opacity-50' : 'border-opacity-0',
                 ]"
                 @click="$emit('selectionChanged', file)"
             >
-                <UIcon name="i-heroicons-document" class="w-20 h-20 text-gray-500" />
+                <UIcon name="i-fa6-regular-file-lines" class="w-20 h-20 text-gray-500" />
                 <p class="text-xs text-gray-600">{{ file }}</p>
             </div>
         </div>

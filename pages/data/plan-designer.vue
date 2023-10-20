@@ -14,13 +14,22 @@
             <UButton label="File Browser" @click="showFileBrowser = !showFileBrowser" />
         </div>
 
-        <FileBrowser
-            v-show="showFileBrowser"
-            :files="selections"
-            :selected="selected"
-            class="mt-8"
-            @selectionChanged="changeSelection"
-        />
+        <Transition
+            enter-active-class="duration-300 ease-out"
+            enter-from-class="transform opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="duration-200 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="transform opacity-0"
+        >
+            <FileBrowser
+                v-show="showFileBrowser"
+                :files="selections"
+                :selected="selected"
+                class="mt-8"
+                @selectionChanged="changeSelection"
+            />
+        </Transition>
     </div>
 </template>
 
