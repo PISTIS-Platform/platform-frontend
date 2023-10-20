@@ -26,6 +26,7 @@ export default defineI18nConfig(() => ({
             data: {
                 data: 'My Data',
                 wallet: 'My Wallet',
+                designer: 'Purchase / Subscription Plan Designer',
                 log: 'Data Log',
             },
             market: {
