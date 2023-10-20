@@ -3,7 +3,9 @@ export default defineNuxtConfig({
     ssr: false, // Disable server-side rendering
     telemetry: false, // Disable telemetry by Nuxt team
     devtools: { enabled: true },
-
+    ui: {
+        icons: ['heroicons'],
+    },
     typescript: {
         strict: true,
         typeCheck: false, // Enabling this makes development slower, but performs proper type checking

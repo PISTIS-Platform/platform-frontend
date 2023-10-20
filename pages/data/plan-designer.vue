@@ -11,8 +11,17 @@
                 placeholder="Select / search for a dataset"
                 :options="selections"
             />
-            <UButton label="File Browser" />
+            <UButton label="File Browser" @click="showFileBrowser = !showFileBrowser" />
         </div>
+
+        <FileBrowser
+            v-show="showFileBrowser"
+            :key="selected"
+            :files="selections"
+            :selected="selected"
+            class="mt-8"
+            @selectionChanged="changeSelection"
+        />
     </div>
 </template>
 
@@ -22,4 +31,8 @@ import dummyData from './dummy-data';
 const selections = Object.keys(dummyData);
 
 const selected = ref<string>('');
+
+const changeSelection = (value: string) => (selected.value = value);
+
+const showFileBrowser = ref<boolean>(false);
 </script>
