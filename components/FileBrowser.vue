@@ -8,7 +8,7 @@
                     'w-20 flex flex-col justify-center items-center cursor-pointer',
                     file === innerSelected ? 'bg-gray-200' : '',
                 ]"
-                @click="innerSelected = file"
+                @click="$emit('selectionChanged', file)"
             >
                 <UIcon name="i-heroicons-document" class="w-20 h-20 text-gray-500" />
                 <p class="text-xs text-gray-600">{{ file }}</p>
@@ -29,7 +29,7 @@ const props = defineProps({
     },
 });
 
-const innerSelected = ref(props.selected);
+const innerSelected = computed(() => props.selected);
 
 const emit = defineEmits(['selectionChanged']);
 

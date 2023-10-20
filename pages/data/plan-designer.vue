@@ -16,7 +16,6 @@
 
         <FileBrowser
             v-show="showFileBrowser"
-            :key="selected"
             :files="selections"
             :selected="selected"
             class="mt-8"
