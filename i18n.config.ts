@@ -28,6 +28,16 @@ export default defineI18nConfig(() => ({
                 wallet: 'My Wallet',
                 log: 'Data Log',
             },
+            market: {
+                market: 'PISTIS Market',
+                store: 'Store',
+                log: 'Log',
+            },
+            transactions: {
+                transactions: 'My Transactions',
+                details: 'Details',
+                overview: 'Overview',
+            },
             user: {
                 profile: 'Your Profile',
                 settings: 'Settings',

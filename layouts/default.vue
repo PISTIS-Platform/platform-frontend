@@ -18,6 +18,8 @@ const user = {
 const navigation = [
     { name: 'home.home', to: '/home' },
     { name: 'data.data', to: '/data' },
+    { name: 'transactions.transactions', to: '/transactions' },
+    { name: 'market.market', to: '/market' },
 ];
 
 const userNavigation = [
