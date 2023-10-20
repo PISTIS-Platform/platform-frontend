@@ -10,7 +10,7 @@
                 ]"
                 @click="$emit('selectionChanged', file)"
             >
-                <UIcon name="i-fa6-regular-file-lines" class="w-20 h-20 text-gray-500" />
+                <UIcon name="i-fa6-regular-file-lines" class="w-16 h-16 text-gray-500" />
                 <p class="text-xs text-gray-600">{{ file }}</p>
             </div>
         </div>
