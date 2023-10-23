@@ -78,8 +78,12 @@ const dataSetSelections = [
                 <p>{{ dummyData[selected].description }}</p>
             </div>
         </div>
-        <SelectionCards class="mt-8" :selections="dataSetSelections" @selection-changed="changeDataSetSelection" />
 
-        {{ completeOrQuery }}
+        <SelectionCards
+            v-if="selected"
+            class="mt-8"
+            :selections="dataSetSelections"
+            @selection-changed="changeDataSetSelection"
+        />
     </div>
 </template>
