@@ -79,5 +79,7 @@ const dataSetSelections = [
             </div>
         </div>
         <SelectionCards class="mt-8" :selections="dataSetSelections" @selection-changed="changeDataSetSelection" />
+
+        {{ completeOrQuery }}
     </div>
 </template>

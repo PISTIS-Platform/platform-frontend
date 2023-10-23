@@ -26,7 +26,9 @@ const props = defineProps({
         <UCard :class="['relative text-gray-600', props.selected ? 'bg-primary-500 text-white' : '', props.width]">
             <div :class="['h-14 cursor-pointer flex items-center justify-center']">
                 <p class="font-semibold">{{ props.title }}</p>
-                <UIcon name="i-formkit-info" class="w-4 h-4 absolute top-1 right-1" />
+                <UTooltip :text="props.info" class="absolute top-1 right-1">
+                    <UIcon name="i-formkit-info" class="w-4 h-4" />
+                </UTooltip>
             </div>
         </UCard>
     </div>
