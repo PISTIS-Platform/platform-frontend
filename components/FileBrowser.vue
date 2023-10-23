@@ -1,7 +1,9 @@
 <template>
     <UCard>
         <div class="w-full h-96">
-            <div class="w-full flex flex-row flex-wrap gap-y-5 gap-x-2 overflow-y-auto max-h-96 items-start">
+            <div
+                class="w-full flex flex-row flex-wrap gap-y-5 gap-x-2 md:gap-x-4 xl:gap-x-5 overflow-y-auto max-h-96 items-start"
+            >
                 <div
                     v-for="file in files"
                     :key="file"
