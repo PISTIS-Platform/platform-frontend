@@ -9,14 +9,18 @@ const props = defineProps({
         required: false,
         default: 'w-52',
     },
+    selected: {
+        type: String,
+        required: true,
+    },
 });
 
-const selected = ref('');
+const innerSelected = computed(() => props.selected);
 
 const emit = defineEmits(['selection-changed']);
 
-watch(selected, () => {
-    emit('selection-changed', selected.value);
+watch(innerSelected, () => {
+    emit('selection-changed', innerSelected.value);
 });
 </script>
 
@@ -27,9 +31,9 @@ watch(selected, () => {
             :key="item.title"
             :title="item.title"
             :info="item.info"
-            :selected="selected === item.title"
+            :selected="innerSelected === item.title"
             :width="props.width"
-            @click="selected = item.title"
+            @click="emit('selection-changed', item.title)"
         />
     </div>
 </template>

@@ -23,7 +23,13 @@ const props = defineProps({
 
 <template>
     <div>
-        <UCard :class="['relative text-gray-600', props.selected ? 'bg-primary-500 text-white' : '', props.width]">
+        <UCard
+            :class="[
+                'relative text-gray-600 text-base',
+                props.selected ? 'bg-primary-500 text-white' : '',
+                props.width,
+            ]"
+        >
             <div :class="['h-14 cursor-pointer flex items-center justify-center']">
                 <p class="font-semibold">{{ props.title }}</p>
                 <UTooltip :text="props.info" class="absolute top-1 right-1">
