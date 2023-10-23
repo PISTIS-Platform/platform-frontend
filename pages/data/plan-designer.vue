@@ -302,7 +302,7 @@ watch(selected, () => {
                                     </template>
                                 </UInput>
                             </UFormGroup>
-                            <UFormGroup label="Frequency" required name="limitFrequency" class="w-32">
+                            <UFormGroup label="Frequency" required name="limitFrequency" class="w-48">
                                 <USelectMenu
                                     v-model="oneOffSaleDetails.limitFrequency"
                                     placeholder="Select a frequency"
