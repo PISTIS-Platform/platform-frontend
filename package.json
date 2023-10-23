@@ -44,6 +44,7 @@
         "@headlessui/vue": "1.7.16",
         "@heroicons/vue": "^2.0.18",
         "@iconify-json/fa6-regular": "^1.1.13",
+        "@iconify-json/formkit": "^1.1.2",
         "@nuxt/ui": "^2.9.0",
         "@pinia/nuxt": "^0.4.11",
         "next-auth": "4.21.1",

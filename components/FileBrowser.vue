@@ -1,26 +1,3 @@
-<template>
-    <UCard>
-        <div class="w-full h-96">
-            <div
-                class="w-full flex flex-row flex-wrap gap-y-5 gap-x-2 md:gap-x-4 xl:gap-x-5 overflow-y-auto max-h-96 items-start"
-            >
-                <div
-                    v-for="file in files"
-                    :key="file"
-                    :class="[
-                        'w-24 flex flex-col gap-2 justify-center items-center cursor-pointer p-2 rounded-xl border-2 border-gray-500 border-opacity-0',
-                        file === innerSelected ? 'bg-gray-100 border-opacity-50' : 'border-opacity-0',
-                    ]"
-                    @click="$emit('selectionChanged', file)"
-                >
-                    <UIcon name="i-fa6-regular-file-lines" class="w-16 h-16 text-gray-500" />
-                    <p class="text-xs text-gray-600">{{ file }}</p>
-                </div>
-            </div>
-        </div>
-    </UCard>
-</template>
-
 <script setup lang="ts">
 const props = defineProps({
     files: {
@@ -35,9 +12,32 @@ const props = defineProps({
 
 const innerSelected = computed(() => props.selected);
 
-const emit = defineEmits(['selectionChanged']);
+const emit = defineEmits(['selection-changed']);
 
 watch(innerSelected, () => {
-    emit('selectionChanged', innerSelected.value);
+    emit('selection-changed', innerSelected.value);
 });
 </script>
+
+<template>
+    <UCard>
+        <div class="w-full h-96">
+            <div
+                class="w-full flex flex-row flex-wrap gap-y-5 gap-x-2 md:gap-x-4 xl:gap-x-5 overflow-y-auto max-h-96 items-start"
+            >
+                <div
+                    v-for="file in files"
+                    :key="file"
+                    :class="[
+                        'w-24 flex flex-col gap-2 justify-center items-center cursor-pointer p-2 rounded-xl border-2 border-gray-500 border-opacity-0',
+                        file === innerSelected ? 'bg-gray-100 border-opacity-50' : 'border-opacity-0',
+                    ]"
+                    @click="$emit('selection-changed', file)"
+                >
+                    <UIcon name="i-fa6-regular-file-lines" class="w-16 h-16 text-gray-500" />
+                    <p class="text-xs text-gray-600">{{ file }}</p>
+                </div>
+            </div>
+        </div>
+    </UCard>
+</template>

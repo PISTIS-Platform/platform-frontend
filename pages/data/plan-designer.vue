@@ -1,5 +1,38 @@
+<script setup lang="ts">
+import dummyData from './dummy-data';
+
+const selections = Object.keys(dummyData);
+
+const selected = ref<string>('');
+
+const changeSelection = (value: string) => (selected.value = value);
+
+const showFileBrowser = ref<boolean>(false);
+
+const filteredSelections = computed(() =>
+    outerQuery.value ? selections.filter((selection: string) => selection.includes(outerQuery.value)) : selections,
+);
+
+const outerQuery = ref('');
+
+const completeOrQuery = ref('');
+
+const changeDataSetSelection = (value: string) => (completeOrQuery.value = value);
+
+const dataSetSelections = [
+    {
+        title: 'Complete Dataset',
+        info: 'Select the complete dataset',
+    },
+    {
+        title: 'Query / Filter',
+        info: 'Select a subset of the dataset',
+    },
+];
+</script>
+
 <template>
-    <div class="w-full h-full">
+    <div class="w-full h-full text-gray-700">
         <Heading :title="$t('data.designer')" />
         <div class="flex gap-4 items-center mt-8">
             <USelectMenu
@@ -32,26 +65,19 @@
                 :files="filteredSelections"
                 :selected="selected"
                 class="mt-8"
-                @selectionChanged="changeSelection"
+                @selection-changed="changeSelection"
             />
         </Transition>
+        <div v-if="selected" class="flex gap-4 mt-8 max-w-lg text-sm">
+            <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
+                <p>Asset Title:</p>
+                <p>Asset Description:</p>
+            </div>
+            <div class="flex flex-col items-start justify-start gap-4">
+                <p class="font-bold">{{ selected }}</p>
+                <p>{{ dummyData[selected].description }}</p>
+            </div>
+        </div>
+        <SelectionCards class="mt-8" :selections="dataSetSelections" @selection-changed="changeDataSetSelection" />
     </div>
 </template>
-
-<script setup lang="ts">
-import dummyData from './dummy-data';
-
-const selections = Object.keys(dummyData);
-
-const selected = ref<string>('');
-
-const changeSelection = (value: string) => (selected.value = value);
-
-const showFileBrowser = ref<boolean>(false);
-
-const filteredSelections = computed(() =>
-    outerQuery.value ? selections.filter((selection: string) => selection.includes(outerQuery.value)) : selections,
-);
-
-const outerQuery = ref('');
-</script>

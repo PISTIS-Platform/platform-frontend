@@ -14,6 +14,9 @@ dependencies:
   '@iconify-json/fa6-regular':
     specifier: ^1.1.13
     version: 1.1.13
+  '@iconify-json/formkit':
+    specifier: ^1.1.2
+    version: 1.1.2
   '@nuxt/ui':
     specifier: ^2.9.0
     version: 2.9.0(vue@3.3.4)(webpack@5.88.2)
@@ -974,6 +977,12 @@ packages:
 
   /@iconify-json/fa6-regular@1.1.13:
     resolution: {integrity: sha512-wY5nEeWwg+fdDzfPdzOHcbgiN7Qk2bTyO0BreJUQJb8NKPcXivyHAlkWPc+wA0kQwfqrmekVCwWnrLoD7B9T0g==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: false
+
+  /@iconify-json/formkit@1.1.2:
+    resolution: {integrity: sha512-/+vcQUPa4yzARQDzz1BBkNtFvXv5t2iknF57RRoEm1Xg3oKOnrvK7hMono0MtQg4aTvPH2nJoa0/qczQ7CB40w==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: false

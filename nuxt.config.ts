@@ -4,7 +4,7 @@ export default defineNuxtConfig({
     telemetry: false, // Disable telemetry by Nuxt team
     devtools: { enabled: true },
     ui: {
-        icons: ['heroicons', 'fa6-regular'],
+        icons: ['heroicons', 'fa6-regular', 'formkit'],
     },
     typescript: {
         strict: true,
