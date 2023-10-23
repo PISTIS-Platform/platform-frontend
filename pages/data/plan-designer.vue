@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import dummyData from './dummy-data';
 
+//data for selecting specific dataset
+
 const selections = Object.keys(dummyData);
 
 const selected = ref<string>('');
@@ -14,6 +16,8 @@ const filteredSelections = computed(() =>
 );
 
 const outerQuery = ref('');
+
+//data for selection whole dataset or query
 
 const completeOrQuery = ref('');
 
@@ -30,18 +34,20 @@ const dataSetSelections = [
     },
 ];
 
+// FAIR data valuation suggestions data
+
 const oneOffPrice = ref(500);
 const subscriptionPrice = ref(20);
 
-watch(selected, () => {
-    completeOrQuery.value = '';
-});
+// data for asset offering details
 
 const assetOfferingDetails = ref({
     title: undefined,
     description: undefined,
     keywords: undefined,
 });
+
+// data for monetization selections
 
 const monetizationSelections = [
     {
@@ -65,6 +71,18 @@ const monetizationSelections = [
 const monetizationSelection = ref('');
 
 const changeMonetizationSelection = (value: string) => (monetizationSelection.value = value);
+
+// clear data when switching selection of dataset
+
+watch(selected, () => {
+    completeOrQuery.value = '';
+    monetizationSelection.value = '';
+    assetOfferingDetails.value = {
+        title: undefined,
+        description: undefined,
+        keywords: undefined,
+    };
+});
 </script>
 
 <template>
