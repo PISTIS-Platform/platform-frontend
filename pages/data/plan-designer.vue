@@ -90,12 +90,12 @@ const oneOffSaleDetails = ref({
 });
 
 const oneOffSaleSchema = z.object({
-    price: z.coerce
+    price: z
         .number({ invalid_type_error: 'Please enter a valid number' })
         .gte(0, 'Price must be 0 or a positive number'),
     license: z.string(),
     terms: z.string().min(20, 'Must be at least 20 characters'),
-    limitNumber: z.coerce
+    limitNumber: z
         .number({ invalid_type_error: 'Please enter a valid number' })
         .gte(0, 'Limit number must be 0 or a positive number'),
     limitFrequency: z.string(),
@@ -119,7 +119,7 @@ watch(selected, () => {
 </script>
 
 <template>
-    <div class="w-full h-full text-gray-700 text-sm">
+    <div class="w-full h-full text-gray-700">
         <Heading :title="$t('data.designer')" />
         <div class="flex gap-4 items-center mt-8">
             <USelectMenu
@@ -136,7 +136,16 @@ watch(selected, () => {
                 placeholder="Select / search for a dataset"
                 :options="selections"
             />
-            <UButton label="File Browser" @click="showFileBrowser = !showFileBrowser" />
+            <span
+                >or use
+                <a
+                    href="javascript:void(0)"
+                    label="File Browser"
+                    class="text-primary"
+                    @click="showFileBrowser = !showFileBrowser"
+                    >file browser</a
+                ></span
+            >
         </div>
 
         <Transition
@@ -270,7 +279,11 @@ watch(selected, () => {
                         :schema="oneOffSaleSchema"
                     >
                         <UFormGroup label="One-off Sale Price" required name="price" class="h-[75px]">
-                            <UInput v-model="oneOffSaleDetails.price" placeholder="Price of the asset" type="numeric">
+                            <UInput
+                                v-model.number="oneOffSaleDetails.price"
+                                placeholder="Price of the asset"
+                                type="numeric"
+                            >
                                 <template #trailing>
                                     <span class="text-gray-500 text-xs">STC</span>
                                 </template>
@@ -293,7 +306,7 @@ watch(selected, () => {
                         <div class="flex gap-4 items-start h-20">
                             <UFormGroup label="Download limit" required name="limitNumber" class="w-80">
                                 <UInput
-                                    v-model="oneOffSaleDetails.limitNumber"
+                                    v-model.number="oneOffSaleDetails.limitNumber"
                                     placeholder="number of times allowed"
                                     type="numeric"
                                 >

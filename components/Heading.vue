@@ -8,7 +8,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <h1 class="text-lg font-bold">
+    <h1 class="text-2xl font-bold">
         {{ props.title }}
     </h1>
 </template>
