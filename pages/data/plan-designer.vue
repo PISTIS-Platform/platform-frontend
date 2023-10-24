@@ -9,9 +9,9 @@ const selections = Object.keys(dummyData);
 
 const selected = ref<string>('');
 
-const changeSelection = (value: string) => (selected.value = value);
+const switchDatasetOpen = ref<boolean>(false);
 
-const showFileBrowser = ref<boolean>(false);
+const changeSelection = (value: string) => (selected.value = value);
 
 const filteredSelections = computed(() =>
     outerQuery.value ? selections.filter((selection: string) => selection.includes(outerQuery.value)) : selections,
@@ -108,6 +108,7 @@ const frequencySelections = ['per day', 'per week', 'per month', 'per year'];
 // clear data when switching selection of dataset
 
 watch(selected, () => {
+    switchDatasetOpen.value = false;
     completeOrQuery.value = '';
     monetizationSelection.value = '';
     assetOfferingDetails.value = {
@@ -123,46 +124,57 @@ watch(selected, () => {
         <Heading :title="$t('data.designer')" />
         <UCard class="mt-8">
             <template #header>
-                <SubHeading title="Dataset Selection" info="Select the dataset you wish to put on the market" />
-            </template>
-            <div class="flex gap-4 items-center">
-                <USelectMenu
-                    v-model="selected"
-                    icon="i-heroicons-magnifying-glass-20-solid"
-                    :searchable="
-                        (query: string) => {
-                            outerQuery = query;
-                            return selections.filter((selection: string) => selection.includes(query));
-                        }
-                    "
-                    searchable-placeholder="Search for a dataset..."
-                    class="w-full lg:w-72 relative"
-                    placeholder="Select / search for a dataset"
-                    :options="selections"
+                <SubHeading
+                    title="Dataset Selection"
+                    info="Search for and select the dataset you wish to put on the market"
                 />
-                <span
-                    >or use
-                    <a
-                        href="javascript:void(0)"
-                        label="File Browser"
-                        class="text-primary"
-                        @click="showFileBrowser = !showFileBrowser"
-                        >file browser</a
-                    ></span
-                >
-            </div>
+            </template>
+
+            <span
+                v-if="selected"
+                class="flex gap-2 items-center text-primary cursor-pointer w-60"
+                @click="switchDatasetOpen = true"
+            >
+                <UIcon name="i-heroicons-arrow-left-20-solid" class="h-5 w-5" /> Select a different dataset</span
+            >
+
+            <UModal v-model="switchDatasetOpen">
+                <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
+                    <p class="font-bold text-xl">Are you sure?</p>
+                    <p class="text-gray-400 mt-6">Any configuration you have made will be reset.</p>
+                    <div class="flex gap-8 w-full justify-center mt-6">
+                        <UButton color="white" class="w-20 flex justify-center" @click="switchDatasetOpen = false"
+                            >Cancel</UButton
+                        >
+                        <UButton class="w-20 flex justify-center" @click="selected = ''">Yes</UButton>
+                    </div>
+                </UCard>
+            </UModal>
+
+            <USelectMenu
+                v-if="!selected"
+                v-model="selected"
+                icon="i-heroicons-magnifying-glass-20-solid"
+                :searchable="
+                    (query: string) => {
+                        outerQuery = query;
+                        return selections.filter((selection: string) => selection.includes(query));
+                    }
+                "
+                searchable-placeholder="Search for a dataset..."
+                class="w-full relative"
+                placeholder="Select / search for a dataset"
+                :options="selections"
+            />
 
             <Transition
                 enter-active-class="duration-300 ease-out"
                 enter-from-class="transform opacity-0"
                 enter-to-class="opacity-100"
-                leave-active-class="duration-300 ease-in"
-                leave-from-class="opacity-100"
-                leave-to-class="transform opacity-0"
             >
                 <FileBrowser
-                    v-show="showFileBrowser"
-                    class="mt-8"
+                    v-if="!selected"
+                    class="mt-6"
                     :files="filteredSelections"
                     :selected="selected"
                     @selection-changed="changeSelection"
@@ -177,7 +189,7 @@ watch(selected, () => {
                 leave-from-class="opacity-100"
                 leave-to-class="transform opacity-0"
             >
-                <div v-if="selected" class="flex gap-4 mt-8 max-w-lg">
+                <div v-if="selected" class="flex gap-4 mt-8 w-full">
                     <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
                         <p>Asset Title:</p>
                         <p>Asset Description:</p>
@@ -216,31 +228,11 @@ watch(selected, () => {
             leave-to-class="transform opacity-0"
         >
             <UCard v-if="completeOrQuery" class="mt-8">
-                <div class="flex gap-4 items-center">
-                    <SubHeading title="FAIR Data Valuation Suggestions" info="Find out more here" />
-                    <a href="" class="text-xs text-primary-500 underline">Learn More</a>
-                </div>
-                <div class="mt-6">
-                    Suggested One-off Price: <span class="font-bold">{{ oneOffPrice }} STC</span>
-                </div>
-                <div class="mt-4">
-                    Suggested Subscription Price: <span class="font-bold">{{ subscriptionPrice }} STC</span>
-                </div>
-            </UCard>
-        </Transition>
-
-        <Transition
-            enter-active-class="duration-300 ease-out"
-            enter-from-class="transform opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="duration-300 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="transform opacity-0"
-        >
-            <UCard v-if="completeOrQuery" class="mt-8">
-                <SubHeading title="Asset Offering Details" info="Find out more here" />
+                <template #header>
+                    <SubHeading title="Asset Offering Details" info="Find out more here" />
+                </template>
                 <UForm
-                    class="flex flex-col gap-4 mt-6 w-[450px]"
+                    class="flex flex-col gap-4 mt-6 w-full"
                     :state="assetOfferingDetails"
                     :schema="assetOfferingSchema"
                 >
@@ -261,76 +253,106 @@ watch(selected, () => {
                         />
                     </UFormGroup>
                 </UForm>
-                <SubHeading class="mt-8" title="Monetization Method" info="Find out more here" />
+            </UCard>
+        </Transition>
 
-                <SelectionCards
-                    class="mt-6"
-                    :selections="monetizationSelections"
-                    :selected="monetizationSelection"
-                    @selection-changed="changeMonetizationSelection"
-                />
-                <Transition
-                    enter-active-class="duration-300 ease-out"
-                    enter-from-class="transform opacity-0"
-                    enter-to-class="opacity-100"
-                    leave-active-class="duration-300 ease-in"
-                    leave-from-class="opacity-100"
-                    leave-to-class="transform opacity-0"
+        <Transition
+            enter-active-class="duration-300 ease-out"
+            enter-from-class="transform opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="duration-300 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="transform opacity-0"
+        >
+            <UCard v-if="completeOrQuery" class="mt-8 bg-secondary-50 border-2 border-secondary-500">
+                <template #header>
+                    <div class="flex justify-between gap-4 items-start">
+                        <SubHeading title="FAIR Data Valuation Suggestions" info="Find out more here" />
+                        <a href="" class="text-xs text-primary-500 underline">Learn More</a>
+                    </div>
+                </template>
+
+                <div>
+                    Suggested One-off Price: <span class="font-bold">{{ oneOffPrice }} STC</span>
+                </div>
+                <div class="mt-4">
+                    Suggested Subscription Price: <span class="font-bold">{{ subscriptionPrice }} STC</span>
+                </div>
+            </UCard>
+        </Transition>
+
+        <UCard v-if="completeOrQuery" class="mt-8">
+            <template #header>
+                <SubHeading title="Monetization Method" info="Find out more here" />
+            </template>
+
+            <SelectionCards
+                class="mt-6"
+                :selections="monetizationSelections"
+                :selected="monetizationSelection"
+                @selection-changed="changeMonetizationSelection"
+            />
+            <Transition
+                enter-active-class="duration-300 ease-out"
+                enter-from-class="transform opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="duration-300 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="transform opacity-0"
+            >
+                <UForm
+                    v-if="monetizationSelection === 'One-off Sale'"
+                    class="flex flex-col gap-4 mt-6 w-full"
+                    :state="oneOffSaleDetails"
+                    :schema="oneOffSaleSchema"
                 >
-                    <UForm
-                        v-if="monetizationSelection === 'One-off Sale'"
-                        class="flex flex-col gap-4 mt-6 w-[450px]"
-                        :state="oneOffSaleDetails"
-                        :schema="oneOffSaleSchema"
-                    >
-                        <UFormGroup label="One-off Sale Price" required name="price" class="h-[75px]">
+                    <UFormGroup label="One-off Sale Price" required name="price" class="h-[75px]">
+                        <UInput
+                            v-model.number="oneOffSaleDetails.price"
+                            placeholder="Price of the asset"
+                            type="numeric"
+                        >
+                            <template #trailing>
+                                <span class="text-gray-500 text-xs">STC</span>
+                            </template>
+                        </UInput>
+                    </UFormGroup>
+                    <UFormGroup label="License" required name="license" class="h-[75px]">
+                        <USelectMenu
+                            v-model="oneOffSaleDetails.license"
+                            placeholder="Select a license"
+                            :options="licenseSelections"
+                        />
+                    </UFormGroup>
+                    <UFormGroup label="Terms and Conditions" required name="terms" class="h-[115px]">
+                        <UTextarea
+                            v-model="oneOffSaleDetails.terms"
+                            placeholder="Type the terms and conditions of your license here"
+                            icon="i-heroicons-envelope"
+                        />
+                    </UFormGroup>
+                    <div class="flex gap-4 items-start h-20 w-full">
+                        <UFormGroup label="Download limit" required name="limitNumber" class="w-full">
                             <UInput
-                                v-model.number="oneOffSaleDetails.price"
-                                placeholder="Price of the asset"
+                                v-model.number="oneOffSaleDetails.limitNumber"
+                                placeholder="number of times allowed"
                                 type="numeric"
                             >
                                 <template #trailing>
-                                    <span class="text-gray-500 text-xs">STC</span>
+                                    <span class="text-gray-500 text-xs">times</span>
                                 </template>
                             </UInput>
                         </UFormGroup>
-                        <UFormGroup label="License" required name="license" class="h-[75px]">
+                        <UFormGroup label="Frequency" required name="limitFrequency" class="w-full">
                             <USelectMenu
-                                v-model="oneOffSaleDetails.license"
-                                placeholder="Select a license"
-                                :options="licenseSelections"
+                                v-model="oneOffSaleDetails.limitFrequency"
+                                placeholder="Select a frequency"
+                                :options="frequencySelections"
                             />
                         </UFormGroup>
-                        <UFormGroup label="Terms and Conditions" required name="terms" class="h-[115px]">
-                            <UTextarea
-                                v-model="oneOffSaleDetails.terms"
-                                placeholder="Type the terms and conditions of your license here"
-                                icon="i-heroicons-envelope"
-                            />
-                        </UFormGroup>
-                        <div class="flex gap-4 items-start h-20">
-                            <UFormGroup label="Download limit" required name="limitNumber" class="w-80">
-                                <UInput
-                                    v-model.number="oneOffSaleDetails.limitNumber"
-                                    placeholder="number of times allowed"
-                                    type="numeric"
-                                >
-                                    <template #trailing>
-                                        <span class="text-gray-500 text-xs">times</span>
-                                    </template>
-                                </UInput>
-                            </UFormGroup>
-                            <UFormGroup label="Frequency" required name="limitFrequency" class="w-48">
-                                <USelectMenu
-                                    v-model="oneOffSaleDetails.limitFrequency"
-                                    placeholder="Select a frequency"
-                                    :options="frequencySelections"
-                                />
-                            </UFormGroup>
-                        </div>
-                    </UForm>
-                </Transition>
-            </UCard>
-        </Transition>
+                    </div>
+                </UForm>
+            </Transition>
+        </UCard>
     </div>
 </template>

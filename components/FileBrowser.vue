@@ -20,7 +20,7 @@ watch(innerSelected, () => {
 </script>
 
 <template>
-    <UCard>
+    <UCard class="bg-primary-50 bg-opacity-30">
         <div class="w-full h-96">
             <div
                 class="w-full flex flex-row flex-wrap gap-y-5 gap-x-2 md:gap-x-4 xl:gap-x-5 overflow-y-auto max-h-96 items-start"
@@ -29,8 +29,8 @@ watch(innerSelected, () => {
                     v-for="file in files"
                     :key="file"
                     :class="[
-                        'w-24 flex flex-col gap-2 justify-center items-center cursor-pointer p-2 rounded-xl border-2 border-gray-500 border-opacity-0',
-                        file === innerSelected ? 'bg-gray-100 border-opacity-50' : 'border-opacity-0',
+                        'w-24 flex flex-col gap-2 justify-center items-center cursor-pointer p-2 rounded-xl border-2 border-primary-500 border-opacity-0',
+                        file === innerSelected ? 'bg-primary-50 border-opacity-100' : 'border-opacity-0',
                     ]"
                     @click="$emit('selection-changed', file)"
                 >

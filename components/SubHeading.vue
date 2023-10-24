@@ -13,12 +13,12 @@ const props = defineProps({
 </script>
 
 <template>
-    <span class="flex gap-3 items-center">
+    <span class="flex flex-col gap-2 items-start justify-center">
         <h3 class="text-base font-semibold">
             {{ props.title }}
         </h3>
-        <UTooltip v-if="props.info" :text="props.info">
-            <UIcon name="i-formkit-info" class="w-4 h-4" />
-        </UTooltip>
+        <h4 class="text-sm text-gray-400">
+            {{ props.info }}
+        </h4>
     </span>
 </template>

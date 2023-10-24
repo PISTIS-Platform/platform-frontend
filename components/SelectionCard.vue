@@ -11,7 +11,7 @@ const props = defineProps({
     width: {
         type: String,
         required: false,
-        default: 'w-52',
+        default: 'w-full',
     },
     selected: {
         type: Boolean,
@@ -25,16 +25,19 @@ const props = defineProps({
     <div>
         <UCard
             :class="[
-                'relative text-gray-600 text-base',
-                props.selected ? 'bg-primary-500 text-white' : '',
+                'relative text-gray-600 text-base border-2 border-gray-400',
+                props.selected ? 'border-primary-500 border-2 border-opacity-100' : 'border-opacity-30',
                 props.width,
             ]"
         >
-            <div :class="['h-14 cursor-pointer flex items-center justify-center']">
-                <p class="font-semibold">{{ props.title }}</p>
-                <UTooltip :text="props.info" class="absolute top-1 right-1">
-                    <UIcon name="i-formkit-info" class="w-4 h-4" />
-                </UTooltip>
+            <div :class="['h-10 cursor-pointer flex items-center justify-between w-full']">
+                <div class="flex flex-col gap-2 items-start">
+                    <p class="font-semibold">{{ props.title }}</p>
+                    <p class="text-sm text-gray-500">{{ props.info }}</p>
+                </div>
+                <div v-show="props.selected">
+                    <UIcon name="i-heroicons-check-circle-20-solid" class="w-6 h-6 text-primary mt-1" />
+                </div>
             </div>
         </UCard>
     </div>

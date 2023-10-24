@@ -7,7 +7,7 @@ const props = defineProps({
     width: {
         type: String,
         required: false,
-        default: 'w-52',
+        default: 'w-full',
     },
     selected: {
         type: String,
@@ -25,7 +25,7 @@ watch(innerSelected, () => {
 </script>
 
 <template>
-    <div class="flex gap-8">
+    <div class="flex flex-col gap-4 w-full b">
         <SelectionCard
             v-for="item in props.selections"
             :key="item.title"
