@@ -121,86 +121,91 @@ watch(selected, () => {
 <template>
     <div class="w-full h-full text-gray-700">
         <Heading :title="$t('data.designer')" />
-        <div class="flex gap-4 items-center mt-8">
-            <USelectMenu
-                v-model="selected"
-                icon="i-heroicons-magnifying-glass-20-solid"
-                :searchable="
-                    (query: string) => {
-                        outerQuery = query;
-                        return selections.filter((selection: string) => selection.includes(query));
-                    }
-                "
-                searchable-placeholder="Search for a dataset..."
-                class="w-full lg:w-72 relative"
-                placeholder="Select / search for a dataset"
-                :options="selections"
-            />
-            <span
-                >or use
-                <a
-                    href="javascript:void(0)"
-                    label="File Browser"
-                    class="text-primary"
-                    @click="showFileBrowser = !showFileBrowser"
-                    >file browser</a
-                ></span
-            >
-        </div>
-
-        <Transition
-            enter-active-class="duration-300 ease-out"
-            enter-from-class="transform opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="duration-300 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="transform opacity-0"
-        >
-            <FileBrowser
-                v-show="showFileBrowser"
-                class="mt-8"
-                :files="filteredSelections"
-                :selected="selected"
-                @selection-changed="changeSelection"
-            />
-        </Transition>
-
-        <Transition
-            enter-active-class="duration-300 ease-out"
-            enter-from-class="transform opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="duration-300 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="transform opacity-0"
-        >
-            <div v-if="selected" class="flex gap-4 mt-8 max-w-lg text-sm">
-                <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
-                    <p>Asset Title:</p>
-                    <p>Asset Description:</p>
-                </div>
-                <div class="flex flex-col items-start justify-start gap-4">
-                    <p class="font-bold">{{ selected }}</p>
-                    <p>{{ dummyData[selected].description }}</p>
-                </div>
+        <UCard class="mt-8">
+            <template #header>
+                <SubHeading title="Dataset Selection" info="Select the dataset you wish to put on the market" />
+            </template>
+            <div class="flex gap-4 items-center">
+                <USelectMenu
+                    v-model="selected"
+                    icon="i-heroicons-magnifying-glass-20-solid"
+                    :searchable="
+                        (query: string) => {
+                            outerQuery = query;
+                            return selections.filter((selection: string) => selection.includes(query));
+                        }
+                    "
+                    searchable-placeholder="Search for a dataset..."
+                    class="w-full lg:w-72 relative"
+                    placeholder="Select / search for a dataset"
+                    :options="selections"
+                />
+                <span
+                    >or use
+                    <a
+                        href="javascript:void(0)"
+                        label="File Browser"
+                        class="text-primary"
+                        @click="showFileBrowser = !showFileBrowser"
+                        >file browser</a
+                    ></span
+                >
             </div>
-        </Transition>
 
-        <Transition
-            enter-active-class="duration-300 ease-out"
-            enter-from-class="transform opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="duration-300 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="transform opacity-0"
-        >
-            <SelectionCards
-                v-if="selected"
-                class="mt-8"
-                :selections="dataSetSelections"
-                :selected="completeOrQuery"
-                @selection-changed="changeDataSetSelection"
-            />
-        </Transition>
+            <Transition
+                enter-active-class="duration-300 ease-out"
+                enter-from-class="transform opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="duration-300 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="transform opacity-0"
+            >
+                <FileBrowser
+                    v-show="showFileBrowser"
+                    class="mt-8"
+                    :files="filteredSelections"
+                    :selected="selected"
+                    @selection-changed="changeSelection"
+                />
+            </Transition>
+
+            <Transition
+                enter-active-class="duration-300 ease-out"
+                enter-from-class="transform opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="duration-300 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="transform opacity-0"
+            >
+                <div v-if="selected" class="flex gap-4 mt-8 max-w-lg">
+                    <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
+                        <p>Asset Title:</p>
+                        <p>Asset Description:</p>
+                    </div>
+                    <div class="flex flex-col items-start justify-start gap-4">
+                        <p class="font-bold">{{ selected }}</p>
+                        <p>{{ dummyData[selected].description }}</p>
+                    </div>
+                </div>
+            </Transition>
+
+            <Transition
+                enter-active-class="duration-300 ease-out"
+                enter-from-class="transform opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="duration-300 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="transform opacity-0"
+            >
+                <SelectionCards
+                    v-if="selected"
+                    class="mt-8"
+                    :selections="dataSetSelections"
+                    :selected="completeOrQuery"
+                    @selection-changed="changeDataSetSelection"
+                />
+            </Transition>
+        </UCard>
 
         <Transition
             enter-active-class="duration-300 ease-out"
