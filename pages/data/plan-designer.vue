@@ -121,7 +121,9 @@ watch(selected, () => {
 
 <template>
     <div class="w-full h-full text-gray-700">
-        <Heading :title="$t('data.designer')" />
+        <h1 class="text-2xl font-bold">
+            {{ $t('data.designer') }}
+        </h1>
         <UCard class="mt-8">
             <template #header>
                 <SubHeading
