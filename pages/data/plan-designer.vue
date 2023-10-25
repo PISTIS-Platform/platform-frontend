@@ -213,9 +213,9 @@ watch(selected, () => {
             >
                 <SelectionCards
                     v-if="selected"
+                    v-model="completeOrQuery"
                     class="mt-8"
                     :selections="dataSetSelections"
-                    :selected="completeOrQuery"
                     @selection-changed="changeDataSetSelection"
                 />
             </Transition>
@@ -285,8 +285,8 @@ watch(selected, () => {
             </template>
 
             <SelectionCards
+                v-model="monetizationSelection"
                 :selections="monetizationSelections"
-                :selected="monetizationSelection"
                 @selection-changed="changeMonetizationSelection"
             />
             <Transition
