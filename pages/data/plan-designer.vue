@@ -231,22 +231,18 @@ watch(selected, () => {
                 <template #header>
                     <SubHeading title="Asset Offering Details" info="Find out more here" />
                 </template>
-                <UForm
-                    class="flex flex-col gap-4 mt-6 w-full"
-                    :state="assetOfferingDetails"
-                    :schema="assetOfferingSchema"
-                >
-                    <UFormGroup label="Title" required name="title" class="h-[75px]">
+                <UForm class="flex flex-col gap-4 w-full" :state="assetOfferingDetails" :schema="assetOfferingSchema">
+                    <UFormGroup label="Title" required name="title">
                         <UInput v-model="assetOfferingDetails.title" placeholder="Title of the asset" />
                     </UFormGroup>
-                    <UFormGroup label="Description" required name="description" class="h-[115px]">
+                    <UFormGroup label="Description" required name="description">
                         <UTextarea
                             v-model="assetOfferingDetails.description"
                             placeholder="Type a description for the asset here"
                             icon="i-heroicons-envelope"
                         />
                     </UFormGroup>
-                    <UFormGroup label="Keywords" required name="keywords" class="h-[75px]">
+                    <UFormGroup label="Keywords" required name="keywords">
                         <UInput
                             v-model="assetOfferingDetails.keywords"
                             placeholder="Type keywords separated by commas"
@@ -264,7 +260,7 @@ watch(selected, () => {
             leave-from-class="opacity-100"
             leave-to-class="transform opacity-0"
         >
-            <UCard v-if="completeOrQuery" class="mt-8 bg-secondary-50 border-2 border-secondary-500">
+            <UCard v-if="completeOrQuery" class="mt-8 bg-secondary-50 border border-secondary-500">
                 <template #header>
                     <div class="flex justify-between gap-4 items-start">
                         <SubHeading title="FAIR Data Valuation Suggestions" info="Find out more here" />
@@ -287,7 +283,6 @@ watch(selected, () => {
             </template>
 
             <SelectionCards
-                class="mt-6"
                 :selections="monetizationSelections"
                 :selected="monetizationSelection"
                 @selection-changed="changeMonetizationSelection"
@@ -306,7 +301,7 @@ watch(selected, () => {
                     :state="oneOffSaleDetails"
                     :schema="oneOffSaleSchema"
                 >
-                    <UFormGroup label="One-off Sale Price" required name="price" class="h-[75px]">
+                    <UFormGroup label="One-off Sale Price" required name="price">
                         <UInput
                             v-model.number="oneOffSaleDetails.price"
                             placeholder="Price of the asset"
@@ -317,14 +312,14 @@ watch(selected, () => {
                             </template>
                         </UInput>
                     </UFormGroup>
-                    <UFormGroup label="License" required name="license" class="h-[75px]">
+                    <UFormGroup label="License" required name="license">
                         <USelectMenu
                             v-model="oneOffSaleDetails.license"
                             placeholder="Select a license"
                             :options="licenseSelections"
                         />
                     </UFormGroup>
-                    <UFormGroup label="Terms and Conditions" required name="terms" class="h-[115px]">
+                    <UFormGroup label="Terms and Conditions" required name="terms">
                         <UTextarea
                             v-model="oneOffSaleDetails.terms"
                             placeholder="Type the terms and conditions of your license here"

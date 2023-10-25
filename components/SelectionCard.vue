@@ -23,15 +23,9 @@ const props = defineProps({
 
 <template>
     <div>
-        <UCard
-            :class="[
-                'relative text-gray-600 text-base border-2 border-gray-400',
-                props.selected ? 'border-primary-500 border-2 border-opacity-100' : 'border-opacity-30',
-                props.width,
-            ]"
-        >
+        <UCard :class="['relative text-gray-600', props.selected ? 'ring-2 ring-primary-500' : '', props.width]">
             <div :class="['h-10 cursor-pointer flex items-center justify-between w-full']">
-                <div class="flex flex-col gap-2 items-start">
+                <div class="flex flex-col gap-0.5 items-start">
                     <p class="font-semibold">{{ props.title }}</p>
                     <p class="text-sm text-gray-400">{{ props.info }}</p>
                 </div>

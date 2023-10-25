@@ -13,7 +13,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <span class="flex flex-col gap-2 items-start justify-center">
+    <span class="flex flex-col gap-0.5 items-start justify-center">
         <h3 class="text-base font-semibold">
             {{ props.title }}
         </h3>
