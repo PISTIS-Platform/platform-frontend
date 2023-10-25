@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps({
     selections: {
-        type: Array,
+        type: Array<{ title: string; info: string }>,
         required: true,
     },
     width: {
