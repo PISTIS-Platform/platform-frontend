@@ -26,7 +26,18 @@ export default defineI18nConfig(() => ({
             data: {
                 data: 'My Data',
                 wallet: 'My Wallet',
+                designer: 'Purchase / Subscription Plan Designer',
                 log: 'Data Log',
+            },
+            market: {
+                market: 'PISTIS Market',
+                store: 'Store',
+                log: 'Log',
+            },
+            transactions: {
+                transactions: 'My Transactions',
+                details: 'Details',
+                overview: 'Overview',
             },
             user: {
                 profile: 'Your Profile',

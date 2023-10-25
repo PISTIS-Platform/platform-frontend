@@ -18,6 +18,8 @@ const user = {
 const navigation = [
     { name: 'home.home', to: '/home' },
     { name: 'data.data', to: '/data' },
+    { name: 'transactions.transactions', to: '/transactions' },
+    { name: 'market.market', to: '/market' },
 ];
 
 const userNavigation = [
@@ -30,7 +32,7 @@ const userNavigation = [
 <template>
     <div class="h-full flex flex-col">
         <Disclosure v-slot="{ open }" as="nav" class="bg-primary-700 sticky top-0 z-20">
-            <div class="mx-auto px-8">
+            <div class="mx-auto px-8 max-w-6xl">
                 <div class="flex h-16 items-center justify-between">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">

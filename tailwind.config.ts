@@ -1,5 +1,6 @@
 import TailwindForms from '@tailwindcss/forms';
 import type { Config } from 'tailwindcss';
+import colors from 'tailwindcss/colors';
 import { fontFamily } from 'tailwindcss/defaultTheme';
 
 export default {
@@ -20,6 +21,7 @@ export default {
                     '900': '#3b2b84',
                     '950': '#24194d',
                 },
+                secondary: colors.orange,
             },
             fontFamily: {
                 sans: ['Inter var', ...fontFamily.sans],

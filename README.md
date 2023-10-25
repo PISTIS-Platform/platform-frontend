@@ -58,7 +58,7 @@ The majority of the configuration happens within `nuxt.config.ts` - you can lear
 ### Folder Structure
 
 The main layout/menu (blue bar) exists under `layouts/default.vue`.
-The secondary/shell layout/menu (white bar) is under `components/shell-layout.vue`.
+The secondary/shell layout/menu (white bar) is under `components/ShellLayout.vue`.
 As these files will be utilized by everyone, to avoid code conflicts or conflicting opinions, please contact Suite5 for any requests/issues found.
 
 The main pages (directories that correspond to the main menu

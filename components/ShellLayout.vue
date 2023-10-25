@@ -11,8 +11,8 @@ defineProps<{
 
 <template>
     <div class="flex flex-col flex-1">
-        <Disclosure as="nav" class="bg-white shadow-sm sticky top-0 z-0">
-            <div class="mx-auto px-2">
+        <Disclosure as="nav" class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="mx-auto px-2 max-w-6xl">
                 <div class="flex h-12 justify-start">
                     <div class="flex">
                         <div class="-my-px ml-6 flex space-x-8">
@@ -33,7 +33,7 @@ defineProps<{
             </div>
         </Disclosure>
 
-        <div class="py-6 justify-center items-center px-8 flex flex-col flex-1">
+        <div class="py-6 justify-center items-center px-8 flex flex-col flex-1 max-w-6xl mx-auto w-full">
             <slot />
         </div>
     </div>
