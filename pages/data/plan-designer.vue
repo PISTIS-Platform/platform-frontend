@@ -11,8 +11,6 @@ const selected = ref<string>('');
 
 const switchDatasetOpen = ref<boolean>(false);
 
-const changeSelection = (value: string) => (selected.value = value);
-
 const filteredSelections = computed(() =>
     outerQuery.value ? selections.filter((selection: string) => selection.includes(outerQuery.value)) : selections,
 );
@@ -22,8 +20,6 @@ const outerQuery = ref('');
 //data for selection whole dataset or query
 
 const completeOrQuery = ref('');
-
-const changeDataSetSelection = (value: string) => (completeOrQuery.value = value);
 
 const dataSetSelections = [
     {
@@ -77,8 +73,6 @@ const monetizationSelections = [
 ];
 
 const monetizationSelection = ref('');
-
-const changeMonetizationSelection = (value: string) => (monetizationSelection.value = value);
 
 // one-off sale details
 const oneOffSaleDetails = ref({
@@ -174,13 +168,7 @@ watch(selected, () => {
                 enter-from-class="transform opacity-0"
                 enter-to-class="opacity-100"
             >
-                <FileBrowser
-                    v-if="!selected"
-                    class="mt-6"
-                    :files="filteredSelections"
-                    :selected="selected"
-                    @selection-changed="changeSelection"
-                />
+                <FileBrowser v-if="!selected" v-model="selected" class="mt-6" :files="filteredSelections" />
             </Transition>
 
             <Transition
@@ -216,7 +204,6 @@ watch(selected, () => {
                     v-model="completeOrQuery"
                     class="mt-8"
                     :selections="dataSetSelections"
-                    @selection-changed="changeDataSetSelection"
                 />
             </Transition>
         </UCard>
@@ -284,11 +271,7 @@ watch(selected, () => {
                 <SubHeading title="Monetization Method" info="Find out more here" />
             </template>
 
-            <SelectionCards
-                v-model="monetizationSelection"
-                :selections="monetizationSelections"
-                @selection-changed="changeMonetizationSelection"
-            />
+            <SelectionCards v-model="monetizationSelection" :selections="monetizationSelections" />
             <Transition
                 enter-active-class="duration-300 ease-out"
                 enter-from-class="transform opacity-0"

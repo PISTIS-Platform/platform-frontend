@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps({
     selections: {
-        type: Array<any>,
+        type: Array,
         required: true,
     },
     width: {
@@ -15,7 +15,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['selection-changed']);
+const emit = defineEmits(['update:modelValue']);
 </script>
 
 <template>
@@ -27,7 +27,7 @@ const emit = defineEmits(['selection-changed']);
             :info="item.info"
             :selected="modelValue === item.title"
             :width="props.width"
-            @click="emit('selection-changed', item.title)"
+            @click="emit('update:modelValue', item.title)"
         />
     </div>
 </template>

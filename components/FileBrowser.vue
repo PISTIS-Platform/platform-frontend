@@ -4,19 +4,13 @@ const props = defineProps({
         type: Array<string>,
         required: true,
     },
-    selected: {
+    modelValue: {
         type: String,
         required: true,
     },
 });
 
-const innerSelected = computed(() => props.selected);
-
-const emit = defineEmits(['selection-changed']);
-
-watch(innerSelected, () => {
-    emit('selection-changed', innerSelected.value);
-});
+const emit = defineEmits(['update:modelValue']);
 </script>
 
 <template>
@@ -26,13 +20,13 @@ watch(innerSelected, () => {
                 class="w-full flex flex-row flex-wrap gap-y-5 gap-x-2 md:gap-x-4 xl:gap-x-5 overflow-y-auto max-h-96 items-start"
             >
                 <div
-                    v-for="file in files"
+                    v-for="file in props.files"
                     :key="file"
                     :class="[
                         'w-24 flex flex-col gap-2 justify-center items-center cursor-pointer p-2 rounded-xl border-2 border-primary-500 border-opacity-0',
-                        file === innerSelected ? 'bg-primary-50 border-opacity-100' : 'border-opacity-0',
+                        file === modelValue ? 'bg-primary-50 border-opacity-100' : 'border-opacity-0',
                     ]"
-                    @click="$emit('selection-changed', file)"
+                    @click="emit('update:modelValue', file)"
                 >
                     <UIcon name="i-fa6-regular-file-lines" class="w-16 h-16 text-gray-500" />
                     <p class="text-xs text-gray-600">{{ file }}</p>
