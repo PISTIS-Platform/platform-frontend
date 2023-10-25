@@ -57,7 +57,45 @@ const emit = defineEmits(['reset', 'update:title', 'update:description', 'update
                         @update:model-value="(value: string[]) => emit('update:keywords', value)"
                     />
                 </UFormGroup>
+                <vue3-tags-input
+                    :tags="$props.assetOfferingDetails.keywords"
+                    placeholder="enter some tags"
+                    @on-tags-changed="(value: string[]) => emit('update:keywords', value)"
+                />
             </UForm>
         </UCard>
     </Transition>
 </template>
+
+<style scoped lang="css">
+.v3ti .v3ti-tag {
+    background: #705df7;
+    height: 30px;
+}
+
+.v3ti {
+    border: solid 1px #b1b1b199;
+    border-radius: 6px;
+    height: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    padding: 0px 0px 0px 0px;
+}
+
+.v3ti--focus {
+    outline: none;
+    box-shadow: none;
+    --tw-ring-color: white;
+}
+
+.v3ti .v3ti-tag .v3ti-remove-tag {
+    color: #fff;
+    transition: color 0.3s;
+}
+
+.v3ti .v3ti-tag .v3ti-remove-tag:hover {
+    color: #ffffff;
+}
+</style>
