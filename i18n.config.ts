@@ -28,6 +28,10 @@ export default defineI18nConfig(() => ({
                 wallet: 'My Wallet',
                 designer: 'Purchase / Subscription Plan Designer',
                 log: 'Data Log',
+                dmRepository: {
+                    title: 'Data Model Repository',
+                    dmAddTitle: 'Add Data Model Repository',
+                },
             },
             market: {
                 market: 'PISTIS Market',
