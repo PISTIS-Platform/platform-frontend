@@ -101,8 +101,8 @@ const frequencySelections = ['per day', 'per week', 'per month', 'per year'];
 
 // clear data when switching selection of dataset
 
-watch(selected, () => {
-    switchDatasetOpen.value = false;
+const reset = () => {
+    (selected.value = ''), (switchDatasetOpen.value = false);
     completeOrQuery.value = '';
     monetizationSelection.value = '';
     assetOfferingDetails.value = {
@@ -110,7 +110,7 @@ watch(selected, () => {
         description: undefined,
         keywords: undefined,
     };
-});
+};
 </script>
 
 <template>
@@ -142,7 +142,7 @@ watch(selected, () => {
                         <UButton color="white" class="w-20 flex justify-center" @click="switchDatasetOpen = false"
                             >Cancel</UButton
                         >
-                        <UButton class="w-20 flex justify-center" @click="selected = ''">Yes</UButton>
+                        <UButton class="w-20 flex justify-center" @click="reset">Yes</UButton>
                     </div>
                 </UCard>
             </UModal>
