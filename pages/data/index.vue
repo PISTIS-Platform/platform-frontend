@@ -1,3 +1,89 @@
+<script setup lang="ts">
+import { transactionsDummyData } from './transactions-data';
+
+//cards info data
+const cardInfoData = computed(() => [
+    {
+        title: 'My Balance',
+        iconName: 'i-heroicons-currency-dollar-20-solid',
+        amount: '3500',
+    },
+    {
+        title: 'Monthly Expenses',
+        iconName: 'i-heroicons-briefcase-solid',
+        amount: '-1000',
+    },
+    {
+        title: 'Monthly Income',
+        iconName: 'i-heroicons-banknotes-20-solid',
+        amount: '+800',
+    },
+]);
+
+//transactions data
+const transactions = computed(() => transactionsDummyData);
+
+const transactionsColumns = [
+    {
+        key: 'id',
+        label: 'ID',
+        sortable: true,
+    },
+    {
+        key: 'date',
+        label: 'Date',
+        sortable: true,
+        direction: 'desc',
+    },
+    {
+        key: 'type',
+        label: 'Type',
+        sortable: true,
+    },
+    {
+        key: 'amount',
+        label: 'Amount',
+        sortable: true,
+    },
+    {
+        key: 'from',
+        label: 'Buyer',
+        sortable: true,
+    },
+    {
+        key: 'to',
+        label: 'Seller',
+        sortable: true,
+    },
+];
+const page = ref(1);
+const pageCount = 2;
+
+const transactionsRows = computed(() => {
+    return transactions.value.slice((page.value - 1) * pageCount, page.value * pageCount);
+});
+</script>
 <template>
-    <div class="w-full h-full placeholder_rect"></div>
+    <div class="w-full h-full text-gray-700">
+        <Heading :title="$t('data.wallet')" />
+
+        <!-- Cards Info -->
+        <div class="flex flex-row gap-8 w-full mt-8">
+            <UCard v-for="card in cardInfoData" :key="card.title" class="w-1/3">
+                <CardContent :title="card.title" :amount="card.amount" :icon-name="card.iconName" />
+            </UCard>
+        </div>
+
+        <Heading :title="$t('transactions.transactions')" class="mt-8" />
+
+        <!-- Transactions -->
+        <div class="flex flex-col w-full mt-8">
+            <UTable :columns="transactionsColumns" :rows="transactionsRows" />
+
+            <!-- Display the pagination only if the total number of transactions is larger than the page count -->
+            <div v-if="transactions.length > pageCount" class="flex justify-end">
+                <UPagination v-model="page" :page-count="pageCount" :total="transactions.length" />
+            </div>
+        </div>
+    </div>
 </template>
