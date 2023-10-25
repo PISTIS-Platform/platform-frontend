@@ -67,35 +67,34 @@ const emit = defineEmits(['reset', 'update:title', 'update:description', 'update
     </Transition>
 </template>
 
-<style scoped lang="css">
+<style lang="css">
 .v3ti .v3ti-tag {
     background: #705df7;
-    height: 30px;
+    height: 24px !important;
+    /*border: 1px solid #222222;*/
+    /*border-radius: 0;*/
 }
 
+.v3ti .v3ti-tag .v3ti-remove-tag {
+    color: #000000;
+    transition: color 0.3s;
+}
+
+.v3ti-new-tag {
+    border: none;
+}
+
+.v3ti .v3ti-tag .v3ti-remove-tag:hover {
+    color: #ffffff;
+}
 .v3ti {
     border: solid 1px #b1b1b199;
     border-radius: 6px;
     height: 20px;
     display: flex;
     flex-direction: row;
-    justify-content: start;
+    justify-content: flex-start;
     align-items: center;
     padding: 0px 0px 0px 0px;
-}
-
-.v3ti--focus {
-    outline: none;
-    box-shadow: none;
-    --tw-ring-color: white;
-}
-
-.v3ti .v3ti-tag .v3ti-remove-tag {
-    color: #fff;
-    transition: color 0.3s;
-}
-
-.v3ti .v3ti-tag .v3ti-remove-tag:hover {
-    color: #ffffff;
 }
 </style>
