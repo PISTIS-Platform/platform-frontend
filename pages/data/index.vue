@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { transactionsDummyData } from './transactions-data';
+import { transactionsDummyData } from './transactions-dummy-data';
 
 //cards info data
 const cardInfoData = computed(() => [
