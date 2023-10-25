@@ -10,7 +10,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:model-value']);
 </script>
 
 <template>
@@ -26,7 +26,7 @@ const emit = defineEmits(['update:modelValue']);
                         'w-24 flex flex-col gap-2 justify-center items-center cursor-pointer p-2 rounded-xl border-2 border-primary-500 border-opacity-0',
                         file === modelValue ? 'bg-primary-50 border-opacity-100' : 'border-opacity-0',
                     ]"
-                    @click="emit('update:modelValue', file)"
+                    @click="emit('update:model-value', file)"
                 >
                     <UIcon name="i-fa6-regular-file-lines" class="w-16 h-16 text-gray-500" />
                     <p class="text-xs text-gray-600">{{ file }}</p>

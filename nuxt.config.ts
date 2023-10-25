@@ -2,6 +2,12 @@
 export default defineNuxtConfig({
     ssr: false, // Disable server-side rendering
     telemetry: false, // Disable telemetry by Nuxt team
+    components: [
+        {
+            path: '~/components',
+            pathPrefix: false,
+        },
+    ],
     devtools: { enabled: true },
     ui: {
         icons: ['heroicons', 'fa6-regular', 'formkit'],

@@ -15,7 +15,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:model-value']);
 </script>
 
 <template>
@@ -27,7 +27,7 @@ const emit = defineEmits(['update:modelValue']);
             :info="item.info"
             :selected="modelValue === item.title"
             :width="props.width"
-            @click="emit('update:modelValue', item.title)"
+            @click="emit('update:model-value', item.title)"
         />
     </div>
 </template>

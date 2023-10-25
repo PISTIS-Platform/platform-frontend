@@ -1,36 +1,13 @@
 <script setup lang="ts">
 import { z } from 'zod';
 
-import dummyData from './dummy-data';
+//data for selected dataset
 
-//data for selecting specific dataset
-
-const selections = Object.keys(dummyData);
-
-const selected = ref<string>('');
-
-const switchDatasetOpen = ref<boolean>(false);
-
-const filteredSelections = computed(() =>
-    outerQuery.value ? selections.filter((selection: string) => selection.includes(outerQuery.value)) : selections,
-);
-
-const outerQuery = ref('');
+const selected = ref('');
 
 //data for selection whole dataset or query
 
 const completeOrQuery = ref('');
-
-const dataSetSelections = [
-    {
-        title: 'Complete Dataset',
-        info: 'Select the complete dataset',
-    },
-    {
-        title: 'Query / Filter',
-        info: 'Select a subset of the dataset',
-    },
-];
 
 // FAIR data valuation suggestions data
 
@@ -40,15 +17,9 @@ const subscriptionPrice = ref(20);
 // data for asset offering details
 
 const assetOfferingDetails = ref({
-    title: undefined,
-    description: undefined,
-    keywords: undefined,
-});
-
-const assetOfferingSchema = z.object({
-    title: z.string().min(10, 'Must be at least 10 characters'),
-    description: z.string().min(20, 'Must be at least 20 characters'),
-    keywords: z.string(),
+    title: '',
+    description: '',
+    keywords: [],
 });
 
 // data for monetization selections
@@ -102,13 +73,14 @@ const frequencySelections = ['per day', 'per week', 'per month', 'per year'];
 // clear data when switching selection of dataset
 
 const reset = () => {
-    (selected.value = ''), (switchDatasetOpen.value = false);
+    console.log('RESET');
+    selected.value = '';
     completeOrQuery.value = '';
     monetizationSelection.value = '';
     assetOfferingDetails.value = {
-        title: undefined,
-        description: undefined,
-        keywords: undefined,
+        title: '',
+        description: '',
+        keywords: [],
     };
 };
 </script>
@@ -118,128 +90,22 @@ const reset = () => {
         <h1 class="text-2xl font-bold">
             {{ $t('data.designer') }}
         </h1>
-        <UCard class="mt-8">
-            <template #header>
-                <SubHeading
-                    title="Dataset Selection"
-                    info="Search for and select the dataset you wish to put on the market"
-                />
-            </template>
 
-            <span
-                v-if="selected"
-                class="flex gap-2 items-center text-primary cursor-pointer w-60"
-                @click="switchDatasetOpen = true"
-            >
-                <UIcon name="i-heroicons-arrow-left-20-solid" class="h-5 w-5" /> Select a different dataset</span
-            >
+        <DatasetSelector
+            :selected="selected"
+            :complete-or-query="completeOrQuery"
+            @update:selected="(value: string) => (selected = value)"
+            @update:complete-or-query="(value: string) => (completeOrQuery = value)"
+            @reset="reset"
+        />
 
-            <UModal v-model="switchDatasetOpen">
-                <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
-                    <p class="font-bold text-xl">Are you sure?</p>
-                    <p class="text-gray-400 mt-6">Any configuration you have made will be reset.</p>
-                    <div class="flex gap-8 w-full justify-center mt-6">
-                        <UButton color="white" class="w-20 flex justify-center" @click="switchDatasetOpen = false"
-                            >Cancel</UButton
-                        >
-                        <UButton class="w-20 flex justify-center" @click="reset">Yes</UButton>
-                    </div>
-                </UCard>
-            </UModal>
-
-            <USelectMenu
-                v-if="!selected"
-                v-model="selected"
-                icon="i-heroicons-magnifying-glass-20-solid"
-                :searchable="
-                    (query: string) => {
-                        outerQuery = query;
-                        return selections.filter((selection: string) => selection.includes(query));
-                    }
-                "
-                searchable-placeholder="Search for a dataset..."
-                class="w-full relative"
-                placeholder="Select / search for a dataset"
-                :options="selections"
-            />
-
-            <Transition
-                enter-active-class="duration-300 ease-out"
-                enter-from-class="transform opacity-0"
-                enter-to-class="opacity-100"
-            >
-                <FileBrowser v-if="!selected" v-model="selected" class="mt-6" :files="filteredSelections" />
-            </Transition>
-
-            <Transition
-                enter-active-class="duration-300 ease-out"
-                enter-from-class="transform opacity-0"
-                enter-to-class="opacity-100"
-                leave-active-class="duration-300 ease-in"
-                leave-from-class="opacity-100"
-                leave-to-class="transform opacity-0"
-            >
-                <div v-if="selected" class="flex gap-4 mt-8 w-full">
-                    <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
-                        <p>Asset Title:</p>
-                        <p>Asset Description:</p>
-                    </div>
-                    <div class="flex flex-col items-start justify-start gap-4">
-                        <p class="font-bold">{{ selected }}</p>
-                        <p>{{ dummyData[selected].description }}</p>
-                    </div>
-                </div>
-            </Transition>
-
-            <Transition
-                enter-active-class="duration-300 ease-out"
-                enter-from-class="transform opacity-0"
-                enter-to-class="opacity-100"
-                leave-active-class="duration-300 ease-in"
-                leave-from-class="opacity-100"
-                leave-to-class="transform opacity-0"
-            >
-                <SelectionCards
-                    v-if="selected"
-                    v-model="completeOrQuery"
-                    class="mt-8"
-                    :selections="dataSetSelections"
-                />
-            </Transition>
-        </UCard>
-
-        <Transition
-            enter-active-class="duration-300 ease-out"
-            enter-from-class="transform opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="duration-300 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="transform opacity-0"
-        >
-            <UCard v-if="completeOrQuery" class="mt-8">
-                <template #header>
-                    <SubHeading title="Asset Offering Details" info="Find out more here" />
-                </template>
-                <UForm class="flex flex-col gap-4 w-full" :state="assetOfferingDetails" :schema="assetOfferingSchema">
-                    <UFormGroup label="Title" required name="title">
-                        <UInput v-model="assetOfferingDetails.title" placeholder="Title of the asset" />
-                    </UFormGroup>
-                    <UFormGroup label="Description" required name="description">
-                        <UTextarea
-                            v-model="assetOfferingDetails.description"
-                            placeholder="Type a description for the asset here"
-                            icon="i-heroicons-envelope"
-                        />
-                    </UFormGroup>
-                    <UFormGroup label="Keywords" required name="keywords">
-                        <UInput
-                            v-model="assetOfferingDetails.keywords"
-                            placeholder="Type keywords separated by commas"
-                        />
-                    </UFormGroup>
-                </UForm>
-            </UCard>
-        </Transition>
+        <AssetOfferingDetails
+            v-model:assetOfferingDetails="assetOfferingDetails"
+            :complete-or-query="completeOrQuery"
+            @update:title="(value: string) => (assetOfferingDetails.title = value)"
+            @update:description="(value: string) => (assetOfferingDetails.description = value)"
+            @update:keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
+        />
 
         <Transition
             enter-active-class="duration-300 ease-out"
