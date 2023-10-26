@@ -17,7 +17,7 @@ const props = defineProps({
         <h3 class="text-base font-semibold">
             {{ props.title }}
         </h3>
-        <h4 class="text-sm text-gray-400">
+        <h4 v-if="props.info" class="text-sm text-gray-400">
             {{ props.info }}
         </h4>
     </span>

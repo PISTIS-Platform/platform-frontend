@@ -39,7 +39,7 @@ const emit = defineEmits(['reset', 'update:title', 'update:description', 'update
                     <UInput
                         :model-value="props.assetOfferingDetails.title"
                         placeholder="Title of the asset"
-                        @update:model-value="(value: string) => emit('update:title', value)"
+                        @update:model-value="(value: string[]) => emit('update:title', value)"
                     />
                 </UFormGroup>
                 <UFormGroup label="Description" required name="description">
@@ -47,14 +47,13 @@ const emit = defineEmits(['reset', 'update:title', 'update:description', 'update
                         :model-value="props.assetOfferingDetails.description"
                         placeholder="Type a description for the asset here"
                         icon="i-heroicons-envelope"
-                        @update:model-value="(value: string) => emit('update:description', value)"
+                        @update:model-value="(value: string[]) => emit('update:description', value)"
                     />
                 </UFormGroup>
                 <UFormGroup label="Keywords" required name="keywords">
                     <!-- <UInput
-                        :model-value.trim="props.assetOfferingDetails.keywords"
+                        v-model.trim="props.assetOfferingDetails.keywords"
                         placeholder="Type keywords separated by commas"
-                        @update:model-value="(value: string[]) => emit('update:keywords', value)"
                     /> -->
                     <vue3-tags-input
                         :tags="props.assetOfferingDetails.keywords"

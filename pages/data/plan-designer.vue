@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { z } from 'zod';
-
 //data for selected dataset
 
 const selected = ref('');
@@ -24,56 +22,30 @@ const assetOfferingDetails = ref<any>({
 
 // data for monetization selections
 
-const monetizationSelections = [
-    {
-        title: 'One-off Sale',
-        info: 'Info here',
-    },
-    {
-        title: 'Subscription',
-        info: 'Info here',
-    },
-    {
-        title: 'NFT',
-        info: 'Info here',
-    },
-    {
-        title: 'Investment Plan',
-        info: 'Info here',
-    },
-];
-
 const monetizationSelection = ref('');
 
 // one-off sale details
 const oneOffSaleDetails = ref<any>({
     price: undefined,
-    license: undefined,
-    terms: undefined,
+    license: '',
+    terms: '',
     limitNumber: undefined,
-    limitFrequency: undefined,
+    limitFrequency: '',
 });
 
-const oneOffSaleSchema = z.object({
-    price: z
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gte(0, 'Price must be 0 or a positive number'),
-    license: z.string(),
-    terms: z.string().min(20, 'Must be at least 20 characters'),
-    limitNumber: z
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gte(0, 'Limit number must be 0 or a positive number'),
-    limitFrequency: z.string(),
+//subscription details
+const subscriptionDetails = ref<any>({
+    frequency: '',
+    price: undefined,
+    license: '',
+    terms: '',
+    limitNumber: undefined,
+    limitFrequency: '',
 });
-
-const licenseSelections = ['CC-BY', 'MIT', 'CC0'];
-
-const frequencySelections = ['per day', 'per week', 'per month', 'per year'];
 
 // clear data when switching selection of dataset
 
 const reset = () => {
-    console.log('RESET');
     selected.value = '';
     completeOrQuery.value = '';
     monetizationSelection.value = '';
@@ -81,6 +53,21 @@ const reset = () => {
         title: '',
         description: '',
         keywords: [],
+    };
+    oneOffSaleDetails.value = {
+        price: undefined,
+        license: '',
+        terms: '',
+        limitNumber: undefined,
+        limitFrequency: '',
+    };
+    subscriptionDetails.value = {
+        frequency: '',
+        price: undefined,
+        license: '',
+        terms: '',
+        limitNumber: undefined,
+        limitFrequency: '',
     };
 };
 </script>
@@ -100,12 +87,14 @@ const reset = () => {
         />
 
         <AssetOfferingDetails
-            v-model:assetOfferingDetails="assetOfferingDetails"
+            :asset-offering-details="assetOfferingDetails"
             :complete-or-query="completeOrQuery"
-            @update:title="(value: string) => (assetOfferingDetails.title = value)"
-            @update:description="(value: string) => (assetOfferingDetails.description = value)"
+            @update:title="(value: string[]) => (assetOfferingDetails.title = value)"
+            @update:description="(value: string[]) => (assetOfferingDetails.description = value)"
             @update:keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
         />
+
+        {{ assetOfferingDetails }}
 
         <FairSuggestions
             v-model:oneOffPrice="oneOffPrice"
@@ -113,73 +102,25 @@ const reset = () => {
             :complete-or-query="completeOrQuery"
         />
 
-        <UCard v-if="completeOrQuery" class="mt-8">
-            <template #header>
-                <SubHeading title="Monetization Method" info="Find out more here" />
-            </template>
+        <MonetizationMethod
+            :complete-or-query="completeOrQuery"
+            :monetization-selection="monetizationSelection"
+            :one-off-sale-details="oneOffSaleDetails"
+            :subscription-details="subscriptionDetails"
+            @update:monetization-selection="(value: string) => (monetizationSelection = value)"
+            @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
+            @update:oneoff-license="(value: number) => (oneOffSaleDetails.license = value)"
+            @update:oneoff-terms="(value: number) => (oneOffSaleDetails.terms = value)"
+            @update:oneoff-limit-number="(value: number) => (oneOffSaleDetails.limitNumber = value)"
+            @update:oneoff-limit-frequency="(value: number) => (oneOffSaleDetails.limitFrequency = value)"
+            @update:sub-frequency="(value: number) => (subscriptionDetails.frequency = value)"
+            @update:sub-price="(value: number) => (subscriptionDetails.price = value)"
+            @update:sub-license="(value: number) => (subscriptionDetails.license = value)"
+            @update:sub-terms="(value: number) => (subscriptionDetails.terms = value)"
+            @update:sub-limit-number="(value: number) => (subscriptionDetails.limitNumber = value)"
+            @update:sub-limit-frequency="(value: number) => (subscriptionDetails.limitFrequency = value)"
+        />
 
-            <SelectionCards v-model="monetizationSelection" :selections="monetizationSelections" />
-            <Transition
-                enter-active-class="duration-300 ease-out"
-                enter-from-class="transform opacity-0"
-                enter-to-class="opacity-100"
-                leave-active-class="duration-300 ease-in"
-                leave-from-class="opacity-100"
-                leave-to-class="transform opacity-0"
-            >
-                <UForm
-                    v-if="monetizationSelection === 'One-off Sale'"
-                    class="flex flex-col gap-4 mt-6 w-full"
-                    :state="oneOffSaleDetails"
-                    :schema="oneOffSaleSchema"
-                >
-                    <UFormGroup label="One-off Sale Price" required name="price">
-                        <UInput
-                            v-model.number="oneOffSaleDetails.price"
-                            placeholder="Price of the asset"
-                            type="numeric"
-                        >
-                            <template #trailing>
-                                <span class="text-gray-500 text-xs">STC</span>
-                            </template>
-                        </UInput>
-                    </UFormGroup>
-                    <UFormGroup label="License" required name="license">
-                        <USelectMenu
-                            v-model="oneOffSaleDetails.license"
-                            placeholder="Select a license"
-                            :options="licenseSelections"
-                        />
-                    </UFormGroup>
-                    <UFormGroup label="Terms and Conditions" required name="terms">
-                        <UTextarea
-                            v-model="oneOffSaleDetails.terms"
-                            placeholder="Type the terms and conditions of your license here"
-                            icon="i-heroicons-envelope"
-                        />
-                    </UFormGroup>
-                    <div class="flex gap-4 items-start h-20 w-full">
-                        <UFormGroup label="Download limit" required name="limitNumber" class="w-full">
-                            <UInput
-                                v-model.number="oneOffSaleDetails.limitNumber"
-                                placeholder="number of times allowed"
-                                type="numeric"
-                            >
-                                <template #trailing>
-                                    <span class="text-gray-500 text-xs">times</span>
-                                </template>
-                            </UInput>
-                        </UFormGroup>
-                        <UFormGroup label="Frequency" required name="limitFrequency" class="w-full">
-                            <USelectMenu
-                                v-model="oneOffSaleDetails.limitFrequency"
-                                placeholder="Select a frequency"
-                                :options="frequencySelections"
-                            />
-                        </UFormGroup>
-                    </div>
-                </UForm>
-            </Transition>
-        </UCard>
+        {{ subscriptionDetails }}
     </div>
 </template>
