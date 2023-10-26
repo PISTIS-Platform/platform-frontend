@@ -16,7 +16,7 @@ const subscriptionPrice = ref(20);
 
 // data for asset offering details
 
-const assetOfferingDetails = ref({
+const assetOfferingDetails = ref<any>({
     title: '',
     description: '',
     keywords: [],
@@ -46,7 +46,7 @@ const monetizationSelections = [
 const monetizationSelection = ref('');
 
 // one-off sale details
-const oneOffSaleDetails = ref({
+const oneOffSaleDetails = ref<any>({
     price: undefined,
     license: undefined,
     terms: undefined,
@@ -107,30 +107,11 @@ const reset = () => {
             @update:keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
         />
 
-        <Transition
-            enter-active-class="duration-300 ease-out"
-            enter-from-class="transform opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="duration-300 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="transform opacity-0"
-        >
-            <UCard v-if="completeOrQuery" class="mt-8 bg-secondary-50 border border-secondary-500">
-                <template #header>
-                    <div class="flex justify-between gap-4 items-start">
-                        <SubHeading title="FAIR Data Valuation Suggestions" info="Find out more here" />
-                        <a href="" class="text-xs text-primary-500 underline">Learn More</a>
-                    </div>
-                </template>
-
-                <div>
-                    Suggested One-off Price: <span class="font-bold">{{ oneOffPrice }} STC</span>
-                </div>
-                <div class="mt-4">
-                    Suggested Subscription Price: <span class="font-bold">{{ subscriptionPrice }} STC</span>
-                </div>
-            </UCard>
-        </Transition>
+        <FairSuggestions
+            v-model:oneOffPrice="oneOffPrice"
+            v-model:subscriptionPrice="subscriptionPrice"
+            :complete-or-query="completeOrQuery"
+        />
 
         <UCard v-if="completeOrQuery" class="mt-8">
             <template #header>

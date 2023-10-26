@@ -25,7 +25,7 @@ const emit = defineEmits(['update:model-value']);
             :key="item.title"
             :title="item.title"
             :info="item.info"
-            :selected="modelValue === item.title"
+            :selected="props.modelValue === item.title"
             :width="props.width"
             @click="emit('update:model-value', item.title)"
         />

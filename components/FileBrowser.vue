@@ -24,7 +24,7 @@ const emit = defineEmits(['update:model-value']);
                     :key="file"
                     :class="[
                         'w-24 flex flex-col gap-2 justify-center items-center cursor-pointer p-2 rounded-xl border-2 border-primary-500 border-opacity-0',
-                        file === modelValue ? 'bg-primary-50 border-opacity-100' : 'border-opacity-0',
+                        file === props.modelValue ? 'bg-primary-50 border-opacity-100' : 'border-opacity-0',
                     ]"
                     @click="emit('update:model-value', file)"
                 >
