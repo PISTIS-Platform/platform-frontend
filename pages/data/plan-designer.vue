@@ -44,6 +44,11 @@ const subscriptionDetails = ref<any>({
     limitFrequency: '',
 });
 
+//NFT details
+const NFTdetails = ref<any>({
+    price: undefined,
+});
+
 //investment plan details
 const investmentPlanDetails = ref<any>({
     title: '',
@@ -86,6 +91,37 @@ const reset = () => {
         eqPrice: undefined,
         maxNoInvestors: undefined,
     };
+    NFTdetails.value = {
+        price: undefined,
+    };
+};
+
+const resetMonetization = () => {
+    oneOffSaleDetails.value = {
+        price: undefined,
+        license: '',
+        terms: '',
+        limitNumber: undefined,
+        limitFrequency: '',
+    };
+    subscriptionDetails.value = {
+        frequency: '',
+        price: undefined,
+        license: '',
+        terms: '',
+        limitNumber: undefined,
+        limitFrequency: '',
+    };
+    investmentPlanDetails.value = {
+        title: '',
+        totalEqPercentage: undefined,
+        minEqPercentage: undefined,
+        eqPrice: undefined,
+        maxNoInvestors: undefined,
+    };
+    NFTdetails.value = {
+        price: undefined,
+    };
 };
 </script>
 
@@ -123,6 +159,7 @@ const reset = () => {
             :one-off-sale-details="oneOffSaleDetails"
             :subscription-details="subscriptionDetails"
             :investment-plan-details="investmentPlanDetails"
+            :NFTdetails="NFTdetails"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
             @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
             @update:oneoff-license="(value: number) => (oneOffSaleDetails.license = value)"
@@ -140,6 +177,8 @@ const reset = () => {
             @update:plan-min-eq-percentage="(value: string) => (investmentPlanDetails.minEqPercentage = value)"
             @update:plan-eq-price="(value: string) => (investmentPlanDetails.eqPrice = value)"
             @update:plan-max-no-investors="(value: string) => (investmentPlanDetails.maxNoInvestors = value)"
+            @update:nft-price="(value: number) => (NFTdetails.price = value)"
+            @reset-monetization="resetMonetization"
         />
     </div>
 </template>

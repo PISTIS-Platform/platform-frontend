@@ -18,6 +18,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    NFTdetails: {
+        type: Object,
+        required: true,
+    },
     monetizationSelection: {
         type: String,
         required: true,
@@ -107,6 +111,12 @@ const investmentSchema = z.object({
         .gt(0, 'Max number of investors must be a positive number'),
 });
 
+const NFTschema = z.object({
+    price: z.coerce
+        .number({ invalid_type_error: 'Please enter a valid number' })
+        .gte(0, 'NFT price must be 0 or a positive number'),
+});
+
 const emit = defineEmits([
     'update:monetization-selection',
     'update:oneoff-price',
@@ -126,6 +136,8 @@ const emit = defineEmits([
     'update:plan-eq-price',
     'update:plan-max-no-investors',
     'update:selected-investment-plan',
+    'update:nft-price',
+    'reset-monetization',
 ]);
 
 const updateInvestmentPlan = (title: string) => {
@@ -189,7 +201,12 @@ const saveInvestmentPlan = () => {
             <SelectionCards
                 :model-value="props.monetizationSelection"
                 :selections="monetizationSelections"
-                @update:model-value="(value: string) => emit('update:monetization-selection', value)"
+                @update:model-value="
+                    (value: string) => {
+                        emit('update:monetization-selection', value);
+                        emit('reset-monetization');
+                    }
+                "
             />
             <Transition
                 enter-active-class="duration-300 ease-out"
@@ -332,6 +349,37 @@ const saveInvestmentPlan = () => {
                     </div>
                 </UForm>
             </Transition>
+
+            <Transition
+                enter-active-class="duration-300 ease-out"
+                enter-from-class="transform opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="duration-300 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="transform opacity-0"
+            >
+                <UForm
+                    v-if="props.monetizationSelection === 'NFT'"
+                    class="flex flex-col gap-4 mt-6 w-full"
+                    :state="props.NFTdetails"
+                    :schema="NFTschema"
+                >
+                    <UFormGroup label="NFT Price" required name="price">
+                        <UInput
+                            :model-value="props.NFTdetails.price"
+                            placeholder="Price"
+                            type="numeric"
+                            @update:model-value="(value: string) => emit('update:nft-price', value)"
+                        >
+                            <template #trailing>
+                                <span class="text-gray-500 text-xs">STC</span>
+                            </template>
+                        </UInput>
+                    </UFormGroup>
+                    <UButton color="white" class="w-40 flex items-center justify-center">Generate NEW NFT</UButton>
+                </UForm>
+            </Transition>
+
             <Transition
                 enter-active-class="duration-300 ease-out"
                 enter-from-class="transform opacity-0"
