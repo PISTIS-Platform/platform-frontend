@@ -49,7 +49,7 @@ const limitFrequencySelections = ['per day', 'per week', 'per month', 'per year'
 
 const frequencySelections = ['Monthly', 'Annual'];
 
-const investmentPlans = {
+const investmentPlans = ref({
     Title1: {
         title: 'Title1',
         totalEqPercentage: 20,
@@ -64,18 +64,8 @@ const investmentPlans = {
         eqPrice: 350,
         maxNoInvestors: 5,
     },
-};
+});
 
-const investmentPlanTitles = Object.keys(investmentPlans);
-
-const selectedInvestmentPlan = ref('');
-
-const showCreatePlan = ref(false);
-
-const createNewPlan = () => {
-    showCreatePlan.value = true;
-    selectedInvestmentPlan.value = '';
-};
 const oneOffSaleSchema = z.object({
     price: z.coerce
         .number({ invalid_type_error: 'Please enter a valid number' })
@@ -137,6 +127,49 @@ const emit = defineEmits([
     'update:plan-max-no-investors',
     'update:selected-investment-plan',
 ]);
+
+const updateInvestmentPlan = (title: string) => {
+    showCreatePlan.value = false;
+    const obj = investmentPlans.value[title];
+
+    emit('update:plan-title', obj.title);
+    emit('update:plan-total-eq-percentage', obj.totalEqPercentage);
+    emit('update:plan-min-eq-percentage', obj.minEqPercentage);
+    emit('update:plan-eq-price', obj.eqPrice);
+    emit('update:plan-max-no-investors', obj.maxNoInvestors);
+};
+
+const investmentPlanTitles = computed(() => Object.keys(investmentPlans.value));
+
+const selectedInvestmentPlan = ref('');
+
+const showCreatePlan = ref(false);
+
+const createNewPlan = () => {
+    showCreatePlan.value = true;
+    selectedInvestmentPlan.value = '';
+    emit('update:plan-title', '');
+    emit('update:plan-total-eq-percentage', undefined);
+    emit('update:plan-min-eq-percentage', undefined);
+    emit('update:plan-eq-price', undefined);
+    emit('update:plan-max-no-investors', undefined);
+};
+
+const editPlan = () => {
+    showCreatePlan.value = true;
+};
+
+const saveInvestmentPlan = () => {
+    investmentPlans.value[props.investmentPlanDetails.title] = {
+        title: props.investmentPlanDetails.title,
+        totalEqPercentage: props.investmentPlanDetails.totalEqPercentage,
+        minEqPercentage: props.investmentPlanDetails.minEqPercentage,
+        eqPrice: props.investmentPlanDetails.eqPrice,
+        maxNoInvestors: props.investmentPlanDetails.maxNoInvestors,
+    };
+    showCreatePlan.value = false;
+    selectedInvestmentPlan.value = props.investmentPlanDetails.title;
+};
 </script>
 
 <template>
@@ -322,17 +355,23 @@ const emit = defineEmits([
                                     class="w-full relative"
                                     placeholder="Search for / select a Data Investment Plan"
                                     :options="investmentPlanTitles"
-                                    @update:model-value="
-                                        (value: string) => emit('update:selected-investment-plan', value)
-                                    "
+                                    @update:model-value="(value: string) => updateInvestmentPlan(value)"
                                 />
                                 <span> or </span>
-                                <span class="w-40 cursor-pointer text-primary-500" @click="createNewPlan">
+                                <span class="cursor-pointer text-primary-500 whitespace-nowrap" @click="createNewPlan">
                                     create new plan
+                                </span>
+                                <span v-if="selectedInvestmentPlan"> or</span>
+                                <span
+                                    v-if="selectedInvestmentPlan"
+                                    class="cursor-pointer text-primary-500 whitespace-nowrap"
+                                    @click="editPlan"
+                                >
+                                    edit plan
                                 </span>
                             </div>
                         </UFormGroup>
-                        <div v-if="selectedInvestmentPlan" class="flex flex-col gap-4">
+                        <div v-if="selectedInvestmentPlan && !showCreatePlan" class="flex flex-col gap-4">
                             <p>
                                 Investment Plan Title:
                                 <span class="font-bold">{{ investmentPlans[selectedInvestmentPlan].title }}</span>
@@ -419,7 +458,7 @@ const emit = defineEmits([
                             >
                             </UInput>
                         </UFormGroup>
-                        <UButton color="white" class="w-44 flex justify-center items-center"
+                        <UButton color="white" class="w-44 flex justify-center items-center" @click="saveInvestmentPlan"
                             >Save Investment Plan</UButton
                         >
                     </UForm>
