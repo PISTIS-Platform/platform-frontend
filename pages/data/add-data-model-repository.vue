@@ -58,7 +58,7 @@ function dragleave() {
     isDragging.value = false;
 }
 
-function drop(e: any) {
+function drop(e) {
     e.preventDefault();
     file.value = e.dataTransfer;
     onChange();

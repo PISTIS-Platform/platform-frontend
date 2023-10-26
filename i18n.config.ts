@@ -43,6 +43,14 @@ export default defineI18nConfig(() => ({
                     formDescription: 'Description:',
                     search: 'Search data models',
                     addDataset: 'Add new dataset',
+                    tableFields: {
+                        id: 'ID',
+                        title: 'Title',
+                        year: 'Date',
+                        size: 'Size (MB)',
+                        version: 'Version',
+                        country: 'Country',
+                    },
                 },
             },
             market: {

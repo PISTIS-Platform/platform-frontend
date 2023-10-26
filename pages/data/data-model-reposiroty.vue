@@ -1,35 +1,40 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
 import DataModelRepo from '../../interfaces/data-model-repo';
-import { dummyJson } from './dm-repo-dummy-data'; //We have to add actual data
+import { dummyJson } from './dm-repo-dummy-data';
+//We have to add actual data
+const { t } = useI18n();
 
 // Fields for table
 const columns = [
     {
         key: 'id',
-        label: 'ID',
+        label: t('data.dmRepository.tableFields.id'),
         sortable: true,
+        direction: 'asc',
     },
     {
         key: 'title',
-        label: 'Title',
+        label: t('data.dmRepository.tableFields.title'),
         sortable: true,
     },
     {
         key: 'year',
-        label: 'Date',
+        label: t('data.dmRepository.tableFields.year'),
         sortable: true,
     },
     {
         key: 'size',
-        label: 'Size (MB)',
+        label: t('data.dmRepository.tableFields.size'),
     },
     {
         key: 'version',
-        label: 'Version',
+        label: t('data.dmRepository.tableFields.version'),
     },
     {
         key: 'country',
-        label: 'Country',
+        label: t('data.dmRepository.tableFields.country'),
         sortable: true,
     },
 ];
@@ -147,7 +152,7 @@ function deleteRepo() {
                 class="mt-8"
                 :columns="columns"
                 :rows="filteredRows"
-                :sort="{ column: 'title' }"
+                :sort="{ column: 'id' }"
                 :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No items.' }"
                 @select="select"
             />
