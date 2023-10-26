@@ -344,7 +344,7 @@ const saveInvestmentPlan = () => {
                     <div class="flex flex-col gap-4">
                         <UFormGroup
                             v-if="props.monetizationSelection === 'Investment Plan'"
-                            label="Select Existing Data Investment Plan or Create New Plan"
+                            label="Search For / Select / Edit / Create new plan"
                         >
                             <div class="flex items-center gap-4">
                                 <USelectMenu
@@ -357,10 +357,6 @@ const saveInvestmentPlan = () => {
                                     :options="investmentPlanTitles"
                                     @update:model-value="(value: string) => updateInvestmentPlan(value)"
                                 />
-                                <span> or </span>
-                                <span class="cursor-pointer text-primary-500 whitespace-nowrap" @click="createNewPlan">
-                                    create new plan
-                                </span>
                                 <span v-if="selectedInvestmentPlan"> or</span>
                                 <span
                                     v-if="selectedInvestmentPlan"
@@ -368,6 +364,10 @@ const saveInvestmentPlan = () => {
                                     @click="editPlan"
                                 >
                                     edit plan
+                                </span>
+                                <span> or </span>
+                                <span class="cursor-pointer text-primary-500 whitespace-nowrap" @click="createNewPlan">
+                                    create new plan
                                 </span>
                             </div>
                         </UFormGroup>
