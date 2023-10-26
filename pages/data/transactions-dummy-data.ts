@@ -2,7 +2,7 @@ export const transactionsDummyData = [
     {
         id: 45999,
         date: '20/09/2023',
-        type: 'incoming',
+        type: 'Incoming',
         amount: 300,
         from: 'Org Test 123',
         to: '',
@@ -10,7 +10,7 @@ export const transactionsDummyData = [
     {
         id: 13234,
         date: '25/09/2023',
-        type: 'incoming',
+        type: 'Incoming',
         amount: 1500,
         from: 'Org Test ABC',
         to: '',
@@ -18,7 +18,7 @@ export const transactionsDummyData = [
     {
         id: 94905,
         date: '15/10/2023',
-        type: 'outgoing',
+        type: 'Outgoing',
         amount: 800,
         from: '',
         to: 'Org Test BNM',
@@ -26,7 +26,7 @@ export const transactionsDummyData = [
     {
         id: 91348,
         date: '18/10/2023',
-        type: 'incoming',
+        type: 'Incoming',
         amount: 1800,
         from: 'XYZ',
         to: '',

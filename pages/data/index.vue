@@ -23,6 +23,11 @@ const cardInfoData = computed(() => [
 //transactions data
 const transactions = computed(() => transactionsDummyData);
 
+enum TransactionStatus {
+    INCOMING = 'Incoming',
+    OUTGOING = 'Outgoing',
+}
+
 const transactionsColumns = [
     {
         key: 'id',
@@ -57,7 +62,7 @@ const transactionsColumns = [
     },
 ];
 const page = ref(1);
-const pageCount = 2;
+const pageCount = 10;
 
 const transactionsRows = computed(() => {
     return transactions.value.slice((page.value - 1) * pageCount, page.value * pageCount);
@@ -83,7 +88,20 @@ const transactionsRows = computed(() => {
 
         <!-- Transactions -->
         <div class="flex flex-col w-full mt-8">
-            <UTable :columns="transactionsColumns" :rows="transactionsRows" />
+            <UTable :columns="transactionsColumns" :rows="transactionsRows">
+                <!-- Custom styling for type data column -->
+                <template #type-data="{ row }">
+                    <span
+                        :class="[
+                            'rounded-lg px-2 py-1',
+                            row.type === TransactionStatus.INCOMING
+                                ? 'bg-green-200 text-green-800'
+                                : 'bg-red-200 text-red-800',
+                        ]"
+                        >{{ row.type }}
+                    </span>
+                </template>
+            </UTable>
 
             <!-- Display the pagination only if the total number of transactions is larger than the page count -->
             <div v-if="transactions.length > pageCount" class="flex justify-end">
