@@ -51,17 +51,19 @@ const emit = defineEmits(['reset', 'update:title', 'update:description', 'update
                     />
                 </UFormGroup>
                 <UFormGroup label="Keywords" required name="keywords">
-                    <UInput
-                        :model-value="props.assetOfferingDetails.keywords"
+                    <!-- <UInput
+                        :model-value.trim="props.assetOfferingDetails.keywords"
                         placeholder="Type keywords separated by commas"
                         @update:model-value="(value: string[]) => emit('update:keywords', value)"
+                    /> -->
+                    <vue3-tags-input
+                        :tags="props.assetOfferingDetails.keywords"
+                        :placeholder="
+                            props.assetOfferingDetails.keywords.length ? '' : 'Type keywords separated by commas'
+                        "
+                        @on-tags-changed="(value: string[]) => emit('update:keywords', value)"
                     />
                 </UFormGroup>
-                <vue3-tags-input
-                    :tags="$props.assetOfferingDetails.keywords"
-                    placeholder="enter some tags"
-                    @on-tags-changed="(value: string[]) => emit('update:keywords', value)"
-                />
             </UForm>
         </UCard>
     </Transition>
@@ -69,32 +71,22 @@ const emit = defineEmits(['reset', 'update:title', 'update:description', 'update
 
 <style lang="css">
 .v3ti .v3ti-tag {
-    background: #705df7;
-    height: 24px !important;
-    /*border: 1px solid #222222;*/
-    /*border-radius: 0;*/
-}
-
-.v3ti .v3ti-tag .v3ti-remove-tag {
-    color: #000000;
-    transition: color 0.3s;
+    @apply bg-primary-500 h-[24px];
 }
 
 .v3ti-new-tag {
-    border: none;
+    @apply text-sm text-gray-700 h-[30px] focus:ring-0 placeholder-gray-400 pb-2;
 }
 
-.v3ti .v3ti-tag .v3ti-remove-tag:hover {
-    color: #ffffff;
+.v3ti .v3ti-tag .v3ti-remove-tag {
+    @apply text-white;
 }
+
 .v3ti {
-    border: solid 1px #b1b1b199;
-    border-radius: 6px;
-    height: 20px;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 0px 0px 0px 0px;
+    @apply border border-gray-300 rounded-md h-[20px];
+}
+
+.v3ti-content {
+    focus: border-primary-500;
 }
 </style>
