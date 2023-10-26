@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DataModelRepo from '../../interfaces/data-model-repo';
 import { dummyJson } from './dm-repo-dummy-data'; //We have to add actual data
 
 // Fields for table
@@ -9,42 +10,40 @@ const columns = [
         sortable: true,
     },
     {
-        key: 'first_name',
-        label: 'Firstname',
+        key: 'title',
+        label: 'Title',
         sortable: true,
     },
     {
-        key: 'last_name',
-        label: 'Lastname',
+        key: 'year',
+        label: 'Date',
         sortable: true,
     },
     {
-        key: 'email',
-        label: 'Email',
-        sortable: true,
+        key: 'size',
+        label: 'Size (MB)',
     },
     {
-        key: 'gender',
-        label: 'Gender',
-        sortable: true,
-        direction: 'desc',
+        key: 'version',
+        label: 'Version',
     },
     {
-        key: 'ip_address',
-        label: 'IP Address',
+        key: 'country',
+        label: 'Country',
+        sortable: true,
     },
 ];
 
 // Functionality to select items from table
-function select(row: any) {
-    const index = selected.value.findIndex((item: any) => item.id === row.id);
+function select(row: DataModelRepo) {
+    const index = selected.value.findIndex((item: DataModelRepo) => item.id === row.id);
     if (index === -1) {
-        selected.value.push(row);
+        selected.value.push(row as DataModelRepo);
     } else {
         selected.value.splice(index, 1);
     }
 }
-const selected = ref([]) as any;
+const selected = ref<DataModelRepo[]>([]);
 
 // Pagination
 const page = ref(1);
@@ -67,8 +66,14 @@ const filteredRows = computed(() => {
     }
 });
 
-function editRepo() {
-    console.log(selected.value);
+async function editRepo() {
+    await navigateTo({
+        path: '/data/add-data-model-repository',
+        query: {
+            data: JSON.stringify(selected.value),
+        },
+    });
+    // console.log(selected.value);
 }
 
 function viewRepo() {
@@ -87,42 +92,70 @@ function deleteRepo() {
 <template>
     <div class="w-full h-full text-gray-700">
         <Heading :title="$t('data.dmRepository.title')" />
-        <div class="flex justify-between mt-8">
-            <div class="order-first">
-                <UInput v-model="searchString" placeholder="Filter data models" />
+        <UCard class="mt-8">
+            <div class="flex justify-between mt-1">
+                <div class="order-first">
+                    <UInput v-model="searchString" :placeholder="$t('data.dmRepository.search')" />
+                </div>
+                <div class="order-last flex gap-2">
+                    <UTooltip text="View">
+                        <UIcon
+                            name="i-heroicons-eye-20-solid"
+                            color="gray"
+                            class="h-6 w-6 cursor-pointer"
+                            @click="viewRepo"
+                        />
+                    </UTooltip>
+                    <UTooltip text="Edit">
+                        <UIcon
+                            name="i-heroicons-pencil-20-solid"
+                            color="gray"
+                            class="h-6 w-6 cursor-pointer"
+                            @click="editRepo"
+                        />
+                    </UTooltip>
+                    <UTooltip text="Download">
+                        <UIcon
+                            name="i-heroicons-arrow-down-20-solid"
+                            color="gray"
+                            class="h-6 w-6 cursor-pointer"
+                            @click="downloadRepo"
+                        />
+                    </UTooltip>
+                    <UTooltip text="Delete">
+                        <UIcon
+                            name="i-heroicons-trash-20-solid"
+                            color="gray"
+                            class="h-6 w-6 cursor-pointer"
+                            @click="deleteRepo"
+                        />
+                    </UTooltip>
+                    <UTooltip text="Add New Dataset">
+                        <NuxtLink to="/data/add-data-model-repository">
+                            <UIcon
+                                name="i-heroicons-document-plus-20-solid"
+                                color="gray"
+                                class="h-6 w-6 cursor-pointer"
+                            />
+                        </NuxtLink>
+                    </UTooltip>
+                </div>
             </div>
-            <div class="order-last">
-                <UTooltip text="View">
-                    <UButton icon="i-heroicons-eye-20-solid" color="gray" @click="viewRepo" />
-                </UTooltip>
-                <UTooltip text="Edit">
-                    <UButton icon="i-heroicons-pencil-20-solid" color="gray" @click="editRepo" />
-                </UTooltip>
-                <UTooltip text="Download">
-                    <UButton icon="i-heroicons-arrow-down-20-solid" color="gray" @click="downloadRepo" />
-                </UTooltip>
-                <UTooltip text="Delete">
-                    <UButton icon="i-heroicons-trash-20-solid" color="gray" @click="deleteRepo" />
-                </UTooltip>
-            </div>
-        </div>
 
-        <UTable
-            v-model="selected"
-            class="mt-8"
-            :columns="columns"
-            :rows="filteredRows"
-            :sort="{ column: 'title' }"
-            :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No items.' }"
-            @select="select"
-        />
-        <div class="flex justify-between mt-2">
-            <div class="order-first">
-                <UPagination v-model="page" :page-count="pageCount" :total="dummyJson.length" />
+            <UTable
+                v-model="selected"
+                class="mt-8"
+                :columns="columns"
+                :rows="filteredRows"
+                :sort="{ column: 'title' }"
+                :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No items.' }"
+                @select="select"
+            />
+            <div class="flex justify-end mt-2">
+                <div class="mt-2">
+                    <UPagination v-model="page" :page-count="pageCount" :total="dummyJson.length" />
+                </div>
             </div>
-            <div class="order-last">
-                <UButton label="Add new dataset" to="/data/add-data-model-repository"></UButton>
-            </div>
-        </div>
+        </UCard>
     </div>
 </template>

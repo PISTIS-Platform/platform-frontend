@@ -31,6 +31,18 @@ export default defineI18nConfig(() => ({
                 dmRepository: {
                     title: 'Data Model Repository',
                     dmAddTitle: 'Add Data Model Repository',
+                    upload: 'Upload New Artefact',
+                    select: 'Select file',
+                    drag: 'or drag and drop',
+                    noFile: 'No file selected',
+                    fileName: 'File name:',
+                    invalid: 'Invalid file type.',
+                    uploadButton: 'Upload',
+                    formTitle: 'Title:',
+                    formVersion: 'Version:',
+                    formDescription: 'Description:',
+                    search: 'Search data models',
+                    addDataset: 'Add new dataset',
                 },
             },
             market: {
