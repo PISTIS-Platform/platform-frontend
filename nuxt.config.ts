@@ -61,4 +61,10 @@ export default defineNuxtConfig({
     colorMode: {
         preference: 'light',
     },
+    components: [
+        {
+            path: '~/components',
+            pathPrefix: false,
+        },
+    ],
 });
