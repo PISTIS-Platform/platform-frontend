@@ -14,11 +14,9 @@ const emit = defineEmits(['update:model-value']);
 </script>
 
 <template>
-    <UCard class="bg-primary-50 bg-opacity-30">
+    <UCard class="bg-primary-50 bg-opacity-30 overflow-y-auto">
         <div class="w-full h-96">
-            <div
-                class="w-full flex flex-row flex-wrap gap-y-5 gap-x-2 md:gap-x-4 xl:gap-x-5 overflow-y-auto max-h-96 items-start"
-            >
+            <div class="w-full flex flex-row flex-wrap gap-y-5 gap-x-2 lg:gap-x-7 max-h-96 items-start">
                 <div
                     v-for="file in props.files"
                     :key="file"
