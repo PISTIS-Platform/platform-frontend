@@ -8,6 +8,7 @@ const selected = ref('');
 const completeOrQuery = ref('');
 
 // FAIR data valuation suggestions data
+//TODO: Will probably receive data from the component with its own API call
 
 const oneOffPrice = ref(500);
 const subscriptionPrice = ref(20);
@@ -77,6 +78,13 @@ const reset = () => {
         terms: '',
         limitNumber: undefined,
         limitFrequency: '',
+    };
+    investmentPlanDetails.value = {
+        title: '',
+        totalEqPercentage: undefined,
+        minEqPercentage: undefined,
+        eqPrice: undefined,
+        maxNoInvestors: undefined,
     };
 };
 </script>
