@@ -31,4 +31,20 @@ export const transactionsDummyData = [
         from: 'XYZ',
         to: '',
     },
+    {
+        id: 11990,
+        date: '18/10/2023',
+        type: 'Outgoing',
+        amount: 440,
+        from: 'XYZ',
+        to: '',
+    },
+    {
+        id: 91348,
+        date: '18/10/2023',
+        type: 'Incoming',
+        amount: 2550,
+        from: 'QWE Org',
+        to: '',
+    },
 ];

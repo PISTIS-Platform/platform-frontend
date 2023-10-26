@@ -61,7 +61,7 @@ const transactionsColumns = [
     },
 ];
 const page = ref(1);
-const pageCount = 2;
+const pageCount = 5;
 
 const transactionsRows = computed(() => {
     return transactions.value.slice((page.value - 1) * pageCount, page.value * pageCount);
