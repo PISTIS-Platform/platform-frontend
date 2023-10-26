@@ -84,29 +84,33 @@ const transactionsRows = computed(() => {
             />
         </div>
 
-        <Heading :title="$t('transactions.transactions')" class="mt-8" />
-
         <!-- Transactions -->
         <div class="flex flex-col w-full mt-8">
-            <UTable :columns="transactionsColumns" :rows="transactionsRows">
-                <!-- Custom styling for type data column -->
-                <template #type-data="{ row }">
-                    <span
-                        :class="[
-                            'rounded-lg px-2 py-1',
-                            row.type === TransactionStatus.INCOMING
-                                ? 'bg-green-200 text-green-800'
-                                : 'bg-red-200 text-red-800',
-                        ]"
-                        >{{ row.type }}
-                    </span>
+            <UCard>
+                <template #header>
+                    <SubHeading :title="$t('transactions.transactions')" />
                 </template>
-            </UTable>
 
-            <!-- Display the pagination only if the total number of transactions is larger than the page count -->
-            <div v-if="transactions.length > pageCount" class="flex justify-end">
-                <UPagination v-model="page" :page-count="pageCount" :total="transactions.length" />
-            </div>
+                <UTable :columns="transactionsColumns" :rows="transactionsRows">
+                    <!-- Custom styling for type data column -->
+                    <template #type-data="{ row }">
+                        <span
+                            :class="[
+                                'rounded-lg px-2 py-1',
+                                row.type === TransactionStatus.INCOMING
+                                    ? 'bg-green-200 text-green-800'
+                                    : 'bg-red-200 text-red-800',
+                            ]"
+                            >{{ row.type }}
+                        </span>
+                    </template>
+                </UTable>
+
+                <!-- Display the pagination only if the total number of transactions is larger than the page count -->
+                <div v-if="transactions.length > pageCount" class="flex justify-end">
+                    <UPagination v-model="page" :page-count="pageCount" :total="transactions.length" />
+                </div>
+            </UCard>
         </div>
     </div>
 </template>
