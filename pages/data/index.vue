@@ -69,9 +69,14 @@ const transactionsRows = computed(() => {
 
         <!-- Cards Info -->
         <div class="flex flex-row gap-8 w-full mt-8">
-            <UCard v-for="card in cardInfoData" :key="card.title" class="w-1/3">
-                <CardContent :title="card.title" :amount="card.amount" :icon-name="card.iconName" />
-            </UCard>
+            <WalletCard
+                v-for="card in cardInfoData"
+                :key="card.title"
+                class="w-1/3"
+                :title="card.title"
+                :amount="card.amount"
+                :icon-name="card.iconName"
+            />
         </div>
 
         <Heading :title="$t('transactions.transactions')" class="mt-8" />
