@@ -14,6 +14,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    investmentPlanDetails: {
+        type: Object,
+        required: true,
+    },
     monetizationSelection: {
         type: String,
         required: true,
@@ -45,6 +49,8 @@ const limitFrequencySelections = ['per day', 'per week', 'per month', 'per year'
 
 const frequencySelections = ['Monthly', 'Annual'];
 
+// const investmentPlans: any = {};
+
 const oneOffSaleSchema = z.object({
     price: z.coerce
         .number({ invalid_type_error: 'Please enter a valid number' })
@@ -70,6 +76,22 @@ const subscriptionSchema = z.object({
     limitFrequency: z.string(),
 });
 
+const investmentSchema = z.object({
+    title: z.string(),
+    totalEqPercentage: z.coerce
+        .number({ invalid_type_error: 'Please enter a valid number' })
+        .gt(0, 'Total equity percentage must be a positive number'),
+    minEqPercentage: z.coerce
+        .number({ invalid_type_error: 'Please enter a valid number' })
+        .gt(0, 'Minimum equity percentage must be a positive number'),
+    eqPrice: z.coerce
+        .number({ invalid_type_error: 'Please enter a valid number' })
+        .gt(0, 'Equity price must be a positive number'),
+    maxNoInvestors: z.coerce
+        .number({ invalid_type_error: 'Please enter a valid number' })
+        .gt(0, 'Max number of investors must be a positive number'),
+});
+
 const emit = defineEmits([
     'update:monetization-selection',
     'update:oneoff-price',
@@ -83,6 +105,11 @@ const emit = defineEmits([
     'update:sub-terms',
     'update:sub-limit-number',
     'update:sub-limit-frequency',
+    'update:plan-title',
+    'update:plan-total-eq-percentage',
+    'update:plan-min-eq-percentage',
+    'update:plan-eq-price',
+    'update:plan-max-no-investors',
 ]);
 </script>
 
@@ -244,6 +271,74 @@ const emit = defineEmits([
                             />
                         </UFormGroup>
                     </div>
+                </UForm>
+            </Transition>
+            <Transition
+                enter-active-class="duration-300 ease-out"
+                enter-from-class="transform opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="duration-300 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="transform opacity-0"
+            >
+                <UForm
+                    v-if="props.monetizationSelection === 'Investment Plan'"
+                    class="flex flex-col gap-4 mt-6 w-full"
+                    :state="props.investmentPlanDetails"
+                    :schema="investmentSchema"
+                >
+                    <UFormGroup label="Investment Plan Title" required name="title">
+                        <UInput
+                            :model-value="props.investmentPlanDetails.title"
+                            placeholder="Title of the investment plan"
+                            @update:model-value="(value: string[]) => emit('update:plan-title', value)"
+                        />
+                    </UFormGroup>
+                    <UFormGroup label="Total Equity Percentage" required name="totalEqPercentage">
+                        <UInput
+                            :model-value="props.investmentPlanDetails.totalEqPercentage"
+                            placeholder="Percentage"
+                            type="numeric"
+                            @update:model-value="(value: string) => emit('update:plan-total-eq-percentage', value)"
+                        >
+                            <template #trailing>
+                                <span class="text-gray-500 text-xs">%</span>
+                            </template>
+                        </UInput>
+                    </UFormGroup>
+                    <UFormGroup label="Minimum Equity Percentage" required name="minEqPercentage">
+                        <UInput
+                            :model-value="props.investmentPlanDetails.minEqPercentage"
+                            placeholder="Percentage"
+                            type="numeric"
+                            @update:model-value="(value: string) => emit('update:plan-min-eq-percentage', value)"
+                        >
+                            <template #trailing>
+                                <span class="text-gray-500 text-xs">%</span>
+                            </template>
+                        </UInput>
+                    </UFormGroup>
+                    <UFormGroup label="Equity Price" required name="eqPrice">
+                        <UInput
+                            :model-value="props.investmentPlanDetails.eqPrice"
+                            placeholder="Price"
+                            type="numeric"
+                            @update:model-value="(value: string) => emit('update:plan-eq-price', value)"
+                        >
+                            <template #trailing>
+                                <span class="text-gray-500 text-xs">STC</span>
+                            </template>
+                        </UInput>
+                    </UFormGroup>
+                    <UFormGroup label="Max number of investors" required name="maxNoInvestors">
+                        <UInput
+                            :model-value="props.investmentPlanDetails.maxNoInvestors"
+                            placeholder="Number of investors"
+                            type="numeric"
+                            @update:model-value="(value: string) => emit('update:plan-max-no-investors', value)"
+                        >
+                        </UInput>
+                    </UFormGroup>
                 </UForm>
             </Transition>
         </UCard>

@@ -43,6 +43,15 @@ const subscriptionDetails = ref<any>({
     limitFrequency: '',
 });
 
+//investment plan details
+const investmentPlanDetails = ref<any>({
+    title: '',
+    totalEqPercentage: undefined,
+    minEqPercentage: undefined,
+    eqPrice: undefined,
+    maxNoInvestors: undefined,
+});
+
 // clear data when switching selection of dataset
 
 const reset = () => {
@@ -94,8 +103,6 @@ const reset = () => {
             @update:keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
         />
 
-        {{ assetOfferingDetails }}
-
         <FairSuggestions
             v-model:oneOffPrice="oneOffPrice"
             v-model:subscriptionPrice="subscriptionPrice"
@@ -107,6 +114,7 @@ const reset = () => {
             :monetization-selection="monetizationSelection"
             :one-off-sale-details="oneOffSaleDetails"
             :subscription-details="subscriptionDetails"
+            :investment-plan-details="investmentPlanDetails"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
             @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
             @update:oneoff-license="(value: number) => (oneOffSaleDetails.license = value)"
@@ -119,8 +127,11 @@ const reset = () => {
             @update:sub-terms="(value: number) => (subscriptionDetails.terms = value)"
             @update:sub-limit-number="(value: number) => (subscriptionDetails.limitNumber = value)"
             @update:sub-limit-frequency="(value: number) => (subscriptionDetails.limitFrequency = value)"
+            @update:plan-title="(value: string) => (investmentPlanDetails.title = value)"
+            @update:plan-total-eq-percentage="(value: string) => (investmentPlanDetails.totalEqPercentage = value)"
+            @update:plan-min-eq-percentage="(value: string) => (investmentPlanDetails.minEqPercentage = value)"
+            @update:plan-eq-price="(value: string) => (investmentPlanDetails.eqPrice = value)"
+            @update:plan-max-no-investors="(value: string) => (investmentPlanDetails.maxNoInvestors = value)"
         />
-
-        {{ subscriptionDetails }}
     </div>
 </template>
