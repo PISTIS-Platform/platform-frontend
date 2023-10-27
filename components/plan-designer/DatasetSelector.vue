@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
 import dummyData from '../../pages/data/dummy-data';
+
+const { t } = useI18n();
 
 const props = defineProps({
     selected: {
@@ -26,24 +30,24 @@ const filteredSelections = computed(() =>
 
 const outerQuery = ref('');
 
-const dataSetSelections = [
+const dataSetSelections = computed(() => [
     {
-        title: 'Complete Dataset',
-        info: 'Select the complete dataset',
+        title: t('data.designer.completeDataset'),
+        info: t('data.designer.selectDataset'),
     },
     {
-        title: 'Query / Filter',
-        info: 'Select a subset of the dataset',
+        title: t('data.designer.queryFilter'),
+        info: t('data.designer.selectQueryFilter'),
     },
-];
+]);
 </script>
 
 <template>
     <UCard class="mt-8">
         <template #header>
             <SubHeading
-                title="Dataset Selection"
-                info="Search for and select the dataset you wish to put on the market"
+                :title="$t('data.designer.datasetSelection')"
+                :info="$t('data.designer.datasetSelectionInfo')"
             />
         </template>
 
@@ -52,20 +56,21 @@ const dataSetSelections = [
             class="flex gap-2 items-center text-primary cursor-pointer w-60"
             @click="switchDatasetOpen = true"
         >
-            <UIcon name="i-heroicons-arrow-left-20-solid" class="h-5 w-5" /> Select a different dataset</span
+            <UIcon name="i-heroicons-arrow-left-20-solid" class="h-5 w-5" />
+            {{ $t('data.designer.selectDifferent') }}</span
         >
 
         <UModal v-model="switchDatasetOpen">
             <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
-                <p class="font-bold text-xl">Are you sure?</p>
-                <p class="text-gray-400 mt-6">Any configuration you have made will be reset.</p>
+                <p class="font-bold text-xl">{{ $t('data.designer.areYouSure') }}</p>
+                <p class="text-gray-400 mt-6">{{ $t('data.designer.willReset') }}</p>
                 <div class="flex gap-8 w-full justify-center mt-6">
-                    <UButton color="white" class="w-20 flex justify-center" @click="switchDatasetOpen = false"
-                        >Cancel</UButton
-                    >
-                    <UButton class="w-20 flex justify-center" @click="emit('reset'), (switchDatasetOpen = false)"
-                        >Yes</UButton
-                    >
+                    <UButton color="white" class="w-20 flex justify-center" @click="switchDatasetOpen = false">{{
+                        $t('cancel')
+                    }}</UButton>
+                    <UButton class="w-20 flex justify-center" @click="emit('reset'), (switchDatasetOpen = false)">{{
+                        $t('yes')
+                    }}</UButton>
                 </div>
             </UCard>
         </UModal>
@@ -80,9 +85,9 @@ const dataSetSelections = [
                     return selections.filter((selection: string) => selection.includes(query));
                 }
             "
-            searchable-placeholder="Search for a dataset..."
+            :searchable-placeholder="$t('data.designer.searchDataset')"
             class="w-full relative"
-            placeholder="Select / search for a dataset"
+            :placeholder="$t('data.designer.selectSearchDataset')"
             :options="selections"
             @update:model-value="(value: string) => emit('update:selected', value)"
         />
@@ -111,8 +116,8 @@ const dataSetSelections = [
         >
             <div v-if="props.selected" class="flex gap-4 mt-8 w-full">
                 <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
-                    <p>Asset Title:</p>
-                    <p>Asset Description:</p>
+                    <p>{{ $t('data.designer.assetTitle') }}:</p>
+                    <p>{{ $t('data.designer.assetDescription') }}:</p>
                 </div>
                 <div class="flex flex-col items-start justify-start gap-4">
                     <p class="font-bold">{{ props.selected }}</p>

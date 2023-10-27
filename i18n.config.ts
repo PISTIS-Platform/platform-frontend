@@ -18,6 +18,10 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            cancel: 'Cancel',
+            yes: 'Yes',
+            no: 'No',
+            submit: 'Submit',
             home: {
                 home: 'Home',
                 dashboard: 'Dashboard',
@@ -25,7 +29,22 @@ export default defineI18nConfig(() => ({
             },
             data: {
                 data: 'My Data',
-                designer: 'Purchase / Subscription Plan Designer',
+                designer: {
+                    title: 'Purchase / Subscription Plan Designer',
+                    completeDataset: 'Complete Dataset',
+                    selectDataset: 'Select the complete dataset',
+                    queryFilter: 'Query / Filter',
+                    selectQueryFilter: 'Select a subset of the dataset',
+                    datasetSelection: 'Dataset Selection',
+                    datasetSelectionInfo: 'Search for and select the dataset you wish to put on the market',
+                    selectDifferent: 'Select a different dataset',
+                    areYouSure: 'Are you sure?',
+                    willReset: 'Any configuration you have made will be reset',
+                    searchDataset: 'Search for a dataset...',
+                    selectSearchDataset: 'Select / search for a dataset',
+                    assetTitle: 'Asset Title',
+                    assetDescription: 'Asset Description',
+                },
                 log: 'Data Log',
                 wallet: {
                     title: 'My Wallet',
