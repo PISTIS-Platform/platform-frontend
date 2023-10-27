@@ -69,7 +69,9 @@ const transactionsRows = computed(() => {
 </script>
 <template>
     <div class="w-full h-full text-gray-700">
-        <Heading :title="$t('data.wallet.title')" />
+        <h1 class="text-2xl font-bold">
+            {{ $t('data.wallet.title') }}
+        </h1>
 
         <!-- Cards Info -->
         <div class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8">
