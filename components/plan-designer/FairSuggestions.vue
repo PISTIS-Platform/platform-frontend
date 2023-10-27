@@ -29,16 +29,17 @@ const props = defineProps({
         <UCard v-if="props.completeOrQuery" class="mt-8 bg-secondary-50 border border-secondary-500">
             <template #header>
                 <div class="flex justify-between gap-4 items-start">
-                    <SubHeading title="FAIR Data Valuation Suggestions" info="Find out more here" />
-                    <a href="" class="text-xs text-primary-500 underline">Learn More</a>
+                    <SubHeading :title="$t('data.designer.fairTitle')" :info="$t('data.designer.fairInfo')" />
+                    <a href="" class="text-xs text-primary-500 underline">{{ $t('learnMore') }}</a>
                 </div>
             </template>
 
             <div>
-                Suggested One-off Price: <span class="font-bold">{{ props.oneOffPrice }} STC</span>
+                {{ $t('data.designer.suggestedOneOff') }}: <span class="font-bold">{{ props.oneOffPrice }} STC</span>
             </div>
             <div class="mt-4">
-                Suggested Subscription Price: <span class="font-bold">{{ props.subscriptionPrice }} STC</span>
+                {{ $t('data.designer.suggestedSubscription') }}:
+                <span class="font-bold">{{ props.subscriptionPrice }} STC {{ $t('perMonth') }}</span>
             </div>
         </UCard>
     </Transition>
