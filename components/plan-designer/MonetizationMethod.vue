@@ -117,6 +117,39 @@ const NFTschema = z.object({
         .gte(0, 'NFT price must be 0 or a positive number'),
 });
 
+const isOneOffSaleDetailsValid = computed(() => {
+    return oneOffSaleSchema.safeParse(props.oneOffSaleDetails).success;
+});
+const isSubscriptionDetailsValid = computed(() => {
+    return subscriptionSchema.safeParse(props.subscriptionDetails).success;
+});
+const isNFTdetailsValid = computed(() => {
+    return NFTschema.safeParse(props.NFTdetails).success;
+});
+const isInvestmentPlanDetailsValid = computed(() => {
+    return investmentSchema.safeParse(props.investmentPlanDetails).success;
+});
+
+const isMonetizationValid = computed(() => {
+    if (props.monetizationSelection === 'One-off Sale') {
+        return isOneOffSaleDetailsValid.value;
+    }
+    if (props.monetizationSelection === 'Subscription') {
+        return isSubscriptionDetailsValid.value;
+    }
+    if (props.monetizationSelection === 'NFT') {
+        return isNFTdetailsValid.value;
+    }
+    if (props.monetizationSelection === 'Investment Plan') {
+        return isInvestmentPlanDetailsValid.value;
+    }
+    return false;
+});
+
+watch(isMonetizationValid, () => {
+    emit('isMonetizationValid', isMonetizationValid.value);
+});
+
 const emit = defineEmits([
     'update:monetization-selection',
     'update:oneoff-price',
@@ -137,6 +170,7 @@ const emit = defineEmits([
     'update:plan-max-no-investors',
     'update:selected-investment-plan',
     'update:nft-price',
+    'isMonetizationValid',
     'reset-monetization',
 ]);
 

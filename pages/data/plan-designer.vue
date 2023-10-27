@@ -9,11 +9,11 @@ import type {
 
 //data for selected dataset
 
-const selected = ref('');
+const selected = ref(undefined);
 
 //data for selection whole dataset or query
 
-const completeOrQuery = ref('');
+const completeOrQuery = ref(undefined);
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
@@ -24,32 +24,32 @@ const subscriptionPrice = ref(20);
 // data for asset offering details
 
 const assetOfferingDetails = ref<AssetOfferingDetails>({
-    title: '',
-    description: '',
+    title: undefined,
+    description: undefined,
     keywords: [],
 });
 
 // data for monetization selections
 
-const monetizationSelection = ref('');
+const monetizationSelection = ref(undefined);
 
 // one-off sale details
 const oneOffSaleDetails = ref<OneOffSaleDetails>({
     price: undefined,
-    license: '',
-    terms: '',
+    license: undefined,
+    terms: undefined,
     limitNumber: undefined,
-    limitFrequency: '',
+    limitFrequency: undefined,
 });
 
 //subscription details
 const subscriptionDetails = ref<SubscriptionDetails>({
-    frequency: '',
+    frequency: undefined,
     price: undefined,
-    license: '',
-    terms: '',
+    license: undefined,
+    terms: undefined,
     limitNumber: undefined,
-    limitFrequency: '',
+    limitFrequency: undefined,
 });
 
 //NFT details
@@ -59,7 +59,7 @@ const NFTdetails = ref<NFTdetails>({
 
 //investment plan details
 const investmentPlanDetails = ref<InvestmentPlanDetails>({
-    title: '',
+    title: undefined,
     totalEqPercentage: undefined,
     minEqPercentage: undefined,
     eqPrice: undefined,
@@ -68,39 +68,45 @@ const investmentPlanDetails = ref<InvestmentPlanDetails>({
 
 // validation data
 const isAssetOfferingDetailsValid = ref(false);
-// const isOneOffSaleDetailsValid = ref(false);
-// const isSubscriptionDetailsValid = ref(false);
-// const isInvestmentPlanDetailsValid = ref(false);
-// const isNFTdetailsValid = ref(false);
+const isMonetizationValid = ref(false);
+
+// const isAllValid = computed(() => {
+//     return isAssetOfferingDetailsValid.value && isMonetizationValid.value;
+// });
+
+// const submitAll = () => {
+//     if (!isAllValid) return;
+//     //TODO: Do something for submit here
+// };
 
 // clear data when switching selection of dataset
 
 const reset = () => {
-    selected.value = '';
-    completeOrQuery.value = '';
-    monetizationSelection.value = '';
+    selected.value = undefined;
+    completeOrQuery.value = undefined;
+    monetizationSelection.value = undefined;
     assetOfferingDetails.value = {
-        title: '',
-        description: '',
+        title: undefined,
+        description: undefined,
         keywords: [],
     };
     oneOffSaleDetails.value = {
         price: undefined,
-        license: '',
-        terms: '',
+        license: undefined,
+        terms: undefined,
         limitNumber: undefined,
-        limitFrequency: '',
+        limitFrequency: undefined,
     };
     subscriptionDetails.value = {
-        frequency: '',
+        frequency: undefined,
         price: undefined,
-        license: '',
-        terms: '',
+        license: undefined,
+        terms: undefined,
         limitNumber: undefined,
-        limitFrequency: '',
+        limitFrequency: undefined,
     };
     investmentPlanDetails.value = {
-        title: '',
+        title: undefined,
         totalEqPercentage: undefined,
         minEqPercentage: undefined,
         eqPrice: undefined,
@@ -114,21 +120,21 @@ const reset = () => {
 const resetMonetization = () => {
     oneOffSaleDetails.value = {
         price: undefined,
-        license: '',
-        terms: '',
+        license: undefined,
+        terms: undefined,
         limitNumber: undefined,
-        limitFrequency: '',
+        limitFrequency: undefined,
     };
     subscriptionDetails.value = {
-        frequency: '',
+        frequency: undefined,
         price: undefined,
-        license: '',
-        terms: '',
+        license: undefined,
+        terms: undefined,
         limitNumber: undefined,
-        limitFrequency: '',
+        limitFrequency: undefined,
     };
     investmentPlanDetails.value = {
-        title: '',
+        title: undefined,
         totalEqPercentage: undefined,
         minEqPercentage: undefined,
         eqPrice: undefined,
@@ -160,7 +166,7 @@ const resetMonetization = () => {
             @update:asset-title="(value: string) => (assetOfferingDetails.title = value)"
             @update:asset-description="(value: string) => (assetOfferingDetails.description = value)"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
-            @isValid="(value: boolean) => (isAssetOfferingDetailsValid = value)"
+            @is-valid="(value: boolean) => (isAssetOfferingDetailsValid = value)"
         />
 
         <FairSuggestions
@@ -175,7 +181,7 @@ const resetMonetization = () => {
             :one-off-sale-details="oneOffSaleDetails"
             :subscription-details="subscriptionDetails"
             :investment-plan-details="investmentPlanDetails"
-            :NFTdetails="NFTdetails"
+            :NFT-details="NFTdetails"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
             @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
             @update:oneoff-license="(value: string) => (oneOffSaleDetails.license = value)"
@@ -194,6 +200,7 @@ const resetMonetization = () => {
             @update:plan-eq-price="(value: number) => (investmentPlanDetails.eqPrice = value)"
             @update:plan-max-no-investors="(value: number) => (investmentPlanDetails.maxNoInvestors = value)"
             @update:nft-price="(value: number) => (NFTdetails.price = value)"
+            @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @reset-monetization="resetMonetization"
         />
     </div>

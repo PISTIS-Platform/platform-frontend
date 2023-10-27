@@ -1,34 +1,30 @@
 export interface AssetOfferingDetails {
-    title: string;
-    description: string;
-    keywords: string[];
+    title: string | undefined;
+    description: string | undefined;
+    keywords: string[] | undefined;
 }
 
 export interface OneOffSaleDetails {
     price: number | undefined;
-    license: string;
-    terms: string;
+    license: string | undefined;
+    terms: string | undefined;
     limitNumber: number | undefined;
-    limitFrequency: string;
+    limitFrequency: string | undefined;
 }
 
 export interface SubscriptionDetails {
-    frequency: string;
+    frequency: string | undefined;
     price: number | undefined;
-    license: string;
-    terms: string;
+    license: string | undefined;
+    terms: string | undefined;
     limitNumber: number | undefined;
-    limitFrequency: string;
+    limitFrequency: string | undefined;
 }
 
 export interface InvestmentPlanDetails {
-    title: string;
+    title: string | undefined;
     totalEqPercentage: number | undefined;
     minEqPercentage: number | undefined;
     eqPrice: number | undefined;
     maxNoInvestors: number | undefined;
-}
-
-export interface NFTdetails {
-    price: number | undefined;
 }

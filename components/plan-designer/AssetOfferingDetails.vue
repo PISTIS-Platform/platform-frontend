@@ -19,12 +19,12 @@ const schema = z.object({
 
 const emit = defineEmits(['update:asset-title', 'update:asset-description', 'update:asset-keywords', 'isValid']);
 
-const computedIsValid = computed(() => {
+const isValid = computed(() => {
     return schema.safeParse(props.assetOfferingDetails).success && props.assetOfferingDetails.keywords.length > 0;
 });
 
-watch(computedIsValid, () => {
-    emit('isValid', computedIsValid.value);
+watch(isValid, () => {
+    emit('isValid', isValid.value);
 });
 </script>
 
@@ -66,7 +66,6 @@ watch(computedIsValid, () => {
                         @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
                     />
                 </UFormGroup>
-                {{ computedIsValid }}
             </UForm>
         </UCard>
     </Transition>
