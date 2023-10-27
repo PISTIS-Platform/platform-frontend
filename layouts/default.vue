@@ -20,6 +20,7 @@ const navigation = [
     { name: 'data.data', to: '/data' },
     { name: 'transactions.transactions', to: '/transactions' },
     { name: 'market.market', to: '/market' },
+    { name: 'admin.services.title', to: '/manage-services' },
 ];
 
 const userNavigation = [

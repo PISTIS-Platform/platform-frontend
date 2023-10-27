@@ -78,6 +78,23 @@ export default defineI18nConfig(() => ({
                 settings: 'Settings',
                 signOut: 'Sign out',
             },
+            admin: {
+                services: {
+                    title: 'Manage Services',
+                    factoryConnectors: {
+                        title: 'DataSpace Factory Connectors Manager',
+                        name: 'Name',
+                        ip: 'IP Address',
+                        country: 'Country',
+                        status: 'Status',
+                        live: 'Live',
+                        pending: 'Pending Activation',
+                        deactivated: 'Deactivated',
+                        activate: 'Activate',
+                        deactivate: 'Deactivate',
+                    },
+                },
+            },
         },
     },
 }));
