@@ -174,6 +174,23 @@ export default defineI18nConfig(() => ({
                 unread: 'Mark as unread',
                 delete: 'Remove notification',
             },
+            admin: {
+                services: {
+                    title: 'Manage Services',
+                    factoryConnectors: {
+                        title: 'DataSpace Factory Connectors Manager',
+                        name: 'Name',
+                        ip: 'IP Address',
+                        country: 'Country',
+                        status: 'Status',
+                        live: 'Live',
+                        pending: 'Pending Activation',
+                        deactivated: 'Deactivated',
+                        activate: 'Activate',
+                        deactivate: 'Deactivate',
+                    },
+                },
+            },
         },
     },
 }));
