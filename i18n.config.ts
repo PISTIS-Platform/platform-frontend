@@ -40,6 +40,10 @@ export default defineI18nConfig(() => ({
                 },
                 dmRepository: {
                     title: 'Data Model Repository',
+                    view: 'View',
+                    edit: 'Edit',
+                    delete: 'Delete',
+                    download: 'Download',
                     dmAddTitle: 'Add Data Model Repository',
                     upload: 'Upload New Artefact',
                     select: 'Select file',
@@ -77,6 +81,12 @@ export default defineI18nConfig(() => ({
                 profile: 'Your Profile',
                 settings: 'Settings',
                 signOut: 'Sign out',
+            },
+            notifications: {
+                title: 'Notifications',
+                read: 'Mark as read',
+                unread: 'Mark as unread',
+                delete: 'Remove notification',
             },
         },
     },

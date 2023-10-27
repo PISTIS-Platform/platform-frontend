@@ -103,7 +103,7 @@ function deleteRepo() {
                     <UInput v-model="searchString" :placeholder="$t('data.dmRepository.search')" />
                 </div>
                 <div class="order-last flex gap-2">
-                    <UTooltip text="View">
+                    <UTooltip :text="$t('data.dmRepository.view')">
                         <UIcon
                             name="i-heroicons-eye-20-solid"
                             color="gray"
@@ -111,7 +111,7 @@ function deleteRepo() {
                             @click="viewRepo"
                         />
                     </UTooltip>
-                    <UTooltip text="Edit">
+                    <UTooltip :text="$t('data.dmRepository.edit')">
                         <UIcon
                             name="i-heroicons-pencil-20-solid"
                             color="gray"
@@ -119,7 +119,7 @@ function deleteRepo() {
                             @click="editRepo"
                         />
                     </UTooltip>
-                    <UTooltip text="Download">
+                    <UTooltip :text="$t('data.dmRepository.download')">
                         <UIcon
                             name="i-heroicons-arrow-down-20-solid"
                             color="gray"
@@ -127,7 +127,7 @@ function deleteRepo() {
                             @click="downloadRepo"
                         />
                     </UTooltip>
-                    <UTooltip text="Delete">
+                    <UTooltip :text="$t('data.dmRepository.delete')">
                         <UIcon
                             name="i-heroicons-trash-20-solid"
                             color="gray"
@@ -135,7 +135,7 @@ function deleteRepo() {
                             @click="deleteRepo"
                         />
                     </UTooltip>
-                    <UTooltip text="Add New Dataset">
+                    <UTooltip :text="$t('data.dmRepository.addDataset')">
                         <NuxtLink to="/data/add-data-model-repository">
                             <UIcon
                                 name="i-heroicons-document-plus-20-solid"

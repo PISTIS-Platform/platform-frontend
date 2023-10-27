@@ -60,6 +60,7 @@ const userNavigation = [
                             <button
                                 type="button"
                                 class="relative rounded-full bg-primary-700 p-1 text-primary-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                                to="/notifications"
                             >
                                 <span class="absolute -inset-1.5" />
                                 <span class="sr-only">View notifications</span>
@@ -161,7 +162,8 @@ const userNavigation = [
                             as="a"
                             :href="item.href"
                             class="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-500 hover:bg-opacity-75"
-                            >{{ $t(item.name) }}</DisclosureButton
+                        >
+                            {{ $t(item.name) }}</DisclosureButton
                         >
                     </div>
                 </div>
