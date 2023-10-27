@@ -66,6 +66,13 @@ const investmentPlanDetails = ref<InvestmentPlanDetails>({
     maxNoInvestors: undefined,
 });
 
+// validation data
+const isAssetOfferingDetailsValid = ref(false);
+// const isOneOffSaleDetailsValid = ref(false);
+// const isSubscriptionDetailsValid = ref(false);
+// const isInvestmentPlanDetailsValid = ref(false);
+// const isNFTdetailsValid = ref(false);
+
 // clear data when switching selection of dataset
 
 const reset = () => {
@@ -153,9 +160,8 @@ const resetMonetization = () => {
             @update:asset-title="(value: string) => (assetOfferingDetails.title = value)"
             @update:asset-description="(value: string) => (assetOfferingDetails.description = value)"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
+            @isValid="(value: boolean) => (isAssetOfferingDetailsValid = value)"
         />
-
-        {{ assetOfferingDetails }}
 
         <FairSuggestions
             v-model:oneOffPrice="oneOffPrice"

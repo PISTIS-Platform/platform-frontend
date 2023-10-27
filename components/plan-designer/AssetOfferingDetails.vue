@@ -15,10 +15,17 @@ const props = defineProps({
 const schema = z.object({
     title: z.string().min(10, 'Must be at least 10 characters'),
     description: z.string().min(20, 'Must be at least 20 characters'),
-    keywords: z.string(),
 });
 
-const emit = defineEmits(['update:asset-title', 'update:asset-description', 'update:asset-keywords']);
+const emit = defineEmits(['update:asset-title', 'update:asset-description', 'update:asset-keywords', 'isValid']);
+
+const computedIsValid = computed(() => {
+    return schema.safeParse(props.assetOfferingDetails).success && props.assetOfferingDetails.keywords.length > 0;
+});
+
+watch(computedIsValid, () => {
+    emit('isValid', computedIsValid.value);
+});
 </script>
 
 <template>
@@ -50,11 +57,7 @@ const emit = defineEmits(['update:asset-title', 'update:asset-description', 'upd
                         @update:model-value="(value: string) => emit('update:asset-description', value)"
                     />
                 </UFormGroup>
-                <UFormGroup label="Keywords" required name="keywords">
-                    <!-- <UInput
-                        v-model.trim="props.assetOfferingDetails.keywords"
-                        placeholder="Type keywords separated by commas"
-                    /> -->
+                <UFormGroup label="Keywords" required>
                     <vue3-tags-input
                         :tags="props.assetOfferingDetails.keywords"
                         :placeholder="
@@ -63,6 +66,7 @@ const emit = defineEmits(['update:asset-title', 'update:asset-description', 'upd
                         @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
                     />
                 </UFormGroup>
+                {{ computedIsValid }}
             </UForm>
         </UCard>
     </Transition>
