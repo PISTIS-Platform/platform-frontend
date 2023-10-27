@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
+
+const { t } = useI18n();
 
 const props = defineProps({
     completeOrQuery: {
@@ -34,28 +37,28 @@ const props = defineProps({
 
 const monetizationSelections = [
     {
-        title: 'One-off Sale',
-        info: 'Info here',
+        title: t('data.designer.oneOffSale'),
+        info: t('data.designer.oneOffSaleInfo'),
     },
     {
-        title: 'Subscription',
-        info: 'Info here',
+        title: t('data.designer.subscription'),
+        info: t('data.designer.subscriptionInfo'),
     },
     {
-        title: 'NFT',
-        info: 'Info here',
+        title: t('data.designer.nft'),
+        info: t('data.designer.nftInfo'),
     },
     {
-        title: 'Investment Plan',
-        info: 'Info here',
+        title: t('data.designer.investmentPlan'),
+        info: t('data.designer.investmentPlanInfo'),
     },
 ];
 
 const licenseSelections = ['CC-BY', 'MIT', 'CC0'];
 
-const limitFrequencySelections = ['per day', 'per week', 'per month', 'per year'];
+const limitFrequencySelections = computed(() => [t('perDay'), t('perWeek'), t('perMonth'), t('perYear')]);
 
-const frequencySelections = ['Monthly', 'Annual'];
+const frequencySelections = computed(() => [t('monthly'), t('annual')]);
 
 const investmentPlans = ref({
     Title1: {
@@ -75,50 +78,32 @@ const investmentPlans = ref({
 });
 
 const oneOffSaleSchema = z.object({
-    price: z.coerce
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gte(0, 'Price must be 0 or a positive number'),
+    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
     license: z.string(),
-    terms: z.string().min(20, 'Must be at least 20 characters'),
-    limitNumber: z.coerce
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gte(0, 'Limit number must be 0 or a positive number'),
+    terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+    limitNumber: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
     limitFrequency: z.string(),
 });
 
 const subscriptionSchema = z.object({
     frequency: z.string(),
-    price: z.coerce
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gte(0, 'Price must be 0 or a positive number'),
+    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
     license: z.string(),
-    terms: z.string().min(20, 'Must be at least 20 characters'),
-    limitNumber: z.coerce
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gte(0, 'Limit number must be 0 or a positive number'),
+    terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+    limitNumber: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
     limitFrequency: z.string(),
 });
 
 const investmentSchema = z.object({
-    title: z.string(),
-    totalEqPercentage: z.coerce
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gt(0, 'Total equity percentage must be a positive number'),
-    minEqPercentage: z.coerce
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gt(0, 'Minimum equity percentage must be a positive number'),
-    eqPrice: z.coerce
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gt(0, 'Equity price must be a positive number'),
-    maxNoInvestors: z.coerce
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gt(0, 'Max number of investors must be a positive number'),
+    title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
+    totalEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+    minEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+    eqPrice: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+    maxNoInvestors: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
 });
 
 const NFTschema = z.object({
-    price: z.coerce
-        .number({ invalid_type_error: 'Please enter a valid number' })
-        .gte(0, 'NFT price must be 0 or a positive number'),
+    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
 });
 
 const isOneOffSaleDetailsValid = computed(() => {
@@ -135,16 +120,16 @@ const isInvestmentPlanDetailsValid = computed(() => {
 });
 
 const isMonetizationValid = computed(() => {
-    if (props.monetizationSelection === 'One-off Sale') {
+    if (props.monetizationSelection === t('data.designer.oneOffSale')) {
         return isOneOffSaleDetailsValid.value;
     }
-    if (props.monetizationSelection === 'Subscription') {
+    if (props.monetizationSelection === t('data.designer.subscription')) {
         return isSubscriptionDetailsValid.value;
     }
-    if (props.monetizationSelection === 'NFT') {
+    if (props.monetizationSelection === t('data.designer.nft')) {
         return isNFTDetailsValid.value;
     }
-    if (props.monetizationSelection === 'Investment Plan') {
+    if (props.monetizationSelection === t('data.designer.investmentPlan')) {
         return isInvestmentPlanDetailsValid.value;
     }
     return false;
@@ -234,7 +219,10 @@ const saveInvestmentPlan = () => {
     >
         <UCard v-if="props.completeOrQuery" class="mt-8">
             <template #header>
-                <SubHeading title="Monetization Method" info="Find out more here" />
+                <SubHeading
+                    :title="$t('data.designer.monetizationMethod')"
+                    :info="$t('data.designer.monetizationMethodInfo')"
+                />
             </template>
 
             <SelectionCards
@@ -256,15 +244,15 @@ const saveInvestmentPlan = () => {
                 leave-to-class="transform opacity-0"
             >
                 <UForm
-                    v-if="props.monetizationSelection === 'One-off Sale'"
+                    v-if="props.monetizationSelection === t('data.designer.oneOffSale')"
                     class="flex flex-col gap-4 mt-6 w-full"
                     :state="props.oneOffSaleDetails"
                     :schema="oneOffSaleSchema"
                 >
-                    <UFormGroup label="One-off Sale Price" required name="price">
+                    <UFormGroup :label="$t('data.designer.oneOffPrice')" required name="price">
                         <UInput
                             :model-value="props.oneOffSaleDetails.price"
-                            placeholder="Price of the asset"
+                            :placeholder="$t('data.designer.assetPrice')"
                             type="numeric"
                             @update:model-value="(value: string) => emit('update:oneoff-price', value)"
                         >
@@ -273,39 +261,44 @@ const saveInvestmentPlan = () => {
                             </template>
                         </UInput>
                     </UFormGroup>
-                    <UFormGroup label="License" required name="license">
+                    <UFormGroup :label="$t('license')" required name="license">
                         <USelectMenu
                             :model-value="props.oneOffSaleDetails.license"
-                            placeholder="Select a license"
+                            :placeholder="$t('data.designer.selectLicense')"
                             :options="licenseSelections"
                             @update:model-value="(value: string) => emit('update:oneoff-license', value)"
                         />
                     </UFormGroup>
-                    <UFormGroup label="Terms and Conditions" required name="terms">
+                    <UFormGroup :label="$t('termsConditions')" required name="terms">
                         <UTextarea
                             :model-value="props.oneOffSaleDetails.terms"
-                            placeholder="Type the terms and conditions of your license here"
+                            :placeholder="$t('data.designer.typeTerms')"
                             icon="i-heroicons-envelope"
                             @update:model-value="(value: string) => emit('update:oneoff-terms', value)"
                         />
                     </UFormGroup>
                     <div class="flex gap-4 items-start h-20 w-full">
-                        <UFormGroup label="Download limit" required name="limitNumber" class="w-full">
+                        <UFormGroup
+                            :label="$t('data.designer.downloadLimit')"
+                            required
+                            name="limitNumber"
+                            class="w-full"
+                        >
                             <UInput
                                 :model-value="props.oneOffSaleDetails.limitNumber"
-                                placeholder="number of times allowed"
+                                :placeholder="$t('data.designer.downloadLimitPH')"
                                 type="numeric"
                                 @update:model-value="(value: string) => emit('update:oneoff-limit-number', value)"
                             >
                                 <template #trailing>
-                                    <span class="text-gray-500 text-xs">times</span>
+                                    <span class="text-gray-500 text-xs">{{ $t('times') }}</span>
                                 </template>
                             </UInput>
                         </UFormGroup>
-                        <UFormGroup label="Frequency" required name="limitFrequency" class="w-full">
+                        <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-full">
                             <USelectMenu
                                 :model-value="props.oneOffSaleDetails.limitFrequency"
-                                placeholder="Select a frequency"
+                                :placeholder="$t('data.designer.selectFrequency')"
                                 :options="limitFrequencySelections"
                                 @update:model-value="(value: string) => emit('update:oneoff-limit-frequency', value)"
                             />
@@ -323,23 +316,23 @@ const saveInvestmentPlan = () => {
                 leave-to-class="transform opacity-0"
             >
                 <UForm
-                    v-if="props.monetizationSelection === 'Subscription'"
+                    v-if="props.monetizationSelection === t('data.designer.subscription')"
                     class="flex flex-col gap-4 mt-6 w-full"
                     :state="props.subscriptionDetails"
                     :schema="subscriptionSchema"
                 >
-                    <UFormGroup label="Subscription Frequency" required name="frequency">
+                    <UFormGroup :label="$t('data.designer.subscriptionFrequency')" required name="frequency">
                         <USelectMenu
                             :model-value="props.subscriptionDetails.frequency"
-                            placeholder="Select a frequency"
+                            :placeholder="$t('data.designer.selectFrequency')"
                             :options="frequencySelections"
                             @update:model-value="(value: string) => emit('update:sub-frequency', value)"
                         />
                     </UFormGroup>
-                    <UFormGroup label="Subscription Price" required name="price">
+                    <UFormGroup :label="$t('data.designer.subscriptionPrice')" required name="price">
                         <UInput
                             :model-value="props.subscriptionDetails.price"
-                            placeholder="Price of the asset"
+                            :placeholder="$t('data.designer.subscriptionPricePH')"
                             type="numeric"
                             @update:model-value="(value: string) => emit('update:sub-price', value)"
                         >
@@ -348,27 +341,32 @@ const saveInvestmentPlan = () => {
                             </template>
                         </UInput>
                     </UFormGroup>
-                    <UFormGroup label="License" required name="license">
+                    <UFormGroup :label="$t('license')" required name="license">
                         <USelectMenu
                             :model-value="props.subscriptionDetails.license"
-                            placeholder="Select a license"
+                            :placeholder="$t('data.designer.selectLicense')"
                             :options="licenseSelections"
                             @update:model-value="(value: string) => emit('update:sub-license', value)"
                         />
                     </UFormGroup>
-                    <UFormGroup label="Terms and Conditions" required name="terms">
+                    <UFormGroup :label="$t('termsConditions')" required name="terms">
                         <UTextarea
                             :model-value="props.subscriptionDetails.terms"
-                            placeholder="Type the terms and conditions of your license here"
+                            :placeholder="$t('data.designer.typeTerms')"
                             icon="i-heroicons-envelope"
                             @update:model-value="(value: string) => emit('update:sub-terms', value)"
                         />
                     </UFormGroup>
                     <div class="flex gap-4 items-start h-20 w-full">
-                        <UFormGroup label="Download limit" required name="limitNumber" class="w-full">
+                        <UFormGroup
+                            :label="$t('data.designer.downloadLimit')"
+                            required
+                            name="limitNumber"
+                            class="w-full"
+                        >
                             <UInput
                                 :model-value="props.subscriptionDetails.limitNumber"
-                                placeholder="number of times allowed"
+                                :placeholder="$t('data.designer.downloadLimitPH')"
                                 type="numeric"
                                 @update:model-value="(value: string) => emit('update:sub-limit-number', value)"
                             >
@@ -377,10 +375,10 @@ const saveInvestmentPlan = () => {
                                 </template>
                             </UInput>
                         </UFormGroup>
-                        <UFormGroup label="Frequency" required name="limitFrequency" class="w-full">
+                        <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-full">
                             <USelectMenu
                                 :model-value="props.subscriptionDetails.limitFrequency"
-                                placeholder="Select a frequency"
+                                :placeholder="$t('data.designer.selectFrequency')"
                                 :options="limitFrequencySelections"
                                 @update:model-value="(value: string) => emit('update:sub-limit-frequency', value)"
                             />
@@ -398,15 +396,15 @@ const saveInvestmentPlan = () => {
                 leave-to-class="transform opacity-0"
             >
                 <UForm
-                    v-if="props.monetizationSelection === 'NFT'"
+                    v-if="props.monetizationSelection === t('data.designer.nft')"
                     class="flex flex-col gap-4 mt-6 w-full"
                     :state="props.NFTDetails"
                     :schema="NFTschema"
                 >
-                    <UFormGroup label="NFT Price" required name="price">
+                    <UFormGroup :label="$t('data.designer.nftPrice')" required name="price">
                         <UInput
                             :model-value="props.NFTDetails.price"
-                            placeholder="Price"
+                            :placeholder="$t('price')"
                             type="numeric"
                             @update:model-value="(value: string) => emit('update:nft-price', value)"
                         >
@@ -415,7 +413,9 @@ const saveInvestmentPlan = () => {
                             </template>
                         </UInput>
                     </UFormGroup>
-                    <UButton color="white" class="w-40 flex items-center justify-center">Generate NEW NFT</UButton>
+                    <UButton color="white" class="w-40 flex items-center justify-center">{{
+                        $t('data.designer.generateNFT')
+                    }}</UButton>
                 </UForm>
             </Transition>
 
@@ -430,57 +430,57 @@ const saveInvestmentPlan = () => {
                 <div class="mt-6">
                     <div class="flex flex-col gap-4">
                         <UFormGroup
-                            v-if="props.monetizationSelection === 'Investment Plan'"
-                            label="Search For / Select / Edit / Create new plan"
+                            v-if="props.monetizationSelection === t('data.designer.investmentPlan')"
+                            :label="$t('data.designer.searchEditCreatePlan')"
                         >
                             <div class="flex items-center gap-4">
                                 <USelectMenu
                                     v-model="selectedInvestmentPlan"
                                     icon="i-heroicons-magnifying-glass-20-solid"
                                     searchable
-                                    searchable-placeholder="Search for a Data Investment Plan..."
+                                    :searchable-placeholder="$t('data.designer.searchPlan')"
                                     class="w-full relative"
-                                    placeholder="Search for / select a Data Investment Plan"
+                                    :placeholder="$t('data.designer.searchSelectPlan')"
                                     :options="investmentPlanTitles"
                                     @update:model-value="(value: string) => updateInvestmentPlan(value)"
                                 />
-                                <span v-if="selectedInvestmentPlan"> or</span>
+                                <span v-if="selectedInvestmentPlan"> {{ $t('or') }}</span>
                                 <span
                                     v-if="selectedInvestmentPlan"
                                     class="cursor-pointer text-primary-500 whitespace-nowrap"
                                     @click="editPlan"
                                 >
-                                    edit plan
+                                    {{ $t('data.designer.editPlan') }}
                                 </span>
-                                <span> or </span>
+                                <span> {{ $t('or') }} </span>
                                 <span class="cursor-pointer text-primary-500 whitespace-nowrap" @click="createNewPlan">
-                                    create new plan
+                                    {{ $t('data.designer.createPlan') }}
                                 </span>
                             </div>
                         </UFormGroup>
                         <div v-if="selectedInvestmentPlan && !showCreatePlan" class="flex flex-col gap-4">
                             <p>
-                                Investment Plan Title:
+                                {{ $t('data.designer.investmentPlanTitle') }}:
                                 <span class="font-bold">{{ investmentPlans[selectedInvestmentPlan].title }}</span>
                             </p>
                             <p>
-                                Total Equity Percentage:
+                                {{ $t('data.designer.totalEquityPercentage') }}:
                                 <span class="font-bold"
                                     >{{ investmentPlans[selectedInvestmentPlan].totalEqPercentage }}%</span
                                 >
                             </p>
                             <p>
-                                Min Equity Percentage:
+                                {{ $t('data.designer.minEquityPercentage') }}:
                                 <span class="font-bold"
                                     >{{ investmentPlans[selectedInvestmentPlan].minEqPercentage }}%</span
                                 >
                             </p>
                             <p>
-                                Equity Price:
+                                {{ $t('data.designer.equityPrice') }}:
                                 <span class="font-bold">{{ investmentPlans[selectedInvestmentPlan].eqPrice }} STC</span>
                             </p>
                             <p>
-                                Max No of investors:
+                                {{ $t('data.designer.maxInvestors') }}:
                                 <span class="font-bold"
                                     >{{ investmentPlans[selectedInvestmentPlan].maxNoInvestors }} investors</span
                                 >
@@ -488,22 +488,26 @@ const saveInvestmentPlan = () => {
                         </div>
                     </div>
                     <UForm
-                        v-if="props.monetizationSelection === 'Investment Plan' && showCreatePlan"
+                        v-if="props.monetizationSelection === $t('data.designer.investmentPlan') && showCreatePlan"
                         class="flex flex-col gap-4 mt-6 w-full"
                         :state="props.investmentPlanDetails"
                         :schema="investmentSchema"
                     >
-                        <UFormGroup label="Investment Plan Title" required name="title">
+                        <UFormGroup :label="$t('data.designer.investmentPlanTitle')" required name="title">
                             <UInput
                                 :model-value="props.investmentPlanDetails.title"
-                                placeholder="Title of the investment plan"
+                                :placeholder="$t('data.designer.investmentPlanTitle')"
                                 @update:model-value="(value: string[]) => emit('update:plan-title', value)"
                             />
                         </UFormGroup>
-                        <UFormGroup label="Total Equity Percentage" required name="totalEqPercentage">
+                        <UFormGroup
+                            :label="$t('data.designer.totalEquityPercentage')"
+                            required
+                            name="totalEqPercentage"
+                        >
                             <UInput
                                 :model-value="props.investmentPlanDetails.totalEqPercentage"
-                                placeholder="Percentage"
+                                :placeholder="$t('percentage')"
                                 type="numeric"
                                 @update:model-value="(value: string) => emit('update:plan-total-eq-percentage', value)"
                             >
@@ -512,10 +516,10 @@ const saveInvestmentPlan = () => {
                                 </template>
                             </UInput>
                         </UFormGroup>
-                        <UFormGroup label="Minimum Equity Percentage" required name="minEqPercentage">
+                        <UFormGroup :label="$t('data.designer.minEquityPercentage')" required name="minEqPercentage">
                             <UInput
                                 :model-value="props.investmentPlanDetails.minEqPercentage"
-                                placeholder="Percentage"
+                                :placeholder="$t('percentage')"
                                 type="numeric"
                                 @update:model-value="(value: string) => emit('update:plan-min-eq-percentage', value)"
                             >
@@ -524,10 +528,10 @@ const saveInvestmentPlan = () => {
                                 </template>
                             </UInput>
                         </UFormGroup>
-                        <UFormGroup label="Equity Price" required name="eqPrice">
+                        <UFormGroup :label="$t('data.designer.equityPrice')" required name="eqPrice">
                             <UInput
                                 :model-value="props.investmentPlanDetails.eqPrice"
-                                placeholder="Price"
+                                :placeholder="$t('price')"
                                 type="numeric"
                                 @update:model-value="(value: string) => emit('update:plan-eq-price', value)"
                             >
@@ -536,23 +540,27 @@ const saveInvestmentPlan = () => {
                                 </template>
                             </UInput>
                         </UFormGroup>
-                        <UFormGroup label="Max number of investors" required name="maxNoInvestors">
+                        <UFormGroup :label="$t('data.designer.maxInvestors')" required name="maxNoInvestors">
                             <UInput
                                 :model-value="props.investmentPlanDetails.maxNoInvestors"
-                                placeholder="Number of investors"
+                                :placeholder="$t('data.designer.maxInvestors')"
                                 type="numeric"
                                 @update:model-value="(value: string) => emit('update:plan-max-no-investors', value)"
                             >
                             </UInput>
                         </UFormGroup>
-                        <UButton color="white" class="w-44 flex justify-center items-center" @click="saveInvestmentPlan"
-                            >Save Investment Plan</UButton
+                        <UButton
+                            color="white"
+                            class="w-44 flex justify-center items-center"
+                            :disabled="!isInvestmentPlanDetailsValid"
+                            @click="saveInvestmentPlan"
+                            >{{ $t('data.designer.saveInvestmentPlan') }}</UButton
                         >
                     </UForm>
                 </div>
             </Transition>
             <div class="flex w-full justify-end items-center">
-                <UButton :disabled="!isAllValid" @click="emit('submit')">Submit</UButton>
+                <UButton :disabled="!isAllValid" @click="emit('submit')">{{ $t('submit') }}</UButton>
             </div>
         </UCard>
     </Transition>
