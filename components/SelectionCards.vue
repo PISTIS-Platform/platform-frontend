@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps({
     selections: {
-        type: Array<any>,
+        type: Array<{ title: string; info: string }>,
         required: true,
     },
     width: {
@@ -9,19 +9,13 @@ const props = defineProps({
         required: false,
         default: 'w-full',
     },
-    selected: {
+    modelValue: {
         type: String,
         required: true,
     },
 });
 
-const innerSelected = computed(() => props.selected);
-
-const emit = defineEmits(['selection-changed']);
-
-watch(innerSelected, () => {
-    emit('selection-changed', innerSelected.value);
-});
+const emit = defineEmits(['update:model-value']);
 </script>
 
 <template>
@@ -31,9 +25,9 @@ watch(innerSelected, () => {
             :key="item.title"
             :title="item.title"
             :info="item.info"
-            :selected="innerSelected === item.title"
+            :selected="props.modelValue === item.title"
             :width="props.width"
-            @click="emit('selection-changed', item.title)"
+            @click="emit('update:model-value', item.title)"
         />
     </div>
 </template>
