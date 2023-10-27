@@ -18,7 +18,7 @@ const schema = z.object({
     keywords: z.string(),
 });
 
-const emit = defineEmits(['reset', 'update:title', 'update:description', 'update:keywords']);
+const emit = defineEmits(['update:asset-title', 'update:asset-description', 'update:asset-keywords']);
 </script>
 
 <template>
@@ -39,7 +39,7 @@ const emit = defineEmits(['reset', 'update:title', 'update:description', 'update
                     <UInput
                         :model-value="props.assetOfferingDetails.title"
                         placeholder="Title of the asset"
-                        @update:model-value="(value: string[]) => emit('update:title', value)"
+                        @update:model-value="(value: string) => emit('update:asset-title', value)"
                     />
                 </UFormGroup>
                 <UFormGroup label="Description" required name="description">
@@ -47,7 +47,7 @@ const emit = defineEmits(['reset', 'update:title', 'update:description', 'update
                         :model-value="props.assetOfferingDetails.description"
                         placeholder="Type a description for the asset here"
                         icon="i-heroicons-envelope"
-                        @update:model-value="(value: string[]) => emit('update:description', value)"
+                        @update:model-value="(value: string) => emit('update:asset-description', value)"
                     />
                 </UFormGroup>
                 <UFormGroup label="Keywords" required name="keywords">
@@ -60,7 +60,7 @@ const emit = defineEmits(['reset', 'update:title', 'update:description', 'update
                         :placeholder="
                             props.assetOfferingDetails.keywords.length ? '' : 'Type keywords separated by commas'
                         "
-                        @on-tags-changed="(value: string[]) => emit('update:keywords', value)"
+                        @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
                     />
                 </UFormGroup>
             </UForm>

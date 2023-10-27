@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import type {
+    AssetOfferingDetails,
+    InvestmentPlanDetails,
+    NFTdetails,
+    OneOffSaleDetails,
+    SubscriptionDetails,
+} from '../../interfaces/plan-designer';
+
 //data for selected dataset
 
 const selected = ref('');
@@ -15,7 +23,7 @@ const subscriptionPrice = ref(20);
 
 // data for asset offering details
 
-const assetOfferingDetails = ref<any>({
+const assetOfferingDetails = ref<AssetOfferingDetails>({
     title: '',
     description: '',
     keywords: [],
@@ -26,7 +34,7 @@ const assetOfferingDetails = ref<any>({
 const monetizationSelection = ref('');
 
 // one-off sale details
-const oneOffSaleDetails = ref<any>({
+const oneOffSaleDetails = ref<OneOffSaleDetails>({
     price: undefined,
     license: '',
     terms: '',
@@ -35,7 +43,7 @@ const oneOffSaleDetails = ref<any>({
 });
 
 //subscription details
-const subscriptionDetails = ref<any>({
+const subscriptionDetails = ref<SubscriptionDetails>({
     frequency: '',
     price: undefined,
     license: '',
@@ -45,12 +53,12 @@ const subscriptionDetails = ref<any>({
 });
 
 //NFT details
-const NFTdetails = ref<any>({
+const NFTdetails = ref<NFTdetails>({
     price: undefined,
 });
 
 //investment plan details
-const investmentPlanDetails = ref<any>({
+const investmentPlanDetails = ref<InvestmentPlanDetails>({
     title: '',
     totalEqPercentage: undefined,
     minEqPercentage: undefined,
@@ -142,10 +150,12 @@ const resetMonetization = () => {
         <AssetOfferingDetails
             :asset-offering-details="assetOfferingDetails"
             :complete-or-query="completeOrQuery"
-            @update:title="(value: string[]) => (assetOfferingDetails.title = value)"
-            @update:description="(value: string[]) => (assetOfferingDetails.description = value)"
-            @update:keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
+            @update:asset-title="(value: string) => (assetOfferingDetails.title = value)"
+            @update:asset-description="(value: string) => (assetOfferingDetails.description = value)"
+            @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
         />
+
+        {{ assetOfferingDetails }}
 
         <FairSuggestions
             v-model:oneOffPrice="oneOffPrice"
@@ -162,16 +172,16 @@ const resetMonetization = () => {
             :NFTdetails="NFTdetails"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
             @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
-            @update:oneoff-license="(value: number) => (oneOffSaleDetails.license = value)"
-            @update:oneoff-terms="(value: number) => (oneOffSaleDetails.terms = value)"
+            @update:oneoff-license="(value: string) => (oneOffSaleDetails.license = value)"
+            @update:oneoff-terms="(value: string) => (oneOffSaleDetails.terms = value)"
             @update:oneoff-limit-number="(value: number) => (oneOffSaleDetails.limitNumber = value)"
-            @update:oneoff-limit-frequency="(value: number) => (oneOffSaleDetails.limitFrequency = value)"
-            @update:sub-frequency="(value: number) => (subscriptionDetails.frequency = value)"
+            @update:oneoff-limit-frequency="(value: string) => (oneOffSaleDetails.limitFrequency = value)"
+            @update:sub-frequency="(value: string) => (subscriptionDetails.frequency = value)"
             @update:sub-price="(value: number) => (subscriptionDetails.price = value)"
-            @update:sub-license="(value: number) => (subscriptionDetails.license = value)"
-            @update:sub-terms="(value: number) => (subscriptionDetails.terms = value)"
+            @update:sub-license="(value: string) => (subscriptionDetails.license = value)"
+            @update:sub-terms="(value: string) => (subscriptionDetails.terms = value)"
             @update:sub-limit-number="(value: number) => (subscriptionDetails.limitNumber = value)"
-            @update:sub-limit-frequency="(value: number) => (subscriptionDetails.limitFrequency = value)"
+            @update:sub-limit-frequency="(value: string) => (subscriptionDetails.limitFrequency = value)"
             @update:plan-title="(value: string) => (investmentPlanDetails.title = value)"
             @update:plan-total-eq-percentage="(value: string) => (investmentPlanDetails.totalEqPercentage = value)"
             @update:plan-min-eq-percentage="(value: string) => (investmentPlanDetails.minEqPercentage = value)"
