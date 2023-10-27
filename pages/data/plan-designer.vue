@@ -2,18 +2,18 @@
 import type {
     AssetOfferingDetails,
     InvestmentPlanDetails,
-    NFTdetails,
+    NFTDetails,
     OneOffSaleDetails,
     SubscriptionDetails,
 } from '../../interfaces/plan-designer';
 
 //data for selected dataset
 
-const selected = ref(undefined);
+const selected = ref<string | undefined>(undefined);
 
 //data for selection whole dataset or query
 
-const completeOrQuery = ref(undefined);
+const completeOrQuery = ref<string | undefined>(undefined);
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
@@ -53,7 +53,7 @@ const subscriptionDetails = ref<SubscriptionDetails>({
 });
 
 //NFT details
-const NFTdetails = ref<NFTdetails>({
+const NFTdetails = ref<NFTDetails>({
     price: undefined,
 });
 
@@ -70,14 +70,15 @@ const investmentPlanDetails = ref<InvestmentPlanDetails>({
 const isAssetOfferingDetailsValid = ref(false);
 const isMonetizationValid = ref(false);
 
-// const isAllValid = computed(() => {
-//     return isAssetOfferingDetailsValid.value && isMonetizationValid.value;
-// });
+const isAllValid = computed(() => {
+    return isAssetOfferingDetailsValid.value && isMonetizationValid.value;
+});
 
-// const submitAll = () => {
-//     if (!isAllValid) return;
-//     //TODO: Do something for submit here
-// };
+const submitAll = () => {
+    if (!isAllValid) return;
+    //TODO: Do something for submit here
+    console.log('SUCCESS');
+};
 
 // clear data when switching selection of dataset
 
@@ -182,6 +183,7 @@ const resetMonetization = () => {
             :subscription-details="subscriptionDetails"
             :investment-plan-details="investmentPlanDetails"
             :NFT-details="NFTdetails"
+            :is-all-valid="isAllValid"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
             @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
             @update:oneoff-license="(value: string) => (oneOffSaleDetails.license = value)"
@@ -202,6 +204,7 @@ const resetMonetization = () => {
             @update:nft-price="(value: number) => (NFTdetails.price = value)"
             @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @reset-monetization="resetMonetization"
+            @submit="submitAll"
         />
     </div>
 </template>

@@ -18,12 +18,16 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    NFTdetails: {
+    NFTDetails: {
         type: Object,
         required: true,
     },
     monetizationSelection: {
         type: String,
+        required: true,
+    },
+    isAllValid: {
+        type: Boolean,
         required: true,
     },
 });
@@ -123,8 +127,8 @@ const isOneOffSaleDetailsValid = computed(() => {
 const isSubscriptionDetailsValid = computed(() => {
     return subscriptionSchema.safeParse(props.subscriptionDetails).success;
 });
-const isNFTdetailsValid = computed(() => {
-    return NFTschema.safeParse(props.NFTdetails).success;
+const isNFTDetailsValid = computed(() => {
+    return NFTschema.safeParse(props.NFTDetails).success;
 });
 const isInvestmentPlanDetailsValid = computed(() => {
     return investmentSchema.safeParse(props.investmentPlanDetails).success;
@@ -138,7 +142,7 @@ const isMonetizationValid = computed(() => {
         return isSubscriptionDetailsValid.value;
     }
     if (props.monetizationSelection === 'NFT') {
-        return isNFTdetailsValid.value;
+        return isNFTDetailsValid.value;
     }
     if (props.monetizationSelection === 'Investment Plan') {
         return isInvestmentPlanDetailsValid.value;
@@ -172,6 +176,7 @@ const emit = defineEmits([
     'update:nft-price',
     'isMonetizationValid',
     'reset-monetization',
+    'submit',
 ]);
 
 const updateInvestmentPlan = (title: string) => {
@@ -395,12 +400,12 @@ const saveInvestmentPlan = () => {
                 <UForm
                     v-if="props.monetizationSelection === 'NFT'"
                     class="flex flex-col gap-4 mt-6 w-full"
-                    :state="props.NFTdetails"
+                    :state="props.NFTDetails"
                     :schema="NFTschema"
                 >
                     <UFormGroup label="NFT Price" required name="price">
                         <UInput
-                            :model-value="props.NFTdetails.price"
+                            :model-value="props.NFTDetails.price"
                             placeholder="Price"
                             type="numeric"
                             @update:model-value="(value: string) => emit('update:nft-price', value)"
@@ -546,6 +551,9 @@ const saveInvestmentPlan = () => {
                     </UForm>
                 </div>
             </Transition>
+            <div class="flex w-full justify-end items-center">
+                <UButton :disabled="!isAllValid" @click="emit('submit')">Submit</UButton>
+            </div>
         </UCard>
     </Transition>
 </template>

@@ -28,3 +28,7 @@ export interface InvestmentPlanDetails {
     eqPrice: number | undefined;
     maxNoInvestors: number | undefined;
 }
+
+export interface NFTDetails {
+    price: number | undefined;
+}
