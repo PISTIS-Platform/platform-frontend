@@ -22,6 +22,12 @@ export default defineI18nConfig(() => ({
             yes: 'Yes',
             no: 'No',
             submit: 'Submit',
+            title: 'Title',
+            description: 'Description',
+            keywords: 'Keywords',
+            val: {
+                atLeastNumberChars: 'Must be at least {count} characters',
+            },
             home: {
                 home: 'Home',
                 dashboard: 'Dashboard',
@@ -44,6 +50,12 @@ export default defineI18nConfig(() => ({
                     selectSearchDataset: 'Select / search for a dataset',
                     assetTitle: 'Asset Title',
                     assetDescription: 'Asset Description',
+                    atLeastNumberChars: 'Must be at least {count} characters',
+                    assetOfferingDetails: 'Asset Offering Details',
+                    assetOfferingDetailsInfo: 'More info here',
+                    titleOfAsset: 'Title of the asset',
+                    descriptionOfAsset: 'Type a description for the asset here',
+                    keywordsOfAsset: 'Type keywords separated by commas or use the Enter button',
                 },
                 log: 'Data Log',
                 wallet: {

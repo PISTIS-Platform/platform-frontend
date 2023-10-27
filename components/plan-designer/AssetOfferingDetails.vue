@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
+
+const { t } = useI18n();
 
 const props = defineProps({
     assetOfferingDetails: {
@@ -13,8 +16,8 @@ const props = defineProps({
 });
 
 const schema = z.object({
-    title: z.string().min(10, 'Must be at least 10 characters'),
-    description: z.string().min(20, 'Must be at least 20 characters'),
+    title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
+    description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
 });
 
 const emit = defineEmits(['update:asset-title', 'update:asset-description', 'update:asset-keywords', 'isValid']);
@@ -39,29 +42,32 @@ watch(isValid, () => {
     >
         <UCard v-if="props.completeOrQuery" class="mt-8">
             <template #header>
-                <SubHeading title="Asset Offering Details" info="Find out more here" />
+                <SubHeading
+                    :title="$t('data.designer.assetOfferingDetails')"
+                    :info="$t('data.designer.assetOfferingDetailsInfo')"
+                />
             </template>
             <UForm class="flex flex-col gap-4 w-full" :state="props.assetOfferingDetails" :schema="schema">
-                <UFormGroup label="Title" required name="title">
+                <UFormGroup :label="$t('title')" required name="title">
                     <UInput
                         :model-value="props.assetOfferingDetails.title"
-                        placeholder="Title of the asset"
+                        :placeholder="$t('data.designer.titleOfAsset')"
                         @update:model-value="(value: string) => emit('update:asset-title', value)"
                     />
                 </UFormGroup>
-                <UFormGroup label="Description" required name="description">
+                <UFormGroup :label="$t('description')" required name="description">
                     <UTextarea
                         :model-value="props.assetOfferingDetails.description"
-                        placeholder="Type a description for the asset here"
+                        :placeholder="$t('data.designer.descriptionOfAsset')"
                         icon="i-heroicons-envelope"
                         @update:model-value="(value: string) => emit('update:asset-description', value)"
                     />
                 </UFormGroup>
-                <UFormGroup label="Keywords" required>
+                <UFormGroup :label="$t('keywords')" required>
                     <vue3-tags-input
                         :tags="props.assetOfferingDetails.keywords"
                         :placeholder="
-                            props.assetOfferingDetails.keywords.length ? '' : 'Type keywords separated by commas'
+                            props.assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')
                         "
                         @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
                     />
