@@ -32,6 +32,9 @@ dependencies:
   ramda:
     specifier: ^0.29.0
     version: 0.29.0
+  vue3-tags-input:
+    specifier: ^1.0.12
+    version: 1.0.12(vue@3.3.4)
   zod:
     specifier: ^3.22.4
     version: 3.22.4
@@ -3828,6 +3831,11 @@ packages:
       slice-ansi: 5.0.0
       string-width: 5.1.2
     dev: true
+
+  /click-outside-vue3@4.0.1:
+    resolution: {integrity: sha512-sbplNecrup5oGqA3o4bo8XmvHRT6q9fvw21Z67aDbTqB9M6LF7CuYLTlLvNtOgKU6W3zst5H5zJuEh4auqA34g==}
+    engines: {node: '>=6'}
+    dev: false
 
   /client-only@0.0.1:
     resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
@@ -10005,6 +10013,16 @@ packages:
       semver: 7.5.4
       typescript: 5.2.2
     dev: true
+
+  /vue3-tags-input@1.0.12(vue@3.3.4):
+    resolution: {integrity: sha512-s5rG+1W3M8+be0nd9H1nv/8WLjJOO6pShgVz8ALAqOiz3tDH5QhGrDH6fzD14ZjJNRWSa3bRBSXQwHEXffPQ6g==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      vue: ^3.0.5
+    dependencies:
+      click-outside-vue3: 4.0.1
+      vue: 3.3.4
+    dev: false
 
   /vue@3.3.4:
     resolution: {integrity: sha512-VTyEYn3yvIeY1Py0WaYGZsXnz3y5UnGi62GjVEqvEGPl6nxbOrCXbVOTQWBEJUqAyTUk2uJ5JLVnYJ6ZzGbrSw==}
