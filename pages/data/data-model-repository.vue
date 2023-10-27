@@ -96,7 +96,9 @@ function deleteRepo() {
 
 <template>
     <div class="w-full h-full text-gray-700">
-        <Heading :title="$t('data.dmRepository.title')" />
+        <h1 class="text-2xl font-bold">
+            {{ $t('data.dmRepository.title') }}
+        </h1>
         <UCard class="mt-8">
             <div class="flex justify-between mt-1">
                 <div class="order-first">

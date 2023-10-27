@@ -14,7 +14,9 @@ function remove(id) {
 
 <template>
     <div class="w-full h-full text-gray-700">
-        <Heading :title="$t('notifications.title')" />
+        <h1 class="text-2xl font-bold">
+            {{ $t('notifications.title') }}
+        </h1>
 
         <!-- Notifications Info -->
         <div
