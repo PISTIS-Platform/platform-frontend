@@ -5,7 +5,7 @@ const props = defineProps({
         required: true,
     },
     amount: {
-        type: String,
+        type: Number,
         required: true,
     },
     coin: {
@@ -21,16 +21,21 @@ const props = defineProps({
 </script>
 
 <template>
-    <UCard>
-        <div class="flex flex-col items-start justify-between space-y-8">
-            <div class="flex justify-between items-center w-full xl:space-x-10">
-                <h3 class="text-base xl:text-lg font-normal">
-                    {{ props.title }}
-                </h3>
-                <UIcon :name="props.iconName" class="w-8 h-8 lg:w-10 lg:h-10 text-gray-500" />
+    <UCard :ui="{ body: { base: '', padding: 'p-4 sm:p-4' } }">
+        <div class="relative flex items-center">
+            <div class="flex-shrink-0 mx-4">
+                <UIcon :name="props.iconName" class="w-10 h-10 text-secondary-300" />
             </div>
-
-            <div class="text-xl font-bold">{{ props.amount }} {{ props.coin }}</div>
+            <div class="min-w-0 flex-1">
+                <div class="flex justify-start items-center w-full space-x-2">
+                    <h3 class="text-base xl:text-lg font-normal">
+                        {{ props.title }}
+                    </h3>
+                </div>
+                <div :class="['text-lg font-bold', props.amount > 0 ? 'text-green-800' : 'text-red-800']">
+                    {{ props.amount }} {{ props.coin }}
+                </div>
+            </div>
         </div>
     </UCard>
 </template>
