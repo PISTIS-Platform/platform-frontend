@@ -119,7 +119,7 @@ export default defineI18nConfig(() => ({
                     monthlyExpenses: 'Monthly Expenses',
                     monthlyIncome: 'Monthly Income',
                     transactions: {
-                        title: 'My Transactions',
+                        title: 'Transactions',
                         incoming: 'Incoming',
                         outgoing: 'Outgoing',
                     },
