@@ -10,17 +10,17 @@ const cardInfoData = computed(() => [
     {
         title: t('data.wallet.balance'),
         iconName: 'i-heroicons-currency-dollar-20-solid',
-        amount: '3500',
+        amount: 3500,
     },
     {
         title: t('data.wallet.monthlyExpenses'),
         iconName: 'i-heroicons-briefcase-solid',
-        amount: '-1000',
+        amount: -1000,
     },
     {
         title: t('data.wallet.monthlyIncome'),
         iconName: 'i-heroicons-banknotes-20-solid',
-        amount: '+800',
+        amount: 800,
     },
 ]);
 
@@ -29,15 +29,20 @@ const transactions = computed(() => transactionsDummyData);
 
 const transactionsColumns = [
     {
-        key: 'id',
-        label: 'ID',
-        sortable: true,
-    },
-    {
         key: 'date',
         label: 'Date',
         sortable: true,
         direction: 'desc',
+    },
+    {
+        key: 'from',
+        label: 'Buyer',
+        sortable: true,
+    },
+    {
+        key: 'to',
+        label: 'Seller',
+        sortable: true,
     },
     {
         key: 'type',
@@ -50,17 +55,12 @@ const transactionsColumns = [
         sortable: true,
     },
     {
-        key: 'from',
-        label: 'Buyer',
-        sortable: true,
-    },
-    {
-        key: 'to',
-        label: 'Seller',
+        key: 'id',
+        label: 'ID',
         sortable: true,
     },
 ];
-const page = ref(1);
+const page = ref<number>(1);
 const pageCount = 5;
 
 const transactionsRows = computed(() => {
@@ -69,7 +69,7 @@ const transactionsRows = computed(() => {
 </script>
 <template>
     <div class="w-full h-full text-gray-700">
-        <h1 class="text-2xl font-bold">
+        <h1 class="text-2xl">
             {{ $t('data.wallet.title') }}
         </h1>
 
@@ -97,10 +97,10 @@ const transactionsRows = computed(() => {
                     <template #type-data="{ row }">
                         <span
                             :class="[
-                                'rounded-lg px-2 py-1',
+                                'rounded-md px-4 py-1 font-medium',
                                 row.type === t('data.wallet.transactions.incoming')
-                                    ? 'bg-green-200 text-green-800'
-                                    : 'bg-red-200 text-red-800',
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-red-100 text-red-800',
                             ]"
                             >{{ row.type }}
                         </span>
@@ -109,7 +109,12 @@ const transactionsRows = computed(() => {
 
                 <!-- Display the pagination only if the total number of transactions is larger than the page count -->
                 <div v-if="transactions.length > pageCount" class="flex justify-end mt-2">
-                    <UPagination v-model="page" :page-count="pageCount" :total="transactions.length" />
+                    <UPagination
+                        v-model="page"
+                        :page-count="pageCount"
+                        :total="transactions.length"
+                        :active-button="{ variant: 'outline' }"
+                    />
                 </div>
             </UCard>
         </div>
