@@ -19,22 +19,23 @@ const columns = [
         label: t('data.dmRepository.tableFields.title'),
         sortable: true,
     },
+
     {
-        key: 'year',
-        label: t('data.dmRepository.tableFields.year'),
-        sortable: true,
+        key: 'version',
+        label: t('data.dmRepository.tableFields.version'),
     },
+    // {
+    //     key: 'country',
+    //     label: t('data.dmRepository.tableFields.country'),
+    //     sortable: true,
+    // },
     {
         key: 'size',
         label: t('data.dmRepository.tableFields.size'),
     },
     {
-        key: 'version',
-        label: t('data.dmRepository.tableFields.version'),
-    },
-    {
-        key: 'country',
-        label: t('data.dmRepository.tableFields.country'),
+        key: 'year',
+        label: t('data.dmRepository.tableFields.year'),
         sortable: true,
     },
 ];
@@ -51,14 +52,14 @@ function select(row: DataModelRepo) {
 const selected = ref<DataModelRepo[]>([]);
 
 // Pagination
-const page = ref(1);
+const page = ref<number>(1);
 const pageCount = 5;
 const rows = computed(() => {
     return dummyJson.slice((page.value - 1) * pageCount, page.value * pageCount);
 });
 
 // Searchable table
-const searchString = ref('');
+const searchString = ref<string>('');
 const filteredRows = computed(() => {
     if (!searchString.value) {
         return rows.value;
@@ -96,7 +97,7 @@ function deleteRepo() {
 
 <template>
     <div class="w-full h-full text-gray-700">
-        <h1 class="text-2xl font-bold">
+        <h1 class="text-2xl">
             {{ $t('data.dmRepository.title') }}
         </h1>
         <UCard class="mt-8">
@@ -160,7 +161,12 @@ function deleteRepo() {
             />
             <div class="flex justify-end mt-2">
                 <div class="mt-2">
-                    <UPagination v-model="page" :page-count="pageCount" :total="dummyJson.length" />
+                    <UPagination
+                        v-model="page"
+                        :page-count="pageCount"
+                        :total="dummyJson.length"
+                        :active-button="{ variant: 'outline' }"
+                    />
                 </div>
             </div>
         </UCard>
