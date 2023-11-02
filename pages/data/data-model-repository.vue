@@ -24,11 +24,6 @@ const columns = [
         key: 'version',
         label: t('data.dmRepository.tableFields.version'),
     },
-    // {
-    //     key: 'country',
-    //     label: t('data.dmRepository.tableFields.country'),
-    //     sortable: true,
-    // },
     {
         key: 'size',
         label: t('data.dmRepository.tableFields.size'),
@@ -38,17 +33,42 @@ const columns = [
         label: t('data.dmRepository.tableFields.year'),
         sortable: true,
     },
+    { key: 'actions' },
 ];
 
+const actions = (row: DataModelRepo[]) => [
+    [
+        {
+            label: 'Edit',
+            icon: 'i-heroicons-pencil-square-20-solid',
+            click: () => editRepo(row),
+        },
+        {
+            label: 'Download',
+            icon: 'i-heroicons-arrow-down-tray-20-solid',
+            click: () => downloadRepo(),
+        },
+    ],
+    [
+        {
+            label: 'Delete',
+            color: 'text-red-400',
+            icon: 'i-heroicons-trash-20-solid text-red-400',
+            class: 'text-red-400',
+            click: () => deleteRepo(),
+        },
+    ],
+];
+//TODO: discuss if multiple selection should be available
 // Functionality to select items from table
-function select(row: DataModelRepo) {
-    const index = selected.value.findIndex((item: DataModelRepo) => item.id === row.id);
-    if (index === -1) {
-        selected.value.push(row as DataModelRepo);
-    } else {
-        selected.value.splice(index, 1);
-    }
-}
+// function select(row: DataModelRepo) {
+//     const index = selected.value.findIndex((item: DataModelRepo) => item.id === row.id);
+//     if (index === -1) {
+//         selected.value.push(row as DataModelRepo);
+//     } else {
+//         selected.value.splice(index, 1);
+//     }
+// }
 const selected = ref<DataModelRepo[]>([]);
 
 // Pagination
@@ -72,17 +92,18 @@ const filteredRows = computed(() => {
     }
 });
 
-async function editRepo() {
+async function editRepo(row: DataModelRepo[]) {
+    console.log(row);
     await navigateTo({
         path: '/data/add-data-model-repository',
         query: {
             data: JSON.stringify(selected.value),
         },
     });
-    // console.log(selected.value);
 }
 
-function viewRepo() {
+function viewRepo(row: DataModelRepo[]) {
+    selected.value = row;
     console.log(selected.value);
 }
 
@@ -102,63 +123,38 @@ function deleteRepo() {
         </h1>
         <UCard class="mt-8">
             <div class="flex justify-between mt-1">
-                <div class="order-first">
+                <div class="order-first w-3/4">
                     <UInput v-model="searchString" :placeholder="$t('data.dmRepository.search')" />
                 </div>
                 <div class="order-last flex gap-2">
-                    <UTooltip :text="$t('data.dmRepository.view')">
-                        <UIcon
-                            name="i-heroicons-eye-20-solid"
-                            color="gray"
-                            class="h-6 w-6 cursor-pointer"
-                            @click="viewRepo"
+                    <!-- TODO: Discuss if NuxtLink required for every link. Button has link property -->
+                    <NuxtLink to="/data/add-data-model-repository">
+                        <UButton
+                            icon="i-heroicons-document-plus-20-solid"
+                            size="sm"
+                            color="primary"
+                            variant="solid"
+                            :label="$t('data.dmRepository.addDataModel')"
+                            :trailing="false"
                         />
-                    </UTooltip>
-                    <UTooltip :text="$t('data.dmRepository.edit')">
-                        <UIcon
-                            name="i-heroicons-pencil-20-solid"
-                            color="gray"
-                            class="h-6 w-6 cursor-pointer"
-                            @click="editRepo"
-                        />
-                    </UTooltip>
-                    <UTooltip :text="$t('data.dmRepository.download')">
-                        <UIcon
-                            name="i-heroicons-arrow-down-20-solid"
-                            color="gray"
-                            class="h-6 w-6 cursor-pointer"
-                            @click="downloadRepo"
-                        />
-                    </UTooltip>
-                    <UTooltip :text="$t('data.dmRepository.delete')">
-                        <UIcon
-                            name="i-heroicons-trash-20-solid"
-                            color="gray"
-                            class="h-6 w-6 cursor-pointer"
-                            @click="deleteRepo"
-                        />
-                    </UTooltip>
-                    <UTooltip :text="$t('data.dmRepository.addDataset')">
-                        <NuxtLink to="/data/add-data-model-repository">
-                            <UIcon
-                                name="i-heroicons-document-plus-20-solid"
-                                color="gray"
-                                class="h-6 w-6 cursor-pointer"
-                            />
-                        </NuxtLink>
-                    </UTooltip>
+                    </NuxtLink>
                 </div>
             </div>
-
             <UTable
-                v-model="selected"
+                :ui="{ tr: { base: '[&>*:nth-child(3)]:text-center [&>*:nth-child(4)]:text-right ' } }"
                 class="mt-8"
                 :columns="columns"
                 :rows="filteredRows"
-                :sort="{ column: 'id' }"
+                :sort="{ column: 'id', direction: 'asc' }"
                 :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No items.' }"
-                @select="select"
-            />
+                @select="viewRepo"
+            >
+                <template #actions-data="{ row }">
+                    <UDropdown :items="actions(row)">
+                        <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+                    </UDropdown>
+                </template>
+            </UTable>
             <div class="flex justify-end mt-2">
                 <div class="mt-2">
                     <UPagination

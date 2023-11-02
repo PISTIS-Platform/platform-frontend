@@ -1,7 +1,7 @@
 export const dummyJson = [
     {
         id: 1,
-        title: 'EU',
+        title: 'EU Praesent blandit lacinia erat',
         year: '8/2/2023',
         version: '0.6.0',
         description: 'Morbi a ipsum. Integer a nibh.',

@@ -143,6 +143,7 @@ export default defineI18nConfig(() => ({
                     formDescription: 'Description:',
                     search: 'Search data models',
                     addDataset: 'Add new dataset',
+                    addDataModel: 'Add new data model',
                     tableFields: {
                         id: 'ID',
                         title: 'Title',
