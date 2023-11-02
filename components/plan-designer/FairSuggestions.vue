@@ -15,6 +15,10 @@ const props = defineProps({
 });
 
 //TODO: Include emits for updating the oneOffPrice and subscriptionPrice here when there is an API call
+const receivedValuation = ref(true);
+setInterval(() => {
+    receivedValuation.value = false;
+}, 10000);
 </script>
 
 <template>
@@ -33,16 +37,10 @@ const props = defineProps({
                     <a href="" class="text-xs text-primary-500 underline">{{ $t('learnMore') }}</a>
                 </div>
             </template>
-            <div>
+            <div v-if="receivedValuation">
                 <UProgress animation="carousel" />
-                <!-- <button type="button" class="bg-indigo-500 ..." disabled> -->
-                <!-- <svg class="animate-spin h-5 w-5 mr-3 ..." viewBox="0 0 24 24">
-                     ... 
-                </svg> -->
-                <!-- Processing...
-                </button> -->
             </div>
-            <div>
+            <div v-else>
                 <div>
                     {{ $t('data.designer.suggestedOneOff') }}:
                     <span class="font-bold">{{ props.oneOffPrice }} STC</span>
