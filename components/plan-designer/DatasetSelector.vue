@@ -21,6 +21,7 @@ const emit = defineEmits(['reset', 'update:selected', 'update:complete-or-query'
 //data for selecting specific dataset
 
 const selections = Object.keys(dummyData);
+const displayTable = ref(false);
 
 const switchDatasetOpen = ref<boolean>(false);
 
@@ -40,6 +41,10 @@ const dataSetSelections = computed(() => [
         info: t('data.designer.selectQueryFilter'),
     },
 ]);
+
+function toggleTable() {
+    return (displayTable.value = !displayTable.value);
+}
 </script>
 
 <template>
@@ -57,8 +62,8 @@ const dataSetSelections = computed(() => [
             @click="switchDatasetOpen = true"
         >
             <UIcon name="i-heroicons-arrow-left-20-solid" class="h-5 w-5" />
-            {{ $t('data.designer.selectDifferent') }}</span
-        >
+            {{ $t('data.designer.selectDifferent') }}
+        </span>
 
         <UModal v-model="switchDatasetOpen">
             <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
@@ -74,73 +79,77 @@ const dataSetSelections = computed(() => [
                 </div>
             </UCard>
         </UModal>
-
-        <USelectMenu
-            v-if="!props.selected"
-            :model-value="props.selected"
-            icon="i-heroicons-magnifying-glass-20-solid"
-            :searchable="
-                (query: string) => {
-                    outerQuery = query;
-                    return selections.filter((selection: string) => selection.includes(query));
-                }
-            "
-            :searchable-placeholder="$t('data.designer.searchDataset')"
-            class="w-full relative"
-            :placeholder="$t('data.designer.selectSearchDataset')"
-            :options="selections"
-            @update:model-value="(value: string) => emit('update:selected', value)"
-        />
-
-        <Transition
-            enter-active-class="duration-300 ease-out"
-            enter-from-class="transform opacity-0"
-            enter-to-class="opacity-100"
-        >
-            <FileBrowser
-                v-if="!props.selected"
+        <span v-if="!props.selected" class="flex gap-1">
+            <USelectMenu
                 :model-value="props.selected"
-                class="mt-6"
-                :files="filteredSelections"
+                icon="i-heroicons-magnifying-glass-20-solid"
+                :searchable="
+                    (query: string) => {
+                        outerQuery = query;
+                        return selections.filter((selection: string) => selection.includes(query));
+                    }
+                "
+                :searchable-placeholder="$t('data.designer.searchDataset')"
+                class="w-11/12"
+                :placeholder="$t('data.designer.selectSearchDataset')"
+                :options="selections"
                 @update:model-value="(value: string) => emit('update:selected', value)"
             />
-        </Transition>
 
-        <Transition
-            enter-active-class="duration-300 ease-out"
-            enter-from-class="transform opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="duration-300 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="transform opacity-0"
-        >
-            <div v-if="props.selected" class="flex gap-4 mt-8 w-full">
-                <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
-                    <p>{{ $t('data.designer.assetTitle') }}:</p>
-                    <p>{{ $t('data.designer.assetDescription') }}:</p>
-                </div>
-                <div class="flex flex-col items-start justify-start gap-4">
-                    <p class="font-bold">{{ props.selected }}</p>
-                    <p>{{ dummyData[props.selected].description }}</p>
-                </div>
-            </div>
-        </Transition>
+            <UButton class="" @click="toggleTable"> Browse datasets </UButton>
+        </span>
+        <span v-show="displayTable">
+            <Transition
+                enter-active-class="duration-300 ease-out"
+                enter-from-class="transform opacity-0"
+                enter-to-class="opacity-100"
+            >
+                <FileBrowser
+                    v-if="!props.selected"
+                    :model-value="props.selected"
+                    class="mt-6"
+                    :files="filteredSelections"
+                    @update:model-value="(value: string) => emit('update:selected', value)"
+                />
+            </Transition>
 
-        <Transition
-            enter-active-class="duration-300 ease-out"
-            enter-from-class="transform opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="duration-300 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="transform opacity-0"
-        >
-            <SelectionCards
-                v-if="props.selected"
-                :model-value="completeOrQuery"
-                class="mt-8"
-                :selections="dataSetSelections"
-                @update:model-value="(value: string) => emit('update:complete-or-query', value)"
-            />
-        </Transition>
+            <Transition
+                enter-active-class="duration-300 ease-out"
+                enter-from-class="transform opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="duration-300 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="transform opacity-0"
+            >
+                <div v-if="props.selected" class="flex gap-4 mt-8 w-full">
+                    <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
+                        <p>{{ $t('data.designer.assetTitle') }}:</p>
+                        <p>{{ $t('data.designer.assetDescription') }}:</p>
+                    </div>
+                    <div class="flex flex-col items-start justify-start gap-4">
+                        <p class="font-bold">{{ props.selected }}</p>
+                        <p>{{ dummyData[props.selected].description }}</p>
+                    </div>
+                </div>
+            </Transition>
+
+            <Transition
+                enter-active-class="duration-300 ease-out"
+                enter-from-class="transform opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="duration-300 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="transform opacity-0"
+            >
+                <SelectionCards
+                    v-if="props.selected"
+                    :model-value="completeOrQuery"
+                    class="mt-8"
+                    :width="'w-full'"
+                    :selections="dataSetSelections"
+                    @update:model-value="(value: string) => emit('update:complete-or-query', value)"
+                />
+            </Transition>
+        </span>
     </UCard>
 </template>

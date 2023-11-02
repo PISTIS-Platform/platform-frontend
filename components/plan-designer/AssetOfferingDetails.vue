@@ -79,22 +79,22 @@ watch(isValid, () => {
 
 <style lang="css">
 .v3ti .v3ti-tag {
-    @apply bg-primary-500 h-[24px];
+    @apply bg-primary-500 h-[24px] align-baseline;
 }
 
 .v3ti-new-tag {
-    @apply text-sm text-gray-700 h-[30px] focus:ring-0 placeholder-gray-400 pb-2;
+    @apply text-sm text-gray-700 h-[30px] focus:ring-0 placeholder-gray-400 pb-2 align-baseline;
 }
 
 .v3ti .v3ti-tag .v3ti-remove-tag {
-    @apply text-white;
+    @apply text-primary-100;
 }
 
 .v3ti {
-    @apply border border-gray-300 rounded-md h-[20px];
+    @apply border border-gray-300 rounded-md h-[20px] align-baseline;
 }
 
 .v3ti-content {
-    focus: border-primary-500;
+    focus: border-primary-500 align-baseline;
 }
 </style>

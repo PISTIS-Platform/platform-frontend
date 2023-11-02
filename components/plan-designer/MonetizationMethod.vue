@@ -249,40 +249,32 @@ const saveInvestmentPlan = () => {
                     :state="props.oneOffSaleDetails"
                     :schema="oneOffSaleSchema"
                 >
-                    <UFormGroup :label="$t('data.designer.oneOffPrice')" required name="price">
-                        <UInput
-                            :model-value="props.oneOffSaleDetails.price"
-                            :placeholder="$t('data.designer.assetPrice')"
-                            type="numeric"
-                            @update:model-value="(value: string) => emit('update:oneoff-price', value)"
-                        >
-                            <template #trailing>
-                                <span class="text-gray-500 text-xs">STC</span>
-                            </template>
-                        </UInput>
-                    </UFormGroup>
-                    <UFormGroup :label="$t('license')" required name="license">
-                        <USelectMenu
-                            :model-value="props.oneOffSaleDetails.license"
-                            :placeholder="$t('data.designer.selectLicense')"
-                            :options="licenseSelections"
-                            @update:model-value="(value: string) => emit('update:oneoff-license', value)"
-                        />
-                    </UFormGroup>
-                    <UFormGroup :label="$t('termsConditions')" required name="terms">
-                        <UTextarea
-                            :model-value="props.oneOffSaleDetails.terms"
-                            :placeholder="$t('data.designer.typeTerms')"
-                            icon="i-heroicons-envelope"
-                            @update:model-value="(value: string) => emit('update:oneoff-terms', value)"
-                        />
-                    </UFormGroup>
-                    <div class="flex gap-4 items-start h-20 w-full">
+                    <div class="flex flex-row gap-2">
+                        <UFormGroup :label="$t('data.designer.oneOffPrice')" required name="price" class="w-1/4">
+                            <UInput
+                                :model-value="props.oneOffSaleDetails.price"
+                                :placeholder="$t('data.designer.assetPrice')"
+                                type="numeric"
+                                @update:model-value="(value: string) => emit('update:oneoff-price', value)"
+                            >
+                                <template #trailing>
+                                    <span class="text-gray-500 text-xs">STC</span>
+                                </template>
+                            </UInput>
+                        </UFormGroup>
+                        <UFormGroup :label="$t('license')" required name="license" class="w-1/4">
+                            <USelectMenu
+                                :model-value="props.oneOffSaleDetails.license"
+                                :placeholder="$t('data.designer.selectLicense')"
+                                :options="licenseSelections"
+                                @update:model-value="(value: string) => emit('update:oneoff-license', value)"
+                            />
+                        </UFormGroup>
                         <UFormGroup
                             :label="$t('data.designer.downloadLimit')"
                             required
                             name="limitNumber"
-                            class="w-full"
+                            class="w-1/4"
                         >
                             <UInput
                                 :model-value="props.oneOffSaleDetails.limitNumber"
@@ -295,7 +287,7 @@ const saveInvestmentPlan = () => {
                                 </template>
                             </UInput>
                         </UFormGroup>
-                        <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-full">
+                        <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-1/4">
                             <USelectMenu
                                 :model-value="props.oneOffSaleDetails.limitFrequency"
                                 :placeholder="$t('data.designer.selectFrequency')"
@@ -304,6 +296,16 @@ const saveInvestmentPlan = () => {
                             />
                         </UFormGroup>
                     </div>
+
+                    <UFormGroup :label="$t('termsConditions')" required name="terms">
+                        <UTextarea
+                            :model-value="props.oneOffSaleDetails.terms"
+                            :placeholder="$t('data.designer.typeTerms')"
+                            resize
+                            icon="i-heroicons-envelope"
+                            @update:model-value="(value: string) => emit('update:oneoff-terms', value)"
+                        />
+                    </UFormGroup>
                 </UForm>
             </Transition>
 
@@ -321,48 +323,45 @@ const saveInvestmentPlan = () => {
                     :state="props.subscriptionDetails"
                     :schema="subscriptionSchema"
                 >
-                    <UFormGroup :label="$t('data.designer.subscriptionFrequency')" required name="frequency">
-                        <USelectMenu
-                            :model-value="props.subscriptionDetails.frequency"
-                            :placeholder="$t('data.designer.selectFrequency')"
-                            :options="frequencySelections"
-                            @update:model-value="(value: string) => emit('update:sub-frequency', value)"
-                        />
-                    </UFormGroup>
-                    <UFormGroup :label="$t('data.designer.subscriptionPrice')" required name="price">
-                        <UInput
-                            :model-value="props.subscriptionDetails.price"
-                            :placeholder="$t('data.designer.subscriptionPricePH')"
-                            type="numeric"
-                            @update:model-value="(value: string) => emit('update:sub-price', value)"
+                    <div class="flex flex-row gap-2">
+                        <UFormGroup
+                            :label="$t('data.designer.subscriptionFrequency')"
+                            class="w-1/4"
+                            required
+                            name="frequency"
                         >
-                            <template #trailing>
-                                <span class="text-gray-500 text-xs">STC</span>
-                            </template>
-                        </UInput>
-                    </UFormGroup>
-                    <UFormGroup :label="$t('license')" required name="license">
-                        <USelectMenu
-                            :model-value="props.subscriptionDetails.license"
-                            :placeholder="$t('data.designer.selectLicense')"
-                            :options="licenseSelections"
-                            @update:model-value="(value: string) => emit('update:sub-license', value)"
-                        />
-                    </UFormGroup>
-                    <UFormGroup :label="$t('termsConditions')" required name="terms">
-                        <UTextarea
-                            :model-value="props.subscriptionDetails.terms"
-                            :placeholder="$t('data.designer.typeTerms')"
-                            icon="i-heroicons-envelope"
-                            @update:model-value="(value: string) => emit('update:sub-terms', value)"
-                        />
-                    </UFormGroup>
-                    <div class="flex gap-4 items-start h-20 w-full">
+                            <USelectMenu
+                                :model-value="props.subscriptionDetails.frequency"
+                                :placeholder="$t('data.designer.selectFrequency')"
+                                :options="frequencySelections"
+                                @update:model-value="(value: string) => emit('update:sub-frequency', value)"
+                            />
+                        </UFormGroup>
+                        <UFormGroup :label="$t('data.designer.subscriptionPrice')" class="w-1/4" required name="price">
+                            <UInput
+                                :model-value="props.subscriptionDetails.price"
+                                :placeholder="$t('data.designer.subscriptionPricePH')"
+                                type="numeric"
+                                @update:model-value="(value: string) => emit('update:sub-price', value)"
+                            >
+                                <template #trailing>
+                                    <span class="text-gray-500 text-xs">STC</span>
+                                </template>
+                            </UInput>
+                        </UFormGroup>
+                        <UFormGroup :label="$t('license')" required class="w-1/4" name="license">
+                            <USelectMenu
+                                :model-value="props.subscriptionDetails.license"
+                                :placeholder="$t('data.designer.selectLicense')"
+                                :options="licenseSelections"
+                                @update:model-value="(value: string) => emit('update:sub-license', value)"
+                            />
+                        </UFormGroup>
                         <UFormGroup
                             :label="$t('data.designer.downloadLimit')"
+                            class="w-1/4"
                             required
                             name="limitNumber"
-                            class="w-full"
                         >
                             <UInput
                                 :model-value="props.subscriptionDetails.limitNumber"
@@ -375,7 +374,7 @@ const saveInvestmentPlan = () => {
                                 </template>
                             </UInput>
                         </UFormGroup>
-                        <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-full">
+                        <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-1/4">
                             <USelectMenu
                                 :model-value="props.subscriptionDetails.limitFrequency"
                                 :placeholder="$t('data.designer.selectFrequency')"
@@ -384,6 +383,15 @@ const saveInvestmentPlan = () => {
                             />
                         </UFormGroup>
                     </div>
+                    <UFormGroup :label="$t('termsConditions')" required name="terms">
+                        <UTextarea
+                            :model-value="props.subscriptionDetails.terms"
+                            resize
+                            :placeholder="$t('data.designer.typeTerms')"
+                            icon="i-heroicons-envelope"
+                            @update:model-value="(value: string) => emit('update:sub-terms', value)"
+                        />
+                    </UFormGroup>
                 </UForm>
             </Transition>
 
@@ -560,7 +568,7 @@ const saveInvestmentPlan = () => {
                 </div>
             </Transition>
             <div class="flex w-full justify-end items-center">
-                <UButton :disabled="!isAllValid" @click="emit('submit')">{{ $t('submit') }}</UButton>
+                <UButton class="px-4 py-2" :disabled="!isAllValid" @click="emit('submit')">{{ $t('submit') }}</UButton>
             </div>
         </UCard>
     </Transition>

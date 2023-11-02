@@ -5,7 +5,6 @@ export const transactionsDummyData = [
         type: 'Incoming',
         amount: 300,
         from: 'Org Test 123',
-        to: '',
     },
     {
         id: 13234,
@@ -13,15 +12,13 @@ export const transactionsDummyData = [
         type: 'Incoming',
         amount: 1500,
         from: 'Org Test ABC',
-        to: '',
     },
     {
         id: 94905,
         date: '15/10/2023',
         type: 'Outgoing',
         amount: 800,
-        from: '',
-        to: 'Org Test BNM',
+        from: 'Org Test BNM',
     },
     {
         id: 91348,
@@ -29,7 +26,6 @@ export const transactionsDummyData = [
         type: 'Incoming',
         amount: 1800,
         from: 'XYZ',
-        to: '',
     },
     {
         id: 11990,
@@ -37,7 +33,6 @@ export const transactionsDummyData = [
         type: 'Outgoing',
         amount: 440,
         from: 'XYZ',
-        to: '',
     },
     {
         id: 91348,
@@ -45,6 +40,5 @@ export const transactionsDummyData = [
         type: 'Incoming',
         amount: 2550,
         from: 'QWE Org',
-        to: '',
     },
 ];

@@ -19,7 +19,7 @@ const emit = defineEmits(['update:model-value']);
 </script>
 
 <template>
-    <div class="flex flex-col gap-4 w-full b">
+    <div class="flex flex-row gap-2">
         <SelectionCard
             v-for="item in props.selections"
             :key="item.title"

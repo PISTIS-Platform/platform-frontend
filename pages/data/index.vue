@@ -36,12 +36,7 @@ const transactionsColumns = [
     },
     {
         key: 'from',
-        label: 'Buyer',
-        sortable: true,
-    },
-    {
-        key: 'to',
-        label: 'Seller',
+        label: 'Buyer/Seller',
         sortable: true,
     },
     {

@@ -33,13 +33,24 @@ const props = defineProps({
                     <a href="" class="text-xs text-primary-500 underline">{{ $t('learnMore') }}</a>
                 </div>
             </template>
-
             <div>
-                {{ $t('data.designer.suggestedOneOff') }}: <span class="font-bold">{{ props.oneOffPrice }} STC</span>
+                <UProgress animation="carousel" />
+                <!-- <button type="button" class="bg-indigo-500 ..." disabled> -->
+                <!-- <svg class="animate-spin h-5 w-5 mr-3 ..." viewBox="0 0 24 24">
+                     ... 
+                </svg> -->
+                <!-- Processing...
+                </button> -->
             </div>
-            <div class="mt-4">
-                {{ $t('data.designer.suggestedSubscription') }}:
-                <span class="font-bold">{{ props.subscriptionPrice }} STC {{ $t('perMonth') }}</span>
+            <div>
+                <div>
+                    {{ $t('data.designer.suggestedOneOff') }}:
+                    <span class="font-bold">{{ props.oneOffPrice }} STC</span>
+                </div>
+                <div class="mt-4">
+                    {{ $t('data.designer.suggestedSubscription') }}:
+                    <span class="font-bold">{{ props.subscriptionPrice }} STC {{ $t('perMonth') }}</span>
+                </div>
             </div>
         </UCard>
     </Transition>
