@@ -127,17 +127,16 @@ function deleteRepo() {
                     <UInput v-model="searchString" :placeholder="$t('data.dmRepository.search')" />
                 </div>
                 <div class="order-last flex gap-2">
-                    <!-- TODO: Discuss if NuxtLink required for every link. Button has link property -->
-                    <NuxtLink to="/data/add-data-model-repository">
-                        <UButton
-                            icon="i-heroicons-document-plus-20-solid"
-                            size="sm"
-                            color="primary"
-                            variant="solid"
-                            :label="$t('data.dmRepository.addDataModel')"
-                            :trailing="false"
-                        />
-                    </NuxtLink>
+                    <UButton
+                        icon="i-heroicons-document-plus-20-solid"
+                        size="sm"
+                        color="primary"
+                        variant="solid"
+                        to="/data/add-data-model-repository"
+                        target="_self"
+                        :label="$t('data.dmRepository.addDataModel')"
+                        :trailing="false"
+                    />
                 </div>
             </div>
             <UTable

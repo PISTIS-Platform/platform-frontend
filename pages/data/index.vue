@@ -35,19 +35,21 @@ const transactionsColumns = [
         direction: 'desc',
     },
     {
-        key: 'from',
-        label: 'Buyer/Seller',
+        key: 'fromTo',
+        label: 'Buyer / Seller',
         sortable: true,
     },
     {
         key: 'type',
         label: 'Type',
         sortable: true,
+        class: 'text-center',
     },
     {
         key: 'amount',
         label: 'Amount',
         sortable: true,
+        class: 'text-right',
     },
     {
         key: 'id',
@@ -90,15 +92,25 @@ const transactionsRows = computed(() => {
                 <UTable :columns="transactionsColumns" :rows="transactionsRows">
                     <!-- Custom styling for type (incoming/outgoing) data column -->
                     <template #type-data="{ row }">
-                        <span
-                            :class="[
-                                'rounded-md px-4 py-1 font-medium',
-                                row.type === t('data.wallet.transactions.incoming')
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-red-100 text-red-800',
-                            ]"
-                            >{{ row.type }}
-                        </span>
+                        <div class="text-center">
+                            <span
+                                :class="[
+                                    'rounded-md px-4 py-1 font-medium',
+                                    row.type === t('data.wallet.transactions.incoming')
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-red-100 text-red-800',
+                                ]"
+                                >{{ row.type }}
+                            </span>
+                        </div>
+                    </template>
+                    <template #fromTo-data="{ row }">
+                        <span>{{ row?.from ?? row.to }} </span>
+                    </template>
+                    <template #amount-data="{ row }">
+                        <div class="text-right">
+                            <span>{{ row.amount }}</span>
+                        </div>
                     </template>
                 </UTable>
 
