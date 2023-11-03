@@ -48,7 +48,7 @@ function toggleTable() {
 </script>
 
 <template>
-    <UCard class="mt-8">
+    <UCard class="mt-8 overflow-visible">
         <template #header>
             <SubHeading
                 :title="$t('data.designer.datasetSelection')"
