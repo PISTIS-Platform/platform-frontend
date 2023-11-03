@@ -145,7 +145,6 @@ function toggleTable() {
                     v-if="props.selected"
                     :model-value="completeOrQuery"
                     class="mt-8"
-                    :width="'w-full'"
                     :selections="dataSetSelections"
                     @update:model-value="(value: string) => emit('update:complete-or-query', value)"
                 />

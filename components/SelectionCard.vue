@@ -22,7 +22,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div>
+    <div class="flex-1">
         <UCard :class="['relative text-gray-600', props.selected ? 'ring-2 ring-primary-500' : '', props.width]">
             <div :class="['h-10 cursor-pointer flex items-center justify-between']">
                 <div class="flex flex-col gap-0.5 items-start">
