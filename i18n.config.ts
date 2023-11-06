@@ -18,6 +18,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            addNew: 'Add new',
             cancel: 'Cancel',
             yes: 'Yes',
             no: 'No',
@@ -141,7 +142,7 @@ export default defineI18nConfig(() => ({
                     formTitle: 'Title:',
                     formVersion: 'Version:',
                     formDescription: 'Description:',
-                    search: 'Search data models',
+                    search: 'Search...',
                     addDataset: 'Add new dataset',
                     addDataModel: 'Add new data model',
                     tableFields: {

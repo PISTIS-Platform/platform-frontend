@@ -79,11 +79,11 @@ watch(isValid, () => {
 
 <style lang="css">
 .v3ti .v3ti-tag {
-    @apply bg-primary-500 h-[24px] align-baseline;
+    @apply bg-primary-500 h-[26px] align-middle;
 }
 
 .v3ti-new-tag {
-    @apply text-sm text-gray-700 h-[30px] focus:ring-0 placeholder-gray-400 pb-2 align-baseline;
+    @apply text-sm text-gray-700 h-[30px] focus:ring-0 placeholder-gray-400 align-middle;
 }
 
 .v3ti .v3ti-tag .v3ti-remove-tag {
@@ -91,7 +91,7 @@ watch(isValid, () => {
 }
 
 .v3ti {
-    @apply border border-gray-300 rounded-md h-[20px] align-baseline;
+    @apply border-none focus-within:border-none ring-1 ring-inset ring-gray-300 dark:ring-gray-700 focus-within:ring-2 focus-within:ring-primary-500 dark:focus-within:ring-primary-400 rounded-md h-[20px] align-middle;
 }
 
 .v3ti-content {

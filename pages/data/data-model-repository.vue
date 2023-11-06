@@ -8,39 +8,44 @@ import { dummyJson } from './dm-repo-dummy-data';
 const { t } = useI18n();
 
 // Fields for table
-const columns = [
+//TODO: Discuss about column type
+const columns = computed(() => [
     {
         key: 'id',
         label: t('data.dmRepository.tableFields.id'),
         sortable: true,
         direction: 'asc',
-        class: 'w-1/8',
+        class: 'w-1/12',
     },
     {
         key: 'title',
         label: t('data.dmRepository.tableFields.title'),
         sortable: true,
-        class: 'w-1/4',
+        direction: 'asc',
+        class: 'w-1/3',
     },
 
     {
         key: 'version',
+        sortable: false,
         label: t('data.dmRepository.tableFields.version'),
-        class: 'w-1/4 text-slate-600',
+        class: 'w-1/6 text-slate-600 text-center',
     },
     {
         key: 'size',
+        sortable: false,
         label: t('data.dmRepository.tableFields.size'),
-        class: 'w-1/4 text-slate-600',
+        class: 'w-1/6 text-slate-600 text-right',
     },
     {
         key: 'year',
         label: t('data.dmRepository.tableFields.year'),
         sortable: true,
-        class: 'w-1/8',
+        direction: 'asc',
+        class: 'w-1/6',
     },
-    { key: 'actions' },
-];
+    { key: 'actions', label: '', sortable: false, class: 'w-1/12 text-center' },
+]);
 
 const actions = (row: DataModelRepo[]) => [
     [
@@ -65,25 +70,8 @@ const actions = (row: DataModelRepo[]) => [
         },
     ],
 ];
-//TODO: discuss if multiple selection should be available
-// Functionality to select items from table
-// function select(row: DataModelRepo) {
-//     const index = selected.value.findIndex((item: DataModelRepo) => item.id === row.id);
-//     if (index === -1) {
-//         selected.value.push(row as DataModelRepo);
-//     } else {
-//         selected.value.splice(index, 1);
-//     }
-// }
+
 const selected = ref<DataModelRepo[]>([]);
-
-function formatDates() {
-    dummyJson.forEach((item) => {
-        item.year = dayjs(item.year).format('DD MMM YYYY');
-    });
-}
-
-formatDates();
 
 // Pagination
 const page = ref<number>(1);
@@ -136,25 +124,29 @@ function deleteRepo() {
             {{ $t('data.dmRepository.title') }}
         </h1>
         <UCard class="mt-8">
-            <div class="flex justify-between mt-1">
-                <div class="order-first w-3/4">
-                    <UInput v-model="searchString" :placeholder="$t('data.dmRepository.search')" />
+            <div class="flex justify-between flex-1">
+                <div class="flex flex-1">
+                    <UInput
+                        v-model="searchString"
+                        size="md"
+                        :placeholder="$t('data.dmRepository.search')"
+                        class="w-full"
+                    />
                 </div>
-                <div class="order-last flex gap-2">
+                <div class="ml-2 flex">
                     <UButton
                         icon="i-heroicons-document-plus"
-                        size="sm"
+                        size="md"
                         color="primary"
                         variant="solid"
                         to="/data/add-data-model-repository"
                         target="_self"
-                        :label="$t('data.dmRepository.addDataModel')"
+                        :label="$t('addNew')"
                         :trailing="false"
                     />
                 </div>
             </div>
             <UTable
-                :ui="{ tr: { base: '[&>*:nth-child(3)]:text-center [&>*:nth-child(4)]:text-right ' } }"
                 class="mt-8"
                 :columns="columns"
                 :rows="filteredRows"
@@ -162,9 +154,22 @@ function deleteRepo() {
                 :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No items.' }"
                 @select="viewRepo"
             >
+                <template #version-data="{ row }">
+                    <div class="text-center">
+                        <span>{{ row.size }}</span>
+                    </div>
+                </template>
+                <template #size-data="{ row }">
+                    <div class="text-right">
+                        <span class="font-semibold">{{ row.size }}</span>
+                    </div>
+                </template>
+                <template #year-data="{ row }">
+                    <span>{{ dayjs(row.year).format('DD MMM YYYY') }}</span>
+                </template>
                 <template #actions-data="{ row }">
                     <UDropdown :items="actions(row)">
-                        <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+                        <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-vertical-20-solid" />
                     </UDropdown>
                 </template>
             </UTable>

@@ -28,7 +28,7 @@ const cardInfoData = computed(() => [
 //transactions data
 const transactions = computed(() => transactionsDummyData);
 
-const transactionsColumns = [
+const transactionsColumns: any = [
     {
         key: 'date',
         label: 'Date',
@@ -63,14 +63,6 @@ const transactionsColumns = [
 ];
 const page = ref<number>(1);
 const pageCount = 5;
-console.log(transactions.value);
-function formatDates() {
-    transactions.value.forEach((item) => {
-        item.date = dayjs(item.date).format('DD MMM YYYY');
-    });
-}
-
-formatDates();
 
 const transactionsRows = computed(() => {
     return transactions.value.slice((page.value - 1) * pageCount, page.value * pageCount);
@@ -102,15 +94,15 @@ const transactionsRows = computed(() => {
                 </template>
 
                 <UTable :columns="transactionsColumns" :rows="transactionsRows">
-                    <!-- Custom styling for type (incoming/outgoing) data column -->
+                    <template #date-data="{ row }">
+                        <span>{{ dayjs(row.year).format('DD MMM YYYY') }}</span>
+                    </template>
                     <template #type-data="{ row }">
                         <div class="text-center">
                             <span
                                 :class="[
                                     'rounded-md px-4 py-1 font-medium',
-                                    row.type === t('data.wallet.transactions.incoming')
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-red-100 text-red-800',
+                                    row.type === 'Incoming' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
                                 ]"
                                 >{{ row.type }}
                             </span>
@@ -120,7 +112,7 @@ const transactionsRows = computed(() => {
                         <span>{{ row?.from ?? row.to }} </span>
                     </template>
                     <template #amount-data="{ row }">
-                        <div class="text-right">
+                        <div class="text-right font-semibold">
                             <span>{{ row.amount }}</span>
                         </div>
                     </template>

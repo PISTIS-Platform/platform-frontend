@@ -36,7 +36,18 @@ const dataModelSchema = z.object({
         .number({ invalid_type_error: 'Please enter a valid number' })
         .gte(0, 'Version must be 0 or a positive number'),
     description: z.string().min(20, 'Must be at least 20 characters'),
+    data: z.any(),
 });
+
+//TODO: Example of z schema
+// type DataModel = z.infer<typeof dataModelSchema>;
+
+// const dataModel = ref<DataModel>({
+//     title: '',
+//     version: 0,
+//     description: '',
+//     data: null,
+// });
 
 function onChange() {
     //TODO: Check for maximum size

@@ -33,7 +33,7 @@ const columns = [
 ];
 
 const page = ref<number>(1);
-const pageCount = 5;
+const pageCount: number = 5;
 
 const rows = computed(() => {
     return connectorsData.value.slice((page.value - 1) * pageCount, page.value * pageCount);
@@ -47,22 +47,9 @@ const getStatusColorClass = (status: string) => {
     };
 };
 
-const toggleActive = () => {
-    console.log('Toggle clicked');
+const toggleActive = (_row: any) => {
+    console.log('NYI - toggleActive');
 };
-
-//TODO: Discuss if needed
-// const getActionButtonColorClasses = (status: string) => {
-//     if (status === t('admin.services.factoryConnectors.deactivated')) {
-//         return 'text-red-600 bg-red-600 hover:text-red-600 hover:bg-red-600';
-//     }
-
-//     if (status === t('admin.services.factoryConnectors.live')) {
-//         return 'text-green-600 bg-green-600 hover:text-green-700 hover:bg-green-700';
-//     }
-
-//     return '';
-// };
 </script>
 
 <template>
@@ -87,11 +74,9 @@ const toggleActive = () => {
                     <template #actions-data="{ row }">
                         <div class="justify-center flex">
                             <UToggle
-                                :model-value="row.status === $t('admin.services.factoryConnectors.live')"
-                                :disabled="row.status === $t('admin.services.factoryConnectors.pending')"
-                                :ui="{ inactive: 'bg-red-600 dark:bg-red-700 disabled:bg-yellow-500' }"
-                                color="green"
-                                @click="toggleActive"
+                                :model-value="row.status === 'Live'"
+                                :disabled="row.status === 'Deactivated'"
+                                @click="toggleActive(row)"
                             />
                         </div>
                     </template>

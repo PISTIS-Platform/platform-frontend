@@ -23,7 +23,7 @@ const props = defineProps({
 <template>
     <UCard :ui="{ body: { base: '', padding: 'p-4 sm:p-4' } }">
         <div class="relative flex items-center">
-            <div class="flex-shrink-0 mx-4">
+            <div class="flex-shrink-0 mr-4">
                 <UIcon :name="props.iconName" class="w-10 h-10 text-secondary-300" />
             </div>
             <div class="min-w-0 flex-1">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
     title: {
         type: String,
         required: true,
@@ -11,14 +11,14 @@ const props = defineProps({
     },
 });
 </script>
-
+//TODO: Add slots? Check portals for menu
 <template>
     <span class="flex flex-col gap-0.5 items-start justify-center">
         <h3 class="text-base font-semibold">
-            {{ props.title }}
+            {{ title }}
         </h3>
-        <h4 v-if="props.info" class="text-sm text-gray-400">
-            {{ props.info }}
+        <h4 v-if="info" class="text-sm text-gray-400">
+            {{ info }}
         </h4>
     </span>
 </template>
