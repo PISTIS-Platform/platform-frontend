@@ -68,7 +68,7 @@ const transactionsRows = computed(() => {
 });
 </script>
 <template>
-    <div class="w-full h-full text-gray-700">
+    <div class="w-full h-full">
         <h1 class="text-2xl">
             {{ $t('data.wallet.title') }}
         </h1>
