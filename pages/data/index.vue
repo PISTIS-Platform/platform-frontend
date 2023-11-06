@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
 import { transactionsDummyData } from './transactions-dummy-data';
@@ -95,7 +94,7 @@ const transactionsRows = computed(() => {
 
                 <UTable :columns="transactionsColumns" :rows="transactionsRows">
                     <template #date-data="{ row }">
-                        <span>{{ dayjs(row.year).format('DD MMM YYYY') }}</span>
+                        <span>{{ $dayjs(row.year).format('DD MMM YYYY') }}</span>
                     </template>
                     <template #type-data="{ row }">
                         <div class="text-center">

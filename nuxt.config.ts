@@ -39,7 +39,7 @@ export default defineNuxtConfig({
         },
     },
 
-    modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
+    modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui', 'dayjs-nuxt'],
     // Modules Configuration
     i18n: {
         strategy: 'no_prefix',

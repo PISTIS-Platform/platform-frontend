@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
 import DataModelRepo from '../../interfaces/data-model-repo';
@@ -165,7 +164,7 @@ function deleteRepo() {
                     </div>
                 </template>
                 <template #year-data="{ row }">
-                    <span>{{ dayjs(row.year).format('DD MMM YYYY') }}</span>
+                    <span>{{ $dayjs(row.year).format('DD MMM YYYY') }}</span>
                 </template>
                 <template #actions-data="{ row }">
                     <UDropdown :items="actions(row)">
