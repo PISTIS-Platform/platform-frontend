@@ -58,8 +58,6 @@ const licenseSelections = ['CC-BY', 'MIT', 'CC0'];
 
 const limitFrequencySelections = computed(() => [t('perDay'), t('perWeek'), t('perMonth'), t('perYear')]);
 
-const frequencySelections = computed(() => [t('monthly'), t('annual')]);
-
 const investmentPlans = ref({
     Title1: {
         title: 'Title1',
@@ -162,6 +160,7 @@ const emit = defineEmits([
     'isMonetizationValid',
     'reset-monetization',
     'submit',
+    'reset',
 ]);
 
 const updateInvestmentPlan = (title: string) => {
@@ -206,9 +205,25 @@ const saveInvestmentPlan = () => {
     showCreatePlan.value = false;
     selectedInvestmentPlan.value = props.investmentPlanDetails.title;
 };
+
+const switchDatasetOpen = ref<boolean>(false);
 </script>
 
 <template>
+    <UModal v-model="switchDatasetOpen">
+        <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
+            <p class="font-bold text-xl">{{ $t('data.designer.areYouSure') }}</p>
+            <p class="text-gray-400 mt-6">{{ $t('data.designer.willReset') }}</p>
+            <div class="flex gap-8 w-full justify-center mt-6">
+                <UButton color="white" class="w-20 flex justify-center" @click="switchDatasetOpen = false">{{
+                    $t('cancel')
+                }}</UButton>
+                <UButton class="w-20 flex justify-center" @click="emit('reset'), (switchDatasetOpen = false)">{{
+                    $t('yes')
+                }}</UButton>
+            </div>
+        </UCard>
+    </UModal>
     <Transition
         enter-active-class="duration-300 ease-out"
         enter-from-class="transform opacity-0"
@@ -249,57 +264,63 @@ const saveInvestmentPlan = () => {
                     :state="props.oneOffSaleDetails"
                     :schema="oneOffSaleSchema"
                 >
-                    <div class="flex flex-row gap-2">
-                        <UFormGroup :label="$t('data.designer.oneOffPrice')" required name="price" class="w-1/4">
-                            <UInput
-                                :model-value="props.oneOffSaleDetails.price"
-                                :placeholder="$t('data.designer.assetPrice')"
-                                type="numeric"
-                                @update:model-value="(value: string) => emit('update:oneoff-price', value)"
+                    <div class="flex flex-col">
+                        <div class="flex flex-row gap-2">
+                            <UFormGroup :label="$t('data.designer.oneOffPrice')" required name="price" class="w-1/2">
+                                <UInput
+                                    :model-value="props.oneOffSaleDetails.price"
+                                    :placeholder="$t('data.designer.assetPrice')"
+                                    type="numeric"
+                                    @update:model-value="(value: string) => emit('update:oneoff-price', value)"
+                                >
+                                    <template #trailing>
+                                        <span class="text-gray-500 text-xs">STC</span>
+                                    </template>
+                                </UInput>
+                            </UFormGroup>
+                            <UFormGroup :label="$t('license')" required name="license" class="w-1/2">
+                                <USelectMenu
+                                    :model-value="props.oneOffSaleDetails.license"
+                                    :placeholder="$t('data.designer.selectLicense')"
+                                    :options="licenseSelections"
+                                    @update:model-value="(value: string) => emit('update:oneoff-license', value)"
+                                />
+                            </UFormGroup>
+                        </div>
+                        <div class="flex flex-row gap-2">
+                            <UFormGroup
+                                :label="$t('data.designer.downloadLimit')"
+                                required
+                                name="limitNumber"
+                                class="w-1/2"
                             >
-                                <template #trailing>
-                                    <span class="text-gray-500 text-xs">STC</span>
-                                </template>
-                            </UInput>
-                        </UFormGroup>
-                        <UFormGroup :label="$t('license')" required name="license" class="w-1/4">
-                            <USelectMenu
-                                :model-value="props.oneOffSaleDetails.license"
-                                :placeholder="$t('data.designer.selectLicense')"
-                                :options="licenseSelections"
-                                @update:model-value="(value: string) => emit('update:oneoff-license', value)"
-                            />
-                        </UFormGroup>
-                        <UFormGroup
-                            :label="$t('data.designer.downloadLimit')"
-                            required
-                            name="limitNumber"
-                            class="w-1/4"
-                        >
-                            <UInput
-                                :model-value="props.oneOffSaleDetails.limitNumber"
-                                :placeholder="$t('data.designer.downloadLimitPH')"
-                                type="numeric"
-                                @update:model-value="(value: string) => emit('update:oneoff-limit-number', value)"
-                            >
-                                <template #trailing>
-                                    <span class="text-gray-500 text-xs">{{ $t('times') }}</span>
-                                </template>
-                            </UInput>
-                        </UFormGroup>
-                        <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-1/4">
-                            <USelectMenu
-                                :model-value="props.oneOffSaleDetails.limitFrequency"
-                                :placeholder="$t('data.designer.selectFrequency')"
-                                :options="limitFrequencySelections"
-                                @update:model-value="(value: string) => emit('update:oneoff-limit-frequency', value)"
-                            />
-                        </UFormGroup>
+                                <UInput
+                                    :model-value="props.oneOffSaleDetails.limitNumber"
+                                    :placeholder="$t('data.designer.downloadLimitPH')"
+                                    type="numeric"
+                                    @update:model-value="(value: string) => emit('update:oneoff-limit-number', value)"
+                                >
+                                    <template #trailing>
+                                        <span class="text-gray-500 text-xs">{{ $t('times') }}</span>
+                                    </template>
+                                </UInput>
+                            </UFormGroup>
+                            <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-1/2">
+                                <USelectMenu
+                                    :model-value="props.oneOffSaleDetails.limitFrequency"
+                                    :placeholder="$t('data.designer.selectFrequency')"
+                                    :options="limitFrequencySelections"
+                                    @update:model-value="
+                                        (value: string) => emit('update:oneoff-limit-frequency', value)
+                                    "
+                                />
+                            </UFormGroup>
+                        </div>
                     </div>
-
                     <UFormGroup :label="$t('termsConditions')" required name="terms">
                         <UTextarea
                             :model-value="props.oneOffSaleDetails.terms"
+                            :rows="4"
                             :placeholder="$t('data.designer.typeTerms')"
                             resize
                             icon="i-heroicons-envelope"
@@ -323,70 +344,85 @@ const saveInvestmentPlan = () => {
                     :state="props.subscriptionDetails"
                     :schema="subscriptionSchema"
                 >
-                    <div class="flex flex-row gap-2">
-                        <UFormGroup
-                            :label="$t('data.designer.subscriptionFrequency')"
-                            class="w-1/4"
-                            required
-                            name="frequency"
-                        >
-                            <USelectMenu
-                                :model-value="props.subscriptionDetails.frequency"
-                                :placeholder="$t('data.designer.selectFrequency')"
-                                :options="frequencySelections"
-                                @update:model-value="(value: string) => emit('update:sub-frequency', value)"
-                            />
-                        </UFormGroup>
-                        <UFormGroup :label="$t('data.designer.subscriptionPrice')" class="w-1/4" required name="price">
-                            <UInput
-                                :model-value="props.subscriptionDetails.price"
-                                :placeholder="$t('data.designer.subscriptionPricePH')"
-                                type="numeric"
-                                @update:model-value="(value: string) => emit('update:sub-price', value)"
+                    <div class="flex flex-col gap-2">
+                        <div class="flex flex-row gap-2 justify-center">
+                            <UFormGroup
+                                :label="$t('data.designer.subscriptionPrice')"
+                                class="w-1/4"
+                                required
+                                name="price"
                             >
-                                <template #trailing>
-                                    <span class="text-gray-500 text-xs">STC</span>
-                                </template>
-                            </UInput>
-                        </UFormGroup>
-                        <UFormGroup :label="$t('license')" required class="w-1/4" name="license">
-                            <USelectMenu
-                                :model-value="props.subscriptionDetails.license"
-                                :placeholder="$t('data.designer.selectLicense')"
-                                :options="licenseSelections"
-                                @update:model-value="(value: string) => emit('update:sub-license', value)"
-                            />
-                        </UFormGroup>
-                        <UFormGroup
-                            :label="$t('data.designer.downloadLimit')"
-                            class="w-1/4"
-                            required
-                            name="limitNumber"
-                        >
-                            <UInput
-                                :model-value="props.subscriptionDetails.limitNumber"
-                                :placeholder="$t('data.designer.downloadLimitPH')"
-                                type="numeric"
-                                @update:model-value="(value: string) => emit('update:sub-limit-number', value)"
+                                <UInput
+                                    :model-value="props.subscriptionDetails.price"
+                                    :placeholder="$t('data.designer.subscriptionPricePH')"
+                                    type="numeric"
+                                    @update:model-value="(value: string) => emit('update:sub-price', value)"
+                                >
+                                    <template #trailing>
+                                        <span class="text-gray-500 text-xs">STC</span>
+                                    </template>
+                                </UInput>
+                            </UFormGroup>
+                            <UFormGroup
+                                :label="$t('data.designer.subscriptionFrequency')"
+                                class="w-1/4"
+                                required
+                                name="frequency"
                             >
-                                <template #trailing>
-                                    <span class="text-gray-500 text-xs">times</span>
+                                <template class="flex flex-row gap-2 justify-center">
+                                    <URadio
+                                        :label="$t('data.designer.monthly')"
+                                        :model-value="props.subscriptionDetails.frequency"
+                                    />
+                                    <URadio
+                                        :label="$t('data.designer.annual')"
+                                        :model-value="props.subscriptionDetails.frequency"
+                                    />
                                 </template>
-                            </UInput>
-                        </UFormGroup>
-                        <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-1/4">
-                            <USelectMenu
-                                :model-value="props.subscriptionDetails.limitFrequency"
-                                :placeholder="$t('data.designer.selectFrequency')"
-                                :options="limitFrequencySelections"
-                                @update:model-value="(value: string) => emit('update:sub-limit-frequency', value)"
-                            />
-                        </UFormGroup>
+                            </UFormGroup>
+                            <UFormGroup :label="$t('license')" required class="w-1/2" name="license">
+                                <USelectMenu
+                                    :model-value="props.subscriptionDetails.license"
+                                    :class="'gray'"
+                                    :placeholder="$t('data.designer.selectLicense')"
+                                    :options="licenseSelections"
+                                    @update:model-value="(value: string) => emit('update:sub-license', value)"
+                                />
+                            </UFormGroup>
+                        </div>
+                        <div class="flex flex-row gap-2">
+                            <UFormGroup
+                                :label="$t('data.designer.downloadLimit')"
+                                class="w-1/2"
+                                required
+                                name="limitNumber"
+                            >
+                                <UInput
+                                    :model-value="props.subscriptionDetails.limitNumber"
+                                    :placeholder="$t('data.designer.downloadLimitPH')"
+                                    type="numeric"
+                                    @update:model-value="(value: string) => emit('update:sub-limit-number', value)"
+                                >
+                                    <template #trailing>
+                                        <span class="text-gray-500 text-xs">times</span>
+                                    </template>
+                                </UInput>
+                            </UFormGroup>
+                            <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="w-1/2">
+                                <USelectMenu
+                                    :model-value="props.subscriptionDetails.limitFrequency"
+                                    :placeholder="$t('data.designer.selectFrequency')"
+                                    :options="limitFrequencySelections"
+                                    @update:model-value="(value: string) => emit('update:sub-limit-frequency', value)"
+                                />
+                            </UFormGroup>
+                        </div>
                     </div>
                     <UFormGroup :label="$t('termsConditions')" required name="terms">
                         <UTextarea
                             :model-value="props.subscriptionDetails.terms"
                             resize
+                            :rows="4"
                             :placeholder="$t('data.designer.typeTerms')"
                             icon="i-heroicons-envelope"
                             @update:model-value="(value: string) => emit('update:sub-terms', value)"
@@ -567,16 +603,18 @@ const saveInvestmentPlan = () => {
                     </UForm>
                 </div>
             </Transition>
-            <div class="flex w-full justify-end items-center">
+            <div class="flex w-full justify-between">
                 <UButton
                     size="md"
                     color="gray"
                     variant="outline"
                     :label="$t('cancel')"
                     :trailing="false"
-                    @click="$router.go(-1)"
+                    @click="switchDatasetOpen = true"
                 />
-                <UButton class="px-4 py-2" :disabled="!isAllValid" @click="emit('submit')">{{ $t('submit') }}</UButton>
+                <UButton class="px-4 py-2 order-last" :disabled="!isAllValid" @click="emit('submit')"
+                    >{{ $t('submit') }}
+                </UButton>
             </div>
         </UCard>
     </Transition>

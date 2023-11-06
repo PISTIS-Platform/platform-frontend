@@ -112,6 +112,8 @@ export default defineI18nConfig(() => ({
                     maxInvestors: 'Max No of Investors',
                     investors: 'investors',
                     saveInvestmentPlan: 'Save Investment Plan',
+                    monthly: 'Monthly',
+                    annual: 'Annual',
                 },
                 log: 'Data Log',
                 wallet: {

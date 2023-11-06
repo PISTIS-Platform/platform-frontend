@@ -205,6 +205,7 @@ const resetMonetization = () => {
             @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @reset-monetization="resetMonetization"
             @submit="submitAll"
+            @reset="reset"
         />
     </div>
 </template>
