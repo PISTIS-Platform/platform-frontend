@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
 import { transactionsDummyData } from './transactions-dummy-data';
@@ -33,32 +34,43 @@ const transactionsColumns = [
         label: 'Date',
         sortable: true,
         direction: 'desc',
+        class: 'w-1/5',
     },
     {
         key: 'fromTo',
         label: 'Buyer / Seller',
         sortable: true,
+        class: 'w-1/4',
     },
     {
         key: 'type',
         label: 'Type',
         sortable: true,
-        class: 'text-center',
+        class: 'text-center w-1/5',
     },
     {
         key: 'amount',
         label: 'Amount',
         sortable: true,
-        class: 'text-right',
+        class: 'text-right w-1/5',
     },
     {
         key: 'id',
         label: 'ID',
         sortable: true,
+        class: 'w-1/5',
     },
 ];
 const page = ref<number>(1);
 const pageCount = 5;
+console.log(transactions.value);
+function formatDates() {
+    transactions.value.forEach((item) => {
+        item.date = dayjs(item.date).format('DD MMM YYYY');
+    });
+}
+
+formatDates();
 
 const transactionsRows = computed(() => {
     return transactions.value.slice((page.value - 1) * pageCount, page.value * pageCount);

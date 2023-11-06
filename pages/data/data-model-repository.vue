@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
 import DataModelRepo from '../../interfaces/data-model-repo';
@@ -13,25 +14,30 @@ const columns = [
         label: t('data.dmRepository.tableFields.id'),
         sortable: true,
         direction: 'asc',
+        class: 'w-1/8',
     },
     {
         key: 'title',
         label: t('data.dmRepository.tableFields.title'),
         sortable: true,
+        class: 'w-1/4',
     },
 
     {
         key: 'version',
         label: t('data.dmRepository.tableFields.version'),
+        class: 'w-1/4 text-slate-600',
     },
     {
         key: 'size',
         label: t('data.dmRepository.tableFields.size'),
+        class: 'w-1/4 text-slate-600',
     },
     {
         key: 'year',
         label: t('data.dmRepository.tableFields.year'),
         sortable: true,
+        class: 'w-1/8',
     },
     { key: 'actions' },
 ];
@@ -70,6 +76,14 @@ const actions = (row: DataModelRepo[]) => [
 //     }
 // }
 const selected = ref<DataModelRepo[]>([]);
+
+function formatDates() {
+    dummyJson.forEach((item) => {
+        item.year = dayjs(item.year).format('DD MMM YYYY');
+    });
+}
+
+formatDates();
 
 // Pagination
 const page = ref<number>(1);
@@ -128,7 +142,7 @@ function deleteRepo() {
                 </div>
                 <div class="order-last flex gap-2">
                     <UButton
-                        icon="i-heroicons-document-plus-20-solid"
+                        icon="i-heroicons-document-plus"
                         size="sm"
                         color="primary"
                         variant="solid"

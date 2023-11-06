@@ -47,6 +47,7 @@
         "@iconify-json/formkit": "^1.1.2",
         "@nuxt/ui": "^2.10.0",
         "@pinia/nuxt": "^0.4.11",
+        "dayjs": "^1.11.10",
         "next-auth": "4.21.1",
         "pinia": "^2.1.6",
         "ramda": "^0.29.0",

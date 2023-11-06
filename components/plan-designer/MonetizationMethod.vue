@@ -568,6 +568,14 @@ const saveInvestmentPlan = () => {
                 </div>
             </Transition>
             <div class="flex w-full justify-end items-center">
+                <UButton
+                    size="md"
+                    color="gray"
+                    variant="outline"
+                    :label="$t('cancel')"
+                    :trailing="false"
+                    @click="$router.go(-1)"
+                />
                 <UButton class="px-4 py-2" :disabled="!isAllValid" @click="emit('submit')">{{ $t('submit') }}</UButton>
             </div>
         </UCard>
