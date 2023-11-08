@@ -9,8 +9,7 @@ import { dummyJson } from './dm-repo-dummy-data';
 const { t } = useI18n();
 
 // Fields for table
-//TODO: Discuss about column type
-const columns = computed(() => [
+const columns: any | unknown = computed(() => [
     {
         key: 'id',
         label: t('data.dmRepository.tableFields.id'),

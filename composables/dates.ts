@@ -1,5 +1,5 @@
 export function useIntlDates(date: Date | string) {
-    const options = {
+    const formatOptions: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -7,6 +7,6 @@ export function useIntlDates(date: Date | string) {
 
     const incomingDate = new Date(date);
 
-    const dateTimeFormat = new Intl.DateTimeFormat('en-GB', options);
+    const dateTimeFormat = new Intl.DateTimeFormat('en-GB', formatOptions);
     return dateTimeFormat.format(incomingDate);
 }
