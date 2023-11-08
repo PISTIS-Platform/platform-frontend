@@ -64,9 +64,6 @@ devDependencies:
   '@vueuse/nuxt':
     specifier: ^10.4.1
     version: 10.4.1(nuxt@3.7.1)(vue@3.3.4)
-  dayjs-nuxt:
-    specifier: ^2.1.9
-    version: 2.1.9
   eslint:
     specifier: ^8.49.0
     version: 8.49.0
@@ -4204,20 +4201,6 @@ packages:
   /data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
     engines: {node: '>= 12'}
-    dev: true
-
-  /dayjs-nuxt@2.1.9:
-    resolution: {integrity: sha512-7L1X8Wm+O2s2o+YK8RH1GK0SUUsh7l0lnIzsjaLGvyu64asLs2KVNoh25J4tQurdILp2TyrFaTo/k3k/ZPub9Q==}
-    dependencies:
-      '@nuxt/kit': 3.8.0
-      dayjs: 1.11.10
-    transitivePeerDependencies:
-      - rollup
-      - supports-color
-    dev: true
-
-  /dayjs@1.11.10:
-    resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
     dev: true
 
   /de-indent@1.0.2:

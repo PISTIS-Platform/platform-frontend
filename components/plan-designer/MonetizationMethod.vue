@@ -287,7 +287,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                 />
                             </UFormGroup>
                         </div>
-                        <div class="flex flex-row gap-2">
+                        <div class="flex flex-row gap-2 mt-3">
                             <UFormGroup
                                 :label="$t('data.designer.downloadLimit')"
                                 required
@@ -345,7 +345,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     :schema="subscriptionSchema"
                 >
                     <div class="flex flex-col gap-2">
-                        <div class="flex flex-row gap-2 justify-center">
+                        <div class="flex flex-row gap-2 justify-center align-middle">
                             <UFormGroup
                                 :label="$t('data.designer.subscriptionPrice')"
                                 class="w-1/4"
@@ -365,11 +365,11 @@ const switchDatasetOpen = ref<boolean>(false);
                             </UFormGroup>
                             <UFormGroup
                                 :label="$t('data.designer.subscriptionFrequency')"
-                                class="w-1/4"
+                                class="w-1/4 pl-6 align-middle"
                                 required
                                 name="frequency"
                             >
-                                <template class="flex flex-row gap-2 justify-center">
+                                <template class="flex flex-row gap-2 mt-2 align-middle">
                                     <URadio
                                         :label="$t('data.designer.monthly')"
                                         :model-value="props.subscriptionDetails.frequency"
@@ -390,7 +390,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                 />
                             </UFormGroup>
                         </div>
-                        <div class="flex flex-row gap-2">
+                        <div class="flex flex-row gap-2 mt-3">
                             <UFormGroup
                                 :label="$t('data.designer.downloadLimit')"
                                 class="w-1/2"

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
+//We have to add actual data
+import { useIntlDates } from '../../composables/dates';
 import DataModelRepo from '../../interfaces/data-model-repo';
 import { dummyJson } from './dm-repo-dummy-data';
-//We have to add actual data
+
 const { t } = useI18n();
 
 // Fields for table
@@ -164,7 +166,7 @@ function deleteRepo() {
                     </div>
                 </template>
                 <template #year-data="{ row }">
-                    <span>{{ $dayjs(row.year).format('DD MMM YYYY') }}</span>
+                    <span>{{ useIntlDates(row.year) }}</span>
                 </template>
                 <template #actions-data="{ row }">
                     <UDropdown :items="actions(row)">

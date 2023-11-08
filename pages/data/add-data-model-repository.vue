@@ -88,13 +88,13 @@ function drop(e: any) {
             {{ $t('data.dmRepository.upload') }}
             <UIcon class="box-content h-6 w-6" name="i-heroicons-information-circle" />
         </h1>
-        <UCard class="mt-8">
-            <div class="space-y-4 sm:space-y-5 sm:pt-10 w-full lg:w-1/2 lg:pr-4">
-                <UForm :schema="dataModelSchema" :state="state" class="flex flex-col space-y-6" @submit="submit">
+        <UCard class="mt-8 flex flex-col">
+            <div class="space-y-4 w-full lg:w-full lg:pr-4">
+                <UForm :schema="dataModelSchema" :state="state" class="space-y-6" @submit="submit">
                     <UFormGroup :label="$t('data.dmRepository.select') + ':'" name="selectFile">
                         <div class="sm:col-span-2 sm:mt-0">
                             <div
-                                class="flex max-w-lg justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
+                                class="flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
                                 @dragover="dragover"
                                 @dragleave="dragleave"
                                 @drop="drop"
@@ -136,14 +136,21 @@ function drop(e: any) {
                             </div>
                         </div>
                     </UFormGroup>
-                    <UFormGroup :label="$t('data.dmRepository.formTitle')" required name="title">
-                        <UInput v-model="state.title" />
-                    </UFormGroup>
-                    <UFormGroup :label="$t('data.dmRepository.formVersion')" required name="version">
-                        <UInput v-model.number="state.version" type="numeric" />
-                    </UFormGroup>
+                    <div class="flex flex-row">
+                        <UFormGroup class="w-3/4" :label="$t('data.dmRepository.formTitle')" required name="title">
+                            <UInput v-model="state.title" />
+                        </UFormGroup>
+                        <UFormGroup
+                            class="ml-3 w-1/4"
+                            :label="$t('data.dmRepository.formVersion')"
+                            required
+                            name="version"
+                        >
+                            <UInput v-model.number="state.version" type="numeric" />
+                        </UFormGroup>
+                    </div>
                     <UFormGroup :label="$t('data.dmRepository.formDescription')" required name="description">
-                        <UTextarea v-model="state.description" />
+                        <UTextarea v-model="state.description" :rows="4" />
                     </UFormGroup>
                     <div class="flex items-center justify-between">
                         <UButton

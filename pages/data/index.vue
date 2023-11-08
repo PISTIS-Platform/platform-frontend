@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
+import { useIntlDates } from '../../composables/dates';
 import { transactionsDummyData } from './transactions-dummy-data';
 
 const { t } = useI18n();
@@ -94,7 +95,7 @@ const transactionsRows = computed(() => {
 
                 <UTable :columns="transactionsColumns" :rows="transactionsRows">
                     <template #date-data="{ row }">
-                        <span>{{ $dayjs(row.year).format('DD MMM YYYY') }}</span>
+                        <span>{{ useIntlDates(row.date) }}</span>
                     </template>
                     <template #type-data="{ row }">
                         <div class="text-center">
