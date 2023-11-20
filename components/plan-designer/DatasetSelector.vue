@@ -48,7 +48,7 @@ function toggleTable() {
 </script>
 
 <template>
-    <UCard class="mt-8 overflow-visible">
+    <UCard class="overflow-visible">
         <template #header>
             <SubHeading
                 :title="$t('data.designer.datasetSelection')"
@@ -100,7 +100,6 @@ function toggleTable() {
                     >
                         <FileBrowser
                             :model-value="selected"
-                            class=""
                             :files="filteredSelections"
                             @update:model-value="(value: string) => emit('update:selected', value)"
                         />

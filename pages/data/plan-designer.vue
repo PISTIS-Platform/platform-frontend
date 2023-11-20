@@ -9,17 +9,17 @@ import type {
 
 //data for selected dataset
 
-const selected = ref<string | undefined>(undefined);
+const selected = ref<string>('');
 
 //data for selection whole dataset or query
 
-const completeOrQuery = ref<string | undefined>(undefined);
+const completeOrQuery = ref<string>('');
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
 
-const oneOffPrice = ref(500);
-const subscriptionPrice = ref(20);
+const oneOffPrice = ref<number>(500);
+const subscriptionPrice = ref<number>(20);
 
 // data for asset offering details
 
@@ -31,7 +31,7 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
 
 // data for monetization selections
 
-const monetizationSelection = ref(undefined);
+const monetizationSelection = ref<string>('');
 
 // one-off sale details
 const oneOffSaleDetails = ref<OneOffSaleDetails>({
@@ -53,7 +53,7 @@ const subscriptionDetails = ref<SubscriptionDetails>({
 });
 
 //NFT details
-const NFTdetails = ref<NFTDetails>({
+const detailsOfNFT = ref<NFTDetails>({
     price: undefined,
 });
 
@@ -67,15 +67,13 @@ const investmentPlanDetails = ref<InvestmentPlanDetails>({
 });
 
 // validation data
-const isAssetOfferingDetailsValid = ref(false);
-const isMonetizationValid = ref(false);
+const isAssetOfferingDetailsValid = ref<boolean>(false);
+const isMonetizationValid = ref<boolean>(false);
 
-const isAllValid = computed(() => {
-    return isAssetOfferingDetailsValid.value && isMonetizationValid.value;
-});
+const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
 const submitAll = () => {
-    if (!isAllValid) return;
+    if (!isAllValid.value) return;
     //TODO: Do something for submit here
     console.log('SUCCESS');
 };
@@ -83,9 +81,9 @@ const submitAll = () => {
 // clear data when switching selection of dataset
 
 const reset = () => {
-    selected.value = undefined;
-    completeOrQuery.value = undefined;
-    monetizationSelection.value = undefined;
+    selected.value = '';
+    completeOrQuery.value = '';
+    monetizationSelection.value = '';
     assetOfferingDetails.value = {
         title: undefined,
         description: undefined,
@@ -113,7 +111,7 @@ const reset = () => {
         eqPrice: undefined,
         maxNoInvestors: undefined,
     };
-    NFTdetails.value = {
+    detailsOfNFT.value = {
         price: undefined,
     };
 };
@@ -141,14 +139,14 @@ const resetMonetization = () => {
         eqPrice: undefined,
         maxNoInvestors: undefined,
     };
-    NFTdetails.value = {
+    detailsOfNFT.value = {
         price: undefined,
     };
 };
 </script>
 
 <template>
-    <div class="w-full h-full text-gray-700">
+    <div class="w-full h-full text-gray-700 space-y-8">
         <h1 class="text-2xl">
             {{ $t('data.designer.title') }}
         </h1>
@@ -182,7 +180,7 @@ const resetMonetization = () => {
             :one-off-sale-details="oneOffSaleDetails"
             :subscription-details="subscriptionDetails"
             :investment-plan-details="investmentPlanDetails"
-            :NFT-details="NFTdetails"
+            :details-of-n-f-t="detailsOfNFT"
             :is-all-valid="isAllValid"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
             @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
@@ -201,7 +199,7 @@ const resetMonetization = () => {
             @update:plan-min-eq-percentage="(value: number) => (investmentPlanDetails.minEqPercentage = value)"
             @update:plan-eq-price="(value: number) => (investmentPlanDetails.eqPrice = value)"
             @update:plan-max-no-investors="(value: number) => (investmentPlanDetails.maxNoInvestors = value)"
-            @update:nft-price="(value: number) => (NFTdetails.price = value)"
+            @update:nft-price="(value: number) => (detailsOfNFT.price = value)"
             @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @reset-monetization="resetMonetization"
             @submit="submitAll"
