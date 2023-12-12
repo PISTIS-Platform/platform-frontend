@@ -24,7 +24,12 @@ const columns: any | unknown = computed(() => [
         direction: 'asc',
         class: 'w-1/3',
     },
-
+    {
+        key: 'type',
+        sortable: true,
+        label: t('data.dmRepository.tableFields.type'),
+        class: 'w-1/6 text-slate-600 text-center',
+    },
     {
         key: 'version',
         sortable: false,
@@ -38,8 +43,8 @@ const columns: any | unknown = computed(() => [
         class: 'w-1/6 text-slate-600 text-right',
     },
     {
-        key: 'year',
-        label: t('data.dmRepository.tableFields.year'),
+        key: 'date',
+        label: t('data.dmRepository.tableFields.date'),
         sortable: true,
         direction: 'asc',
         class: 'w-1/6',

@@ -8,7 +8,7 @@ export default defineNuxtConfig({
             pathPrefix: false,
         },
     ],
-    plugins: ['~/plugins/vue3-tags.js'],
+    plugins: ['~/plugins/vue3-tags.js', '~/plugins/vue3-chartjs'],
     devtools: { enabled: true },
     ui: {
         icons: ['heroicons', 'fa6-regular', 'formkit'],

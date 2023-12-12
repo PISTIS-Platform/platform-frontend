@@ -21,6 +21,7 @@ const navigation = [
     { name: 'transactions.transactions', to: '/transactions' },
     { name: 'market.market', to: '/market' },
     { name: 'admin.services.title', to: '/manage-services' },
+    { name: 'admin.resources.title', to: '/resources-monitor' },
 ];
 
 const userNavigation = [

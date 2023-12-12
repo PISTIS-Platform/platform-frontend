@@ -23,6 +23,9 @@ dependencies:
   '@pinia/nuxt':
     specifier: ^0.4.11
     version: 0.4.11(typescript@5.2.2)(vue@3.3.4)
+  chart.js:
+    specifier: ^4.4.1
+    version: 4.4.1
   next-auth:
     specifier: 4.21.1
     version: 4.21.1(next@13.4.19)(react-dom@18.2.0)(react@18.2.0)
@@ -32,6 +35,9 @@ dependencies:
   ramda:
     specifier: ^0.29.0
     version: 0.29.0
+  vue-chartjs:
+    specifier: ^5.2.0
+    version: 5.2.0(chart.js@4.4.1)(vue@3.3.4)
   vue3-tags-input:
     specifier: ^1.0.12
     version: 1.0.12(vue@3.3.4)
@@ -1214,6 +1220,10 @@ packages:
       path-to-regexp: 6.2.1
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@kurkle/color@0.3.2:
+    resolution: {integrity: sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==}
     dev: false
 
   /@kwsites/file-exists@1.1.1:
@@ -3791,6 +3801,13 @@ packages:
     resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
     dev: true
+
+  /chart.js@4.4.1:
+    resolution: {integrity: sha512-C74QN1bxwV1v2PEujhmKjOZ7iUM4w6BWs23Md/6aOZZSlwMzeCIDGuZay++rBgChYru7/+QFeoQW0fQoP534Dg==}
+    engines: {pnpm: '>=7'}
+    dependencies:
+      '@kurkle/color': 0.3.2
+    dev: false
 
   /chokidar@3.5.3:
     resolution: {integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==}
@@ -10035,6 +10052,16 @@ packages:
     dependencies:
       ufo: 1.3.1
     dev: true
+
+  /vue-chartjs@5.2.0(chart.js@4.4.1)(vue@3.3.4):
+    resolution: {integrity: sha512-d3zpKmGZr2OWHQ1xmxBcAn5ShTG917+/UCLaSpaCDDqT0U7DBsvFzTs69ZnHCgKoXT55GZDW8YEj9Av+dlONLA==}
+    peerDependencies:
+      chart.js: ^4.1.1
+      vue: ^3.0.0-0 || ^2.7.0
+    dependencies:
+      chart.js: 4.4.1
+      vue: 3.3.4
+    dev: false
 
   /vue-demi@0.13.11(vue@3.3.4):
     resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}

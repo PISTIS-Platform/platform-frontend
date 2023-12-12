@@ -3,6 +3,8 @@ import { useRoute } from 'nuxt/app';
 import { ref } from 'vue';
 import { z } from 'zod';
 
+import { ModelType } from '../../interfaces/model-type.enum';
+
 const isDragging = ref<boolean>(false);
 const file = ref();
 const uploadedState = ref<boolean>(false);
@@ -15,6 +17,25 @@ async function submit(/*event: FormSubmitEvent<any>*/) {
     console.log(dataModelState);
 }
 
+const modelTypes = [
+    {
+        value: ModelType.DATAMODEL,
+        name: ModelType.DATAMODEL,
+    },
+    {
+        value: ModelType.METADATAMODEL,
+        name: ModelType.METADATAMODEL,
+    },
+    {
+        value: ModelType.MONETISATIONMODEL,
+        name: ModelType.MONETISATIONMODEL,
+    },
+    {
+        value: ModelType.PRETRAINEDAIMODEL,
+        name: ModelType.PRETRAINEDAIMODEL,
+    },
+];
+
 const dataModelSchema = z.object({
     title: z.string().min(10, 'Must be at least 10 characters'),
     version: z
@@ -22,6 +43,7 @@ const dataModelSchema = z.object({
         .gte(0, 'Version must be 0 or a positive number'),
     description: z.string().min(20, 'Must be at least 10 characters'),
     data: z.any(),
+    type: z.enum(['Pre-trained AI model', 'Data Model', 'Monetisation Model', 'Metadata model']),
 });
 
 //Example of z schema
@@ -32,6 +54,7 @@ const dataModelState = ref<DataModel>({
     version: 0,
     description: '',
     data: null,
+    type: '' as ModelType,
 });
 
 function onChange() {
@@ -131,11 +154,19 @@ onMounted(() => {
                         </div>
                     </UFormGroup>
                     <div class="flex flex-1">
-                        <UFormGroup class="w-3/4" :label="$t('data.dmRepository.formTitle')" required name="title">
+                        <UFormGroup class="w-2/4" :label="$t('data.dmRepository.formTitle')" required name="title">
                             <UInput v-model="dataModelState.title" />
                         </UFormGroup>
                         <UFormGroup
-                            class="ml-5 w-1/4"
+                            class="ml-2 w-1/4"
+                            :label="$t('data.dmRepository.modelType')"
+                            required
+                            name="model_type"
+                        >
+                            <USelect v-model="dataModelState.type" :options="modelTypes" option-attribute="name" />
+                        </UFormGroup>
+                        <UFormGroup
+                            class="ml-2 w-1/4"
                             :label="$t('data.dmRepository.formVersion')"
                             required
                             name="version"
