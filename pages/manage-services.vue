@@ -24,20 +24,16 @@ const columns = [
         sortable: true,
     },
     {
-        key: 'status',
-        label: t('admin.services.factoryConnectors.status'),
-        sortable: true,
-    },
-    {
         key: 'actions',
         label: `${t('admin.services.factoryConnectors.activate')} / ${t(
             'admin.services.factoryConnectors.deactivate',
         )}`,
+        class: 'text-center',
     },
 ];
 
-const page = ref(1);
-const pageCount = 5;
+const page = ref<number>(1);
+const pageCount: number = 5;
 
 const rows = computed(() => {
     return connectorsData.value.slice((page.value - 1) * pageCount, page.value * pageCount);
@@ -51,28 +47,8 @@ const getStatusColorClass = (status: string) => {
     };
 };
 
-const getActionButtonText = (status: string) => {
-    if (status === t('admin.services.factoryConnectors.live')) {
-        return t('admin.services.factoryConnectors.deactivate');
-    }
-
-    if (status === t('admin.services.factoryConnectors.deactivated')) {
-        return t('admin.services.factoryConnectors.activate');
-    }
-
-    return '';
-};
-
-const getActionButtonColorClasses = (status: string) => {
-    if (status === t('admin.services.factoryConnectors.live')) {
-        return 'text-red-800 bg-red-200 hover:text-red-900 hover:bg-red-300';
-    }
-
-    if (status === t('admin.services.factoryConnectors.deactivated')) {
-        return 'text-green-800 bg-green-200 hover:text-green-900 hover:bg-green-300';
-    }
-
-    return '';
+const toggleActive = (_row: any) => {
+    console.log('NYI - toggleActive');
 };
 </script>
 
@@ -86,18 +62,23 @@ const getActionButtonColorClasses = (status: string) => {
                 </template>
 
                 <UTable :columns="columns" :rows="rows">
-                    <!-- Custom styling for status data column -->
-                    <template #status-data="{ row }">
-                        <span :class="getStatusColorClass(row.status)">{{ row.status }} </span>
+                    <!-- Custom styling for ip data column -->
+                    <template #ip-data="{ row }">
+                        <span class="flex items-center"
+                            ><UIcon
+                                name="i-heroicons-light-bulb-solid"
+                                :class="[getStatusColorClass(row.status), 'mr-2']"
+                            />{{ row.ip }}</span
+                        >
                     </template>
-
                     <template #actions-data="{ row }">
-                        <UButton
-                            v-if="row.status !== $t('admin.services.factoryConnectors.pending')"
-                            :class="[getActionButtonColorClasses(row.status), 'w-24 flex justify-center']"
-                            >{{ getActionButtonText(row.status) }}
-                        </UButton>
-                        <div v-else></div>
+                        <div class="justify-center flex">
+                            <UToggle
+                                :model-value="row.status === 'Live'"
+                                :disabled="row.status === 'Deactivated'"
+                                @click="toggleActive(row)"
+                            />
+                        </div>
                     </template>
                 </UTable>
 

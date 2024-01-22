@@ -10,13 +10,13 @@ defineProps({
         type: String,
         required: true,
     },
-    completeOrQuery: {
+    questionnaireOrDashboard: {
         type: String,
         required: true,
     },
 });
 
-const emit = defineEmits(['reset', 'update:selected', 'update:complete-or-query']);
+const emit = defineEmits(['reset', 'update:selected', 'update:questionnaire-or-dashboard']);
 
 //data for selecting specific dataset
 
@@ -33,12 +33,12 @@ const outerQuery = ref<string>('');
 
 const dataSetSelections = computed(() => [
     {
-        title: t('data.designer.completeDataset'),
-        info: t('data.designer.selectDataset'),
+        title: t('data.usage.questionniare'),
+        info: t('data.usage.questionnaireInfo'),
     },
     {
-        title: t('data.designer.queryFilter'),
-        info: t('data.designer.selectQueryFilter'),
+        title: t('data.usage.dashboard'),
+        info: t('data.usage.dashboardInfo'),
     },
 ]);
 
@@ -134,10 +134,10 @@ function toggleTable() {
                         leave-to-class="transform opacity-0"
                     >
                         <SelectionCards
-                            :model-value="completeOrQuery"
+                            :model-value="questionnaireOrDashboard"
                             class="gap-4"
                             :selections="dataSetSelections"
-                            @update:model-value="(value: string) => emit('update:complete-or-query', value)"
+                            @update:model-value="(value: string) => emit('update:questionnaire-or-dashboard', value)"
                         />
                     </Transition>
                 </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
     selections: {
         type: Array<{ title: string; info: string }>,
         required: true,
@@ -19,14 +19,14 @@ const emit = defineEmits(['update:model-value']);
 </script>
 
 <template>
-    <div class="flex flex-col gap-4 w-full b">
+    <div class="flex flex-row gap-4">
         <SelectionCard
-            v-for="item in props.selections"
+            v-for="item in selections"
             :key="item.title"
             :title="item.title"
             :info="item.info"
-            :selected="props.modelValue === item.title"
-            :width="props.width"
+            :selected="modelValue === item.title"
+            :width="width"
             @click="emit('update:model-value', item.title)"
         />
     </div>

@@ -21,6 +21,7 @@ const navigation = [
     { name: 'transactions.transactions', to: '/transactions' },
     { name: 'market.market', to: '/market' },
     { name: 'admin.services.title', to: '/manage-services' },
+    { name: 'admin.resources.title', to: '/resources-monitor' },
 ];
 
 const userNavigation = [
@@ -170,7 +171,7 @@ const userNavigation = [
                 </div>
             </DisclosurePanel>
         </Disclosure>
-        <main class="flex flex-col flex-1 overflow-y-auto">
+        <main class="flex flex-col flex-1 overflow-y-auto text-gray-700">
             <slot />
         </main>
         <footer class="bg-primary-900 h-12"></footer>

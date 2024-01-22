@@ -45,11 +45,13 @@
         "@heroicons/vue": "^2.0.18",
         "@iconify-json/fa6-regular": "^1.1.13",
         "@iconify-json/formkit": "^1.1.2",
-        "@nuxt/ui": "^2.9.0",
+        "@nuxt/ui": "^2.10.0",
         "@pinia/nuxt": "^0.4.11",
+        "chart.js": "^4.4.1",
         "next-auth": "4.21.1",
         "pinia": "^2.1.6",
         "ramda": "^0.29.0",
+        "vue-chartjs": "^5.2.0",
         "vue3-tags-input": "^1.0.12",
         "zod": "^3.22.4"
     }

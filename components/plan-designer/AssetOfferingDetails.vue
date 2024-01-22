@@ -22,9 +22,9 @@ const schema = z.object({
 
 const emit = defineEmits(['update:asset-title', 'update:asset-description', 'update:asset-keywords', 'isValid']);
 
-const isValid = computed(() => {
-    return schema.safeParse(props.assetOfferingDetails).success && props.assetOfferingDetails.keywords.length > 0;
-});
+const isValid = computed(
+    () => schema.safeParse(props.assetOfferingDetails).success && props.assetOfferingDetails.keywords.length > 0,
+);
 
 watch(isValid, () => {
     emit('isValid', isValid.value);
@@ -40,24 +40,24 @@ watch(isValid, () => {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="props.completeOrQuery" class="mt-8">
+        <UCard v-if="completeOrQuery">
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.assetOfferingDetails')"
                     :info="$t('data.designer.assetOfferingDetailsInfo')"
                 />
             </template>
-            <UForm class="flex flex-col gap-4 w-full" :state="props.assetOfferingDetails" :schema="schema">
+            <UForm class="flex flex-col space-y-5 w-full" :state="assetOfferingDetails" :schema="schema">
                 <UFormGroup :label="$t('title')" required name="title">
                     <UInput
-                        :model-value="props.assetOfferingDetails.title"
+                        :model-value="assetOfferingDetails.title"
                         :placeholder="$t('data.designer.titleOfAsset')"
                         @update:model-value="(value: string) => emit('update:asset-title', value)"
                     />
                 </UFormGroup>
                 <UFormGroup :label="$t('description')" required name="description">
                     <UTextarea
-                        :model-value="props.assetOfferingDetails.description"
+                        :model-value="assetOfferingDetails.description"
                         :placeholder="$t('data.designer.descriptionOfAsset')"
                         icon="i-heroicons-envelope"
                         @update:model-value="(value: string) => emit('update:asset-description', value)"
@@ -65,10 +65,8 @@ watch(isValid, () => {
                 </UFormGroup>
                 <UFormGroup :label="$t('keywords')" required>
                     <vue3-tags-input
-                        :tags="props.assetOfferingDetails.keywords"
-                        :placeholder="
-                            props.assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')
-                        "
+                        :tags="assetOfferingDetails.keywords"
+                        :placeholder="assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')"
                         @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
                     />
                 </UFormGroup>
@@ -79,22 +77,22 @@ watch(isValid, () => {
 
 <style lang="css">
 .v3ti .v3ti-tag {
-    @apply bg-primary-500 h-[24px];
+    @apply bg-primary-500 h-[26px] align-middle;
 }
 
 .v3ti-new-tag {
-    @apply text-sm text-gray-700 h-[30px] focus:ring-0 placeholder-gray-400 pb-2;
+    @apply text-sm text-gray-700 h-[30px] focus:ring-0 placeholder-gray-400 align-middle;
 }
 
 .v3ti .v3ti-tag .v3ti-remove-tag {
-    @apply text-white;
+    @apply text-primary-100;
 }
 
 .v3ti {
-    @apply border border-gray-300 rounded-md h-[20px];
+    @apply border-none focus-within:border-none ring-1 ring-inset ring-gray-300 dark:ring-gray-700 focus-within:ring-2 focus-within:ring-primary-500 dark:focus-within:ring-primary-400 rounded-md h-[20px] align-middle;
 }
 
 .v3ti-content {
-    focus: border-primary-500;
+    focus: border-primary-500 align-baseline;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
     completeOrQuery: {
         type: String,
         required: true,
@@ -15,6 +15,10 @@ const props = defineProps({
 });
 
 //TODO: Include emits for updating the oneOffPrice and subscriptionPrice here when there is an API call
+const receivedValuation = ref<boolean>(true);
+setInterval(() => {
+    receivedValuation.value = false;
+}, 10000);
 </script>
 
 <template>
@@ -26,20 +30,25 @@ const props = defineProps({
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="props.completeOrQuery" class="mt-8 bg-secondary-50 border border-secondary-500">
+        <UCard v-if="completeOrQuery" class="bg-secondary-50 border border-secondary-500">
             <template #header>
                 <div class="flex justify-between gap-4 items-start">
                     <SubHeading :title="$t('data.designer.fairTitle')" :info="$t('data.designer.fairInfo')" />
                     <a href="" class="text-xs text-primary-500 underline">{{ $t('learnMore') }}</a>
                 </div>
             </template>
-
-            <div>
-                {{ $t('data.designer.suggestedOneOff') }}: <span class="font-bold">{{ props.oneOffPrice }} STC</span>
+            <div v-if="receivedValuation">
+                <UProgress animation="carousel" />
             </div>
-            <div class="mt-4">
-                {{ $t('data.designer.suggestedSubscription') }}:
-                <span class="font-bold">{{ props.subscriptionPrice }} STC {{ $t('perMonth') }}</span>
+            <div v-else class="space-y-5">
+                <div>
+                    {{ $t('data.designer.suggestedOneOff') }}:
+                    <span class="font-bold">{{ oneOffPrice }} STC</span>
+                </div>
+                <div>
+                    {{ $t('data.designer.suggestedSubscription') }}:
+                    <span class="font-bold">{{ subscriptionPrice }} STC {{ $t('perMonth') }}</span>
+                </div>
             </div>
         </UCard>
     </Transition>

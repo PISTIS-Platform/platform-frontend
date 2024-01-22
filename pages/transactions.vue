@@ -2,6 +2,7 @@
 const routes = ref([
     { name: 'transactions.overview', to: '/transactions' },
     { name: 'transactions.details', to: '/transactions/details' },
+    { name: 'transactions.auditor', to: '/transactions/auditor' },
 ]);
 </script>
 
