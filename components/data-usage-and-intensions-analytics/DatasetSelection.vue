@@ -35,10 +35,12 @@ const dataSetSelections = computed(() => [
     {
         title: t('data.usage.questionniare'),
         info: t('data.usage.questionnaireInfo'),
+        value: 'questionnaire',
     },
     {
         title: t('data.usage.dashboard'),
         info: t('data.usage.dashboardInfo'),
+        value: 'dashboard',
     },
 ]);
 

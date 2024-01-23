@@ -8,6 +8,9 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    value: {
+        type: String,
+    },
     width: {
         type: String,
         required: false,

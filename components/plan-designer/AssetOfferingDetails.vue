@@ -15,12 +15,23 @@ const props = defineProps({
     },
 });
 
+const licenseSelections: string[] = ['CC-BY', 'MIT', 'CC0'];
+
 const schema = z.object({
     title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
     description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+    license: z.string(),
+    terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
 });
 
-const emit = defineEmits(['update:asset-title', 'update:asset-description', 'update:asset-keywords', 'isValid']);
+const emit = defineEmits([
+    'update:asset-title',
+    'update:asset-description',
+    'update:asset-keywords',
+    'isValid',
+    'update:asset-license',
+    'update:asset-terms',
+]);
 
 const isValid = computed(
     () => schema.safeParse(props.assetOfferingDetails).success && props.assetOfferingDetails.keywords.length > 0,
@@ -47,29 +58,60 @@ watch(isValid, () => {
                     :info="$t('data.designer.assetOfferingDetailsInfo')"
                 />
             </template>
-            <UForm class="flex flex-col space-y-5 w-full" :state="assetOfferingDetails" :schema="schema">
-                <UFormGroup :label="$t('title')" required name="title">
-                    <UInput
-                        :model-value="assetOfferingDetails.title"
-                        :placeholder="$t('data.designer.titleOfAsset')"
-                        @update:model-value="(value: string) => emit('update:asset-title', value)"
-                    />
-                </UFormGroup>
-                <UFormGroup :label="$t('description')" required name="description">
-                    <UTextarea
-                        :model-value="assetOfferingDetails.description"
-                        :placeholder="$t('data.designer.descriptionOfAsset')"
-                        icon="i-heroicons-envelope"
-                        @update:model-value="(value: string) => emit('update:asset-description', value)"
-                    />
-                </UFormGroup>
-                <UFormGroup :label="$t('keywords')" required>
-                    <vue3-tags-input
-                        :tags="assetOfferingDetails.keywords"
-                        :placeholder="assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')"
-                        @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
-                    />
-                </UFormGroup>
+            <UForm class="flex w-ful justify-between" :state="assetOfferingDetails" :schema="schema">
+                <div class="flex-col space-y-5 w-full">
+                    <UFormGroup :label="$t('title')" required name="title">
+                        <UInput
+                            :model-value="assetOfferingDetails.title"
+                            :placeholder="$t('data.designer.titleOfAsset')"
+                            @update:model-value="(value: string) => emit('update:asset-title', value)"
+                        />
+                    </UFormGroup>
+                    <UFormGroup :label="$t('description')" required name="description">
+                        <UTextarea
+                            :model-value="assetOfferingDetails.description"
+                            :placeholder="$t('data.designer.descriptionOfAsset')"
+                            icon="i-heroicons-envelope"
+                            @update:model-value="(value: string) => emit('update:asset-description', value)"
+                        />
+                    </UFormGroup>
+                    <UFormGroup :label="$t('keywords')" required>
+                        <vue3-tags-input
+                            :tags="assetOfferingDetails.keywords"
+                            :placeholder="
+                                assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')
+                            "
+                            @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
+                        />
+                    </UFormGroup>
+                </div>
+                <div class="flex-col pl-2 w-full">
+                    <UFormGroup :label="$t('license')" required name="license">
+                        <USelectMenu
+                            :model-value="assetOfferingDetails.license"
+                            :class="'gray'"
+                            :placeholder="$t('data.designer.selectLicense')"
+                            :options="licenseSelections"
+                            @update:model-value="(value: string) => emit('update:asset-license', value)"
+                            ><template #label>
+                                <span v-if="assetOfferingDetails.license" class="truncate">{{
+                                    assetOfferingDetails.license
+                                }}</span>
+                                <span v-else class="text-gray-400">Select a license</span>
+                            </template></USelectMenu
+                        >
+                    </UFormGroup>
+                    <UFormGroup :label="$t('termsConditions')" required class="pt-3" name="terms">
+                        <UTextarea
+                            :model-value="assetOfferingDetails.terms"
+                            resize
+                            :rows="7"
+                            :placeholder="$t('data.designer.typeTerms')"
+                            icon="i-heroicons-envelope"
+                            @update:model-value="(value: string) => emit('update:asset-terms', value)"
+                        />
+                    </UFormGroup>
+                </div>
             </UForm>
         </UCard>
     </Transition>

@@ -35,35 +35,38 @@ const props = defineProps({
     },
 });
 
-const monetizationSelections: { title: string; info: string }[] = [
+const monetizationSelections: { title: string; info: string; value: string }[] = [
     {
         title: t('data.designer.oneOffSale'),
         info: t('data.designer.oneOffSaleInfo'),
+        value: 'oneOff',
     },
     {
         title: t('data.designer.subscription'),
         info: t('data.designer.subscriptionInfo'),
+        value: 'subscription',
     },
     {
         title: t('data.designer.nft'),
         info: t('data.designer.nftInfo'),
+        value: 'nft',
     },
     {
         title: t('data.designer.investmentPlan'),
         info: t('data.designer.investmentPlanInfo'),
+        value: 'investment',
     },
 ];
-
-const licenseSelections: string[] = ['CC-BY', 'MIT', 'CC0'];
 
 const limitFrequencySelections = computed(() => [t('perDay'), t('perWeek'), t('perMonth'), t('perYear')]);
 
 const oneOffSaleSchema = z.object({
+    limit: z.object({
+        times: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
+        frequency: z.string(),
+        until: z.coerce.date({ required_error: 'Please select a date', invalid_type_error: "That's not a date!" }),
+    }),
     price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
-    license: z.string(),
-    terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
-    limitNumber: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
-    limitFrequency: z.string(),
 });
 
 const subscriptionSchema = z.object({
@@ -77,10 +80,10 @@ const subscriptionSchema = z.object({
 
 const investmentSchema = z.object({
     title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
-    totalEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-    minEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-    eqPrice: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-    maxNoInvestors: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+    totalPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+    minPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+    maxInvestors: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
 });
 
 type investment = z.output<typeof investmentSchema>;
@@ -88,17 +91,17 @@ type investment = z.output<typeof investmentSchema>;
 const investmentPlans = ref<{ [key: string]: investment }>({
     'Title 1': {
         title: 'Title 1',
-        totalEqPercentage: 20,
-        minEqPercentage: 10,
-        eqPrice: 500,
-        maxNoInvestors: 20,
+        totalPercentage: 20,
+        minPercentage: 10,
+        price: 500,
+        maxInvestors: 20,
     },
     'Title 2': {
         title: 'Title 2',
-        totalEqPercentage: 30,
-        minEqPercentage: 5,
-        eqPrice: 350,
-        maxNoInvestors: 5,
+        totalPercentage: 30,
+        minPercentage: 5,
+        price: 350,
+        maxInvestors: 5,
     },
 });
 
@@ -120,16 +123,17 @@ const isInvestmentPlanDetailsValid = computed(() => {
 });
 
 const isMonetizationValid = computed(() => {
-    if (props.monetizationSelection === t('data.designer.oneOffSale')) {
+    console.log(props.monetizationSelection);
+    if (props.monetizationSelection === 'oneOff') {
         return isOneOffSaleDetailsValid.value;
     }
-    if (props.monetizationSelection === t('data.designer.subscription')) {
+    if (props.monetizationSelection === 'subscription') {
         return isSubscriptionDetailsValid.value;
     }
-    if (props.monetizationSelection === t('data.designer.nft')) {
+    if (props.monetizationSelection === 'nft') {
         return isNFTDetailsValid.value;
     }
-    if (props.monetizationSelection === t('data.designer.investmentPlan')) {
+    if (props.monetizationSelection === 'investment') {
         return isInvestmentPlanDetailsValid.value;
     }
     return false;
@@ -142,14 +146,11 @@ watch(isMonetizationValid, () => {
 const emit = defineEmits([
     'update:monetization-selection',
     'update:oneoff-price',
-    'update:oneoff-license',
-    'update:oneoff-terms',
+    'update:oneoff-date',
     'update:oneoff-limit-number',
     'update:oneoff-limit-frequency',
     'update:sub-frequency',
     'update:sub-price',
-    'update:sub-license',
-    'update:sub-terms',
     'update:sub-limit-number',
     'update:sub-limit-frequency',
     'update:plan-title',
@@ -170,10 +171,10 @@ const updateInvestmentPlan = (title: string) => {
     const obj = investmentPlans.value[title];
 
     emit('update:plan-title', obj.title);
-    emit('update:plan-total-eq-percentage', obj.totalEqPercentage);
-    emit('update:plan-min-eq-percentage', obj.minEqPercentage);
-    emit('update:plan-eq-price', obj.eqPrice);
-    emit('update:plan-max-no-investors', obj.maxNoInvestors);
+    emit('update:plan-total-eq-percentage', obj.totalPercentage);
+    emit('update:plan-min-eq-percentage', obj.minPercentage);
+    emit('update:plan-eq-price', obj.price);
+    emit('update:plan-max-no-investors', obj.maxInvestors);
 };
 
 const investmentPlanTitles = computed(() => Object.keys(investmentPlans.value));
@@ -199,10 +200,10 @@ const editPlan = () => {
 const saveInvestmentPlan = () => {
     investmentPlans.value[props.investmentPlanDetails.title] = {
         title: props.investmentPlanDetails.title,
-        totalEqPercentage: props.investmentPlanDetails.totalEqPercentage,
-        minEqPercentage: props.investmentPlanDetails.minEqPercentage,
-        eqPrice: props.investmentPlanDetails.eqPrice,
-        maxNoInvestors: props.investmentPlanDetails.maxNoInvestors,
+        totalPercentage: props.investmentPlanDetails.totalPercentage,
+        minPercentage: props.investmentPlanDetails.minPercentage,
+        price: props.investmentPlanDetails.price,
+        maxInvestors: props.investmentPlanDetails.maxInvestors,
     };
     showCreatePlan.value = false;
     selectedInvestmentPlan.value = props.investmentPlanDetails.title;
@@ -247,7 +248,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === t('data.designer.oneOffSale')"
+                        v-if="monetizationSelection === 'oneOff'"
                         class="flex flex-col w-full"
                         :state="oneOffSaleDetails"
                         :schema="oneOffSaleSchema"
@@ -271,24 +272,17 @@ const switchDatasetOpen = ref<boolean>(false);
                                         </template>
                                     </UInput>
                                 </UFormGroup>
-                                <UFormGroup :label="$t('license')" required name="license" class="flex-1 text-gray-200">
-                                    <USelectMenu
-                                        :ui="{
-                                            option: { active: 'text-gray-200' },
-                                            input: 'placeholder:text-gray-200 text-gray-200',
-                                            button: 'text-gray-200',
-                                        }"
-                                        :model-value="oneOffSaleDetails.license"
-                                        :placeholder="$t('data.designer.selectLicense')"
-                                        :options="licenseSelections"
-                                        @update:model-value="(value: string) => emit('update:oneoff-license', value)"
-                                        ><template #label>
-                                            <span v-if="oneOffSaleDetails.license" class="truncate">{{
-                                                oneOffSaleDetails.license
-                                            }}</span>
-                                            <span v-else class="text-gray-400">Select license</span>
-                                        </template></USelectMenu
-                                    >
+                                <UFormGroup
+                                    :label="$t('data.designer.expirationDate')"
+                                    required
+                                    class="flex-1"
+                                    name="expirationDate"
+                                >
+                                    <UInput
+                                        :model-value="oneOffSaleDetails.limit.until"
+                                        type="date"
+                                        @update:model-value="(value: string) => emit('update:oneoff-date', value)"
+                                    />
                                 </UFormGroup>
                             </div>
                             <div class="flex flex-row gap-4">
@@ -299,7 +293,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                     class="flex-1"
                                 >
                                     <UInput
-                                        :model-value="props.oneOffSaleDetails.limitNumber"
+                                        :model-value="props.oneOffSaleDetails.limit.times"
                                         :placeholder="$t('data.designer.downloadLimitPH')"
                                         type="numeric"
                                         @update:model-value="
@@ -313,31 +307,21 @@ const switchDatasetOpen = ref<boolean>(false);
                                 </UFormGroup>
                                 <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="flex-1">
                                     <USelectMenu
-                                        :model-value="oneOffSaleDetails.limitFrequency"
+                                        :model-value="oneOffSaleDetails.limit.frequency"
                                         :placeholder="$t('data.designer.selectFrequency')"
                                         :options="limitFrequencySelections"
                                         @update:model-value="
                                             (value: string) => emit('update:oneoff-limit-frequency', value)
                                         "
                                         ><template #label>
-                                            <span v-if="oneOffSaleDetails.limitFrequency" class="truncate">{{
-                                                oneOffSaleDetails.limitFrequency
+                                            <span v-if="oneOffSaleDetails.limit.frequency" class="truncate">{{
+                                                oneOffSaleDetails.limit.frequency
                                             }}</span>
                                             <span v-else class="text-gray-400">Select a frequency</span>
                                         </template></USelectMenu
                                     >
                                 </UFormGroup>
                             </div>
-                            <UFormGroup :label="$t('termsConditions')" required name="terms">
-                                <UTextarea
-                                    :model-value="oneOffSaleDetails.terms"
-                                    :rows="4"
-                                    :placeholder="$t('data.designer.typeTerms')"
-                                    resize
-                                    icon="i-heroicons-envelope"
-                                    @update:model-value="(value: string) => emit('update:oneoff-terms', value)"
-                                />
-                            </UFormGroup>
                         </div>
                     </UForm>
                 </Transition>
@@ -351,7 +335,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === t('data.designer.subscription')"
+                        v-if="monetizationSelection === 'subscription'"
                         class="flex flex-col w-full"
                         :state="subscriptionDetails"
                         :schema="subscriptionSchema"
@@ -392,21 +376,8 @@ const switchDatasetOpen = ref<boolean>(false);
                                         />
                                     </div>
                                 </UFormGroup>
-                                <UFormGroup :label="$t('license')" required class="flex-grow-2 flex-1" name="license">
-                                    <USelectMenu
-                                        :model-value="subscriptionDetails.license"
-                                        :class="'gray'"
-                                        :placeholder="$t('data.designer.selectLicense')"
-                                        :options="licenseSelections"
-                                        @update:model-value="(value: string) => emit('update:sub-license', value)"
-                                        ><template #label>
-                                            <span v-if="subscriptionDetails.license" class="truncate">{{
-                                                subscriptionDetails.license
-                                            }}</span>
-                                            <span v-else class="text-gray-400">Select a license</span>
-                                        </template></USelectMenu
-                                    >
-                                </UFormGroup>
+                                <!-- <UFormGroup :label="$t('license')" required class="flex-grow-2 flex-1" name="license">
+                                </UFormGroup> -->
                             </div>
                             <div class="flex flex-row gap-4">
                                 <UFormGroup
@@ -416,7 +387,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                     name="limitNumber"
                                 >
                                     <UInput
-                                        :model-value="props.subscriptionDetails.limitNumber"
+                                        :model-value="props.subscriptionDetails.limit.times"
                                         :placeholder="$t('data.designer.downloadLimitPH')"
                                         type="numeric"
                                         @update:model-value="(value: string) => emit('update:sub-limit-number', value)"
@@ -428,14 +399,14 @@ const switchDatasetOpen = ref<boolean>(false);
                                 </UFormGroup>
                                 <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="flex-1">
                                     <USelectMenu
-                                        :model-value="subscriptionDetails.limitFrequency"
+                                        :model-value="subscriptionDetails.limit.frequency"
                                         :placeholder="$t('data.designer.selectFrequency')"
                                         :options="limitFrequencySelections"
                                         @update:model-value="
                                             (value: string) => emit('update:sub-limit-frequency', value)
                                         "
                                         ><template #label>
-                                            <span v-if="subscriptionDetails.limitFrequency" class="truncate">{{
+                                            <span v-if="subscriptionDetails.limit.frequency" class="truncate">{{
                                                 subscriptionDetails.limitFrequency
                                             }}</span>
                                             <span v-else class="text-gray-400">Select a frequency</span>
@@ -444,16 +415,11 @@ const switchDatasetOpen = ref<boolean>(false);
                                 </UFormGroup>
                             </div>
 
-                            <UFormGroup :label="$t('termsConditions')" required name="terms">
-                                <UTextarea
-                                    :model-value="subscriptionDetails.terms"
-                                    resize
-                                    :rows="4"
-                                    :placeholder="$t('data.designer.typeTerms')"
-                                    icon="i-heroicons-envelope"
-                                    @update:model-value="(value: string) => emit('update:sub-terms', value)"
-                                />
-                            </UFormGroup>
+                            <!-- <UFormGroup :label="$t('termsConditions')" required name="terms">
+                                <UTextarea :model-value="subscriptionDetails.terms" resize :rows="4"
+                                    :placeholder="$t('data.designer.typeTerms')" icon="i-heroicons-envelope"
+                                    @update:model-value="(value: string) => emit('update:sub-terms', value)" />
+                            </UFormGroup> -->
                         </div>
                     </UForm>
                 </Transition>
@@ -467,7 +433,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === t('data.designer.nft')"
+                        v-if="monetizationSelection === 'nft'"
                         class="flex flex-col w-full"
                         :state="detailsOfNFT"
                         :schema="NFTschema"
@@ -503,7 +469,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     <div class="flex flex-col space-y-5">
                         <div class="flex flex-col gap-4">
                             <UFormGroup
-                                v-if="props.monetizationSelection === t('data.designer.investmentPlan')"
+                                v-if="props.monetizationSelection === 'investmentPlan'"
                                 :label="$t('data.designer.searchEditCreatePlan')"
                             >
                                 <div class="flex items-center gap-4">
@@ -550,25 +516,25 @@ const switchDatasetOpen = ref<boolean>(false);
                                 <p>
                                     {{ $t('data.designer.totalEquityPercentage') }}:
                                     <span class="font-bold"
-                                        >{{ investmentPlans[selectedInvestmentPlan].totalEqPercentage }}%</span
+                                        >{{ investmentPlans[selectedInvestmentPlan].totalPercentage }}%</span
                                     >
                                 </p>
                                 <p>
                                     {{ $t('data.designer.minEquityPercentage') }}:
                                     <span class="font-bold"
-                                        >{{ investmentPlans[selectedInvestmentPlan].minEqPercentage }}%</span
+                                        >{{ investmentPlans[selectedInvestmentPlan].minPercentage }}%</span
                                     >
                                 </p>
                                 <p>
                                     {{ $t('data.designer.equityPrice') }}:
                                     <span class="font-bold"
-                                        >{{ investmentPlans[selectedInvestmentPlan].eqPrice }} STC</span
+                                        >{{ investmentPlans[selectedInvestmentPlan].price }} STC</span
                                     >
                                 </p>
                                 <p>
                                     {{ $t('data.designer.maxInvestors') }}:
                                     <span class="font-bold"
-                                        >{{ investmentPlans[selectedInvestmentPlan].maxNoInvestors }} investors</span
+                                        >{{ investmentPlans[selectedInvestmentPlan].maxInvestors }} investors</span
                                     >
                                 </p>
                             </div>
@@ -593,7 +559,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                     name="totalEqPercentage"
                                 >
                                     <UInput
-                                        :model-value="props.investmentPlanDetails.totalEqPercentage"
+                                        :model-value="props.investmentPlanDetails.totalPercentage"
                                         :placeholder="$t('percentage')"
                                         type="numeric"
                                         @update:model-value="
@@ -611,7 +577,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                     name="minEqPercentage"
                                 >
                                     <UInput
-                                        :model-value="props.investmentPlanDetails.minEqPercentage"
+                                        :model-value="props.investmentPlanDetails.minPercentage"
                                         :placeholder="$t('percentage')"
                                         type="numeric"
                                         @update:model-value="
@@ -625,7 +591,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                 </UFormGroup>
                                 <UFormGroup :label="$t('data.designer.equityPrice')" required name="eqPrice">
                                     <UInput
-                                        :model-value="props.investmentPlanDetails.eqPrice"
+                                        :model-value="props.investmentPlanDetails.price"
                                         :placeholder="$t('price')"
                                         type="numeric"
                                         @update:model-value="(value: string) => emit('update:plan-eq-price', value)"
@@ -637,7 +603,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                 </UFormGroup>
                                 <UFormGroup :label="$t('data.designer.maxInvestors')" required name="maxNoInvestors">
                                     <UInput
-                                        :model-value="props.investmentPlanDetails.maxNoInvestors"
+                                        :model-value="props.investmentPlanDetails.maxInvestors"
                                         :placeholder="$t('data.designer.maxInvestors')"
                                         type="numeric"
                                         @update:model-value="
