@@ -16,10 +16,6 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    questionnaireOrDashboard: {
-        type: String,
-        required: true,
-    },
 });
 </script>
 
@@ -32,7 +28,7 @@ const props = defineProps({
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="questionnaireOrDashboard">
+        <UCard>
             <template #header>
                 <SubHeading :title="'Analytics for ' + selected" />
             </template>

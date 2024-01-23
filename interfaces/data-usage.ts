@@ -1,14 +1,39 @@
+export enum QuestionType {
+    TEXT = 'Text',
+    CHECKBOX = 'Checkbox',
+    RADIO = 'Radio Button',
+    DROPDOWN = 'Dropdown',
+}
+
+export interface QuestionAnswer {
+    id: string;
+    text: string;
+    option?: QuestionOption;
+    question?: Question;
+    userId: string;
+}
+
+export interface QuestionOption {
+    id: string;
+    text?: string;
+    description?: string;
+}
+
+export interface Question {
+    id: string;
+    type: QuestionType | string;
+    title: string;
+    description?: string;
+    options?: QuestionOption[];
+    answers?: QuestionAnswer[];
+    allowMultipleSelect?: boolean;
+}
+
 export interface Questionnaire {
     title: string;
-    questionnaireInfo: string;
-    questions: [
-        {
-            question: string | undefined;
-            answerType: string | undefined;
-            answers: string[] | undefined;
-            userAnswer: string[] | boolean | undefined;
-        },
-    ];
+    description?: string;
+    creatorId: string;
+    questions: Question[];
 }
 
 export interface DashboardData {

@@ -10,10 +10,6 @@ defineProps({
         type: String,
         required: true,
     },
-    questionnaireOrDashboard: {
-        type: String,
-        required: true,
-    },
 });
 
 const emit = defineEmits(['reset', 'update:selected', 'update:questionnaire-or-dashboard']);
@@ -33,8 +29,8 @@ const outerQuery = ref<string>('');
 
 const dataSetSelections = computed(() => [
     {
-        title: t('data.usage.questionniare'),
-        info: t('data.usage.questionnaireInfo'),
+        title: t('data.usage.questionnaire.questionnaire'),
+        info: t('data.usage.questionnaire.info'),
     },
     {
         title: t('data.usage.dashboard'),
@@ -45,6 +41,8 @@ const dataSetSelections = computed(() => [
 function toggleTable() {
     displayTable.value = !displayTable.value;
 }
+
+const questionnaireOrDashboard = ref<string>('');
 </script>
 
 <template>

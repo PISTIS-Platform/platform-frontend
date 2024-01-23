@@ -1,26 +1,14 @@
 <script setup lang="ts">
-import { DashboardData, DashboardOptions, Questionnaire } from '~/interfaces/data-usage';
+import { DashboardData, DashboardOptions } from '~/interfaces/data-usage';
 
 import { data, options } from './chart-data';
-import { dummyQuestionnaire } from './dummy-questionnaire';
 
 //data for selected dataset
 
 const selected = ref<string>('');
 const questionnaireOrDashboard = ref<string>('');
-const questionnaire = ref<Questionnaire>({
-    title: '',
-    questionnaireInfo: '',
-    questions: [
-        {
-            question: undefined,
-            answerType: undefined,
-            answers: [],
-            userAnswer: [],
-        },
-    ],
-});
 
+//Dashboard data
 const dashboardData = ref<DashboardData>({
     labels: [],
     datasets: [
@@ -35,28 +23,9 @@ dashboardData.value = data;
 const dashboardOptions = ref<DashboardOptions>();
 dashboardOptions.value = options;
 
-questionnaire.value = dummyQuestionnaire as Questionnaire;
-
-// const submitAll = () => {
-//     //TODO: Do something for submit here
-//     console.log('SUCCESS');
-// };
-
 const reset = () => {
     selected.value = '';
     questionnaireOrDashboard.value = '';
-    questionnaire.value = {
-        title: '',
-        questionnaireInfo: '',
-        questions: [
-            {
-                question: undefined,
-                answerType: undefined,
-                answers: [],
-                userAnswer: [],
-            },
-        ],
-    };
 };
 </script>
 
@@ -69,21 +38,14 @@ const reset = () => {
         <DatasetSelection
             :selected="selected"
             @update:selected="(value: string) => (selected = value)"
-            @update:questionnaireOrDashboard="(value: string) => (questionnaireOrDashboard = value)"
+            @update:questionnaire-or-dashboard="(value: string) => (questionnaireOrDashboard = value)"
             @reset="reset"
         />
 
-        <!-- <Questionnaire :questionnaire-or-dashboard="questionnaireOrDashboard"
-            v-if="questionnaireOrDashboard === 'Questionnaire'" :questionnaire="questionnaire"
-            @update:questionnaire-userAnswer="(value: string[]) => (questionnaire.questions[0].userAnswer = value)"
-            @submit="submitAll" @reset="reset" /> -->
+        <div v-if="questionnaireOrDashboard !== ''">
+            <Questionnaire v-if="questionnaireOrDashboard === 'Questionnaire'" />
 
-        <Dashboard
-            :questionnaire-or-dashboard="questionnaireOrDashboard"
-            :selected="selected"
-            :data="dashboardData"
-            :options="dashboardOptions"
-            @reset="reset"
-        />
+            <Dashboard v-else :selected="selected" :data="dashboardData" :options="dashboardOptions" @reset="reset" />
+        </div>
     </div>
 </template>
