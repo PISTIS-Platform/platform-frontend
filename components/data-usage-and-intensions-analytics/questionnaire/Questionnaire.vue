@@ -29,7 +29,11 @@ const addQuestion = () => {
     questions.value.push(newQuestion);
 };
 
-const removeQuestion = (id: string) => {
+const removeQuestion = (id?: string) => {
+    if (!id) {
+        return;
+    }
+
     const indexToRemove = questions.value.findIndex((item: Question) => item.id === id);
 
     if (indexToRemove !== -1) {
