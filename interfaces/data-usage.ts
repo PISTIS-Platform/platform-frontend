@@ -20,7 +20,7 @@ export interface QuestionOption {
 }
 
 export interface Question {
-    id: string | undefined;
+    id: string;
     type: QuestionType | string | undefined;
     title: string | undefined;
     description?: string | undefined;

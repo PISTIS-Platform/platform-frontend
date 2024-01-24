@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Question } from '~/interfaces/data-usage';
+import type { Question, QuestionOption } from '~/interfaces/data-usage';
 
 const questions = ref<Question[]>([]);
 
@@ -8,13 +8,21 @@ const addQuestion = () => {
         id: String(new Date().getTime()),
         type: undefined,
         title: undefined,
-        // description: '',
-        // options: [],
-        // allowMultipleSelect: false,
+        options: [],
+        //description: '',
+        //allowMultipleSelect: false,
         isValid: false,
     };
 
     questions.value.push(newQuestion);
+};
+
+const removeQuestion = (id: string) => {
+    const indexToRemove = questions.value.findIndex((item: Question) => item.id === id);
+
+    if (indexToRemove !== -1) {
+        questions.value.splice(indexToRemove, 1);
+    }
 };
 
 const applyValidation = ref<boolean>(false);
@@ -26,7 +34,7 @@ const saveQuestionnaire = () => {
 
     //if even at least 1 question has validation errors -> do not proceed
     if (questions.value.some((q: Question) => !q.isValid)) {
-        console.log('Validation error found');
+        console.log('Validation error found !!');
         return;
     }
 
@@ -58,13 +66,25 @@ const resetQuestionnaire = () => {
                     <div v-for="question in questions" :key="question.id">
                         <UCard :ui="{ base: 'overflow-visible' }">
                             <template #header>
-                                <SubHeading :title="`Question ${questions.indexOf(question) + 1}`" />
+                                <div class="flex justify-start items-center gap-6">
+                                    <SubHeading :title="`Question ${questions.indexOf(question) + 1}`" />
+                                    <UTooltip text="Remove Question">
+                                        <UButton
+                                            icon="i-heroicons-trash"
+                                            size="xs"
+                                            color="primary"
+                                            variant="solid"
+                                            @click="removeQuestion(question.id)"
+                                        />
+                                    </UTooltip>
+                                </div>
                             </template>
                             <Question
                                 :question="question"
                                 :apply-validation="applyValidation"
                                 @update:title="(value: string) => (question.title = value)"
                                 @update:type="(value: string) => (question.type = value)"
+                                @update:options="(options: QuestionOption[]) => (question.options = options)"
                                 @is-valid="(isValid: boolean) => (question.isValid = isValid)"
                             >
                             </Question>
@@ -73,10 +93,10 @@ const resetQuestionnaire = () => {
                 </div>
                 <UTooltip text="Add Question">
                     <UButton
-                        icon="i-heroicons-plus-circle-20-solid"
-                        size="xl"
+                        icon="i-heroicons-plus"
+                        size="xs"
                         color="primary"
-                        variant="ghost"
+                        variant="solid"
                         class="mt-3"
                         @click="addQuestion()"
                     />
