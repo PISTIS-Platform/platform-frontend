@@ -54,6 +54,7 @@ const subscriptionDetails = ref<SubscriptionMonetisationPlan>({
     limit: {
         times: null,
         frequency: null,
+        until: null,
     },
     type: 'subscription',
     assetId: '',
@@ -102,9 +103,24 @@ const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetiz
 
 const submitAll = () => {
     if (!isAllValid.value) return;
-    console.log(monetizationSelection);
-    // const payload =
+    let payload;
+    switch (monetizationSelection.value) {
+        case 'oneOff':
+            payload = { ...assetOfferingDetails.value, ...oneOffSaleDetails.value };
+            break;
+        case 'subscription':
+            payload = { ...assetOfferingDetails.value, ...subscriptionDetails.value };
+            break;
+        case 'nft':
+            payload = { ...assetOfferingDetails.value, ...detailsOfNFT.value };
+            break;
+        case 'investment':
+            payload = { ...assetOfferingDetails.value, ...investmentPlanDetails.value };
+            break;
+    }
+
     //TODO: Do something for submit here
+    console.log(payload);
     console.log('SUCCESS');
 };
 
@@ -137,6 +153,7 @@ const reset = () => {
         limit: {
             times: null,
             frequency: null,
+            until: null,
         },
         type: 'subscription',
         assetId: '',
@@ -176,6 +193,7 @@ const resetMonetization = () => {
         limit: {
             times: null,
             frequency: null,
+            until: null,
         },
         type: 'subscription',
         assetId: '',
@@ -245,17 +263,19 @@ const resetMonetization = () => {
             @update:oneoff-limit-frequency="
                 (value: string) => (oneOffSaleDetails.limit.frequency = frequency(value) as any)
             "
-            @update:sub-frequency="(value: string) => (subscriptionDetails.limit.frequency = frequency(value) as any)"
+            @update:sub-frequency="(value: string) => (subscriptionDetails.frequency = value as any)"
             @update:sub-price="(value: number) => (subscriptionDetails.price = value)"
             @update:sub-limit-number="(value: number) => (subscriptionDetails.limit.times = value)"
             @update:sub-limit-frequency="
                 (value: string) => (subscriptionDetails.limit.frequency = frequency(value) as any)
             "
+            @update:sub-limit-date="(value: Date) => (subscriptionDetails.limit.until = value)"
             @update:plan-title="(value: string) => (investmentPlanDetails.title = value)"
             @update:plan-total-eq-percentage="(value: number) => (investmentPlanDetails.totalPercentage = value)"
             @update:plan-min-eq-percentage="(value: number) => (investmentPlanDetails.minPercentage = value)"
             @update:plan-eq-price="(value: number) => (investmentPlanDetails.price = value)"
             @update:plan-max-no-investors="(value: number) => (investmentPlanDetails.maxInvestors = value)"
+            @update:plan-limit="(value: Date) => (investmentPlanDetails.limit.until = value)"
             @update:nft-price="(value: number) => (detailsOfNFT.price = value)"
             @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @reset-monetization="resetMonetization"

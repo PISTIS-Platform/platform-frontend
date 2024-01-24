@@ -40,7 +40,7 @@ export type BaseMonetisationPlan = {
 
 export type DownloadLimit = {
     times: number | null;
-    frequency: 'hour' | 'day' | 'week' | 'month' | 'year' | null;
+    frequency?: 'hour' | 'day' | 'week' | 'month' | 'year' | null;
     until?: Date | null;
 };
 

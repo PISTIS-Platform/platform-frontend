@@ -72,14 +72,22 @@ const oneOffSaleSchema = z.object({
 const subscriptionSchema = z.object({
     frequency: z.string(),
     price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
-    license: z.string(),
-    terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+    limit: z.object({
+        times: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
+        frequency: z.string(),
+        until: z.coerce.date({ required_error: 'Please select a date', invalid_type_error: "That's not a date!" }),
+    }),
     limitNumber: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
     limitFrequency: z.string(),
 });
 
 const investmentSchema = z.object({
     title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
+    limit: z.object({
+        until: z.nullable(
+            z.coerce.date({ required_error: 'Please select a date', invalid_type_error: "That's not a date!" }),
+        ),
+    }),
     totalPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
     minPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
     price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
@@ -95,6 +103,7 @@ const investmentPlans = ref<{ [key: string]: investment }>({
         minPercentage: 10,
         price: 500,
         maxInvestors: 20,
+        limit: { until: null },
     },
     'Title 2': {
         title: 'Title 2',
@@ -102,6 +111,7 @@ const investmentPlans = ref<{ [key: string]: investment }>({
         minPercentage: 5,
         price: 350,
         maxInvestors: 5,
+        limit: { until: null },
     },
 });
 
@@ -123,7 +133,6 @@ const isInvestmentPlanDetailsValid = computed(() => {
 });
 
 const isMonetizationValid = computed(() => {
-    console.log(props.monetizationSelection);
     if (props.monetizationSelection === 'oneOff') {
         return isOneOffSaleDetailsValid.value;
     }
@@ -136,7 +145,7 @@ const isMonetizationValid = computed(() => {
     if (props.monetizationSelection === 'investment') {
         return isInvestmentPlanDetailsValid.value;
     }
-    return false;
+    // return false;
 });
 
 watch(isMonetizationValid, () => {
@@ -153,11 +162,13 @@ const emit = defineEmits([
     'update:sub-price',
     'update:sub-limit-number',
     'update:sub-limit-frequency',
+    'update:sub-limit-date',
     'update:plan-title',
     'update:plan-total-eq-percentage',
     'update:plan-min-eq-percentage',
     'update:plan-eq-price',
     'update:plan-max-no-investors',
+    'update:plan-limit',
     'update:selected-investment-plan',
     'update:nft-price',
     'isMonetizationValid',
@@ -175,6 +186,7 @@ const updateInvestmentPlan = (title: string) => {
     emit('update:plan-min-eq-percentage', obj.minPercentage);
     emit('update:plan-eq-price', obj.price);
     emit('update:plan-max-no-investors', obj.maxInvestors);
+    emit('update:plan-limit', obj.limit.until);
 };
 
 const investmentPlanTitles = computed(() => Object.keys(investmentPlans.value));
@@ -191,6 +203,7 @@ const createNewPlan = () => {
     emit('update:plan-min-eq-percentage', undefined);
     emit('update:plan-eq-price', undefined);
     emit('update:plan-max-no-investors', undefined);
+    emit('update:plan-limit', null);
 };
 
 const editPlan = () => {
@@ -204,6 +217,7 @@ const saveInvestmentPlan = () => {
         minPercentage: props.investmentPlanDetails.minPercentage,
         price: props.investmentPlanDetails.price,
         maxInvestors: props.investmentPlanDetails.maxInvestors,
+        limit: { until: props.investmentPlanDetails.until },
     };
     showCreatePlan.value = false;
     selectedInvestmentPlan.value = props.investmentPlanDetails.title;
@@ -341,7 +355,7 @@ const switchDatasetOpen = ref<boolean>(false);
                         :schema="subscriptionSchema"
                     >
                         <div class="flex flex-col space-y-5">
-                            <div class="flex flex-row gap-4">
+                            <div class="flex flex-row">
                                 <UFormGroup
                                     :label="$t('data.designer.subscriptionPrice')"
                                     class="flex-1"
@@ -361,23 +375,34 @@ const switchDatasetOpen = ref<boolean>(false);
                                 </UFormGroup>
                                 <UFormGroup
                                     :label="$t('data.designer.subscriptionFrequency')"
-                                    class="flex-1"
+                                    class="ml-2 flex-1"
                                     required
                                     name="frequency"
                                 >
-                                    <div class="flex items-start justify-start flex-row">
+                                    <div class="flex flex-row">
                                         <URadio
                                             :label="$t('data.designer.monthly')"
                                             :model-value="props.subscriptionDetails.frequency"
                                         />
                                         <URadio
+                                            class="ml-2"
                                             :label="$t('data.designer.annual')"
                                             :model-value="props.subscriptionDetails.frequency"
                                         />
                                     </div>
                                 </UFormGroup>
-                                <!-- <UFormGroup :label="$t('license')" required class="flex-grow-2 flex-1" name="license">
-                                </UFormGroup> -->
+                                <UFormGroup
+                                    :label="$t('data.designer.expirationDate')"
+                                    required
+                                    class="flex-grow-2 flex-1"
+                                    name="expirationDate"
+                                >
+                                    <UInput
+                                        :model-value="subscriptionDetails.limit.until"
+                                        type="date"
+                                        @update:model-value="(value: Date) => emit('update:sub-limit-date', value)"
+                                    />
+                                </UFormGroup>
                             </div>
                             <div class="flex flex-row gap-4">
                                 <UFormGroup
@@ -414,12 +439,6 @@ const switchDatasetOpen = ref<boolean>(false);
                                     >
                                 </UFormGroup>
                             </div>
-
-                            <!-- <UFormGroup :label="$t('termsConditions')" required name="terms">
-                                <UTextarea :model-value="subscriptionDetails.terms" resize :rows="4"
-                                    :placeholder="$t('data.designer.typeTerms')" icon="i-heroicons-envelope"
-                                    @update:model-value="(value: string) => emit('update:sub-terms', value)" />
-                            </UFormGroup> -->
                         </div>
                     </UForm>
                 </Transition>
@@ -469,7 +488,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     <div class="flex flex-col space-y-5">
                         <div class="flex flex-col gap-4">
                             <UFormGroup
-                                v-if="props.monetizationSelection === 'investmentPlan'"
+                                v-if="props.monetizationSelection === 'investment'"
                                 :label="$t('data.designer.searchEditCreatePlan')"
                             >
                                 <div class="flex items-center gap-4">
@@ -537,10 +556,16 @@ const switchDatasetOpen = ref<boolean>(false);
                                         >{{ investmentPlans[selectedInvestmentPlan].maxInvestors }} investors</span
                                     >
                                 </p>
+                                <p>
+                                    {{ $t('data.designer.expirationDate') }}:
+                                    <span class="font-bold">{{
+                                        investmentPlans[selectedInvestmentPlan].limit.until
+                                    }}</span>
+                                </p>
                             </div>
                         </div>
                         <UForm
-                            v-if="props.monetizationSelection === $t('data.designer.investmentPlan') && showCreatePlan"
+                            v-if="props.monetizationSelection === 'investment' && showCreatePlan"
                             class="flex flex-col w-full"
                             :state="props.investmentPlanDetails"
                             :schema="investmentSchema"
@@ -611,6 +636,18 @@ const switchDatasetOpen = ref<boolean>(false);
                                         "
                                     >
                                     </UInput>
+                                </UFormGroup>
+                                <UFormGroup
+                                    :label="$t('data.designer.expirationDate')"
+                                    required
+                                    class="flex-grow-2 flex-1"
+                                    name="expirationDate"
+                                >
+                                    <UInput
+                                        :model-value="props.investmentPlanDetails.limit.until"
+                                        type="date"
+                                        @update:model-value="(value: Date) => emit('update:plan-limit', value)"
+                                    />
                                 </UFormGroup>
                                 <UButton
                                     color="white"
