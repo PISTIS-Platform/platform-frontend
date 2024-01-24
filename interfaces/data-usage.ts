@@ -20,13 +20,14 @@ export interface QuestionOption {
 }
 
 export interface Question {
-    id: string;
-    type: QuestionType | string;
-    title: string;
-    description?: string;
-    options?: QuestionOption[];
-    answers?: QuestionAnswer[];
-    allowMultipleSelect?: boolean;
+    id: string | undefined;
+    type: QuestionType | string | undefined;
+    title: string | undefined;
+    description?: string | undefined;
+    options?: QuestionOption[] | undefined;
+    answers?: QuestionAnswer[] | undefined;
+    allowMultipleSelect?: boolean | undefined;
+    isValid?: boolean | undefined;
 }
 
 export interface Questionnaire {

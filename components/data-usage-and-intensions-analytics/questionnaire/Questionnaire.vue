@@ -6,18 +6,34 @@ const questions = ref<Question[]>([]);
 const addQuestion = () => {
     const newQuestion: Question = {
         id: String(new Date().getTime()),
-        type: '',
-        title: '',
-        description: '',
-        options: [],
-        allowMultipleSelect: false,
+        type: undefined,
+        title: undefined,
+        // description: '',
+        // options: [],
+        // allowMultipleSelect: false,
+        isValid: false,
     };
 
     questions.value.push(newQuestion);
 };
 
+const applyValidation = ref<boolean>(false);
+
 const saveQuestionnaire = () => {
-    console.log('save questionnaire');
+    console.log('save questionnaire...');
+    applyValidation.value = true;
+    console.log(questions.value);
+
+    //if even at least 1 question has validation errors -> do not proceed
+    if (questions.value.some((q: Question) => !q.isValid)) {
+        console.log('Validation error found');
+        return;
+    }
+
+    applyValidation.value = false;
+
+    //TODO:: api call for saving
+    console.log('PROCEED with saving questionnaire..');
 };
 const resetQuestionnaire = () => {
     console.log('save questionnaire');
@@ -44,7 +60,14 @@ const resetQuestionnaire = () => {
                             <template #header>
                                 <SubHeading :title="`Question ${questions.indexOf(question) + 1}`" />
                             </template>
-                            <Question :question="question"></Question>
+                            <Question
+                                :question="question"
+                                :apply-validation="applyValidation"
+                                @update:title="(value: string) => (question.title = value)"
+                                @update:type="(value: string) => (question.type = value)"
+                                @is-valid="(isValid: boolean) => (question.isValid = isValid)"
+                            >
+                            </Question>
                         </UCard>
                     </div>
                 </div>
