@@ -19,7 +19,8 @@ const props = defineProps({
     },
 });
 
-const questionTypes: string[] = [QuestionType.TEXT, QuestionType.CHECKBOX, QuestionType.RADIO, QuestionType.DROPDOWN];
+const questionTypes = [QuestionType.TEXT, QuestionType.CHECKBOX, QuestionType.RADIO, QuestionType.DROPDOWN] as const;
+const questionTypesEnum = z.enum(questionTypes);
 
 // Schema for all the inputs
 const schema = z.object({
@@ -27,17 +28,18 @@ const schema = z.object({
         .string()
         .trim()
         .min(10, { message: t('data.usage.questionnaire.titleMinLength') }),
-    type: z.string(),
-    options: z
-        .array(
-            z.object({
-                text: z
-                    .string({ required_error: t('data.usage.questionnaire.optionTextRequired') })
-                    .trim()
-                    .min(1, { message: t('data.usage.questionnaire.optionTextRequired') }),
-            }),
-        )
-        .min(2),
+    type: questionTypesEnum,
+    options: z.array(
+        z.object({
+            text: z
+                .string({ required_error: t('data.usage.questionnaire.optionTextRequired') })
+                .trim()
+                .min(1, { message: t('data.usage.questionnaire.optionTextRequired') }),
+        }),
+    ),
+    //TODO:: uncomment this and add conditional check
+    //TODO:: check issue with validation error remaining on 'clean' option text when a previous deleted one had error
+    // .min(2, { message: t('data.usage.questionnaire.optionsMinLength') }),
 });
 
 //check if inputs are valid
@@ -46,10 +48,12 @@ const isValid = computed(() => {
     return schema.safeParse(props.question).success;
 });
 
+//TODO:: check if watched can be avoided
 watch(isValid, () => {
     emit('isValid', isValid.value);
 });
 
+//TODO:: trigger validation upon clicking 'Save' btn in Questionnaire
 // const questionForm = ref<Form<any>>();
 
 // watch(props.applyValidation, () => {
@@ -116,7 +120,7 @@ const emit = defineEmits(['update:type', 'update:title', 'update:options', 'isVa
                 <UFormGroup :label="$t('data.usage.questionnaire.selectQuestionType')" required name="type">
                     <USelectMenu
                         :model-value="question.type"
-                        :options="questionTypes"
+                        :options="questionTypesEnum.options"
                         size="md"
                         class="flex w-64"
                         @update:model-value="(value: QuestionType) => emit('update:type', value)"

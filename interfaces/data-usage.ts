@@ -14,13 +14,13 @@ export interface QuestionAnswer {
 }
 
 export interface QuestionOption {
-    id: string;
+    id?: string;
     text?: string;
     description?: string;
 }
 
 export interface Question {
-    id: string;
+    id?: string;
     type: QuestionType | string | undefined;
     title: string | undefined;
     description?: string | undefined;
@@ -34,6 +34,7 @@ export interface Questionnaire {
     title: string;
     description?: string;
     creatorId: string;
+    assetId: string;
     questions: Question[];
 }
 

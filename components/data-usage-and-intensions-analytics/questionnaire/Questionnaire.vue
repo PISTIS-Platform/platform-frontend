@@ -1,5 +1,17 @@
 <script setup lang="ts">
-import type { Question, QuestionOption } from '~/interfaces/data-usage';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+import type { Question, Questionnaire, QuestionOption } from '~/interfaces/data-usage';
+
+const toast = useToast();
+
+const props = defineProps({
+    assetId: {
+        type: String,
+        required: true,
+    },
+});
 
 const questions = ref<Question[]>([]);
 
@@ -28,23 +40,56 @@ const removeQuestion = (id: string) => {
 const applyValidation = ref<boolean>(false);
 
 const saveQuestionnaire = () => {
-    console.log('save questionnaire...');
     applyValidation.value = true;
     console.log(questions.value);
 
     //if even at least 1 question has validation errors -> do not proceed
     if (questions.value.some((q: Question) => !q.isValid)) {
-        console.log('Validation error found !!');
+        toast.add({ title: t('data.usage.questionnaire.checkInputs') });
         return;
     }
 
     applyValidation.value = false;
 
-    //TODO:: api call for saving
-    console.log('PROCEED with saving questionnaire..');
+    const questionsBody = questions.value.map((question: Question) => {
+        return {
+            title: question.title,
+            description: '',
+            type: question.type,
+            options:
+                question.options?.map((option: QuestionOption) => {
+                    return {
+                        text: option.text,
+                        description: '',
+                    };
+                }) || [],
+        };
+    });
+
+    //TODO:: add inputs for title/description
+    const body: Questionnaire = {
+        questions: questionsBody,
+        title: 'Test title',
+        description: 'Test description',
+        creatorId: '1234',
+        assetId: props.assetId,
+    };
+
+    $fetch(`/api/data-usage/questionnaire/create/${props.assetId}`, {
+        method: 'post',
+        body,
+        onResponse() {
+            questions.value = [];
+            toast.add({ title: t('data.usage.questionnaire.saved') });
+        },
+        onResponseError() {
+            console.log('error occurred');
+            toast.add({ title: t('data.usage.questionnaire.errorInSave') });
+        },
+    });
 };
 const resetQuestionnaire = () => {
-    console.log('save questionnaire');
+    questions.value = [];
 };
 </script>
 
@@ -104,12 +149,12 @@ const resetQuestionnaire = () => {
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex gap-4 justify-start items-center mt-8">
+            <div class="flex gap-4 justify-between items-center mt-8">
                 <UTooltip text="Reset Questionnaire">
-                    <UButton size="md" :label="$t('Reset')" color="gray" variant="solid" @click="resetQuestionnaire" />
+                    <UButton size="lg" :label="$t('Reset')" color="gray" variant="solid" @click="resetQuestionnaire" />
                 </UTooltip>
                 <UTooltip text="Save Questionnaire">
-                    <UButton size="md" :label="$t('Save')" color="primary" variant="solid" @click="saveQuestionnaire" />
+                    <UButton size="lg" :label="$t('Save')" color="primary" variant="solid" @click="saveQuestionnaire" />
                 </UTooltip>
             </div>
         </UCard>

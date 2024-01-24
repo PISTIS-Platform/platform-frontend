@@ -6,7 +6,7 @@ import { data, options } from './chart-data';
 //data for selected dataset
 
 const selected = ref<string>('');
-const questionnaireOrDashboard = ref<string>('');
+const menuOptionSelection = ref<string>('');
 
 //Dashboard data
 const dashboardData = ref<DashboardData>({
@@ -25,7 +25,7 @@ dashboardOptions.value = options;
 
 const reset = () => {
     selected.value = '';
-    questionnaireOrDashboard.value = '';
+    menuOptionSelection.value = '';
 };
 </script>
 
@@ -38,12 +38,12 @@ const reset = () => {
         <DatasetSelection
             :selected="selected"
             @update:selected="(value: string) => (selected = value)"
-            @update:questionnaire-or-dashboard="(value: string) => (questionnaireOrDashboard = value)"
+            @update:questionnaire-or-dashboard="(value: string) => (menuOptionSelection = value)"
             @reset="reset"
         />
 
-        <div v-if="questionnaireOrDashboard !== ''">
-            <Questionnaire v-if="questionnaireOrDashboard === 'Questionnaire'" />
+        <div v-if="menuOptionSelection !== ''">
+            <Questionnaire v-if="menuOptionSelection === 'Questionnaire'" :asset-id="selected.split('Dataset ')[1]" />
 
             <Dashboard v-else :selected="selected" :data="dashboardData" :options="dashboardOptions" @reset="reset" />
         </div>
