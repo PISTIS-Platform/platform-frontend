@@ -167,6 +167,10 @@ export default defineI18nConfig(() => ({
                     dashboardInfo: 'Display analytics for selected dataset',
                     questionnaire: {
                         questionnaire: 'Questionnaire',
+                        title: 'Title',
+                        description: 'Description',
+                        titleInfo: 'Enter a title for the questionnaire',
+                        descriptionInfo: 'Enter a description for the questionnaire',
                         buildQuestionnaire: 'Build Questionnaire',
                         answerQuestionnaire: 'Answer Questionnaire',
                         buildInfo: 'Display the questionnaire for selected dataset',
@@ -184,6 +188,7 @@ export default defineI18nConfig(() => ({
                         optionTextRequired: 'Option text is required',
                         optionsMinLength: 'Please select at least 2 options for answers',
                         checkInputs: 'Please ensure all fields are filled correctly before submitting the form',
+                        noQuestionsAdded: 'Please add at least one question first',
                         saved: 'Questionnaire has been saved successfully!',
                         errorInSave: 'An error occurred while saving questionnaire',
                         noQuestionnaireFound: 'No Questionnaire was found for this Asset',

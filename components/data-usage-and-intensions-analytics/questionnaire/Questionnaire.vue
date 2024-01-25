@@ -1,17 +1,31 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { z } from 'zod';
 
 const { t } = useI18n();
 import type { Question, Questionnaire, QuestionOption } from '~/interfaces/data-usage';
 
-const toast = useToast();
 const { isSuccessResponse } = useHttpHelper();
+const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
 const props = defineProps({
     assetId: {
         type: String,
         required: true,
     },
+});
+
+const questionnaire = ref<Record<string, string>>({
+    title: '',
+    description: '',
+});
+
+const questionnaireSchema = z.object({
+    title: z
+        .string()
+        .trim()
+        .min(1, { message: t('required') }),
+    description: z.string().trim(),
 });
 
 const questions = ref<Question[]>([]);
@@ -47,9 +61,17 @@ const applyValidation = ref<boolean>(false);
 const saveQuestionnaire = () => {
     applyValidation.value = true;
 
+    if (!questions.value.length) {
+        showErrorMessage(t('data.usage.questionnaire.noQuestionsAdded'));
+        return;
+    }
+
     //if even at least 1 question has validation errors -> do not proceed
-    if (questions.value.some((q: Question) => !q.isValid)) {
-        toast.add({ title: t('data.usage.questionnaire.checkInputs') });
+    if (
+        questions.value.some((q: Question) => !q.isValid) ||
+        !questionnaireSchema.safeParse(questionnaire.value).success
+    ) {
+        showErrorMessage(t('data.usage.questionnaire.checkInputs'));
         return;
     }
 
@@ -73,8 +95,8 @@ const saveQuestionnaire = () => {
     //TODO:: add inputs for title/description
     const body: Questionnaire = {
         questions: questionsBody,
-        title: 'Test title',
-        description: 'Test description',
+        title: questionnaire.value.title.trim(),
+        description: questionnaire.value.description.trim(),
         creatorId: '1234',
         assetId: props.assetId,
     };
@@ -85,11 +107,15 @@ const saveQuestionnaire = () => {
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
                 questions.value = [];
-                toast.add({ title: t('data.usage.questionnaire.saved') });
+                questionnaire.value.title = '';
+                questionnaire.value.description = '';
+                showSuccessMessage(t('data.usage.questionnaire.saved'));
+            } else {
+                showErrorMessage(t('data.usage.questionnaire.errorInSave'));
             }
         },
         onResponseError() {
-            toast.add({ title: t('data.usage.questionnaire.errorInSave') });
+            showErrorMessage(t('data.usage.questionnaire.errorInSave'));
         },
     });
 };
@@ -112,7 +138,19 @@ const resetQuestionnaire = () => {
                 <SubHeading :title="$t('data.usage.questionnaire.build')" />
             </template>
             <div>
-                <div class="flex flex-col space-y-8">
+                <UForm class="flex flex-col space-y-5" :state="questionnaire" :schema="questionnaireSchema">
+                    <!-- Questionnaire title and description-->
+                    <UFormGroup :label="$t('data.usage.questionnaire.title')" required name="title" class="w-full">
+                        <UInput v-model="questionnaire.title" :placeholder="$t('data.usage.questionnaire.titleInfo')" />
+                    </UFormGroup>
+                    <UFormGroup :label="$t('data.usage.questionnaire.description')" name="description" class="w-full">
+                        <UTextarea
+                            v-model="questionnaire.description"
+                            :placeholder="$t('data.usage.questionnaire.descriptionInfo')"
+                        />
+                    </UFormGroup>
+                </UForm>
+                <div v-if="questions.length" class="flex flex-col space-y-8 mt-8">
                     <div v-for="question in questions" :key="question.id">
                         <UCard :ui="{ base: 'overflow-visible' }">
                             <template #header>
@@ -147,7 +185,7 @@ const resetQuestionnaire = () => {
                         size="xs"
                         color="primary"
                         variant="solid"
-                        class="mt-3"
+                        class="mt-6"
                         @click="addQuestion()"
                     />
                 </UTooltip>
