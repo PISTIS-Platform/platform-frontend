@@ -7,7 +7,8 @@ export enum QuestionType {
 
 export interface SelectedOption {
     id: string;
-    text: string;
+    label: string;
+    value: string;
     isSelected: boolean;
 }
 

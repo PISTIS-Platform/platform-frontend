@@ -40,12 +40,18 @@ const initAnswers = () => {
 initAnswers();
 
 const saveAnswers = () => {
-    console.log('Answers.. ');
-    console.log(answers.value);
+    console.log('Submitted Answers.. ');
+    answers.value.forEach((a: QuestionAnswer) => {
+        console.log({
+            isValid: a.isValid,
+            text: a.text,
+            selectedOptions: a.selectedOptions?.map((o: SelectedOption) => o.label).join(', '),
+        });
+    });
 
     // applyValidation.value = true;
     //if even at least 1 question has validation errors -> do not proceed
-    if (answers.value.some((q: QuestionAnswer) => !q.isValid)) {
+    if (answers.value.some((a: QuestionAnswer) => !a.isValid)) {
         toast.add({ title: t('data.usage.questionnaire.checkInputs') });
         return;
     }

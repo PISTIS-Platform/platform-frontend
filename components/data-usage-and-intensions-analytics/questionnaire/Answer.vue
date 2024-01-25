@@ -43,31 +43,32 @@ const selectedOptions = ref<SelectedOption[]>(
     (props.answer?.availableOptions || []).map((availableOption: QuestionOption) => {
         return {
             id: availableOption?.id || '',
-            text: availableOption?.text || '',
+            label: availableOption?.text || '',
+            value: availableOption?.id || '',
             isSelected: false,
         };
     }),
 );
 
-const radioOptions = ref(
-    (props.answer?.availableOptions || []).map((availableOption: QuestionOption) => {
-        return {
-            label: availableOption?.text || '',
-            value: availableOption?.id || '',
-        };
-    }),
-);
+const selectedRadioOption = ref<string>('');
 
-const selectedRadioOption = ref<string>('Mid');
+const updateRadioOptionSelection = (id: string) => {
+    selectedOptions.value = selectedOptions.value.map((o: SelectedOption) => ({
+        ...o,
+        isSelected: false,
+    }));
 
-const updateSelectedOptions = (id: string, selectedValue: boolean) => {
+    updateSelectedOptions(id, true);
+};
+
+const updateSelectedOptions = (id: string, isSelected: boolean) => {
     const optionObject = selectedOptions.value.find((o: SelectedOption) => o.id === id);
 
     if (!optionObject) {
         return;
     }
 
-    optionObject.isSelected = selectedValue;
+    optionObject.isSelected = isSelected;
 
     // emit only options who are selected
     emit(
@@ -102,7 +103,7 @@ const emit = defineEmits(['update:text', 'update:selectedOptions', 'isValid']);
                         <div v-for="option in selectedOptions" :key="option.id">
                             <UCheckbox
                                 :model-value="option.isSelected"
-                                :label="option.text"
+                                :label="option.label"
                                 @update:model-value="(value: boolean) => updateSelectedOptions(option.id, value)"
                             />
                         </div>
@@ -114,11 +115,11 @@ const emit = defineEmits(['update:text', 'update:selectedOptions', 'isValid']);
                 <UFormGroup required name="radioOptions">
                     <div class="flex gap-6">
                         <URadio
-                            v-for="option of radioOptions"
-                            :key="option.value"
+                            v-for="option of selectedOptions"
+                            :key="option.id"
                             :model-value="selectedRadioOption"
                             v-bind="option"
-                            @update:model-value="(value: string) => console.log(value)"
+                            @update:model-value="(value: string) => updateRadioOptionSelection(option.id)"
                         />
                     </div>
                 </UFormGroup>
