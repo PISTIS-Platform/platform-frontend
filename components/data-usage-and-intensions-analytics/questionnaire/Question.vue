@@ -29,17 +29,28 @@ const schema = z.object({
         .trim()
         .min(10, { message: t('data.usage.questionnaire.titleMinLength') }),
     type: questionTypesEnum,
-    options: z.array(
-        z.object({
-            text: z
-                .string({ required_error: t('data.usage.questionnaire.optionTextRequired') })
-                .trim()
-                .min(1, { message: t('data.usage.questionnaire.optionTextRequired') }),
-        }),
-    ),
-    //TODO:: uncomment this and add conditional check
+    options: z
+        .array(
+            z.object({
+                text: z
+                    .string({ required_error: t('data.usage.questionnaire.optionTextRequired') })
+                    .trim()
+                    .min(1, { message: t('data.usage.questionnaire.optionTextRequired') }),
+            }),
+        )
+        .refine(
+            (options) => {
+                if (options.length < 2 && props.question.type !== QuestionType.TEXT) {
+                    return false;
+                }
+
+                return true;
+            },
+            {
+                message: t('data.usage.questionnaire.optionsMinLength'),
+            },
+        ),
     //TODO:: check issue with validation error remaining on 'clean' option text when a previous deleted one had error
-    // .min(2, { message: t('data.usage.questionnaire.optionsMinLength') }),
 });
 
 //check if inputs are valid
