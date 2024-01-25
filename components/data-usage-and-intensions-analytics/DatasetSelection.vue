@@ -12,7 +12,7 @@ defineProps({
     },
 });
 
-const emit = defineEmits(['reset', 'update:selected', 'update:questionnaire-or-dashboard']);
+const emit = defineEmits(['reset', 'update:selected', 'update:menuOptionSelection']);
 
 //data for selecting specific dataset
 
@@ -29,8 +29,12 @@ const outerQuery = ref<string>('');
 
 const dataSetSelections = computed(() => [
     {
-        title: t('data.usage.questionnaire.questionnaire'),
-        info: t('data.usage.questionnaire.info'),
+        title: t('data.usage.questionnaire.buildQuestionnaire'),
+        info: t('data.usage.questionnaire.buildInfo'),
+    },
+    {
+        title: t('data.usage.questionnaire.answerQuestionnaire'),
+        info: t('data.usage.questionnaire.answerInfo'),
     },
     {
         title: t('data.usage.dashboard'),
@@ -42,7 +46,7 @@ function toggleTable() {
     displayTable.value = !displayTable.value;
 }
 
-const questionnaireOrDashboard = ref<string>('');
+const questionnaireOptionSelection = ref<string>('');
 </script>
 
 <template>
@@ -132,10 +136,10 @@ const questionnaireOrDashboard = ref<string>('');
                         leave-to-class="transform opacity-0"
                     >
                         <SelectionCards
-                            :model-value="questionnaireOrDashboard"
+                            :model-value="questionnaireOptionSelection"
                             class="gap-4"
                             :selections="dataSetSelections"
-                            @update:model-value="(value: string) => emit('update:questionnaire-or-dashboard', value)"
+                            @update:model-value="(value: string) => emit('update:menuOptionSelection', value)"
                         />
                     </Transition>
                 </div>

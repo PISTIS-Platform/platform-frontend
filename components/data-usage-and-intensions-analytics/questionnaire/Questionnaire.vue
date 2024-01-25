@@ -45,7 +45,6 @@ const applyValidation = ref<boolean>(false);
 
 const saveQuestionnaire = () => {
     applyValidation.value = true;
-    console.log(questions.value);
 
     //if even at least 1 question has validation errors -> do not proceed
     if (questions.value.some((q: Question) => !q.isValid)) {
@@ -87,7 +86,6 @@ const saveQuestionnaire = () => {
             toast.add({ title: t('data.usage.questionnaire.saved') });
         },
         onResponseError() {
-            console.log('error occurred');
             toast.add({ title: t('data.usage.questionnaire.errorInSave') });
         },
     });
@@ -155,10 +153,10 @@ const resetQuestionnaire = () => {
             <!-- Submit Buttons -->
             <div class="flex gap-4 justify-between items-center mt-8">
                 <UTooltip text="Reset Questionnaire">
-                    <UButton size="lg" :label="$t('Reset')" color="gray" variant="solid" @click="resetQuestionnaire" />
+                    <UButton size="lg" :label="$t('reset')" color="gray" variant="solid" @click="resetQuestionnaire" />
                 </UTooltip>
                 <UTooltip text="Save Questionnaire">
-                    <UButton size="lg" :label="$t('Save')" color="primary" variant="solid" @click="saveQuestionnaire" />
+                    <UButton size="lg" :label="$t('save')" color="primary" variant="solid" @click="saveQuestionnaire" />
                 </UTooltip>
             </div>
         </UCard>

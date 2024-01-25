@@ -166,7 +166,10 @@ export default defineI18nConfig(() => ({
                     dashboardInfo: 'Display analytics for selected dataset',
                     questionnaire: {
                         questionnaire: 'Questionnaire',
-                        info: 'Display the questionnaire for selected dataset',
+                        buildQuestionnaire: 'Build Questionnaire',
+                        answerQuestionnaire: 'Answer Questionnaire',
+                        buildInfo: 'Display the questionnaire for selected dataset',
+                        answerInfo: 'Answer the questionnaire for selected dataset',
                         build: 'Build Questionnaire',
                         selectQuestionType: 'Select Question Type',
                         questionTitle: 'Question Title',

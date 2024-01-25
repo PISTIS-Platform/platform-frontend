@@ -14,7 +14,7 @@ export const apiGet = async (resource: string, params?: string) => {
     return response;
 };
 
-export const apiPost = async (resource: string, body: Record<T, T>) => {
+export const apiPost = async (resource: string, body: Record<string, unknown>) => {
     let response;
 
     try {
@@ -29,14 +29,11 @@ export const apiPost = async (resource: string, body: Record<T, T>) => {
     return response;
 };
 
-export const apiPut = async (resource: string, body: Record<T, T>) => {
+export const apiPut = async (resource: string, body: Record<string, unknown>) => {
     let response;
 
     try {
         response = await $fetch(`${serverApiUrl}/${resource}`, {
-            headers: {
-                Authorization: headers['authorization'],
-            },
             method: 'PUT',
             body,
         });
