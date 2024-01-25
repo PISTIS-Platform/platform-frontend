@@ -5,6 +5,7 @@ const { t } = useI18n();
 import type { Question, Questionnaire, QuestionOption } from '~/interfaces/data-usage';
 
 const toast = useToast();
+const { isSuccessResponse } = useHttpHelper();
 
 const props = defineProps({
     assetId: {
@@ -81,9 +82,11 @@ const saveQuestionnaire = () => {
     $fetch(`/api/data-usage/questionnaire/create/${props.assetId}`, {
         method: 'post',
         body,
-        onResponse() {
-            questions.value = [];
-            toast.add({ title: t('data.usage.questionnaire.saved') });
+        onResponse({ response }) {
+            if (isSuccessResponse(response.status)) {
+                questions.value = [];
+                toast.add({ title: t('data.usage.questionnaire.saved') });
+            }
         },
         onResponseError() {
             toast.add({ title: t('data.usage.questionnaire.errorInSave') });

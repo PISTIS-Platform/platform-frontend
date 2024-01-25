@@ -55,6 +55,11 @@ const fetchQuestionnaire = async () => {
     const { data, pending } = await useFetch(`/api/data-usage/questionnaire/${assetId.value}`);
 
     loadingQuestionnaire.value = pending.value;
+
+    if (!data.value) {
+        return;
+    }
+
     const fetchedObject: Questionnaire = data.value as Questionnaire;
 
     questionnaire.value = {
@@ -100,8 +105,25 @@ const fetchQuestionnaire = async () => {
             </div>
 
             <div v-else-if="menuOptionSelection === $t('data.usage.questionnaire.answerQuestionnaire')">
-                <UProgress v-if="loadingQuestionnaire || !questionnaire" animation="carousel" />
-                <AnswerQuestionnaire v-else :asset-id="assetId" :questionnaire="questionnaire" />
+                <UProgress v-if="loadingQuestionnaire" animation="carousel" />
+                <AnswerQuestionnaire
+                    v-else-if="!loadingQuestionnaire && questionnaire"
+                    :asset-id="assetId"
+                    :questionnaire="questionnaire"
+                />
+                <div v-else>
+                    <Transition
+                        enter-active-class="duration-300 ease-out"
+                        enter-from-class="transform opacity-0"
+                        enter-to-class="opacity-100"
+                        leave-active-class="duration-300 ease-in"
+                        leave-from-class="opacity-100"
+                        leave-to-class="transform opacity-0"
+                    ></Transition>
+                    <div class="flex w-full justify-center items-center h-64 font-semibold">
+                        {{ $t('data.usage.questionnaire.noQuestionnaireFound') }}
+                    </div>
+                </div>
             </div>
 
             <Dashboard v-else :selected="selected" :data="dashboardData" :options="dashboardOptions" @reset="reset" />

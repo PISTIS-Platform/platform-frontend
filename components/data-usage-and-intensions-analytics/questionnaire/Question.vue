@@ -55,7 +55,6 @@ const schema = z.object({
 
 //check if inputs are valid
 const isValid = computed(() => {
-    console.log(schema.safeParse(props.question));
     return schema.safeParse(props.question).success;
 });
 

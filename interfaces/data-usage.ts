@@ -1,16 +1,25 @@
 export enum QuestionType {
     TEXT = 'Text',
     CHECKBOX = 'Checkbox',
-    RADIO = 'Radio Button',
+    RADIO = 'Radio',
     DROPDOWN = 'Dropdown',
+}
+
+export interface SelectedOption {
+    id: string;
+    text: string;
+    isSelected: boolean;
 }
 
 export interface QuestionAnswer {
     id: string;
-    text: string;
-    option?: QuestionOption;
+    text?: string;
+    questionType: QuestionType | string | undefined;
+    availableOptions?: QuestionOption[];
+    selectedOptions?: SelectedOption[];
     question?: Question;
     userId: string;
+    isValid?: boolean | undefined;
 }
 
 export interface QuestionOption {
