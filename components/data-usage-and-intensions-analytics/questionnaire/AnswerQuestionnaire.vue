@@ -50,28 +50,52 @@ const saveAnswers = () => {
     });
 
     // applyValidation.value = true;
-    //if even at least 1 question has validation errors -> do not proceed
+    // if even at least 1 answer has validation errors -> do not proceed
     if (answers.value.some((a: QuestionAnswer) => !a.isValid)) {
         toast.add({ title: t('data.usage.questionnaire.checkInputs') });
         return;
     }
 
-    // const body = {
-    //     questions: questionsBody,
-    //     title: 'Test title',
-    //     description: 'Test description',
-    //     creatorId: '1234',
-    //     assetId: props.assetId,
-    // };
-    return;
+    interface ApiPostAnswer {
+        questionId: string;
+        userId: string;
+        text?: string;
+        optionId?: string;
+    }
+
+    let bodyAnswers: ApiPostAnswer[] = [];
+
+    answers.value.forEach((answer: QuestionAnswer) => {
+        let obj: ApiPostAnswer = {
+            questionId: answer.question?.id || '',
+            userId: answer.userId,
+        };
+
+        if (answer.text) {
+            obj['text'] = answer.text;
+            bodyAnswers.push(obj);
+        } else {
+            answer.selectedOptions?.forEach((option: SelectedOption) => {
+                let optionObj: ApiPostAnswer = {
+                    questionId: answer.question?.id || '',
+                    userId: answer.userId,
+                    optionId: option.id,
+                };
+
+                bodyAnswers.push(optionObj);
+            });
+        }
+    });
 
     $fetch(`/api/data-usage/questionnaire/answers`, {
         method: 'post',
-        body: {},
+        body: { answers: bodyAnswers },
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
                 answers.value = [];
                 toast.add({ title: t('data.usage.questionnaire.saved') });
+            } else {
+                toast.add({ title: t('data.usage.questionnaire.errorInSave') });
             }
         },
         onResponseError() {

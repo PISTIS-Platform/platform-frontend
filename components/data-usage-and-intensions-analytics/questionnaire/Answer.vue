@@ -14,9 +14,6 @@ const props = defineProps({
     },
 });
 
-//const questionTypes = [QuestionType.TEXT, QuestionType.CHECKBOX, QuestionType.RADIO, QuestionType.DROPDOWN] as const;
-//const questionTypesEnum = z.enum(questionTypes);
-
 // Schema for all the inputs
 const schema = z.object({
     text: z
