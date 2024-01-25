@@ -5,8 +5,8 @@ import type { Question, QuestionAnswer, Questionnaire, SelectedOption } from '~/
 
 const { t } = useI18n();
 
-const toast = useToast();
 const { isSuccessResponse } = useHttpHelper();
+const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
 const props = defineProps({
     assetId: {
@@ -52,7 +52,7 @@ const saveAnswers = () => {
     // applyValidation.value = true;
     // if even at least 1 answer has validation errors -> do not proceed
     if (answers.value.some((a: QuestionAnswer) => !a.isValid)) {
-        toast.add({ title: t('data.usage.questionnaire.checkInputs') });
+        showErrorMessage(t('data.usage.questionnaire.checkInputs'));
         return;
     }
 
@@ -92,20 +92,15 @@ const saveAnswers = () => {
         body: { answers: bodyAnswers },
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
-                answers.value = [];
-                toast.add({ title: t('data.usage.questionnaire.saved') });
+                showSuccessMessage(t('data.usage.questionnaire.savedAnswers'));
             } else {
-                toast.add({ title: t('data.usage.questionnaire.errorInSave') });
+                showErrorMessage(t('data.usage.questionnaire.errorInSave'));
             }
         },
         onResponseError() {
-            toast.add({ title: t('data.usage.questionnaire.errorInSave') });
+            showSuccessMessage(t('data.usage.questionnaire.errorInSave'));
         },
     });
-};
-
-const resetQuestionnaire = () => {
-    answers.value = [];
 };
 </script>
 
@@ -145,9 +140,6 @@ const resetQuestionnaire = () => {
 
             <!-- Submit Buttons -->
             <div class="flex gap-4 justify-between items-center mt-8">
-                <UTooltip text="Reset Questionnaire">
-                    <UButton size="lg" :label="$t('reset')" color="gray" variant="solid" @click="resetQuestionnaire" />
-                </UTooltip>
                 <UTooltip text="Save Questionnaire">
                     <UButton size="lg" :label="$t('submit')" color="primary" variant="solid" @click="saveAnswers" />
                 </UTooltip>

@@ -15,25 +15,28 @@ const props = defineProps({
 });
 
 // Schema for all the inputs
-const schema = z.object({
-    text: z
-        .string()
-        .trim()
-        .min(1, { message: t('required') }),
-    options: z.array(z.boolean()).min(1),
-});
+const schema = computed(() => {
+    if (props.answer.questionType === QuestionType.TEXT) {
+        return z.object({
+            text: z
+                .string()
+                .trim()
+                .min(1, { message: t('required') }),
+        });
+    }
 
-//check if inputs are valid
-const isValid = computed(() => {
-    return schema.safeParse({
-        text: props.answer.text,
-        //options: props.answer.options,
-    }).success;
-});
-
-//TODO:: check if watcher can be avoided
-watch(isValid, () => {
-    emit('isValid', isValid.value);
+    return z.object({
+        selectedOptions: z
+            .array(
+                z.object({
+                    isSelected: z.boolean(),
+                    id: z.string(),
+                    label: z.string(),
+                    value: z.string(),
+                }),
+            )
+            .min(1, { message: t('data.usage.questionnaire.selectedOptionsMinLength') }),
+    });
 });
 
 const selectedOptions = ref<SelectedOption[]>(
@@ -74,6 +77,16 @@ const updateSelectedOptions = (id: string, isSelected: boolean) => {
     );
 };
 
+//check if inputs are valid
+const isValid = computed(() => {
+    return schema.value.safeParse(props.answer).success;
+});
+
+//TODO:: check if watcher can be avoided
+watch(isValid, () => {
+    emit('isValid', isValid.value);
+});
+
 const emit = defineEmits(['update:text', 'update:selectedOptions', 'isValid']);
 </script>
 
@@ -95,7 +108,7 @@ const emit = defineEmits(['update:text', 'update:selectedOptions', 'isValid']);
             </div>
 
             <div v-else-if="props.answer.questionType === QuestionType.CHECKBOX">
-                <UFormGroup required name="checkBoxOptions">
+                <UFormGroup required name="selectedOptions">
                     <div class="flex gap-6">
                         <div v-for="option in selectedOptions" :key="option.id">
                             <UCheckbox
@@ -109,7 +122,7 @@ const emit = defineEmits(['update:text', 'update:selectedOptions', 'isValid']);
             </div>
 
             <div v-else>
-                <UFormGroup required name="radioOptions">
+                <UFormGroup required name="selectedOptions">
                     <div class="flex gap-6">
                         <URadio
                             v-for="option of selectedOptions"

@@ -24,7 +24,7 @@ export interface QuestionAnswer {
 }
 
 export interface QuestionOption {
-    id?: string;
+    id: string;
     text?: string;
     description?: string;
 }
