@@ -40,11 +40,21 @@ export interface Question {
     isValid?: boolean | undefined;
 }
 
+export interface QuestionnaireVersion {
+    id: string;
+    questionnaireId: string;
+    createdAt: string;
+    questions: Question[];
+}
+
 export interface Questionnaire {
     title: string;
     description?: string;
     creatorId: string;
     assetId: string;
+    is_published: boolean;
+    is_public: boolean;
+    versions?: QuestionnaireVersion[];
     questions: Question[];
 }
 

@@ -58,7 +58,6 @@ const isValid = computed(() => {
     return schema.safeParse(props.question).success;
 });
 
-//TODO:: check if watched can be avoided
 watch(isValid, () => {
     emit('isValid', isValid.value);
 });
@@ -80,7 +79,7 @@ watch(isValid, () => {
 //     return await formRef.value.validate(); // Throws validation errors if state is invalid
 // }
 
-const questionOptions = ref<QuestionOption[]>([]);
+const questionOptions = ref<QuestionOption[]>(props.question?.options || []);
 const userRemovedOptions = ref<boolean>(false);
 
 const updateOptionText = (id: string, text: string) => {

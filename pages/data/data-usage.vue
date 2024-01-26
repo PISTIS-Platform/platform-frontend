@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 
-const { t } = useI18n();
+// const { t } = useI18n();
 import type { Question, Questionnaire, QuestionOption } from '~/interfaces/data-usage';
 import { DashboardData, DashboardOptions } from '~/interfaces/data-usage';
 
@@ -32,42 +32,50 @@ const reset = () => {
     menuOptionSelection.value = '';
 };
 
-const assetId = computed(() => selected.value.split('Dataset ')[1]);
+const assetId = computed(() => {
+    if (!selected.value.length) {
+        return null;
+    }
+
+    return selected.value.split('Dataset ')[1];
+});
+
 const loadingQuestionnaire = ref<boolean>(true);
 const questionnaire = ref<Questionnaire | null>(null);
+
+const updateSelectedAsset = (value: string) => {
+    selected.value = value;
+
+    fetchQuestionnaire();
+};
 
 const updateMenuSelection = (value: string) => {
     menuOptionSelection.value = value;
 
-    if (
-        menuOptionSelection.value === t('data.usage.questionnaire.answerQuestionnaire') &&
-        questionnaire.value === null
-    ) {
-        fetchQuestionnaire();
-    }
+    // if (
+    //     menuOptionSelection.value === t('data.usage.questionnaire.answerQuestionnaire') &&
+    //     (questionnaire.value === null || (assetId.value && questionnaire.value?.assetId !== assetId.value))
+    // ) {
+    //     fetchQuestionnaire();
+    // }
 };
 
 const fetchQuestionnaire = async () => {
-    if (!assetId.value) {
-        return;
-    }
-
-    const { data, pending } = await useFetch(`/api/data-usage/questionnaire/${assetId.value}`);
+    const { data, pending } = await useFetch('/api/data-usage/questionnaire/find', {
+        query: { assetId: assetId.value },
+    });
 
     loadingQuestionnaire.value = pending.value;
 
     if (!data.value) {
+        questionnaire.value = null;
         return;
     }
 
     const fetchedObject: Questionnaire = data.value as Questionnaire;
 
-    questionnaire.value = {
-        title: fetchedObject.title,
-        description: fetchedObject.description,
-        creatorId: fetchedObject.creatorId,
-        assetId: fetchedObject.assetId,
-        questions: fetchedObject.questions.map((question: Question) => {
+    const questions: Question[] =
+        fetchedObject.versions?.[0].questions.map((question: Question) => {
             return {
                 id: question.id,
                 title: question.title,
@@ -81,9 +89,20 @@ const fetchQuestionnaire = async () => {
                     };
                 }),
             };
-        }),
+        }) || [];
+
+    questionnaire.value = {
+        title: fetchedObject.title,
+        description: fetchedObject.description,
+        creatorId: fetchedObject.creatorId,
+        assetId: fetchedObject.assetId,
+        is_published: fetchedObject.is_published,
+        is_public: fetchedObject.is_public,
+        questions,
     };
 };
+
+fetchQuestionnaire();
 </script>
 
 <template>
@@ -94,21 +113,25 @@ const fetchQuestionnaire = async () => {
 
         <DatasetSelection
             :selected="selected"
-            @update:selected="(value: string) => (selected = value)"
+            @update:selected="(value: string) => updateSelectedAsset(value)"
             @update:menu-option-selection="(value: string) => updateMenuSelection(value)"
             @reset="reset"
         />
 
-        <div v-if="menuOptionSelection !== ''">
-            <div v-if="menuOptionSelection === $t('data.usage.questionnaire.buildQuestionnaire')">
-                <Questionnaire :asset-id="assetId" />
+        <div v-if="assetId">
+            <div
+                v-if="
+                    menuOptionSelection === $t('data.usage.questionnaire.buildQuestionnaire') ||
+                    menuOptionSelection === ''
+                "
+            >
+                <Questionnaire :asset-id="assetId" :card-heading-title="$t('data.usage.questionnaire.build')" />
             </div>
 
             <div v-else-if="menuOptionSelection === $t('data.usage.questionnaire.answerQuestionnaire')">
                 <UProgress v-if="loadingQuestionnaire" animation="carousel" />
                 <AnswerQuestionnaire
                     v-else-if="!loadingQuestionnaire && questionnaire"
-                    :asset-id="assetId"
                     :questionnaire="questionnaire"
                 />
                 <div v-else>
@@ -127,6 +150,13 @@ const fetchQuestionnaire = async () => {
             </div>
 
             <Dashboard v-else :selected="selected" :data="dashboardData" :options="dashboardOptions" @reset="reset" />
+        </div>
+
+        <div v-else class="flex w-full">
+            <Questionnaire
+                :card-heading-title="$t('data.usage.questionnaire.generalQuestionnaire')"
+                :card-heading-info="$t('data.usage.questionnaire.generalQuestionnaireInfo')"
+            />
         </div>
     </div>
 </template>

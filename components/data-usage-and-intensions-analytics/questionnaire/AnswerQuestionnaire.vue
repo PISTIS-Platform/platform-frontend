@@ -9,10 +9,6 @@ const { isSuccessResponse } = useHttpHelper();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
 const props = defineProps({
-    assetId: {
-        type: String,
-        required: true,
-    },
     questionnaire: {
         type: Object as () => Questionnaire,
         required: true,

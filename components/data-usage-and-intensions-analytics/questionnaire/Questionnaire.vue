@@ -3,21 +3,42 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 const { t } = useI18n();
-import type { Question, Questionnaire, QuestionOption } from '~/interfaces/data-usage';
+import type { Question, QuestionOption } from '~/interfaces/data-usage';
 
 const { isSuccessResponse } = useHttpHelper();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
 const props = defineProps({
-    assetId: {
+    cardHeadingTitle: {
         type: String,
         required: true,
     },
+    cardHeadingInfo: {
+        type: String,
+        required: false,
+        default: '',
+    },
+    assetId: {
+        type: String,
+        required: false,
+        default: null,
+    },
+    // questionnaire: {
+    //     type: Object as () => Questionnaire,
+    //     required: true,
+    // },
 });
 
-const questionnaire = ref<Record<string, string>>({
+const assetIdComputed = computed(() => (props.assetId && props.assetId.length ? props.assetId : null));
+
+const questionnaire = ref<{
+    title: string;
+    description: string;
+    is_published: boolean;
+}>({
     title: '',
     description: '',
+    is_published: false,
 });
 
 const questionnaireSchema = z.object({
@@ -26,9 +47,15 @@ const questionnaireSchema = z.object({
         .trim()
         .min(1, { message: t('required') }),
     description: z.string().trim(),
+    is_published: z.boolean(),
 });
 
 const questions = ref<Question[]>([]);
+const applyValidation = ref<boolean>(false);
+const publishQuestionnaire = ref<boolean>(false);
+const publishQuestionnaireText = computed(() => {
+    return t('data.usage.questionnaire.publish');
+});
 
 const addQuestion = () => {
     const newQuestion: Question = {
@@ -55,8 +82,6 @@ const removeQuestion = (id?: string) => {
         questions.value.splice(indexToRemove, 1);
     }
 };
-
-const applyValidation = ref<boolean>(false);
 
 const saveQuestionnaire = () => {
     applyValidation.value = true;
@@ -93,15 +118,17 @@ const saveQuestionnaire = () => {
     });
 
     //TODO:: add inputs for title/description
-    const body: Questionnaire = {
-        questions: questionsBody,
+    const body = {
         title: questionnaire.value.title.trim(),
         description: questionnaire.value.description.trim(),
+        is_published: questionnaire.value.is_published,
+        is_public: assetIdComputed.value ? false : true,
         creatorId: '1234',
-        assetId: props.assetId,
+        assetId: assetIdComputed.value,
+        questions: questionsBody,
     };
 
-    $fetch(`/api/data-usage/questionnaire/create/${props.assetId}`, {
+    $fetch(`/api/data-usage/questionnaire/create`, {
         method: 'post',
         body,
         onResponse({ response }) {
@@ -133,12 +160,16 @@ const resetQuestionnaire = () => {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard>
+        <UCard class="w-full">
             <template #header>
-                <SubHeading :title="$t('data.usage.questionnaire.build')" />
+                <SubHeading :title="props?.cardHeadingTitle || ''" :info="props?.cardHeadingInfo" />
             </template>
             <div>
-                <UForm class="flex flex-col space-y-5" :state="questionnaire" :schema="questionnaireSchema">
+                <UForm
+                    class="flex flex-col justify-start items-start space-y-5 w-full"
+                    :state="questionnaire"
+                    :schema="questionnaireSchema"
+                >
                     <!-- Questionnaire title and description-->
                     <UFormGroup :label="$t('data.usage.questionnaire.title')" required name="title" class="w-full">
                         <UInput v-model="questionnaire.title" :placeholder="$t('data.usage.questionnaire.titleInfo')" />
@@ -149,46 +180,53 @@ const resetQuestionnaire = () => {
                             :placeholder="$t('data.usage.questionnaire.descriptionInfo')"
                         />
                     </UFormGroup>
-                </UForm>
-                <div v-if="questions.length" class="flex flex-col space-y-8 mt-8">
-                    <div v-for="question in questions" :key="question.id">
-                        <UCard :ui="{ base: 'overflow-visible' }">
-                            <template #header>
-                                <div class="flex justify-start items-center gap-6">
-                                    <SubHeading :title="`Question ${questions.indexOf(question) + 1}`" />
-                                    <UTooltip text="Remove Question">
-                                        <UButton
-                                            icon="i-heroicons-trash"
-                                            size="xs"
-                                            color="primary"
-                                            variant="solid"
-                                            @click="removeQuestion(question.id)"
-                                        />
-                                    </UTooltip>
-                                </div>
-                            </template>
-                            <Question
-                                :question="question"
-                                :apply-validation="applyValidation"
-                                @update:title="(value: string) => (question.title = value)"
-                                @update:type="(value: string) => (question.type = value)"
-                                @update:options="(options: QuestionOption[]) => (question.options = options)"
-                                @is-valid="(isValid: boolean) => (question.isValid = isValid)"
-                            >
-                            </Question>
-                        </UCard>
+
+                    <!-- Questions -->
+                    <div v-if="questions.length" class="flex flex-col space-y-8 w-full">
+                        <div v-for="question in questions" :key="question.id">
+                            <UCard :ui="{ base: 'overflow-visible' }">
+                                <template #header>
+                                    <div class="flex justify-start items-center gap-6">
+                                        <SubHeading :title="`Question ${questions.indexOf(question) + 1}`" />
+                                        <UTooltip text="Remove Question">
+                                            <UButton
+                                                icon="i-heroicons-trash"
+                                                size="xs"
+                                                color="primary"
+                                                variant="solid"
+                                                @click="removeQuestion(question.id)"
+                                            />
+                                        </UTooltip>
+                                    </div>
+                                </template>
+                                <Question
+                                    :question="question"
+                                    :apply-validation="applyValidation"
+                                    @update:title="(value: string) => (question.title = value)"
+                                    @update:type="(value: string) => (question.type = value)"
+                                    @update:options="(options: QuestionOption[]) => (question.options = options)"
+                                    @is-valid="(isValid: boolean) => (question.isValid = isValid)"
+                                >
+                                </Question>
+                            </UCard>
+                        </div>
                     </div>
-                </div>
-                <UTooltip text="Add Question">
-                    <UButton
-                        icon="i-heroicons-plus"
-                        size="xs"
-                        color="primary"
-                        variant="solid"
-                        class="mt-6"
-                        @click="addQuestion()"
-                    />
-                </UTooltip>
+
+                    <!-- Button for adding question -->
+                    <UTooltip text="Add Question" :popper="{ placement: 'right' }">
+                        <UButton
+                            icon="i-heroicons-plus"
+                            size="xs"
+                            color="primary"
+                            variant="solid"
+                            @click="addQuestion()"
+                        />
+                    </UTooltip>
+
+                    <UFormGroup name="is_published">
+                        <UCheckbox v-model="publishQuestionnaire" :label="publishQuestionnaireText" />
+                    </UFormGroup>
+                </UForm>
             </div>
 
             <!-- Submit Buttons -->
