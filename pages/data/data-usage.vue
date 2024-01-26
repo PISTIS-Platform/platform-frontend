@@ -40,8 +40,21 @@ const assetId = computed(() => {
     return selected.value.split('Dataset ')[1];
 });
 
+const getInitializedQuestionnaire = (): Questionnaire => {
+    return {
+        title: '',
+        description: '',
+        creatorId: '1234',
+        assetId: assetId.value || null,
+        is_published: false,
+        is_public: false,
+        questions: [],
+    };
+};
+
 const loadingQuestionnaire = ref<boolean>(true);
-const questionnaire = ref<Questionnaire | null>(null);
+const generalQuestionnaire = ref<Questionnaire>(getInitializedQuestionnaire());
+const assetQuestionnaire = ref<Questionnaire>(getInitializedQuestionnaire());
 
 const updateSelectedAsset = (value: string) => {
     selected.value = value;
@@ -61,14 +74,14 @@ const updateMenuSelection = (value: string) => {
 };
 
 const fetchQuestionnaire = async () => {
+    loadingQuestionnaire.value = true;
+
     const { data, pending } = await useFetch('/api/data-usage/questionnaire/find', {
         query: { assetId: assetId.value },
     });
 
-    loadingQuestionnaire.value = pending.value;
-
     if (!data.value) {
-        questionnaire.value = null;
+        loadingQuestionnaire.value = pending.value;
         return;
     }
 
@@ -91,7 +104,7 @@ const fetchQuestionnaire = async () => {
             };
         }) || [];
 
-    questionnaire.value = {
+    const transformedQuestionnaire = {
         title: fetchedObject.title,
         description: fetchedObject.description,
         creatorId: fetchedObject.creatorId,
@@ -100,6 +113,14 @@ const fetchQuestionnaire = async () => {
         is_public: fetchedObject.is_public,
         questions,
     };
+
+    if (assetId.value) {
+        assetQuestionnaire.value = transformedQuestionnaire;
+    } else {
+        generalQuestionnaire.value = transformedQuestionnaire;
+    }
+
+    loadingQuestionnaire.value = pending.value;
 };
 
 fetchQuestionnaire();
@@ -125,14 +146,19 @@ fetchQuestionnaire();
                     menuOptionSelection === ''
                 "
             >
-                <Questionnaire :asset-id="assetId" :card-heading-title="$t('data.usage.questionnaire.build')" />
+                <Questionnaire
+                    v-if="!loadingQuestionnaire"
+                    :existing-questionnaire="assetQuestionnaire"
+                    :asset-id="assetId"
+                    :card-heading-title="$t('data.usage.questionnaire.build')"
+                />
             </div>
 
             <div v-else-if="menuOptionSelection === $t('data.usage.questionnaire.answerQuestionnaire')">
                 <UProgress v-if="loadingQuestionnaire" animation="carousel" />
                 <AnswerQuestionnaire
-                    v-else-if="!loadingQuestionnaire && questionnaire"
-                    :questionnaire="questionnaire"
+                    v-else-if="!loadingQuestionnaire && assetQuestionnaire.questions.length"
+                    :questionnaire="assetQuestionnaire"
                 />
                 <div v-else>
                     <Transition
@@ -154,6 +180,8 @@ fetchQuestionnaire();
 
         <div v-else class="flex w-full">
             <Questionnaire
+                v-if="!loadingQuestionnaire"
+                :existing-questionnaire="generalQuestionnaire"
                 :card-heading-title="$t('data.usage.questionnaire.generalQuestionnaire')"
                 :card-heading-info="$t('data.usage.questionnaire.generalQuestionnaireInfo')"
             />

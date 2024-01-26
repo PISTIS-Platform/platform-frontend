@@ -51,7 +51,7 @@ export interface Questionnaire {
     title: string;
     description?: string;
     creatorId: string;
-    assetId: string;
+    assetId?: string | null;
     is_published: boolean;
     is_public: boolean;
     versions?: QuestionnaireVersion[];

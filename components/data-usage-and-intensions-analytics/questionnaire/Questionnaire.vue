@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 const { t } = useI18n();
-import type { Question, QuestionOption } from '~/interfaces/data-usage';
+import type { Question, Questionnaire, QuestionOption } from '~/interfaces/data-usage';
 
 const { isSuccessResponse } = useHttpHelper();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
@@ -23,23 +23,15 @@ const props = defineProps({
         required: false,
         default: null,
     },
-    // questionnaire: {
-    //     type: Object as () => Questionnaire,
-    //     required: true,
-    // },
+    existingQuestionnaire: {
+        type: Object as () => Questionnaire,
+        required: true,
+    },
 });
 
 const assetIdComputed = computed(() => (props.assetId && props.assetId.length ? props.assetId : null));
 
-const questionnaire = ref<{
-    title: string;
-    description: string;
-    is_published: boolean;
-}>({
-    title: '',
-    description: '',
-    is_published: false,
-});
+const questionnaire = ref<Questionnaire>(props.existingQuestionnaire || {});
 
 const questionnaireSchema = z.object({
     title: z
@@ -50,7 +42,7 @@ const questionnaireSchema = z.object({
     is_published: z.boolean(),
 });
 
-const questions = ref<Question[]>([]);
+const questions = ref<Question[]>(props.existingQuestionnaire.questions || []);
 const applyValidation = ref<boolean>(false);
 const publishQuestionnaire = ref<boolean>(false);
 const publishQuestionnaireText = computed(() => {
@@ -133,9 +125,6 @@ const saveQuestionnaire = () => {
         body,
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
-                questions.value = [];
-                questionnaire.value.title = '';
-                questionnaire.value.description = '';
                 showSuccessMessage(t('data.usage.questionnaire.saved'));
             } else {
                 showErrorMessage(t('data.usage.questionnaire.errorInSave'));
