@@ -1,11 +1,19 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 
+import FactoryModelRepo from '~/interfaces/factories-model';
+
 import { connectorsDummyData } from './connectors-dummy-data';
+
+const { isSuccessResponse } = useHttpHelper();
+const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
 const { t } = useI18n();
 
-const connectorsData = computed(() => connectorsDummyData);
+// Change this with the actual endpoint in comment
+const connectorsData = computed(() => connectorsDummyData); //await useFetch(`/api/factories-registrant`); also add a lookup every 1 hour
+const switchModalOpen = ref<boolean>(false);
+let selectedRow: FactoryModelRepo;
 
 const columns = [
     {
@@ -41,14 +49,69 @@ const rows = computed(() => {
 
 const getStatusColorClass = (status: string) => {
     return {
-        'text-green-500': status === t('admin.services.factoryConnectors.live'),
-        'text-red-500': status === t('admin.services.factoryConnectors.deactivated'),
-        'text-yellow-500': status === t('admin.services.factoryConnectors.pending'),
+        'text-green-500': status === 'live',
+        'text-red-500': status === 'deactivated',
+        'text-yellow-500': status === 'pending',
     };
 };
 
-const toggleActive = (_row: any) => {
-    console.log('NYI - toggleActive');
+const select = (row: any) => {
+    if (row.status !== 'pending') {
+        return;
+    } else {
+        selectedRow = row;
+        return (switchModalOpen.value = true);
+    }
+};
+
+const acceptFactory = (data: string) => {
+    $fetch(`/api/factories-registrant/${selectedRow.id}/${data}`, {
+        method: 'patch',
+        onResponse({ response }) {
+            if (isSuccessResponse(response.status)) {
+                if (data === 'accept') {
+                    showSuccessMessage(t('admin.services.factoryConnectors.factoryAccepted'));
+                } else {
+                    showSuccessMessage(t('admin.services.factoryConnectors.factoryDenied'));
+                }
+            } else {
+                showErrorMessage(t('admin.services.factoryConnectors.factoryError'));
+            }
+            switchModalOpen.value = !switchModalOpen;
+        },
+        onResponseError() {
+            switchModalOpen.value = !switchModalOpen;
+            showErrorMessage(t('admin.services.factoryConnectors.factoryError'));
+        },
+    });
+};
+
+const toggleActive = (row: any) => {
+    if (row.isActive === true) {
+        row.status = 'live';
+    } else {
+        row.status = 'deactivated';
+    }
+    $fetch(`/api/factories-registrant/${row.id}/`, {
+        method: 'put',
+        body: row,
+        async onResponse({ response }) {
+            if (isSuccessResponse(response.status)) {
+                // connectorsData.value = await useFetch(`/api/factories-registrant`); Activate this when we have actual data
+                if ((row.status = 'live')) {
+                    showSuccessMessage(t('admin.services.factoryConnectors.activate'));
+                } else {
+                    showSuccessMessage(t('admin.services.factoryConnectors.Deactivate'));
+                }
+            } else {
+                showErrorMessage(t('admin.services.factoryConnectors.factoryActivationError'));
+            }
+        },
+        onResponseError() {
+            showErrorMessage(t('admin.services.factoryConnectors.factoryActivationError'));
+        },
+    });
+    return row;
 };
 </script>
 
@@ -61,23 +124,20 @@ const toggleActive = (_row: any) => {
                     <SubHeading :title="$t('admin.services.factoryConnectors.title')" />
                 </template>
 
-                <UTable :columns="columns" :rows="rows">
+                <UTable :columns="columns" :rows="rows" @select="select">
                     <!-- Custom styling for ip data column -->
                     <template #ip-data="{ row }">
-                        <span class="flex items-center"
-                            ><UIcon
+                        <span class="flex items-center">
+                            <UIcon
                                 name="i-heroicons-light-bulb-solid"
                                 :class="[getStatusColorClass(row.status), 'mr-2']"
-                            />{{ row.ip }}</span
-                        >
+                            />
+                            {{ row.ip }}
+                        </span>
                     </template>
                     <template #actions-data="{ row }">
                         <div class="justify-center flex">
-                            <UToggle
-                                :model-value="row.status === 'Live'"
-                                :disabled="row.status === 'Deactivated'"
-                                @click="toggleActive(row)"
-                            />
+                            <UToggle :model-value="row.isActive" @click="toggleActive(row)" />
                         </div>
                     </template>
                 </UTable>
@@ -87,6 +147,20 @@ const toggleActive = (_row: any) => {
                     <UPagination v-model="page" :page-count="pageCount" :total="connectorsData.length" />
                 </div>
             </UCard>
+            <UModal v-model="switchModalOpen">
+                <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
+                    <p class="font-bold text-xl">{{ $t('admin.services.factoryConnectors.factoryModal') }}</p>
+                    <!-- <p class="text-gray-400 mt-6">{{ $t('admin.services.factoryConnectors.factoryError') }}</p> -->
+                    <div class="flex gap-8 w-full justify-center mt-6">
+                        <UButton color="white" class="w-20 flex justify-center" @click="acceptFactory('accept')">{{
+                            $t('admin.services.factoryConnectors.accept')
+                        }}</UButton>
+                        <UButton class="w-20 flex justify-center" @click="acceptFactory('deny')">{{
+                            $t('admin.services.factoryConnectors.deny')
+                        }}</UButton>
+                    </div>
+                </UCard>
+            </UModal>
         </div>
     </PageContainer>
 </template>

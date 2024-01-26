@@ -33,7 +33,7 @@ export default defineNuxtConfig({
         keycloakClientId: '',
         keycloakClientSecret: '',
         keycloakIssuer: '',
-
+        serverApiUrl: process.env.SERVER_API_URL,
         public: {
             appUrl: '',
         },
