@@ -3,7 +3,15 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 const { t } = useI18n();
-import type { Question, Questionnaire, QuestionOption } from '~/interfaces/data-usage';
+import { HttpMethod } from '@/enums/httpEnums';
+import type {
+    Question,
+    QuestionBody,
+    Questionnaire,
+    QuestionnaireBody,
+    QuestionOption,
+    QuestionOptionBody,
+} from '~/interfaces/data-usage';
 
 const { isSuccessResponse } = useHttpHelper();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
@@ -42,11 +50,24 @@ const questionnaireSchema = z.object({
     is_published: z.boolean(),
 });
 
+const preExistingQuestionnaire = ref<QuestionnaireBody>();
 const questions = ref<Question[]>(props.existingQuestionnaire.questions || []);
 const applyValidation = ref<boolean>(false);
-const publishQuestionnaire = ref<boolean>(false);
-const publishQuestionnaireText = computed(() => {
-    return t('data.usage.questionnaire.publish');
+const publishQuestionnaire = ref<boolean>(questionnaire.value.is_published);
+const publishQuestionnaireText = computed(() => t('data.usage.questionnaire.publish'));
+
+onMounted(() => {
+    preExistingQuestionnaire.value = {
+        title: props.existingQuestionnaire.title,
+        description: props.existingQuestionnaire.description,
+        creatorId: props.existingQuestionnaire.creatorId,
+        assetId: props.existingQuestionnaire.assetId,
+        is_published: props.existingQuestionnaire.is_published,
+        is_public: props.existingQuestionnaire.is_public,
+        questions: props.existingQuestionnaire.questions.map((question: Question) => {
+            return prepareQuestionBody(question);
+        }),
+    };
 });
 
 const addQuestion = () => {
@@ -75,6 +96,90 @@ const removeQuestion = (id?: string) => {
     }
 };
 
+const hasDifferencesInQuestions = (): boolean => {
+    const existingQuestions = preExistingQuestionnaire.value?.questions || [];
+    const newQuestions = questionsBody.value;
+
+    //check if more questions were added (or questions were removed)
+    if (newQuestions.length !== existingQuestions.length) {
+        return true;
+    }
+
+    //loop through all the questions objects of the pre existing and new array of questions
+    //and check if there are differences
+    for (let i = 0; i < newQuestions.length; i++) {
+        const questionItem1: QuestionBody = existingQuestions[i];
+        const questionItem2: QuestionBody = newQuestions[i];
+
+        if (
+            questionItem1.title !== questionItem2.title ||
+            questionItem1.type !== questionItem2.type ||
+            questionItem1.description !== questionItem2.description
+        ) {
+            return true;
+        }
+
+        if (questionItem1.options?.length !== questionItem2.options?.length) {
+            return true;
+        }
+
+        if (questionItem1.options && questionItem2.options) {
+            for (let i = 0; i < questionItem1.options?.length; i++) {
+                const optionItem1: QuestionOptionBody = questionItem1.options[i];
+                const optionItem2: QuestionOptionBody = questionItem2.options[i];
+
+                if (optionItem1.text !== optionItem2.text || optionItem1.description !== optionItem2.description) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+};
+
+const prepareQuestionBody = (question: Question) => {
+    return {
+        title: question.title,
+        description: '',
+        type: question.type,
+        options:
+            question.options?.map((option: QuestionOption) => {
+                return {
+                    text: option.text,
+                    description: '',
+                };
+            }) || [],
+    };
+};
+
+const questionsBody = computed(() => {
+    return questions.value.map((question: Question) => {
+        return prepareQuestionBody(question);
+    });
+});
+
+const questionsWereUpdated = computed(() => {
+    return hasDifferencesInQuestions();
+});
+
+const isSaveDisabled = computed(() => {
+    if (questionnaire.value.isNew) {
+        return false;
+    }
+
+    if (
+        questionsWereUpdated.value ||
+        questionnaire.value.title !== preExistingQuestionnaire.value?.title ||
+        questionnaire.value.description !== preExistingQuestionnaire.value?.description ||
+        publishQuestionnaire.value !== preExistingQuestionnaire.value.is_published
+    ) {
+        return false;
+    }
+
+    return true;
+});
+
 const saveQuestionnaire = () => {
     applyValidation.value = true;
 
@@ -94,41 +199,40 @@ const saveQuestionnaire = () => {
 
     applyValidation.value = false;
 
-    const questionsBody = questions.value.map((question: Question) => {
-        return {
-            title: question.title,
-            description: '',
-            type: question.type,
-            options:
-                question.options?.map((option: QuestionOption) => {
-                    return {
-                        text: option.text,
-                        description: '',
-                    };
-                }) || [],
-        };
-    });
-
-    //TODO:: add inputs for title/description
-    const body = {
+    // prepare the body for the request
+    const body: QuestionnaireBody = {
         title: questionnaire.value.title.trim(),
-        description: questionnaire.value.description.trim(),
-        is_published: questionnaire.value.is_published,
+        description: (questionnaire.value.description || '').trim(),
+        is_published: publishQuestionnaire.value,
         is_public: assetIdComputed.value ? false : true,
         creatorId: '1234',
         assetId: assetIdComputed.value,
-        questions: questionsBody,
+        questions: questionsWereUpdated.value ? questionsBody.value : [],
     };
 
-    $fetch(`/api/data-usage/questionnaire/create`, {
-        method: 'post',
+    // prepare the url and method depending on whether it's a new or existing questionnaire
+    let url = `/api/data-usage/questionnaire/create`;
+    let method = HttpMethod.POST;
+    let successMessage = t('data.usage.questionnaire.saved');
+
+    if (!questionnaire.value.isNew) {
+        url = `/api/data-usage/questionnaire/${questionnaire.value.id}`;
+        method = HttpMethod.PUT;
+        successMessage = t('data.usage.questionnaire.updated');
+    }
+
+    $fetch(url, {
+        method,
         body,
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
-                showSuccessMessage(t('data.usage.questionnaire.saved'));
-            } else {
-                showErrorMessage(t('data.usage.questionnaire.errorInSave'));
+                showSuccessMessage(successMessage);
+                preExistingQuestionnaire.value = body;
+                preExistingQuestionnaire.value.questions = questionsBody.value;
+                return;
             }
+
+            showErrorMessage(t('data.usage.questionnaire.errorInSave'));
         },
         onResponseError() {
             showErrorMessage(t('data.usage.questionnaire.errorInSave'));
@@ -224,7 +328,14 @@ const resetQuestionnaire = () => {
                     <UButton size="lg" :label="$t('reset')" color="gray" variant="solid" @click="resetQuestionnaire" />
                 </UTooltip>
                 <UTooltip text="Save Questionnaire">
-                    <UButton size="lg" :label="$t('save')" color="primary" variant="solid" @click="saveQuestionnaire" />
+                    <UButton
+                        size="lg"
+                        :label="$t('save')"
+                        color="primary"
+                        variant="solid"
+                        :disabled="isSaveDisabled"
+                        @click="saveQuestionnaire"
+                    />
                 </UTooltip>
             </div>
         </UCard>

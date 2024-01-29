@@ -42,6 +42,7 @@ const assetId = computed(() => {
 
 const getInitializedQuestionnaire = (): Questionnaire => {
     return {
+        id: '',
         title: '',
         description: '',
         creatorId: '1234',
@@ -49,6 +50,7 @@ const getInitializedQuestionnaire = (): Questionnaire => {
         is_published: false,
         is_public: false,
         questions: [],
+        isNew: true,
     };
 };
 
@@ -88,12 +90,13 @@ const fetchQuestionnaire = async () => {
     const fetchedObject: Questionnaire = data.value as Questionnaire;
 
     const questions: Question[] =
-        fetchedObject.versions?.[0].questions.map((question: Question) => {
+        fetchedObject?.versions?.[0].questions.map((question: Question) => {
             return {
                 id: question.id,
                 title: question.title,
                 description: question.description,
                 type: question.type,
+                isValid: true,
                 options: question.options?.map((option: QuestionOption) => {
                     return {
                         id: option.id,
@@ -105,6 +108,7 @@ const fetchQuestionnaire = async () => {
         }) || [];
 
     const transformedQuestionnaire = {
+        id: fetchedObject.id,
         title: fetchedObject.title,
         description: fetchedObject.description,
         creatorId: fetchedObject.creatorId,
@@ -112,6 +116,7 @@ const fetchQuestionnaire = async () => {
         is_published: fetchedObject.is_published,
         is_public: fetchedObject.is_public,
         questions,
+        isNew: false,
     };
 
     if (assetId.value) {

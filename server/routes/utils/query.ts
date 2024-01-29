@@ -44,7 +44,7 @@ export const apiPut = async (resource: string, body: Record<string, unknown>) =>
     return response;
 };
 
-export const apiDelete = async (resource: string, body: Record<T, T>) => {
+export const apiDelete = async (resource: string, body: Record<string, unknown>) => {
     let response;
 
     try {

@@ -5,3 +5,10 @@ export const enum HttpCode {
     HTTP_BAD_REQUEST_ERROR = 400,
     HTTP_AUTHENTICATED_ERROR = 401,
 }
+
+export const enum HttpMethod {
+    GET = 'get',
+    POST = 'post',
+    PUT = 'put',
+    DELETE = 'delete',
+}

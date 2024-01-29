@@ -1,4 +1,4 @@
-import { HttpCode } from '@/enums/httpCode';
+import { HttpCode } from '@/enums/httpEnums';
 
 export const useHttpHelper = () => {
     const isSuccessResponse = (statusNum: number) => {

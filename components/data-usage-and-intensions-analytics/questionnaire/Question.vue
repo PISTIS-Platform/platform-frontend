@@ -94,6 +94,15 @@ const updateOptionText = (id: string, text: string) => {
     emit('update:options', questionOptions.value);
 };
 
+const updateQuestionType = (type: QuestionType) => {
+    if (type === QuestionType.TEXT) {
+        questionOptions.value = [];
+        emit('update:options', questionOptions.value);
+    }
+
+    emit('update:type', type);
+};
+
 const addQuestionOption = () => {
     const newOption: QuestionOption = {
         id: String(new Date().getTime()),
@@ -132,7 +141,7 @@ const emit = defineEmits(['update:type', 'update:title', 'update:options', 'isVa
                         :options="questionTypesEnum.options"
                         size="md"
                         class="flex w-64"
-                        @update:model-value="(value: QuestionType) => emit('update:type', value)"
+                        @update:model-value="(value: QuestionType) => updateQuestionType(value)"
                     />
                 </UFormGroup>
                 <!-- Question title -->

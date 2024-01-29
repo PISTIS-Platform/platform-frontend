@@ -195,6 +195,7 @@ export default defineI18nConfig(() => ({
                         noQuestionsAdded: 'Please add at least one question first',
                         selectedOptionsMinLength: 'Please select at least one option',
                         saved: 'Questionnaire has been saved successfully!',
+                        updated: 'Questionnaire has been updated successfully!',
                         savedAnswers: 'Answers have been submitted successfully!',
                         errorInSave: 'An error occurred while saving questionnaire',
                         noQuestionnaireFound: 'No Questionnaire was found for this Asset',

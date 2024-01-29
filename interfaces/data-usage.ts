@@ -29,6 +29,8 @@ export interface QuestionOption {
     description?: string;
 }
 
+export type QuestionOptionBody = Omit<QuestionOption, 'id'>;
+
 export interface Question {
     id?: string;
     type: QuestionType | string | undefined;
@@ -40,6 +42,13 @@ export interface Question {
     isValid?: boolean | undefined;
 }
 
+export interface QuestionBody {
+    type: QuestionType | string | undefined;
+    title?: string;
+    description?: string | undefined;
+    options?: QuestionOptionBody[];
+}
+
 export interface QuestionnaireVersion {
     id: string;
     questionnaireId: string;
@@ -48,6 +57,7 @@ export interface QuestionnaireVersion {
 }
 
 export interface Questionnaire {
+    id: string;
     title: string;
     description?: string;
     creatorId: string;
@@ -56,6 +66,17 @@ export interface Questionnaire {
     is_public: boolean;
     versions?: QuestionnaireVersion[];
     questions: Question[];
+    isNew: boolean;
+}
+
+export interface QuestionnaireBody {
+    title: string;
+    description?: string;
+    creatorId: string;
+    assetId?: string | null;
+    is_published: boolean;
+    is_public: boolean;
+    questions: QuestionBody[];
 }
 
 export interface DashboardData {
