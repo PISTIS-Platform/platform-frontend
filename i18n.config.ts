@@ -210,7 +210,7 @@ export default defineI18nConfig(() => ({
                         deactivate: 'Deactivate',
                         accept: 'Accept',
                         deny: 'Deny',
-                        factoryAccept: 'Factory Accepted',
+                        factoryAccepted: 'Factory Accepted',
                         factoryAcceptanceError: 'Factory acceptance error',
                         factoryActivationError: 'Factory activation/deactivation error',
                         factoryDenied: 'Factory Denied',

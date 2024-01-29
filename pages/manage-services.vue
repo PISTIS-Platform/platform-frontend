@@ -65,8 +65,10 @@ const select = (row: any) => {
 };
 
 const acceptFactory = (data: string) => {
-    $fetch(`/api/factories-registrant/${selectedRow.id}/${data}`, {
+    const body = { acceptance: data };
+    $fetch(`/api/factories-registrant/${selectedRow.id}`, {
         method: 'patch',
+        body,
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
                 if (data === 'accept') {
