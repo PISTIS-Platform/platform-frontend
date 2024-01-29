@@ -143,6 +143,7 @@ const prepareQuestionBody = (question: Question) => {
         title: question.title,
         description: '',
         type: question.type,
+        is_required: question.is_required,
         options:
             question.options?.map((option: QuestionOption) => {
                 return {
@@ -229,6 +230,7 @@ const saveQuestionnaire = () => {
                 showSuccessMessage(successMessage);
                 preExistingQuestionnaire.value = body;
                 preExistingQuestionnaire.value.questions = questionsBody.value;
+                questionnaire.value.isNew = false;
                 return;
             }
 
@@ -298,6 +300,7 @@ const resetQuestionnaire = () => {
                                     @update:title="(value: string) => (question.title = value)"
                                     @update:type="(value: string) => (question.type = value)"
                                     @update:options="(options: QuestionOption[]) => (question.options = options)"
+                                    @update:is_required="(value: boolean) => (question.is_required = value)"
                                     @is-valid="(isValid: boolean) => (question.isValid = isValid)"
                                 >
                                 </Question>

@@ -97,6 +97,7 @@ const fetchQuestionnaire = async () => {
                 description: question.description,
                 type: question.type,
                 isValid: true,
+                is_required: question.is_required,
                 options: question.options?.map((option: QuestionOption) => {
                     return {
                         id: option.id,

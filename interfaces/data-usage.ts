@@ -2,7 +2,6 @@ export enum QuestionType {
     TEXT = 'Text',
     CHECKBOX = 'Checkbox',
     RADIO = 'Radio',
-    DROPDOWN = 'Dropdown',
 }
 
 export interface SelectedOption {
@@ -39,6 +38,7 @@ export interface Question {
     options?: QuestionOption[] | undefined;
     answers?: QuestionAnswer[] | undefined;
     allowMultipleSelect?: boolean | undefined;
+    is_required?: boolean | undefined;
     isValid?: boolean | undefined;
 }
 

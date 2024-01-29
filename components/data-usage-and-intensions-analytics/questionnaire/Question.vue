@@ -19,7 +19,7 @@ const props = defineProps({
     },
 });
 
-const questionTypes = [QuestionType.TEXT, QuestionType.CHECKBOX, QuestionType.RADIO, QuestionType.DROPDOWN] as const;
+const questionTypes = [QuestionType.TEXT, QuestionType.CHECKBOX, QuestionType.RADIO] as const;
 const questionTypesEnum = z.enum(questionTypes);
 
 // Schema for all the inputs
@@ -126,7 +126,42 @@ const removeQuestionOption = (id: string) => {
     }
 };
 
-const emit = defineEmits(['update:type', 'update:title', 'update:options', 'isValid']);
+const preparedOptions = [
+    [
+        {
+            label: t('data.usage.questionnaire.numberingOptions1to5'),
+            options: ['1', '2', '3', '4', '5'],
+        },
+    ],
+    [
+        {
+            label: t('data.usage.questionnaire.scaleTextOptions'),
+            options: [
+                t('data.usage.questionnaire.scaleTextExtremelyPoor'),
+                t('data.usage.questionnaire.scaleTextPoor'),
+                t('data.usage.questionnaire.scaleTextNeutral'),
+                t('data.usage.questionnaire.scaleTextGreat'),
+                t('data.usage.questionnaire.scaleTextExcellent'),
+            ],
+        },
+    ],
+];
+
+const addPreConfiguredOptions = (configuredOptions: string[]) => {
+    questionOptions.value = [];
+
+    configuredOptions.forEach((configuredOptionText: string, index: number) => {
+        questionOptions.value.push({
+            id: String(new Date().getTime()) + index.toString(),
+            text: configuredOptionText,
+            description: undefined,
+        });
+    });
+
+    emit('update:options', questionOptions.value);
+};
+
+const emit = defineEmits(['update:type', 'update:title', 'update:is_required', 'update:options', 'isValid']);
 </script>
 
 <template>
@@ -205,18 +240,58 @@ const emit = defineEmits(['update:type', 'update:title', 'update:options', 'isVa
                             </UTooltip>
                         </div>
 
-                        <!-- Button for adding new option -->
-                        <UTooltip text="Add Option">
-                            <UButton
-                                icon="i-heroicons-plus-circle-20-solid"
-                                size="sm"
-                                color="primary"
-                                variant="ghost"
-                                @click="addQuestionOption()"
-                            />
-                        </UTooltip>
+                        <div class="flex gap-4 justify-start items-center">
+                            <!-- Button for adding new option -->
+                            <UTooltip :text="$t('data.usage.questionnaire.addCustomOption')">
+                                <UButton
+                                    icon="i-heroicons-plus-circle-20-solid"
+                                    size="md"
+                                    color="primary"
+                                    variant="ghost"
+                                    @click="addQuestionOption()"
+                                />
+                            </UTooltip>
+                            <UDropdown
+                                :items="preparedOptions"
+                                mode="hover"
+                                :popper="{ placement: 'bottom-start' }"
+                                :ui="{
+                                    width: 'w-80',
+                                    item: {
+                                        size: 'text-xs',
+                                        base: 'flex justify-start items-start',
+                                        padding: 'p-1',
+                                    },
+                                }"
+                            >
+                                <UButton
+                                    color="primary"
+                                    variant="outline"
+                                    icon="i-heroicons-list-bullet-20-solid"
+                                    :label="$t('data.usage.questionnaire.addPreconfiguredOptions')"
+                                />
+                                <template #item="{ item }">
+                                    <div
+                                        class="flex justify-start w-full"
+                                        @click="addPreConfiguredOptions(item.options)"
+                                    >
+                                        {{ item.label }}
+                                    </div>
+                                </template>
+                            </UDropdown>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="flex mt-8">
+                <UFormGroup name="is_required">
+                    <UCheckbox
+                        :model-value="question.is_required"
+                        :label="$t('data.usage.questionnaire.is_required')"
+                        @update:model-value="(value: boolean) => emit('update:is_required', value)"
+                    />
+                </UFormGroup>
             </div>
         </UForm>
     </div>
