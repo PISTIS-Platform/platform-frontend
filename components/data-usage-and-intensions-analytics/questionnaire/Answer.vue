@@ -21,7 +21,18 @@ const schema = computed(() => {
             text: z
                 .string()
                 .trim()
-                .min(1, { message: t('required') }),
+                .refine(
+                    (value) => {
+                        if (props.answer.question?.is_required && !value.length) {
+                            return false;
+                        }
+
+                        return true;
+                    },
+                    {
+                        message: t('required'),
+                    },
+                ),
         });
     }
 
@@ -35,7 +46,18 @@ const schema = computed(() => {
                     value: z.string(),
                 }),
             )
-            .min(1, { message: t('data.usage.questionnaire.selectedOptionsMinLength') }),
+            .refine(
+                (options) => {
+                    if (props.answer.question?.is_required && !options.length) {
+                        return false;
+                    }
+
+                    return true;
+                },
+                {
+                    message: t('data.usage.questionnaire.selectedOptionsMinLength'),
+                },
+            ),
     });
 });
 
@@ -82,7 +104,6 @@ const isValid = computed(() => {
     return schema.value.safeParse(props.answer).success;
 });
 
-//TODO:: check if watcher can be avoided
 watch(isValid, () => {
     emit('isValid', isValid.value);
 });
@@ -97,7 +118,7 @@ const emit = defineEmits(['update:text', 'update:selectedOptions', 'isValid']);
 
             <!-- Text based Question -->
             <div v-if="props.answer.questionType === QuestionType.TEXT">
-                <UFormGroup required name="text">
+                <UFormGroup name="text">
                     <UTextarea
                         :model-value="answer.text"
                         :placeholder="$t('data.usage.questionnaire.answerTextInfo')"
@@ -108,7 +129,7 @@ const emit = defineEmits(['update:text', 'update:selectedOptions', 'isValid']);
             </div>
 
             <div v-else-if="props.answer.questionType === QuestionType.CHECKBOX">
-                <UFormGroup required name="selectedOptions">
+                <UFormGroup name="selectedOptions">
                     <div class="flex gap-6">
                         <div v-for="option in selectedOptions" :key="option.id">
                             <UCheckbox
@@ -122,7 +143,7 @@ const emit = defineEmits(['update:text', 'update:selectedOptions', 'isValid']);
             </div>
 
             <div v-else>
-                <UFormGroup required name="selectedOptions">
+                <UFormGroup name="selectedOptions">
                     <div class="flex gap-6">
                         <URadio
                             v-for="option of selectedOptions"

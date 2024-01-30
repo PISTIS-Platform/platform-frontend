@@ -18,7 +18,6 @@ export interface QuestionAnswer {
     availableOptions?: QuestionOption[];
     selectedOptions?: SelectedOption[];
     question?: Question;
-    userId: string;
     isValid?: boolean | undefined;
 }
 
@@ -46,25 +45,26 @@ export interface QuestionBody {
     type: QuestionType | string | undefined;
     title?: string;
     description?: string | undefined;
+    is_required?: boolean;
     options?: QuestionOptionBody[];
-}
-
-export interface QuestionnaireVersion {
-    id: string;
-    questionnaireId: string;
-    createdAt: string;
-    questions: Question[];
 }
 
 export interface Questionnaire {
     id: string;
+    creatorId: string;
+    versions?: QuestionnaireVersion[];
+    is_for_verified_buyers: boolean;
+    isNew: boolean;
+}
+
+export interface QuestionnaireVersion {
+    id: string;
+    questionnaire: Questionnaire;
     title: string;
     description?: string;
-    creatorId: string;
-    assetId?: string | null;
-    is_published: boolean;
-    is_public: boolean;
-    versions?: QuestionnaireVersion[];
+    is_active: boolean;
+    publicationDate?: string | null;
+    createdAt?: string;
     questions: Question[];
     isNew: boolean;
 }

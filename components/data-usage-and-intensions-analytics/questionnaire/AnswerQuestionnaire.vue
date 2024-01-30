@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import type { Question, QuestionAnswer, Questionnaire, SelectedOption } from '~/interfaces/data-usage';
+import { type Question, type QuestionAnswer, type Questionnaire, type SelectedOption } from '~/interfaces/data-usage';
 
 const { t } = useI18n();
 
@@ -27,8 +27,7 @@ const initAnswers = () => {
             availableOptions: question?.options || [],
             selectedOptions: [],
             question,
-            isValid: false,
-            userId: '789', //TODO:: replace with real user
+            isValid: question.is_required ? false : true,
         };
     });
 };
@@ -52,49 +51,58 @@ const saveAnswers = () => {
         return;
     }
 
-    interface ApiPostAnswer {
+    interface Answer {
         questionId: string;
-        userId: string;
-        text?: string;
-        optionId?: string;
+        text?: string | null;
+        optionId?: string | null;
     }
 
-    let bodyAnswers: ApiPostAnswer[] = [];
+    interface AnswersBody {
+        answers: Answer[];
+        userId: string;
+        questionnaireVersionId: string | undefined;
+    }
+
+    let preparedAnswers: Answer[] = [];
 
     answers.value.forEach((answer: QuestionAnswer) => {
-        let obj: ApiPostAnswer = {
+        let obj: Answer = {
             questionId: answer.question?.id || '',
-            userId: answer.userId,
         };
 
         if (answer.text) {
             obj['text'] = answer.text;
-            bodyAnswers.push(obj);
+            preparedAnswers.push(obj);
         } else {
             answer.selectedOptions?.forEach((option: SelectedOption) => {
-                let optionObj: ApiPostAnswer = {
+                let optionObj: Answer = {
                     questionId: answer.question?.id || '',
-                    userId: answer.userId,
                     optionId: option.id,
                 };
 
-                bodyAnswers.push(optionObj);
+                preparedAnswers.push(optionObj);
             });
         }
+
+        return obj;
     });
+
+    let answersBody: AnswersBody = {
+        answers: preparedAnswers,
+        userId: '789', //TODO:: replace with real user
+        questionnaireVersionId: props.questionnaire.latestVersionId,
+    };
 
     $fetch(`/api/data-usage/questionnaire/answers`, {
         method: 'post',
-        body: { answers: bodyAnswers },
+        body: answersBody,
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
                 showSuccessMessage(t('data.usage.questionnaire.savedAnswers'));
-            } else {
-                showErrorMessage(t('data.usage.questionnaire.errorInSave'));
             }
         },
         onResponseError() {
-            showSuccessMessage(t('data.usage.questionnaire.errorInSave'));
+            showErrorMessage(t('data.usage.questionnaire.errorInSave'));
         },
     });
 };
@@ -119,10 +127,13 @@ const saveAnswers = () => {
                 <div v-for="answer in answers" :key="answer.id">
                     <UCard :ui="{ base: 'overflow-visible' }">
                         <template #header>
-                            <SubHeading
-                                :title="answer.question?.title || ''"
-                                :info="answer.question?.description || ''"
-                            />
+                            <div class="flex justify-start items-center gap-1">
+                                <SubHeading
+                                    :title="answer.question?.title || ''"
+                                    :info="answer.question?.description || ''"
+                                />
+                                <div v-if="answer.question?.is_required" class="text-red-500 text-sm">*</div>
+                            </div>
                         </template>
                         <Answer
                             :answer="answer"

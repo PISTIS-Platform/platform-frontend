@@ -1,17 +1,17 @@
 <script setup lang="ts">
-// import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n';
 
-// const { t } = useI18n();
-import type { Question, Questionnaire, QuestionOption } from '~/interfaces/data-usage';
+const { t } = useI18n();
 import { DashboardData, DashboardOptions } from '~/interfaces/data-usage';
+import { QuestionnaireVersion } from '~/interfaces/data-usage';
 
 import { data, options } from './chart-data';
+
+const { showErrorMessage } = useAlertMessage();
 
 //data for selected dataset
 
 const selected = ref<string>('');
-const menuOptionSelection = ref<string>('');
-
 //Dashboard data
 const dashboardData = ref<DashboardData>({
     labels: [],
@@ -27,11 +27,6 @@ dashboardData.value = data;
 const dashboardOptions = ref<DashboardOptions>();
 dashboardOptions.value = options;
 
-const reset = () => {
-    selected.value = '';
-    menuOptionSelection.value = '';
-};
-
 const assetId = computed(() => {
     if (!selected.value.length) {
         return null;
@@ -40,96 +35,66 @@ const assetId = computed(() => {
     return selected.value.split('Dataset ')[1];
 });
 
-const getInitializedQuestionnaire = (): Questionnaire => {
-    return {
-        id: '',
-        title: '',
-        description: '',
-        creatorId: '1234',
-        assetId: assetId.value || null,
-        is_published: false,
-        is_public: false,
-        questions: [],
-        isNew: true,
-    };
-};
+const loadingQuestionnaireVersions = ref<boolean>(true);
+const generalQuestionnaireVersions = ref<QuestionnaireVersion[]>([]);
+const assetsQuestionnaireVersions = ref<QuestionnaireVersion[]>([]);
 
-const loadingQuestionnaire = ref<boolean>(true);
-const generalQuestionnaire = ref<Questionnaire>(getInitializedQuestionnaire());
-const assetQuestionnaire = ref<Questionnaire>(getInitializedQuestionnaire());
+const fetchQuestionnaireVersions = async () => {
+    loadingQuestionnaireVersions.value = true;
 
-const updateSelectedAsset = (value: string) => {
-    selected.value = value;
+    const { data, pending, error } = await useFetch('/api/data-usage/questionnaire/versions');
 
-    fetchQuestionnaire();
-};
-
-const updateMenuSelection = (value: string) => {
-    menuOptionSelection.value = value;
-
-    // if (
-    //     menuOptionSelection.value === t('data.usage.questionnaire.answerQuestionnaire') &&
-    //     (questionnaire.value === null || (assetId.value && questionnaire.value?.assetId !== assetId.value))
-    // ) {
-    //     fetchQuestionnaire();
-    // }
-};
-
-const fetchQuestionnaire = async () => {
-    loadingQuestionnaire.value = true;
-
-    const { data, pending } = await useFetch('/api/data-usage/questionnaire/find', {
-        query: { assetId: assetId.value },
-    });
-
-    if (!data.value) {
-        loadingQuestionnaire.value = pending.value;
+    if (error.value) {
+        showErrorMessage(t('data.usage.questionnaire.errorWhileRetrieving'));
         return;
     }
 
-    const fetchedObject: Questionnaire = data.value as Questionnaire;
-
-    const questions: Question[] =
-        fetchedObject?.versions?.[0].questions.map((question: Question) => {
-            return {
-                id: question.id,
-                title: question.title,
-                description: question.description,
-                type: question.type,
-                isValid: true,
-                is_required: question.is_required,
-                options: question.options?.map((option: QuestionOption) => {
-                    return {
-                        id: option.id,
-                        text: option.text,
-                        description: option.description,
-                    };
-                }),
-            };
-        }) || [];
-
-    const transformedQuestionnaire = {
-        id: fetchedObject.id,
-        title: fetchedObject.title,
-        description: fetchedObject.description,
-        creatorId: fetchedObject.creatorId,
-        assetId: fetchedObject.assetId,
-        is_published: fetchedObject.is_published,
-        is_public: fetchedObject.is_public,
-        questions,
-        isNew: false,
-    };
-
-    if (assetId.value) {
-        assetQuestionnaire.value = transformedQuestionnaire;
-    } else {
-        generalQuestionnaire.value = transformedQuestionnaire;
+    if (!data.value) {
+        loadingQuestionnaireVersions.value = pending.value;
+        return;
     }
 
-    loadingQuestionnaire.value = pending.value;
+    interface FetchedVersions {
+        for_general_users: QuestionnaireVersion[];
+        for_verified_buyers: QuestionnaireVersion[];
+    }
+
+    generalQuestionnaireVersions.value = (data.value as FetchedVersions).for_general_users;
+    assetsQuestionnaireVersions.value = (data.value as FetchedVersions).for_verified_buyers;
+
+    loadingQuestionnaireVersions.value = pending.value;
 };
 
-fetchQuestionnaire();
+const updateQuestionnaireSelectedOption = (value: string) => {
+    questionnaireOptionSelection.value = value;
+
+    if (value === generalUsersOption && generalQuestionnaireVersions.value.length) {
+        return;
+    }
+
+    if (value === assetsOption && assetsQuestionnaireVersions.value.length) {
+        return;
+    }
+
+    fetchQuestionnaireVersions();
+};
+
+// Selection cards options
+const questionnaireOptions = computed(() => [
+    {
+        title: t('data.usage.questionnaire.generalQuestionnaire'),
+        info: t('data.usage.questionnaire.generalQuestionnaireInfo'),
+    },
+    {
+        title: t('data.usage.questionnaire.assetsQuestionnaire'),
+        info: t('data.usage.questionnaire.assetsQuestionnaireInfo'),
+    },
+]);
+
+const generalUsersOption = questionnaireOptions.value[0].title;
+const assetsOption = questionnaireOptions.value[1].title;
+
+const questionnaireOptionSelection = ref<string>('');
 </script>
 
 <template>
@@ -140,57 +105,47 @@ fetchQuestionnaire();
 
         <DatasetSelection
             :selected="selected"
-            @update:selected="(value: string) => updateSelectedAsset(value)"
-            @update:menu-option-selection="(value: string) => updateMenuSelection(value)"
-            @reset="reset"
-        />
+            @update:selected="(value: string) => (selected = value)"
+            @reset="selected = ''"
+        ></DatasetSelection>
 
         <div v-if="assetId">
-            <div
-                v-if="
-                    menuOptionSelection === $t('data.usage.questionnaire.buildQuestionnaire') ||
-                    menuOptionSelection === ''
-                "
-            >
-                <Questionnaire
-                    v-if="!loadingQuestionnaire"
-                    :existing-questionnaire="assetQuestionnaire"
-                    :asset-id="assetId"
-                    :card-heading-title="$t('data.usage.questionnaire.build')"
-                />
-            </div>
-
-            <div v-else-if="menuOptionSelection === $t('data.usage.questionnaire.answerQuestionnaire')">
-                <UProgress v-if="loadingQuestionnaire" animation="carousel" />
-                <AnswerQuestionnaire
-                    v-else-if="!loadingQuestionnaire && assetQuestionnaire.questions.length"
-                    :questionnaire="assetQuestionnaire"
-                />
-                <div v-else>
-                    <Transition
-                        enter-active-class="duration-300 ease-out"
-                        enter-from-class="transform opacity-0"
-                        enter-to-class="opacity-100"
-                        leave-active-class="duration-300 ease-in"
-                        leave-from-class="opacity-100"
-                        leave-to-class="transform opacity-0"
-                    ></Transition>
-                    <div class="flex w-full justify-center items-center h-64 font-semibold">
-                        {{ $t('data.usage.questionnaire.noQuestionnaireFound') }}
-                    </div>
-                </div>
-            </div>
-
-            <Dashboard v-else :selected="selected" :data="dashboardData" :options="dashboardOptions" @reset="reset" />
+            <Dashboard :selected="selected" :data="dashboardData" :options="dashboardOptions" @reset="reset" />
         </div>
 
-        <div v-else class="flex w-full">
-            <Questionnaire
-                v-if="!loadingQuestionnaire"
-                :existing-questionnaire="generalQuestionnaire"
-                :card-heading-title="$t('data.usage.questionnaire.generalQuestionnaire')"
-                :card-heading-info="$t('data.usage.questionnaire.generalQuestionnaireInfo')"
-            />
+        <div v-else>
+            <UCard class="w-full">
+                <template #header>
+                    <div class="flex justify-between">
+                        <SubHeading :title="$t('data.usage.questionnaire.selectType')" />
+                    </div>
+                </template>
+
+                <SelectionCards
+                    :model-value="questionnaireOptionSelection"
+                    class="gap-4"
+                    :selections="questionnaireOptions"
+                    @update:model-value="(value: string) => updateQuestionnaireSelectedOption(value)"
+                />
+
+                <div class="flex w-full mt-8">
+                    <!-- Table with versions for questionnaire for general users -->
+                    <div
+                        v-if="questionnaireOptionSelection === generalUsersOption && !loadingQuestionnaireVersions"
+                        class="w-full"
+                    >
+                        <VersionsTable :versions-data="generalQuestionnaireVersions" :for-verified-buyers="false" />
+                    </div>
+
+                    <!-- Table with versions for questionnaire for verified buyers (for all assets) -->
+                    <div
+                        v-if="questionnaireOptionSelection === assetsOption && !loadingQuestionnaireVersions"
+                        class="w-full"
+                    >
+                        <VersionsTable :versions-data="assetsQuestionnaireVersions" :for-verified-buyers="true" />
+                    </div>
+                </div>
+            </UCard>
         </div>
     </div>
 </template>

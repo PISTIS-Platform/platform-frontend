@@ -7,68 +7,68 @@ import { HttpMethod } from '@/enums/httpEnums';
 import type {
     Question,
     QuestionBody,
-    Questionnaire,
-    QuestionnaireBody,
+    QuestionnaireVersion,
     QuestionOption,
     QuestionOptionBody,
 } from '~/interfaces/data-usage';
 
+const route = useRoute();
+
+const questionnaireVersion = ref<QuestionnaireVersion>({
+    id: '',
+    questionnaire: {
+        id: '',
+        creatorId: '1234',
+        is_for_verified_buyers: route.query.for_verified_buyers === 'yes',
+        isNew: true,
+    },
+    title: '',
+    description: '',
+    is_active: false,
+    publicationDate: null,
+    questions: [],
+    isNew: true,
+});
+
+onMounted(() => {
+    if (route.query.questionnaireId) {
+        questionnaireVersion.value.questionnaire.isNew = false;
+    }
+
+    if (route.query.questionnaireVersionId) {
+        //TODO::fetch by questionnaireVersionId
+        questionnaireVersion.value.isNew = false;
+        questionnaireVersion.value.id = route.query.questionnaireId as string;
+    }
+
+    console.log({ q: questionnaireVersion.value });
+});
+
+const pageTitle = computed(() => {
+    if (questionnaireVersion.value.questionnaire.isNew) {
+        return t('data.usage.questionnaire.createNew');
+    }
+
+    return t('data.usage.questionnaire.createNewVersion');
+});
+
 const { isSuccessResponse } = useHttpHelper();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
-const props = defineProps({
-    cardHeadingTitle: {
-        type: String,
-        required: true,
-    },
-    cardHeadingInfo: {
-        type: String,
-        required: false,
-        default: '',
-    },
-    assetId: {
-        type: String,
-        required: false,
-        default: null,
-    },
-    existingQuestionnaire: {
-        type: Object as () => Questionnaire,
-        required: true,
-    },
-});
-
-const assetIdComputed = computed(() => (props.assetId && props.assetId.length ? props.assetId : null));
-
-const questionnaire = ref<Questionnaire>(props.existingQuestionnaire || {});
-
-const questionnaireSchema = z.object({
+const schema = z.object({
     title: z
         .string()
         .trim()
         .min(1, { message: t('required') }),
     description: z.string().trim(),
-    is_published: z.boolean(),
+    is_active: z.boolean(),
 });
 
-const preExistingQuestionnaire = ref<QuestionnaireBody>();
-const questions = ref<Question[]>(props.existingQuestionnaire.questions || []);
+const preExistingQuestionnaire = ref<QuestionnaireVersion>();
+const questions = ref<Question[]>(questionnaireVersion.value.questions || []);
 const applyValidation = ref<boolean>(false);
-const publishQuestionnaire = ref<boolean>(questionnaire.value.is_published);
-const publishQuestionnaireText = computed(() => t('data.usage.questionnaire.publish'));
 
-onMounted(() => {
-    preExistingQuestionnaire.value = {
-        title: props.existingQuestionnaire.title,
-        description: props.existingQuestionnaire.description,
-        creatorId: props.existingQuestionnaire.creatorId,
-        assetId: props.existingQuestionnaire.assetId,
-        is_published: props.existingQuestionnaire.is_published,
-        is_public: props.existingQuestionnaire.is_public,
-        questions: props.existingQuestionnaire.questions.map((question: Question) => {
-            return prepareQuestionBody(question);
-        }),
-    };
-});
+const publishQuestionnaireText = computed(() => t('data.usage.questionnaire.publish'));
 
 const addQuestion = () => {
     const newQuestion: Question = {
@@ -77,7 +77,7 @@ const addQuestion = () => {
         title: undefined,
         options: [],
         //description: '',
-        //allowMultipleSelect: false,
+        is_required: false,
         isValid: false,
     };
 
@@ -114,7 +114,8 @@ const hasDifferencesInQuestions = (): boolean => {
         if (
             questionItem1.title !== questionItem2.title ||
             questionItem1.type !== questionItem2.type ||
-            questionItem1.description !== questionItem2.description
+            questionItem1.description !== questionItem2.description ||
+            questionItem1.is_required !== questionItem2.is_required
         ) {
             return true;
         }
@@ -165,20 +166,28 @@ const questionsWereUpdated = computed(() => {
 });
 
 const isSaveDisabled = computed(() => {
-    if (questionnaire.value.isNew) {
-        return false;
+    // if (questionnaire.value.isNew) {
+    //     return false;
+    // }
+
+    // if (
+    //     questionsWereUpdated.value ||
+    //     questionnaire.value.title !== preExistingQuestionnaire.value?.title ||
+    //     questionnaire.value.description !== preExistingQuestionnaire.value?.description ||
+    //     is_published.value !== preExistingQuestionnaire.value.is_published
+    // ) {
+    //     return false;
+    // }
+
+    if (!questions.value.length) {
+        return true;
     }
 
-    if (
-        questionsWereUpdated.value ||
-        questionnaire.value.title !== preExistingQuestionnaire.value?.title ||
-        questionnaire.value.description !== preExistingQuestionnaire.value?.description ||
-        publishQuestionnaire.value !== preExistingQuestionnaire.value.is_published
-    ) {
-        return false;
+    if (questions.value.some((q: Question) => !q.isValid) || !schema.safeParse(questionnaireVersion.value).success) {
+        return true;
     }
 
-    return true;
+    return false;
 });
 
 const saveQuestionnaire = () => {
@@ -190,10 +199,7 @@ const saveQuestionnaire = () => {
     }
 
     //if even at least 1 question has validation errors -> do not proceed
-    if (
-        questions.value.some((q: Question) => !q.isValid) ||
-        !questionnaireSchema.safeParse(questionnaire.value).success
-    ) {
+    if (questions.value.some((q: Question) => !q.isValid) || !schema.safeParse(questionnaireVersion.value).success) {
         showErrorMessage(t('data.usage.questionnaire.checkInputs'));
         return;
     }
@@ -201,13 +207,12 @@ const saveQuestionnaire = () => {
     applyValidation.value = false;
 
     // prepare the body for the request
-    const body: QuestionnaireBody = {
-        title: questionnaire.value.title.trim(),
-        description: (questionnaire.value.description || '').trim(),
-        is_published: publishQuestionnaire.value,
-        is_public: assetIdComputed.value ? false : true,
+    const body = {
+        title: questionnaireVersion.value.title.trim(),
+        description: (questionnaireVersion.value.description || '').trim(),
+        is_active: questionnaireVersion.value.is_active,
+        is_for_verified_buyers: route.query.for_verified_buyers === 'yes',
         creatorId: '1234',
-        assetId: assetIdComputed.value,
         questions: questionsWereUpdated.value ? questionsBody.value : [],
     };
 
@@ -216,8 +221,8 @@ const saveQuestionnaire = () => {
     let method = HttpMethod.POST;
     let successMessage = t('data.usage.questionnaire.saved');
 
-    if (!questionnaire.value.isNew) {
-        url = `/api/data-usage/questionnaire/${questionnaire.value.id}`;
+    if (!questionnaireVersion.value.isNew) {
+        url = `/api/data-usage/questionnaire/${questionnaireVersion.value.id}`;
         method = HttpMethod.PUT;
         successMessage = t('data.usage.questionnaire.updated');
     }
@@ -228,9 +233,9 @@ const saveQuestionnaire = () => {
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
                 showSuccessMessage(successMessage);
-                preExistingQuestionnaire.value = body;
-                preExistingQuestionnaire.value.questions = questionsBody.value;
-                questionnaire.value.isNew = false;
+                // preExistingQuestionnaire.value = body;
+                // preExistingQuestionnaire.value.questions = questionsBody.value;
+                // questionnaire.value.isNew = false;
                 return;
             }
 
@@ -247,31 +252,27 @@ const resetQuestionnaire = () => {
 </script>
 
 <template>
-    <Transition
-        enter-active-class="duration-300 ease-out"
-        enter-from-class="transform opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="duration-300 ease-in"
-        leave-from-class="opacity-100"
-        leave-to-class="transform opacity-0"
-    >
-        <UCard class="w-full">
-            <template #header>
-                <SubHeading :title="props?.cardHeadingTitle || ''" :info="props?.cardHeadingInfo" />
-            </template>
+    <div class="w-full h-full">
+        <h1 class="text-2xl">
+            {{ pageTitle }}
+        </h1>
+        <UCard class="w-full mt-6">
             <div>
                 <UForm
                     class="flex flex-col justify-start items-start space-y-5 w-full"
-                    :state="questionnaire"
-                    :schema="questionnaireSchema"
+                    :state="questionnaireVersion"
+                    :schema="schema"
                 >
                     <!-- Questionnaire title and description-->
                     <UFormGroup :label="$t('data.usage.questionnaire.title')" required name="title" class="w-full">
-                        <UInput v-model="questionnaire.title" :placeholder="$t('data.usage.questionnaire.titleInfo')" />
+                        <UInput
+                            v-model="questionnaireVersion.title"
+                            :placeholder="$t('data.usage.questionnaire.titleInfo')"
+                        />
                     </UFormGroup>
                     <UFormGroup :label="$t('data.usage.questionnaire.description')" name="description" class="w-full">
                         <UTextarea
-                            v-model="questionnaire.description"
+                            v-model="questionnaireVersion.description"
                             :placeholder="$t('data.usage.questionnaire.descriptionInfo')"
                         />
                     </UFormGroup>
@@ -319,17 +320,36 @@ const resetQuestionnaire = () => {
                         />
                     </UTooltip>
 
-                    <UFormGroup name="is_published">
-                        <UCheckbox v-model="publishQuestionnaire" :label="publishQuestionnaireText" />
+                    <UFormGroup name="is_active">
+                        <UCheckbox v-model="questionnaireVersion.is_active" :label="publishQuestionnaireText" />
                     </UFormGroup>
                 </UForm>
             </div>
 
             <!-- Submit Buttons -->
             <div class="flex gap-4 justify-between items-center mt-8">
-                <UTooltip text="Reset Questionnaire">
-                    <UButton size="lg" :label="$t('reset')" color="gray" variant="solid" @click="resetQuestionnaire" />
-                </UTooltip>
+                <div class="flex gap-4">
+                    <UTooltip :text="$t('cancel')">
+                        <UButton
+                            size="lg"
+                            color="gray"
+                            variant="solid"
+                            :label="$t('cancel')"
+                            :trailing="false"
+                            @click="$router.go(-1)"
+                        />
+                    </UTooltip>
+                    <UTooltip text="Reset Questionnaire">
+                        <UButton
+                            size="lg"
+                            :label="$t('reset')"
+                            color="gray"
+                            variant="solid"
+                            @click="resetQuestionnaire"
+                        />
+                    </UTooltip>
+                </div>
+
                 <UTooltip text="Save Questionnaire">
                     <UButton
                         size="lg"
@@ -342,5 +362,5 @@ const resetQuestionnaire = () => {
                 </UTooltip>
             </div>
         </UCard>
-    </Transition>
+    </div>
 </template>

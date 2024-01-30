@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
-
 import dummyData from '../../pages/data/dummy-data';
-
-const { t } = useI18n();
 
 defineProps({
     selected: {
@@ -27,26 +23,9 @@ const filteredSelections = computed(() =>
 
 const outerQuery = ref<string>('');
 
-const dataSetSelections = computed(() => [
-    {
-        title: t('data.usage.questionnaire.buildQuestionnaire'),
-        info: t('data.usage.questionnaire.buildInfo'),
-    },
-    {
-        title: t('data.usage.questionnaire.answerQuestionnaire'),
-        info: t('data.usage.questionnaire.answerInfo'),
-    },
-    {
-        title: t('data.usage.dashboard'),
-        info: t('data.usage.dashboardInfo'),
-    },
-]);
-
 function toggleTable() {
     displayTable.value = !displayTable.value;
 }
-
-const questionnaireOptionSelection = ref<string>('');
 </script>
 
 <template>
@@ -135,12 +114,6 @@ const questionnaireOptionSelection = ref<string>('');
                         leave-from-class="opacity-100"
                         leave-to-class="transform opacity-0"
                     >
-                        <SelectionCards
-                            :model-value="questionnaireOptionSelection"
-                            class="gap-4"
-                            :selections="dataSetSelections"
-                            @update:model-value="(value: string) => emit('update:menuOptionSelection', value)"
-                        />
                     </Transition>
                 </div>
             </div>
