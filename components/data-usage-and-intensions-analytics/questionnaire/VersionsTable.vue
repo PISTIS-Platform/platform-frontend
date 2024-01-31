@@ -159,7 +159,6 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
             <UTable
                 :columns="columns"
                 :rows="filteredRows"
-                :sort="{ column: 'is_active', direction: 'desc' }"
                 :empty-state="{
                     icon: 'i-heroicons-circle-stack-20-solid',
                     label: $t('data.usage.questionnaire.noVersionsExist'),
