@@ -62,7 +62,6 @@ const fetchQuestionnaireVersions = async () => {
     generalQuestionnaireVersions.value = (data.value as FetchedVersions).for_general_users;
     assetsQuestionnaireVersions.value = (data.value as FetchedVersions).for_verified_buyers;
 
-    console.log({ fetched: generalQuestionnaireVersions.value });
     loadingQuestionnaireVersions.value = pending.value;
 };
 
@@ -135,7 +134,11 @@ const questionnaireOptionSelection = ref<string>('');
                         v-if="questionnaireOptionSelection === generalUsersOption && !loadingQuestionnaireVersions"
                         class="w-full"
                     >
-                        <VersionsTable :versions-data="generalQuestionnaireVersions" :for-verified-buyers="false" />
+                        <VersionsTable
+                            :versions-data="generalQuestionnaireVersions"
+                            :for-verified-buyers="false"
+                            @update-data="fetchQuestionnaireVersions"
+                        />
                     </div>
 
                     <!-- Table with versions for questionnaire for verified buyers (for all assets) -->
@@ -143,7 +146,11 @@ const questionnaireOptionSelection = ref<string>('');
                         v-if="questionnaireOptionSelection === assetsOption && !loadingQuestionnaireVersions"
                         class="w-full"
                     >
-                        <VersionsTable :versions-data="assetsQuestionnaireVersions" :for-verified-buyers="true" />
+                        <VersionsTable
+                            :versions-data="assetsQuestionnaireVersions"
+                            :for-verified-buyers="true"
+                            @update-data="fetchQuestionnaireVersions"
+                        />
                     </div>
                 </div>
             </UCard>

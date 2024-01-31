@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
+import { HttpMethod } from '@/enums/httpEnums';
 import { QuestionnaireVersion } from '~/interfaces/data-usage';
 
 const { t } = useI18n();
 
-// import type { QuestionAnswer, QuestionOption, SelectedOption } from '~/interfaces/data-usage';
-// import { QuestionType } from '~/interfaces/data-usage';
+const { isSuccessResponse } = useHttpHelper();
+const { showSuccessMessage, showErrorMessage } = useAlertMessage();
+const { formatToTimestamp } = useDateHelper();
 
 const props = defineProps({
     versionsData: {
@@ -23,31 +25,90 @@ const columns = [
     {
         key: 'title',
         label: t('data.usage.questionnaire.title'),
+        sortable: true,
     },
     {
         key: 'description',
         label: t('data.usage.questionnaire.description'),
+        sortable: true,
     },
     {
         key: 'publicationDate',
         label: t('data.usage.questionnaire.publicationDate'),
+        sortable: true,
     },
     {
         key: 'is_active',
         label: t('data.usage.questionnaire.isActive'),
+        sortable: true,
     },
     { key: 'actions', label: '', sortable: false, class: 'w-1/12 text-center' },
 ];
 
-const pageCount = 5;
+const pageCount = 10;
 const { page, tableData, filteredRows } = useTable<QuestionnaireVersion>(pageCount);
 
-tableData.value = props.versionsData;
+tableData.value = props.versionsData.map((version: QuestionnaireVersion) => {
+    return {
+        ...version,
+        publicationDate: formatToTimestamp(version.publicationDate),
+    };
+});
 
-const toggleIsActive = (value: boolean) => {
-    console.log('toggleIsActive', { value });
-    //TODO:: api call to activate version
-    // should deactivate the rest
+const updateTableData = (updatedVersion: QuestionnaireVersion, isActive: boolean, shouldUpdateOthers: boolean) => {
+    tableData.value = tableData.value.map((version: QuestionnaireVersion) => {
+        if (version.id === updatedVersion.id) {
+            const pubDate = !shouldUpdateOthers
+                ? version.publicationDate
+                : isActive
+                ? formatToTimestamp(updatedVersion.publicationDate)
+                : null;
+
+            return {
+                ...version,
+                is_active: isActive,
+                publicationDate: pubDate,
+            };
+        }
+
+        if (shouldUpdateOthers && isActive) {
+            return {
+                ...version,
+                is_active: false,
+            };
+        }
+
+        return version;
+    });
+};
+
+const toggleIsActive = (version: QuestionnaireVersion, value: boolean) => {
+    // api call to activate version
+    $fetch(`/api/data-usage/questionnaire/activate-version/${version.id}`, {
+        body: { is_active: value },
+        method: HttpMethod.POST,
+        onResponse({ response }) {
+            if (isSuccessResponse(response.status)) {
+                const successMsg = value
+                    ? t('data.usage.questionnaire.activated')
+                    : t('data.usage.questionnaire.deactivated');
+                showSuccessMessage(successMsg);
+
+                updateTableData(response._data.result, value, true);
+
+                return;
+            }
+        },
+        onResponseError() {
+            const errorMsg = !value
+                ? t('data.usage.questionnaire.errorInDeactivation')
+                : t('data.usage.questionnaire.errorInActivation');
+            showErrorMessage(errorMsg);
+
+            //revert data
+            updateTableData(version, !value, false);
+        },
+    });
 };
 
 const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
@@ -62,6 +123,8 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
         },
     });
 };
+
+//const emit = defineEmits(['updateData']);
 </script>
 
 <template>
@@ -91,12 +154,22 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
                     label: $t('data.usage.questionnaire.noVersionsExist'),
                 }"
             >
-                <!-- Custom styling for ip data column -->
                 <template #is_active-data="{ row }">
                     <div class="flex items-center justify-start">
-                        <UToggle v-model="row.is_active" @click="toggleIsActive(!row.is_active)" />
+                        <UTooltip
+                            :text="
+                                row.is_active
+                                    ? $t('data.usage.questionnaire.deactivate')
+                                    : $t('data.usage.questionnaire.activate') +
+                                      ' ' +
+                                      $t('data.usage.questionnaire.alsoPublish')
+                            "
+                        >
+                            <UToggle v-model="row.is_active" @click="toggleIsActive(row, !row.is_active)" />
+                        </UTooltip>
                     </div>
                 </template>
+
                 <template #actions-data="{ row }">
                     <div class="justify-center flex">
                         <UButton
@@ -111,8 +184,8 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
             </UTable>
 
             <!-- Display the pagination only if the total number of transactions is larger than the page count -->
-            <div v-if="filteredRows.length > pageCount" class="flex justify-end mt-2">
-                <UPagination v-model="page" :page-count="pageCount" :total="props.versionsData.length" />
+            <div v-if="tableData.length > pageCount" class="flex justify-end mt-2">
+                <UPagination v-model="page" :page-count="pageCount" :total="tableData.length" />
             </div>
         </UCard>
     </div>

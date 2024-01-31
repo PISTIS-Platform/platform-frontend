@@ -207,7 +207,7 @@ const emit = defineEmits(['update:type', 'update:title', 'update:is_required', '
                             </UFormGroup>
 
                             <!-- Button for removing option -->
-                            <UTooltip text="Remove Option">
+                            <UTooltip :text="$t('data.usage.questionnaire.removeOption')">
                                 <UButton
                                     icon="i-heroicons-trash"
                                     size="sm"
