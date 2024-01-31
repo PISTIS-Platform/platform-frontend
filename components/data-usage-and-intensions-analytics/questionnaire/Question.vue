@@ -12,11 +12,6 @@ const props = defineProps({
         type: Object as () => Question,
         required: true,
     },
-    applyValidation: {
-        type: Boolean,
-        required: false,
-        default: false,
-    },
 });
 
 const questionTypes = [QuestionType.TEXT, QuestionType.CHECKBOX, QuestionType.RADIO] as const;
@@ -61,23 +56,6 @@ const isValid = computed(() => {
 watch(isValid, () => {
     emit('isValid', isValid.value);
 });
-
-//TODO:: trigger validation upon clicking 'Save' btn in Questionnaire
-// const questionForm = ref<Form<any>>();
-
-// watch(props.applyValidation, () => {
-//     validateForm();
-// });
-
-// const formRef = ref<Form<any>>();
-
-// async function validateForm() {
-//     if (!formRef.value) {
-//         return;
-//     }
-
-//     return await formRef.value.validate(); // Throws validation errors if state is invalid
-// }
 
 const questionOptions = ref<QuestionOption[]>(props.question?.options || []);
 const userRemovedOptions = ref<boolean>(false);

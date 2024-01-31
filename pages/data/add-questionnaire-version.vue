@@ -7,21 +7,18 @@ import { HttpMethod } from '@/enums/httpEnums';
 import type {
     Question,
     QuestionBody,
+    QuestionnaireBody,
     QuestionnaireVersion,
     QuestionOption,
     QuestionOptionBody,
 } from '~/interfaces/data-usage';
 
 const route = useRoute();
+const R = useRamda();
 
 const questionnaireVersion = ref<QuestionnaireVersion>({
     id: '',
-    questionnaire: {
-        id: '',
-        creatorId: '1234',
-        is_for_verified_buyers: route.query.for_verified_buyers === 'yes',
-        isNew: true,
-    },
+    questionnaireId: '',
     title: '',
     description: '',
     is_active: false,
@@ -30,22 +27,41 @@ const questionnaireVersion = ref<QuestionnaireVersion>({
     isNew: true,
 });
 
-onMounted(() => {
-    if (route.query.questionnaireId) {
-        questionnaireVersion.value.questionnaire.isNew = false;
-    }
+const loadingQuestionnaireVersion = ref<boolean>(false);
+const hasErrorInRetrieval = ref<boolean>(false);
 
-    if (route.query.questionnaireVersionId) {
-        //TODO::fetch by questionnaireVersionId
+onMounted(async () => {
+    //create new version from scratch
+    if (route.query.questionnaireId && !route.query.questionnaireVersionId) {
         questionnaireVersion.value.isNew = false;
-        questionnaireVersion.value.id = route.query.questionnaireId as string;
+        questionnaireVersion.value.questionnaireId = route.query.questionnaireId as string;
     }
 
-    console.log({ q: questionnaireVersion.value });
+    //create new version from an existing one
+    //make an api call to fetch the version
+    if (route.query.questionnaireId && route.query.questionnaireVersionId) {
+        loadingQuestionnaireVersion.value = true;
+        const { data, pending, error } = await useFetch(
+            `/api/data-usage/questionnaire/${route.query.questionnaireVersionId}`,
+        );
+
+        if (error.value) {
+            hasErrorInRetrieval.value = true;
+            showErrorMessage(t('data.usage.questionnaire.errorInFindVersion'));
+            return;
+        }
+
+        hasErrorInRetrieval.value = false;
+        loadingQuestionnaireVersion.value = pending.value;
+
+        preExistingQuestionnaire.value = R.clone(data.value as QuestionnaireVersion);
+        questionnaireVersion.value = data.value as QuestionnaireVersion;
+        questions.value = questionnaireVersion.value.questions;
+    }
 });
 
 const pageTitle = computed(() => {
-    if (questionnaireVersion.value.questionnaire.isNew) {
+    if (questionnaireVersion.value.isNew) {
         return t('data.usage.questionnaire.createNew');
     }
 
@@ -66,9 +82,6 @@ const schema = z.object({
 
 const preExistingQuestionnaire = ref<QuestionnaireVersion>();
 const questions = ref<Question[]>(questionnaireVersion.value.questions || []);
-const applyValidation = ref<boolean>(false);
-
-const publishQuestionnaireText = computed(() => t('data.usage.questionnaire.publish'));
 
 const addQuestion = () => {
     const newQuestion: Question = {
@@ -96,7 +109,29 @@ const removeQuestion = (id?: string) => {
     }
 };
 
-const hasDifferencesInQuestions = (): boolean => {
+const prepareQuestionBody = (question: Question) => {
+    return {
+        title: question.title,
+        description: '',
+        type: question.type,
+        is_required: question.is_required,
+        options:
+            question.options?.map((option: QuestionOption) => {
+                return {
+                    text: option.text,
+                    description: '',
+                };
+            }) || [],
+    };
+};
+
+const questionsBody = computed(() => {
+    return questions.value.map((question: Question) => {
+        return prepareQuestionBody(question);
+    });
+});
+
+const questionsWereUpdated = computed(() => {
     const existingQuestions = preExistingQuestionnaire.value?.questions || [];
     const newQuestions = questionsBody.value;
 
@@ -137,47 +172,14 @@ const hasDifferencesInQuestions = (): boolean => {
     }
 
     return false;
-};
-
-const prepareQuestionBody = (question: Question) => {
-    return {
-        title: question.title,
-        description: '',
-        type: question.type,
-        is_required: question.is_required,
-        options:
-            question.options?.map((option: QuestionOption) => {
-                return {
-                    text: option.text,
-                    description: '',
-                };
-            }) || [],
-    };
-};
-
-const questionsBody = computed(() => {
-    return questions.value.map((question: Question) => {
-        return prepareQuestionBody(question);
-    });
 });
 
-const questionsWereUpdated = computed(() => {
-    return hasDifferencesInQuestions();
-});
+const shouldDisableButton = ref<boolean>(false);
 
 const isSaveDisabled = computed(() => {
-    // if (questionnaire.value.isNew) {
-    //     return false;
-    // }
-
-    // if (
-    //     questionsWereUpdated.value ||
-    //     questionnaire.value.title !== preExistingQuestionnaire.value?.title ||
-    //     questionnaire.value.description !== preExistingQuestionnaire.value?.description ||
-    //     is_published.value !== preExistingQuestionnaire.value.is_published
-    // ) {
-    //     return false;
-    // }
+    if (shouldDisableButton.value) {
+        return true;
+    }
 
     if (!questions.value.length) {
         return true;
@@ -187,12 +189,25 @@ const isSaveDisabled = computed(() => {
         return true;
     }
 
-    return false;
+    if (
+        questionsWereUpdated.value ||
+        questionnaireVersion.value.title !== preExistingQuestionnaire.value?.title ||
+        questionnaireVersion.value.description !== preExistingQuestionnaire.value?.description ||
+        questionnaireVersion.value.is_active !== preExistingQuestionnaire.value.is_active
+    ) {
+        return false;
+    }
+
+    return true;
 });
 
-const saveQuestionnaire = () => {
-    applyValidation.value = true;
+const navigateToMainPage = async () => {
+    await navigateTo({
+        path: '/data/data-usage',
+    });
+};
 
+const saveQuestionnaire = async () => {
     if (!questions.value.length) {
         showErrorMessage(t('data.usage.questionnaire.noQuestionsAdded'));
         return;
@@ -204,38 +219,38 @@ const saveQuestionnaire = () => {
         return;
     }
 
-    applyValidation.value = false;
-
     // prepare the body for the request
-    const body = {
+    const body: QuestionnaireBody = {
         title: questionnaireVersion.value.title.trim(),
         description: (questionnaireVersion.value.description || '').trim(),
         is_active: questionnaireVersion.value.is_active,
         is_for_verified_buyers: route.query.for_verified_buyers === 'yes',
         creatorId: '1234',
-        questions: questionsWereUpdated.value ? questionsBody.value : [],
+        questions: questionsBody.value || [],
     };
 
-    // prepare the url and method depending on whether it's a new or existing questionnaire
+    // prepare the url and method depending on whether it's a new or existing questionnaire version
     let url = `/api/data-usage/questionnaire/create`;
-    let method = HttpMethod.POST;
     let successMessage = t('data.usage.questionnaire.saved');
 
     if (!questionnaireVersion.value.isNew) {
-        url = `/api/data-usage/questionnaire/${questionnaireVersion.value.id}`;
-        method = HttpMethod.PUT;
+        url = `/api/data-usage/questionnaire/create-new-version/${questionnaireVersion.value.questionnaireId}`;
         successMessage = t('data.usage.questionnaire.updated');
+
+        delete body.is_for_verified_buyers;
+        delete body.creatorId;
     }
 
     $fetch(url, {
-        method,
+        method: HttpMethod.POST,
         body,
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
+                shouldDisableButton.value = true;
+
                 showSuccessMessage(successMessage);
-                // preExistingQuestionnaire.value = body;
-                // preExistingQuestionnaire.value.questions = questionsBody.value;
-                // questionnaire.value.isNew = false;
+
+                setTimeout(navigateToMainPage, 1000);
                 return;
             }
 
@@ -256,7 +271,21 @@ const resetQuestionnaire = () => {
         <h1 class="text-2xl">
             {{ pageTitle }}
         </h1>
-        <UCard class="w-full mt-6">
+        <div v-if="loadingQuestionnaireVersion && !hasErrorInRetrieval" class="w-full mt-6">
+            <UProgress animation="carousel" />
+        </div>
+        <div v-else-if="loadingQuestionnaireVersion && hasErrorInRetrieval">
+            <UButton
+                size="lg"
+                color="gray"
+                variant="solid"
+                :label="$t('goBack')"
+                class="mt-6"
+                :trailing="false"
+                @click="navigateToMainPage"
+            />
+        </div>
+        <UCard v-else class="w-full mt-6">
             <div>
                 <UForm
                     class="flex flex-col justify-start items-start space-y-5 w-full"
@@ -297,7 +326,6 @@ const resetQuestionnaire = () => {
                                 </template>
                                 <Question
                                     :question="question"
-                                    :apply-validation="applyValidation"
                                     @update:title="(value: string) => (question.title = value)"
                                     @update:type="(value: string) => (question.type = value)"
                                     @update:options="(options: QuestionOption[]) => (question.options = options)"
@@ -321,7 +349,10 @@ const resetQuestionnaire = () => {
                     </UTooltip>
 
                     <UFormGroup name="is_active">
-                        <UCheckbox v-model="questionnaireVersion.is_active" :label="publishQuestionnaireText" />
+                        <UCheckbox
+                            v-model="questionnaireVersion.is_active"
+                            :label="$t('data.usage.questionnaire.activate')"
+                        />
                     </UFormGroup>
                 </UForm>
             </div>
@@ -336,7 +367,7 @@ const resetQuestionnaire = () => {
                             variant="solid"
                             :label="$t('cancel')"
                             :trailing="false"
-                            @click="$router.go(-1)"
+                            @click="navigateToMainPage"
                         />
                     </UTooltip>
                     <UTooltip text="Reset Questionnaire">

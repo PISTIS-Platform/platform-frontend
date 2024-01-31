@@ -51,16 +51,17 @@ const toggleIsActive = (value: boolean) => {
 };
 
 const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
+    const questionnaireId = tableData.value.length ? tableData.value[0].questionnaireId : null;
+
     await navigateTo({
         path: '/data/add-questionnaire-version',
         query: {
             questionnaireVersionId: row?.id || null,
-            questionnaireId: row?.questionnaire.id || null,
+            questionnaireId: row?.questionnaireId || questionnaireId || null,
             for_verified_buyers: props.forVerifiedBuyers ? 'yes' : 'no',
         },
     });
 };
-// const emit = defineEmits(['']);
 </script>
 
 <template>

@@ -62,6 +62,7 @@ const fetchQuestionnaireVersions = async () => {
     generalQuestionnaireVersions.value = (data.value as FetchedVersions).for_general_users;
     assetsQuestionnaireVersions.value = (data.value as FetchedVersions).for_verified_buyers;
 
+    console.log({ fetched: generalQuestionnaireVersions.value });
     loadingQuestionnaireVersions.value = pending.value;
 };
 

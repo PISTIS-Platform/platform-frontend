@@ -36,7 +36,6 @@ export interface Question {
     description?: string | undefined;
     options?: QuestionOption[] | undefined;
     answers?: QuestionAnswer[] | undefined;
-    allowMultipleSelect?: boolean | undefined;
     is_required?: boolean | undefined;
     isValid?: boolean | undefined;
 }
@@ -59,7 +58,7 @@ export interface Questionnaire {
 
 export interface QuestionnaireVersion {
     id: string;
-    questionnaire: Questionnaire;
+    questionnaireId: string;
     title: string;
     description?: string;
     is_active: boolean;
@@ -72,10 +71,9 @@ export interface QuestionnaireVersion {
 export interface QuestionnaireBody {
     title: string;
     description?: string;
-    creatorId: string;
-    assetId?: string | null;
-    is_published: boolean;
-    is_public: boolean;
+    creatorId?: string;
+    is_for_verified_buyers?: boolean;
+    is_active: boolean;
     questions: QuestionBody[];
 }
 
