@@ -207,18 +207,7 @@ const navigateToMainPage = async () => {
     });
 };
 
-const saveQuestionnaire = async () => {
-    if (!questions.value.length) {
-        showErrorMessage(t('data.usage.questionnaire.noQuestionsAdded'));
-        return;
-    }
-
-    //if even at least 1 question has validation errors -> do not proceed
-    if (questions.value.some((q: Question) => !q.isValid) || !schema.safeParse(questionnaireVersion.value).success) {
-        showErrorMessage(t('data.usage.questionnaire.checkInputs'));
-        return;
-    }
-
+const createVersion = async () => {
     // prepare the body for the request
     const body: QuestionnaireBody = {
         title: questionnaireVersion.value.title.trim(),
@@ -250,7 +239,8 @@ const saveQuestionnaire = async () => {
 
                 showSuccessMessage(successMessage);
 
-                setTimeout(navigateToMainPage, 1000);
+                navigateToMainPage();
+
                 return;
             }
 
@@ -260,6 +250,52 @@ const saveQuestionnaire = async () => {
             showErrorMessage(t('data.usage.questionnaire.errorInSave'));
         },
     });
+};
+
+const submitForm = async () => {
+    if (!questions.value.length) {
+        showErrorMessage(t('data.usage.questionnaire.noQuestionsAdded'));
+        return;
+    }
+
+    //if even at least 1 question has validation errors -> do not proceed
+    if (questions.value.some((q: Question) => !q.isValid) || !schema.safeParse(questionnaireVersion.value).success) {
+        showErrorMessage(t('data.usage.questionnaire.checkInputs'));
+        return;
+    }
+
+    if (
+        !questionnaireVersion.value.isNew &&
+        !questionsWereUpdated.value &&
+        questionnaireVersion.value.title === preExistingQuestionnaire.value?.title &&
+        questionnaireVersion.value.description === preExistingQuestionnaire.value?.description
+    ) {
+        //only activate version
+        $fetch(`/api/data-usage/questionnaire/activate-version/${questionnaireVersion.value.id}`, {
+            method: HttpMethod.POST,
+            body: { is_active: questionnaireVersion.value.is_active },
+            onResponse({ response }) {
+                if (isSuccessResponse(response.status)) {
+                    const successMsg = questionnaireVersion.value.is_active
+                        ? t('data.usage.questionnaire.activated')
+                        : t('data.usage.questionnaire.deactivated');
+                    showSuccessMessage(successMsg);
+
+                    navigateToMainPage();
+
+                    return;
+                }
+            },
+            onResponseError() {
+                showErrorMessage(t('data.usage.questionnaire.errorInSave'));
+            },
+        });
+
+        return;
+    }
+
+    //create version
+    createVersion();
 };
 const resetQuestionnaire = () => {
     questions.value = [];
@@ -348,12 +384,21 @@ const resetQuestionnaire = () => {
                         />
                     </UTooltip>
 
-                    <UFormGroup name="is_active">
-                        <UCheckbox
-                            v-model="questionnaireVersion.is_active"
-                            :label="$t('data.usage.questionnaire.activate')"
-                        />
-                    </UFormGroup>
+                    <div class="flex gap-2 justify-start items-center">
+                        <UFormGroup name="is_active">
+                            <UCheckbox
+                                v-model="questionnaireVersion.is_active"
+                                :label="$t('data.usage.questionnaire.activate')"
+                            />
+                        </UFormGroup>
+                        <UTooltip
+                            :text="$t('data.usage.questionnaire.activationInfo')"
+                            :popper="{ placement: 'right' }"
+                            :ui="{ base: 'flex w-[580px]' }"
+                        >
+                            <UButton icon="i-heroicons-information-circle" size="md" color="primary" variant="ghost" />
+                        </UTooltip>
+                    </div>
                 </UForm>
             </div>
 
@@ -388,7 +433,7 @@ const resetQuestionnaire = () => {
                         color="primary"
                         variant="solid"
                         :disabled="isSaveDisabled"
-                        @click="saveQuestionnaire"
+                        @click="submitForm"
                     />
                 </UTooltip>
             </div>

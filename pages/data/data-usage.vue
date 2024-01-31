@@ -65,8 +65,12 @@ const fetchQuestionnaireVersions = async () => {
     loadingQuestionnaireVersions.value = pending.value;
 };
 
+const versionsSection = ref<HTMLElement>();
+
 const updateQuestionnaireSelectedOption = (value: string) => {
     questionnaireOptionSelection.value = value;
+
+    versionsSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
 
     if (value === generalUsersOption && generalQuestionnaireVersions.value.length) {
         return;
@@ -128,7 +132,7 @@ const questionnaireOptionSelection = ref<string>('');
                     @update:model-value="(value: string) => updateQuestionnaireSelectedOption(value)"
                 />
 
-                <div class="flex w-full mt-8">
+                <div v-if="questionnaireOptionSelection !== ''" ref="versionsSection" class="flex w-full mt-8">
                     <!-- Table with versions for questionnaire for general users -->
                     <div
                         v-if="questionnaireOptionSelection === generalUsersOption && !loadingQuestionnaireVersions"

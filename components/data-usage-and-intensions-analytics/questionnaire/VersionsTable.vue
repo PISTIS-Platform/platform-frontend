@@ -131,10 +131,10 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
     <div class="w-full">
         <UCard>
             <template #header>
-                <div class="flex justify-between items-start">
+                <div :class="['flex justify-between', tableData.length > 1 ? 'items-start' : 'items-center']">
                     <div class="flex flex-col gap-4">
                         <SubHeading :title="$t('data.usage.questionnaire.versionsTitle')" />
-                        <div class="flex w-96">
+                        <div v-if="tableData.length > 1" class="flex w-96">
                             <UInput
                                 v-model="searchString"
                                 size="md"
@@ -182,13 +182,15 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
 
                 <template #actions-data="{ row }">
                     <div class="justify-center flex">
-                        <UButton
-                            icon="i-heroicons-pencil"
-                            size="xs"
-                            color="primary"
-                            variant="outline"
-                            @click="navigateToCreateEdit(row)"
-                        />
+                        <UTooltip :text="$t('data.usage.questionnaire.createNewVersionFromExisting')">
+                            <UButton
+                                icon="i-heroicons-pencil"
+                                size="xs"
+                                color="primary"
+                                variant="outline"
+                                @click="navigateToCreateEdit(row)"
+                            />
+                        </UTooltip>
                     </div>
                 </template>
             </UTable>

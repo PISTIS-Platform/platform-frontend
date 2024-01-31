@@ -180,6 +180,7 @@ export default defineI18nConfig(() => ({
                         noVersionsExist: 'No questionnaires available',
                         createNew: 'Create New Questionnaire',
                         createNewVersion: 'Create New Questionnaire Version',
+                        createNewVersionFromExisting: 'Create new based on this version',
                         edit: 'Edit Questionnaire',
                         title: 'Title',
                         description: 'Description',
