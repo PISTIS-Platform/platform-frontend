@@ -46,7 +46,7 @@ const columns = [
 ];
 
 const pageCount = 10;
-const { page, tableData, filteredRows } = useTable<QuestionnaireVersion>(pageCount);
+const { page, tableData, filteredRows, searchString } = useTable<QuestionnaireVersion>(pageCount);
 
 tableData.value = props.versionsData.map((version: QuestionnaireVersion) => {
     return {
@@ -131,8 +131,18 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
     <div class="w-full">
         <UCard>
             <template #header>
-                <div class="flex justify-between">
-                    <SubHeading :title="$t('data.usage.questionnaire.versionsTitle')" />
+                <div class="flex justify-between items-start">
+                    <div class="flex flex-col gap-4">
+                        <SubHeading :title="$t('data.usage.questionnaire.versionsTitle')" />
+                        <div class="flex w-96">
+                            <UInput
+                                v-model="searchString"
+                                size="md"
+                                :placeholder="$t('data.dmRepository.search')"
+                                class="w-full"
+                            />
+                        </div>
+                    </div>
                     <div class="ml-2 flex">
                         <UButton
                             icon="i-heroicons-plus-circle-20-solid"
