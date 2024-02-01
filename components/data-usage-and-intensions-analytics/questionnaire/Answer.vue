@@ -75,11 +75,13 @@ const selectedOptions = ref<SelectedOption[]>(
 const selectedRadioOption = ref<string>('');
 
 const updateRadioOptionSelection = (id: string) => {
+    //for radio button, first, make all options false
     selectedOptions.value = selectedOptions.value.map((o: SelectedOption) => ({
         ...o,
         isSelected: false,
     }));
 
+    // then make only the selected one true
     updateSelectedOptions(id, true);
 };
 

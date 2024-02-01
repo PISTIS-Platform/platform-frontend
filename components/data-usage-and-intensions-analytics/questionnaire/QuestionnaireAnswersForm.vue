@@ -1,55 +1,64 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { type Question, type QuestionAnswer, type Questionnaire, type SelectedOption } from '~/interfaces/data-usage';
+import {
+    type Question,
+    type QuestionAnswer,
+    type QuestionnaireVersion,
+    type SelectedOption,
+} from '~/interfaces/data-usage';
 
 const { t } = useI18n();
 
 const { isSuccessResponse } = useHttpHelper();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
-const props = defineProps({
-    questionnaire: {
-        type: Object as () => Questionnaire,
-        required: true,
-        default: null,
-    },
+const loadingQuestionnaireVersion = ref<boolean>(true);
+const questionnaireVersion = ref<QuestionnaireVersion>();
+
+onMounted(async () => {
+    const { data, pending, error } = await useFetch('/api/data-usage/questionnaire/active-version', {
+        query: { for_verified_buyers: true },
+    });
+
+    if (error.value) {
+        showErrorMessage(t('data.usage.questionnaire.errorWhileRetrievingActiveVersion'));
+        return;
+    }
+
+    questionnaireVersion.value = data.value as QuestionnaireVersion;
+    loadingQuestionnaireVersion.value = pending.value;
+
+    if (questionnaireVersion.value) {
+        initAnswers();
+    }
 });
 
 const answers = ref<QuestionAnswer[]>([]);
 
 const initAnswers = () => {
-    answers.value = props.questionnaire.questions.map((question: Question) => {
-        return {
-            id: String(new Date().getTime()),
-            text: '',
-            questionType: question.type,
-            availableOptions: question?.options || [],
-            selectedOptions: [],
-            question,
-            isValid: question.is_required ? false : true,
-        };
-    });
+    answers.value =
+        questionnaireVersion.value?.questions.map((question: Question) => {
+            return {
+                id: String(new Date().getTime()),
+                text: '',
+                questionType: question.type,
+                availableOptions: question?.options || [],
+                selectedOptions: [],
+                question,
+                isValid: question.is_required ? false : true,
+            };
+        }) || [];
 };
 
-initAnswers();
-
 const saveAnswers = () => {
-    console.log('Submitted Answers.. ');
-    answers.value.forEach((a: QuestionAnswer) => {
-        console.log({
-            isValid: a.isValid,
-            text: a.text,
-            selectedOptions: a.selectedOptions?.map((o: SelectedOption) => o.label).join(', '),
-        });
-    });
-
-    // applyValidation.value = true;
     // if even at least 1 answer has validation errors -> do not proceed
     if (answers.value.some((a: QuestionAnswer) => !a.isValid)) {
         showErrorMessage(t('data.usage.questionnaire.checkInputs'));
         return;
     }
+
+    shouldDisableSubmitButton.value = true;
 
     interface Answer {
         questionId: string;
@@ -90,7 +99,7 @@ const saveAnswers = () => {
     let answersBody: AnswersBody = {
         answers: preparedAnswers,
         userId: '789', //TODO:: replace with real user
-        questionnaireVersionId: props.questionnaire.latestVersionId,
+        questionnaireVersionId: questionnaireVersion.value?.id || '',
     };
 
     $fetch(`/api/data-usage/questionnaire/answers`, {
@@ -103,9 +112,20 @@ const saveAnswers = () => {
         },
         onResponseError() {
             showErrorMessage(t('data.usage.questionnaire.errorInSave'));
+            shouldDisableSubmitButton.value = false;
         },
     });
 };
+
+const shouldDisableSubmitButton = ref<boolean>(false);
+
+const isSubmitDisabled = computed(() => {
+    if (answers.value.some((a: QuestionAnswer) => !a.isValid) || shouldDisableSubmitButton.value) {
+        return true;
+    }
+
+    return false;
+});
 </script>
 
 <template>
@@ -117,9 +137,21 @@ const saveAnswers = () => {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard>
+        <div v-if="loadingQuestionnaireVersion">
+            <UProgress animation="carousel" />
+        </div>
+        <div
+            v-else-if="!loadingQuestionnaireVersion && !questionnaireVersion"
+            class="flex w-full h-96 justify-center items-center"
+        >
+            <span>{{ $t('data.usage.questionnaire.noActiveQuestionnaireFound') }} </span>
+        </div>
+        <UCard v-else>
             <template #header>
-                <SubHeading :title="props.questionnaire?.title || ''" :info="props.questionnaire?.description || ''" />
+                <SubHeading
+                    :title="questionnaireVersion?.title || ''"
+                    :info="questionnaireVersion?.description || ''"
+                />
             </template>
 
             <!-- Questionnaire Answers -->
@@ -148,7 +180,14 @@ const saveAnswers = () => {
             <!-- Submit Buttons -->
             <div class="flex gap-4 justify-between items-center mt-8">
                 <UTooltip text="Save Questionnaire">
-                    <UButton size="lg" :label="$t('submit')" color="primary" variant="solid" @click="saveAnswers" />
+                    <UButton
+                        size="lg"
+                        :label="$t('submit')"
+                        color="primary"
+                        variant="solid"
+                        :disabled="isSubmitDisabled"
+                        @click="saveAnswers"
+                    />
                 </UTooltip>
             </div>
         </UCard>

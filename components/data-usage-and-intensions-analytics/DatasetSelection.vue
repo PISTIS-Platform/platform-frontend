@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
 import dummyData from '../../pages/data/dummy-data';
+
+const { t } = useI18n();
 
 defineProps({
     selected: {
@@ -8,7 +12,7 @@ defineProps({
     },
 });
 
-const emit = defineEmits(['reset', 'update:selected', 'update:menuOptionSelection']);
+const emit = defineEmits(['reset', 'update:selected', 'update:cardSelectedOption']);
 
 //data for selecting specific dataset
 
@@ -26,6 +30,19 @@ const outerQuery = ref<string>('');
 function toggleTable() {
     displayTable.value = !displayTable.value;
 }
+
+const assetSelectionCardsOptions = computed(() => [
+    {
+        title: t('data.usage.questionnaire.answerQuestionnaire'),
+        info: t('data.usage.questionnaire.answerInfo'),
+    },
+    {
+        title: t('data.usage.dashboard'),
+        info: t('data.usage.dashboardInfo'),
+    },
+]);
+
+const cardSelectedOption = ref<string>('');
 </script>
 
 <template>
@@ -114,6 +131,12 @@ function toggleTable() {
                         leave-from-class="opacity-100"
                         leave-to-class="transform opacity-0"
                     >
+                        <SelectionCards
+                            :model-value="cardSelectedOption"
+                            class="gap-4"
+                            :selections="assetSelectionCardsOptions"
+                            @update:model-value="(value: string) => emit('update:cardSelectedOption', value)"
+                        />
                     </Transition>
                 </div>
             </div>

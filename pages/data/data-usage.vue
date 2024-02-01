@@ -99,6 +99,7 @@ const generalUsersOption = questionnaireOptions.value[0].title;
 const assetsOption = questionnaireOptions.value[1].title;
 
 const questionnaireOptionSelection = ref<string>('');
+const assetCardSelectedOption = ref<string>('');
 </script>
 
 <template>
@@ -110,11 +111,23 @@ const questionnaireOptionSelection = ref<string>('');
         <DatasetSelection
             :selected="selected"
             @update:selected="(value: string) => (selected = value)"
+            @update:card-selected-option="(value: string) => (assetCardSelectedOption = value)"
             @reset="selected = ''"
         ></DatasetSelection>
 
         <div v-if="assetId">
-            <Dashboard :selected="selected" :data="dashboardData" :options="dashboardOptions" @reset="reset" />
+            <div v-if="assetCardSelectedOption !== ''">
+                <QuestionnaireAnswersForm
+                    v-if="assetCardSelectedOption === t('data.usage.questionnaire.answerQuestionnaire')"
+                ></QuestionnaireAnswersForm>
+                <Dashboard
+                    v-else
+                    :selected="selected"
+                    :data="dashboardData"
+                    :options="dashboardOptions"
+                    @reset="selected = ''"
+                />
+            </div>
         </div>
 
         <div v-else>
