@@ -261,10 +261,13 @@ const createVersion = async () => {
 };
 
 const submitForm = async () => {
-    shouldDisableButton.value = true;
-
     if (!questions.value.length) {
         showErrorMessage(t('data.usage.questionnaire.noQuestionsAdded'));
+        return;
+    }
+
+    if (questions.value.every((q: Question) => !q.is_required)) {
+        showErrorMessage(t('data.usage.questionnaire.atLeastOneQuestionRequired'));
         return;
     }
 
@@ -273,6 +276,8 @@ const submitForm = async () => {
         showErrorMessage(t('data.usage.questionnaire.checkInputs'));
         return;
     }
+
+    shouldDisableButton.value = true;
 
     if (
         !questionnaireVersion.value.isNew &&
