@@ -36,21 +36,20 @@ const assetId = computed(() => {
 });
 
 const loadingQuestionnaireVersions = ref<boolean>(true);
+const hasErrorInRetrieval = ref<boolean>(false);
 const generalQuestionnaireVersions = ref<QuestionnaireVersion[]>([]);
 const assetsQuestionnaireVersions = ref<QuestionnaireVersion[]>([]);
 
 const fetchQuestionnaireVersions = async () => {
     loadingQuestionnaireVersions.value = true;
+    hasErrorInRetrieval.value = false;
 
     const { data, pending, error } = await useFetch('/api/data-usage/questionnaire/versions');
 
     if (error.value) {
+        hasErrorInRetrieval.value = true;
+        loadingQuestionnaireVersions.value = false;
         showErrorMessage(t('data.usage.questionnaire.errorWhileRetrieving'));
-        return;
-    }
-
-    if (!data.value) {
-        loadingQuestionnaireVersions.value = pending.value;
         return;
     }
 
@@ -59,8 +58,8 @@ const fetchQuestionnaireVersions = async () => {
         for_verified_buyers: QuestionnaireVersion[];
     }
 
-    generalQuestionnaireVersions.value = (data.value as FetchedVersions).for_general_users;
-    assetsQuestionnaireVersions.value = (data.value as FetchedVersions).for_verified_buyers;
+    generalQuestionnaireVersions.value = (data.value as FetchedVersions)?.for_general_users || [];
+    assetsQuestionnaireVersions.value = (data.value as FetchedVersions)?.for_verified_buyers || [];
 
     loadingQuestionnaireVersions.value = pending.value;
 };
@@ -145,10 +144,18 @@ const assetCardSelectedOption = ref<string>('');
                     @update:model-value="(value: string) => updateQuestionnaireSelectedOption(value)"
                 />
 
-                <div v-if="questionnaireOptionSelection !== ''" ref="versionsSection" class="flex w-full mt-8">
+                <div v-if="questionnaireOptionSelection !== ''" ref="versionsSection" class="flex flex-col w-full mt-8">
+                    <div v-if="loadingQuestionnaireVersions">
+                        <UProgress animation="carousel" />
+                    </div>
+
                     <!-- Table with versions for questionnaire for general users -->
                     <div
-                        v-if="questionnaireOptionSelection === generalUsersOption && !loadingQuestionnaireVersions"
+                        v-if="
+                            questionnaireOptionSelection === generalUsersOption &&
+                            !loadingQuestionnaireVersions &&
+                            !hasErrorInRetrieval
+                        "
                         class="w-full"
                     >
                         <VersionsTable
@@ -160,7 +167,11 @@ const assetCardSelectedOption = ref<string>('');
 
                     <!-- Table with versions for questionnaire for verified buyers (for all assets) -->
                     <div
-                        v-if="questionnaireOptionSelection === assetsOption && !loadingQuestionnaireVersions"
+                        v-if="
+                            questionnaireOptionSelection === assetsOption &&
+                            !loadingQuestionnaireVersions &&
+                            !hasErrorInRetrieval
+                        "
                         class="w-full"
                     >
                         <VersionsTable

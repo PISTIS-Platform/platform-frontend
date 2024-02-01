@@ -50,6 +50,7 @@ export default defineI18nConfig(() => ({
                 validNumber: 'Please enter a valid number',
                 zeroOrPositive: 'Must be 0 or a positive number',
                 positive: 'Must be a positive number',
+                moreThanNumberChars: 'Cannot be more than {count} characters',
             },
             home: {
                 home: 'Home',

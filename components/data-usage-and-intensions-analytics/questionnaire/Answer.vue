@@ -14,6 +14,8 @@ const props = defineProps({
     },
 });
 
+const maxCharactersTextLimit = 255;
+
 // Schema for all the inputs
 const schema = computed(() => {
     if (props.answer.questionType === QuestionType.TEXT) {
@@ -21,6 +23,9 @@ const schema = computed(() => {
             text: z
                 .string()
                 .trim()
+                .max(maxCharactersTextLimit, {
+                    message: t('val.moreThanNumberChars', { count: maxCharactersTextLimit }),
+                })
                 .refine(
                     (value) => {
                         if (props.answer.question?.is_required && !value.length) {

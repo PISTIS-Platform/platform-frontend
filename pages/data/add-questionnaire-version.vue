@@ -71,12 +71,23 @@ const pageTitle = computed(() => {
 const { isSuccessResponse } = useHttpHelper();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
+const maxCharactersTitleLimit = 50;
+const maxCharactersTextLimit = 255;
+
 const schema = z.object({
     title: z
         .string()
         .trim()
-        .min(1, { message: t('required') }),
-    description: z.string().trim(),
+        .min(1, { message: t('required') })
+        .max(maxCharactersTitleLimit, {
+            message: t('val.moreThanNumberChars', { count: maxCharactersTitleLimit }),
+        }),
+    description: z
+        .string()
+        .trim()
+        .max(maxCharactersTextLimit, {
+            message: t('val.moreThanNumberChars', { count: maxCharactersTextLimit }),
+        }),
     is_active: z.boolean(),
 });
 
@@ -235,24 +246,23 @@ const createVersion = async () => {
         body,
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
-                shouldDisableButton.value = true;
-
                 showSuccessMessage(successMessage);
 
                 navigateToMainPage();
 
                 return;
             }
-
-            showErrorMessage(t('data.usage.questionnaire.errorInSave'));
         },
         onResponseError() {
             showErrorMessage(t('data.usage.questionnaire.errorInSave'));
+            shouldDisableButton.value = false;
         },
     });
 };
 
 const submitForm = async () => {
+    shouldDisableButton.value = true;
+
     if (!questions.value.length) {
         showErrorMessage(t('data.usage.questionnaire.noQuestionsAdded'));
         return;
@@ -288,6 +298,7 @@ const submitForm = async () => {
             },
             onResponseError() {
                 showErrorMessage(t('data.usage.questionnaire.errorInSave'));
+                shouldDisableButton.value = false;
             },
         });
 

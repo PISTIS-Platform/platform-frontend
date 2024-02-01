@@ -17,12 +17,17 @@ const props = defineProps({
 const questionTypes = [QuestionType.TEXT, QuestionType.CHECKBOX, QuestionType.RADIO] as const;
 const questionTypesEnum = z.enum(questionTypes);
 
+const maxCharactersTextLimit = 255;
+
 // Schema for all the inputs
 const schema = z.object({
     title: z
         .string()
         .trim()
-        .min(10, { message: t('data.usage.questionnaire.titleMinLength') }),
+        .min(1, { message: t('required') })
+        .max(maxCharactersTextLimit, {
+            message: t('val.moreThanNumberChars', { count: maxCharactersTextLimit }),
+        }),
     type: questionTypesEnum,
     options: z
         .array(
@@ -30,7 +35,10 @@ const schema = z.object({
                 text: z
                     .string({ required_error: t('data.usage.questionnaire.optionTextRequired') })
                     .trim()
-                    .min(1, { message: t('data.usage.questionnaire.optionTextRequired') }),
+                    .min(1, { message: t('data.usage.questionnaire.optionTextRequired') })
+                    .max(maxCharactersTextLimit, {
+                        message: t('val.moreThanNumberChars', { count: maxCharactersTextLimit }),
+                    }),
             }),
         )
         .refine(
@@ -45,7 +53,6 @@ const schema = z.object({
                 message: t('data.usage.questionnaire.optionsMinLength'),
             },
         ),
-    //TODO:: check issue with validation error remaining on 'clean' option text when a previous deleted one had error
 });
 
 //check if inputs are valid
