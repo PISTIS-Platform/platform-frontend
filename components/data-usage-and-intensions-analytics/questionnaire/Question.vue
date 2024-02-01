@@ -16,6 +16,7 @@ const props = defineProps({
 
 const questionTypes = [QuestionType.TEXT, QuestionType.CHECKBOX, QuestionType.RADIO] as const;
 const questionTypesEnum = z.enum(questionTypes);
+const questionForm = ref();
 
 const maxCharactersTextLimit = 255;
 
@@ -33,9 +34,9 @@ const schema = z.object({
         .array(
             z.object({
                 text: z
-                    .string({ required_error: t('data.usage.questionnaire.optionTextRequired') })
+                    .string()
                     .trim()
-                    .min(1, { message: t('data.usage.questionnaire.optionTextRequired') })
+                    .min(1, { message: t('required') })
                     .max(maxCharactersTextLimit, {
                         message: t('val.moreThanNumberChars', { count: maxCharactersTextLimit }),
                     }),
@@ -100,10 +101,13 @@ const addQuestionOption = () => {
     emit('update:options', questionOptions.value);
 };
 
-const removeQuestionOption = (id: string) => {
+const removeQuestionOption = async (id: string) => {
     const indexToRemove = questionOptions.value.findIndex((item: QuestionOption) => item.id === id);
 
     if (indexToRemove !== -1) {
+        //clear remaining error in FormGroup element of removed option
+        questionForm.value.clear(`options.${indexToRemove + 1}.text`);
+
         questionOptions.value.splice(indexToRemove, 1);
         userRemovedOptions.value = true;
 
@@ -151,7 +155,7 @@ const emit = defineEmits(['update:type', 'update:title', 'update:is_required', '
 
 <template>
     <div class="w-full">
-        <UForm class="flex flex-col space-y-5 w-full" :state="props.question" :schema="schema">
+        <UForm ref="questionForm" class="flex flex-col space-y-5 w-full" :state="props.question" :schema="schema">
             <!-- Select Menu -->
 
             <div class="flex justify-start items-start gap-8 w-full">
