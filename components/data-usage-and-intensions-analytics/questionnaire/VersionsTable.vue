@@ -124,6 +124,23 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
     });
 };
 
+const deleteVersion = (version: QuestionnaireVersion) => {
+    // api call to activate version
+    $fetch(`/api/data-usage/questionnaire/delete-version/${version.id}`, {
+        method: HttpMethod.DELETE,
+        onResponse({ response }) {
+            if (isSuccessResponse(response.status)) {
+                showSuccessMessage(t('data.usage.questionnaire.deleted'));
+                tableData.value = tableData.value.filter((v: QuestionnaireVersion) => v.id !== version.id);
+                return;
+            }
+        },
+        onResponseError() {
+            showErrorMessage(t('data.usage.questionnaire.errorInDeletion'));
+        },
+    });
+};
+
 //const emit = defineEmits(['updateData']);
 </script>
 
@@ -181,7 +198,7 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
                 </template>
 
                 <template #actions-data="{ row }">
-                    <div class="justify-center flex">
+                    <div class="justify-center flex gap-2">
                         <UTooltip :text="$t('data.usage.questionnaire.createNewVersionFromExisting')">
                             <UButton
                                 icon="i-heroicons-pencil"
@@ -189,6 +206,15 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
                                 color="primary"
                                 variant="outline"
                                 @click="navigateToCreateEdit(row)"
+                            />
+                        </UTooltip>
+                        <UTooltip :text="$t('data.usage.questionnaire.deleteVersion')">
+                            <UButton
+                                icon="i-heroicons-trash"
+                                size="xs"
+                                color="primary"
+                                variant="outline"
+                                @click="deleteVersion(row)"
                             />
                         </UTooltip>
                     </div>
