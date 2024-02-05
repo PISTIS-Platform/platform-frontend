@@ -229,6 +229,7 @@ export default defineI18nConfig(() => ({
                         saved: 'Questionnaire has been saved successfully!',
                         updated: 'New Questionnaire version has been created successfully!',
                         deleted: 'Questionnaire version has been deleted successfully!',
+                        cannotDelete: 'You cant delete the questionnaire, as there are already responses collected',
                         deactivated: 'Questionnaire version has been deactivated successfully!',
                         activated: 'Questionnaire version has been activated successfully!',
                         activationInfo:

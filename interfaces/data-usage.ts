@@ -56,6 +56,10 @@ export interface Questionnaire {
     isNew: boolean;
 }
 
+type answersCount = {
+    answers: number;
+};
+
 export interface QuestionnaireVersion {
     id: string;
     questionnaireId: string;
@@ -66,6 +70,7 @@ export interface QuestionnaireVersion {
     createdAt?: string;
     questions: Question[];
     isNew: boolean;
+    _count?: answersCount;
 }
 
 export interface QuestionnaireBody {

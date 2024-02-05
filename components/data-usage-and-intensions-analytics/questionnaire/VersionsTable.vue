@@ -223,12 +223,21 @@ const versionForDeletion = ref<QuestionnaireVersion | null>(null);
                                 @click="navigateToCreateEdit(row)"
                             />
                         </UTooltip>
-                        <UTooltip :text="$t('data.usage.questionnaire.deleteVersion')">
+                        <UTooltip
+                            :ui="row._count.answers > 0 ? { width: 'max-w-xl' } : {}"
+                            :text="
+                                row._count.answers > 0
+                                    ? $t('data.usage.questionnaire.cannotDelete')
+                                    : $t('data.usage.questionnaire.deleteVersion')
+                            "
+                        >
                             <UButton
+                                :ui="{ base: 'disabled:opacity-50' }"
                                 icon="i-heroicons-trash"
                                 size="xs"
                                 color="primary"
                                 variant="outline"
+                                :disabled="row._count.answers > 0"
                                 @click="(deleteConfirmationOpen = true), (versionForDeletion = row)"
                             />
                         </UTooltip>
