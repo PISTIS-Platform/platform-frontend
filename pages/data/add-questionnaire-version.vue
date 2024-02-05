@@ -241,7 +241,7 @@ const createVersion = async () => {
         delete body.creatorId;
     }
 
-    $fetch(url, {
+    await useFetch(url, {
         method: HttpMethod.POST,
         body,
         onResponse({ response }) {
@@ -286,7 +286,7 @@ const submitForm = async () => {
         questionnaireVersion.value.description === preExistingQuestionnaire.value?.description
     ) {
         //only activate version
-        $fetch(`/api/data-usage/questionnaire/activate-version/${questionnaireVersion.value.id}`, {
+        await useFetch(`/api/data-usage/questionnaire/activate-version/${questionnaireVersion.value.id}`, {
             method: HttpMethod.POST,
             body: { is_active: questionnaireVersion.value.is_active },
             onResponse({ response }) {
@@ -431,7 +431,7 @@ const resetQuestionnaire = () => {
                             @click="navigateToMainPage"
                         />
                     </UTooltip>
-                    <UTooltip text="Reset Questionnaire">
+                    <UTooltip :text="$t('data.usage.questionnaire.reset')">
                         <UButton
                             size="lg"
                             :label="$t('reset')"
@@ -442,7 +442,7 @@ const resetQuestionnaire = () => {
                     </UTooltip>
                 </div>
 
-                <UTooltip text="Save Questionnaire">
+                <UTooltip :text="$t('data.usage.questionnaire.save')">
                     <UButton
                         size="lg"
                         :label="$t('save')"

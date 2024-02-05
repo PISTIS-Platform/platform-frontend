@@ -51,7 +51,7 @@ const initAnswers = () => {
         }) || [];
 };
 
-const saveAnswers = () => {
+const saveAnswers = async () => {
     // if even at least 1 answer has validation errors -> do not proceed
     if (answers.value.some((a: QuestionAnswer) => !a.isValid)) {
         showErrorMessage(t('data.usage.questionnaire.checkInputs'));
@@ -102,7 +102,7 @@ const saveAnswers = () => {
         questionnaireVersionId: questionnaireVersion.value?.id || '',
     };
 
-    $fetch(`/api/data-usage/questionnaire/answers`, {
+    await useFetch(`/api/data-usage/questionnaire/answers`, {
         method: 'post',
         body: answersBody,
         onResponse({ response }) {
@@ -179,7 +179,7 @@ const isSubmitDisabled = computed(() => {
 
             <!-- Submit Buttons -->
             <div class="flex gap-4 justify-between items-center mt-8">
-                <UTooltip text="Save Questionnaire">
+                <UTooltip :text="$t('data.usage.questionnaire.submitAnswers')">
                     <UButton
                         size="lg"
                         :label="$t('submit')"

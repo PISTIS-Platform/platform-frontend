@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { HttpMethod } from '@/enums/httpEnums';
+import { HttpCode, HttpMethod } from '@/enums/httpEnums';
 import { QuestionnaireVersion } from '~/interfaces/data-usage';
 
 const { t } = useI18n();
@@ -82,9 +82,9 @@ const updateTableData = (updatedVersion: QuestionnaireVersion, isActive: boolean
     });
 };
 
-const toggleIsActive = (version: QuestionnaireVersion, value: boolean) => {
+const toggleIsActive = async (version: QuestionnaireVersion, value: boolean) => {
     // api call to activate version
-    $fetch(`/api/data-usage/questionnaire/activate-version/${version.id}`, {
+    await useFetch(`/api/data-usage/questionnaire/activate-version/${version.id}`, {
         body: { is_active: value },
         method: HttpMethod.POST,
         onResponse({ response }) {
@@ -124,9 +124,9 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
     });
 };
 
-const deleteVersion = (version: QuestionnaireVersion) => {
+const deleteVersion = async (version: QuestionnaireVersion) => {
     // api call to activate version
-    $fetch(`/api/data-usage/questionnaire/delete-version/${version.id}`, {
+    await useFetch(`/api/data-usage/questionnaire/delete-version/${version.id}`, {
         method: HttpMethod.DELETE,
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
@@ -135,7 +135,11 @@ const deleteVersion = (version: QuestionnaireVersion) => {
                 return;
             }
         },
-        onResponseError() {
+        onResponseError({ response }) {
+            if (response.status === HttpCode.HTTP_BAD_REQUEST_ERROR) {
+                showErrorMessage(response._data.data.message);
+                return;
+            }
             showErrorMessage(t('data.usage.questionnaire.errorInDeletion'));
         },
     });
