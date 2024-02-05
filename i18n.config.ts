@@ -224,7 +224,7 @@ export default defineI18nConfig(() => ({
                         selectedOptionsMinLength: 'Please select at least one option',
                         saved: 'Questionnaire has been saved successfully!',
                         updated: 'New Questionnaire version has been created successfully!',
-                        deleted: 'New Questionnaire version has been created successfully!',
+                        deleted: 'New Questionnaire version has been deleted successfully!',
                         deactivated: 'Questionnaire version has been deactivated successfully!',
                         activated: 'Questionnaire version has been activated successfully!',
                         activationInfo:
