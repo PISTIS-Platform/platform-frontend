@@ -124,16 +124,24 @@ const navigateToCreateEdit = async (row?: QuestionnaireVersion) => {
     });
 };
 
-const deleteVersion = async (version: QuestionnaireVersion) => {
+const deleteVersion = async () => {
+    if (!versionForDeletion.value) {
+        return;
+    }
+
     // api call to activate version
-    await useFetch(`/api/data-usage/questionnaire/delete-version/${version.id}`, {
+    await useFetch(`/api/data-usage/questionnaire/delete-version/${versionForDeletion.value.id}`, {
         method: HttpMethod.DELETE,
         onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
                 showSuccessMessage(t('data.usage.questionnaire.deleted'));
-                tableData.value = tableData.value.filter((v: QuestionnaireVersion) => v.id !== version.id);
-                return;
+                tableData.value = tableData.value.filter(
+                    (v: QuestionnaireVersion) => versionForDeletion.value && v.id !== versionForDeletion.value.id,
+                );
             }
+
+            deleteConfirmationOpen.value = false;
+            versionForDeletion.value = null;
         },
         onResponseError({ response }) {
             if (response.status === HttpCode.HTTP_BAD_REQUEST_ERROR) {
@@ -144,6 +152,9 @@ const deleteVersion = async (version: QuestionnaireVersion) => {
         },
     });
 };
+
+const deleteConfirmationOpen = ref<boolean>(false);
+const versionForDeletion = ref<QuestionnaireVersion | null>(null);
 
 //const emit = defineEmits(['updateData']);
 </script>
@@ -218,7 +229,7 @@ const deleteVersion = async (version: QuestionnaireVersion) => {
                                 size="xs"
                                 color="primary"
                                 variant="outline"
-                                @click="deleteVersion(row)"
+                                @click="(deleteConfirmationOpen = true), (versionForDeletion = row)"
                             />
                         </UTooltip>
                     </div>
@@ -230,5 +241,20 @@ const deleteVersion = async (version: QuestionnaireVersion) => {
                 <UPagination v-model="page" :page-count="pageCount" :total="tableData.length" />
             </div>
         </UCard>
+        <UModal v-model="deleteConfirmationOpen">
+            <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
+                <p class="font-bold text-xl">{{ $t('data.designer.areYouSure') }}</p>
+                <p class="text-gray-400 mt-6">{{ $t('data.usage.questionnaire.deleteVersionInfo') }}</p>
+                <div class="flex gap-8 w-full justify-center mt-6">
+                    <UButton
+                        color="white"
+                        class="w-20 flex justify-center"
+                        @click="(deleteConfirmationOpen = false), (versionForDeletion = null)"
+                        >{{ $t('cancel') }}</UButton
+                    >
+                    <UButton class="w-20 flex justify-center" @click="deleteVersion()">{{ $t('yes') }}</UButton>
+                </div>
+            </UCard>
+        </UModal>
     </div>
 </template>

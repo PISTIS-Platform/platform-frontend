@@ -183,6 +183,7 @@ export default defineI18nConfig(() => ({
                         createNewVersion: 'Create New Questionnaire Version',
                         createNewVersionFromExisting: 'Create new based on this version',
                         deleteVersion: 'Delete version',
+                        deleteVersionInfo: 'This action will delete this version and all its related questions',
                         edit: 'Edit Questionnaire',
                         reset: 'Reset Questionnaire',
                         save: 'Save Questionnaire',
@@ -227,7 +228,7 @@ export default defineI18nConfig(() => ({
                         selectedOptionsMinLength: 'Please select at least one option',
                         saved: 'Questionnaire has been saved successfully!',
                         updated: 'New Questionnaire version has been created successfully!',
-                        deleted: 'New Questionnaire version has been deleted successfully!',
+                        deleted: 'Questionnaire version has been deleted successfully!',
                         deactivated: 'Questionnaire version has been deactivated successfully!',
                         activated: 'Questionnaire version has been activated successfully!',
                         activationInfo:
