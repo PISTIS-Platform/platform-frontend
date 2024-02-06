@@ -1,8 +1,10 @@
 export default interface FactoryModelRepo {
     id: string | number;
-    name: string;
+    organizationName: string;
+    organizationId: string;
     ip: string;
     country: string;
     status: string;
     isActive: boolean;
+    isAccepted: boolean;
 }

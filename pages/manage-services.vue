@@ -3,21 +3,19 @@ import { useI18n } from 'vue-i18n';
 
 import FactoryModelRepo from '~/interfaces/factories-model';
 
-import { connectorsDummyData } from './connectors-dummy-data';
-
 const { isSuccessResponse } = useHttpHelper();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
 const { t } = useI18n();
 
-// Change this with the actual endpoint in comment
-const connectorsData = computed(() => connectorsDummyData); //await useFetch(`/api/factories-registrant`); also add a lookup every 1 hour
+const { data } = await useFetch(`/api/factories-registrant/factories`);
+
 const switchModalOpen = ref<boolean>(false);
 let selectedRow: FactoryModelRepo;
 
 const columns = [
     {
-        key: 'name',
+        key: 'organizationName',
         label: t('admin.services.factoryConnectors.name'),
         sortable: true,
     },
@@ -44,7 +42,7 @@ const page = ref<number>(1);
 const pageCount: number = 5;
 
 const rows = computed(() => {
-    return connectorsData.value.slice((page.value - 1) * pageCount, page.value * pageCount);
+    return data.value.slice((page.value - 1) * pageCount, page.value * pageCount);
 });
 
 const getStatusColorClass = (status: string) => {
@@ -90,16 +88,17 @@ const acceptFactory = (data: string) => {
 
 const toggleActive = (row: any) => {
     if (row.isActive === true) {
-        row.status = 'live';
-    } else {
         row.status = 'deactivated';
+        row.isActive = false;
+    } else {
+        row.isActive = true;
+        row.status = 'live';
     }
     $fetch(`/api/factories-registrant/${row.id}/`, {
         method: 'put',
         body: row,
         async onResponse({ response }) {
             if (isSuccessResponse(response.status)) {
-                // connectorsData.value = await useFetch(`/api/factories-registrant`); Activate this when we have actual data
                 if ((row.status = 'live')) {
                     showSuccessMessage(t('admin.services.factoryConnectors.activate'));
                 } else {
@@ -145,14 +144,14 @@ const toggleActive = (row: any) => {
                 </UTable>
 
                 <!-- Display the pagination only if the total number of transactions is larger than the page count -->
-                <div v-if="connectorsData.length > pageCount" class="flex justify-end mt-2">
-                    <UPagination v-model="page" :page-count="pageCount" :total="connectorsData.length" />
+                <div v-if="data.length > pageCount" class="flex justify-end mt-2">
+                    <UPagination v-model="page" :page-count="pageCount" :total="data.length" />
                 </div>
             </UCard>
             <UModal v-model="switchModalOpen">
                 <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
                     <p class="font-bold text-xl">{{ $t('admin.services.factoryConnectors.factoryModal') }}</p>
-                    <!-- <p class="text-gray-400 mt-6">{{ $t('admin.services.factoryConnectors.factoryError') }}</p> -->
+                    {{ selectedRow.ip }} - {{ selectedRow.organizationName }}
                     <div class="flex gap-8 w-full justify-center mt-6">
                         <UButton color="white" class="w-20 flex justify-center" @click="acceptFactory('accept')">{{
                             $t('admin.services.factoryConnectors.accept')
