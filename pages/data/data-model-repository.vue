@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n';
 
 //We have to add actual data
-import { useIntlDates } from '../../composables/dates';
+const { formatIntlDate } = useDateHelper();
 import DataModelRepo from '../../interfaces/data-model-repo';
 import { dummyJson } from './dm-repo-dummy-data';
 
@@ -170,7 +170,7 @@ function deleteRepo() {
                     </div>
                 </template>
                 <template #year-data="{ row }">
-                    <span>{{ useIntlDates(row.year) }}</span>
+                    <span>{{ formatIntlDate(row.year) }}</span>
                 </template>
                 <template #actions-data="{ row }">
                     <UDropdown :items="actions(row)">
