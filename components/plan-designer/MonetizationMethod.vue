@@ -291,23 +291,6 @@ const switchDatasetOpen = ref<boolean>(false);
                     >
                         <div class="flex flex-col space-y-5">
                             <div class="flex flex-row gap-4">
-                                <!-- <UFormGroup
-                                    :label="$t('data.designer.oneOffPrice')"
-                                    required
-                                    name="price"
-                                    class="flex-1"
-                                >
-                                    <UInput
-                                        :model-value="oneOffSaleDetails.price"
-                                        :placeholder="$t('data.designer.assetPrice')"
-                                        type="numeric"
-                                        @update:model-value="(value: string) => emit('update:oneoff-price', value)"
-                                    >
-                                        <template #trailing>
-                                            <span class="text-gray-500 text-xs">STC</span>
-                                        </template>
-                                    </UInput>
-                                </UFormGroup> -->
                                 <div class="flex-1 flex gap-4">
                                     <UFormGroup :label="$t('data.designer.oneOffKind')" required name="oneOffKind">
                                         <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
