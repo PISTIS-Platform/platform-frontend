@@ -72,7 +72,19 @@ const oneOffSaleSchema = z.object({
 
 const subscriptionSchema = z.object({
     frequency: z.string(),
-    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
+    priceKind: z.string(),
+    // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
+    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
+        (val) => {
+            return props.subscriptionDetails.priceKind === t('data.designer.free') ? val === 0 : val > 0;
+        },
+        {
+            message:
+                props.subscriptionDetails.priceKind === t('data.designer.free')
+                    ? ''
+                    : 'Price needs to be higher than 0',
+        },
+    ),
     license: z.string(),
     terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
     limitNumber: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
@@ -152,6 +164,7 @@ const emit = defineEmits([
     'update:oneoff-limit-frequency',
     'update:sub-frequency',
     'update:sub-price',
+    'update:sub-price-kind',
     'update:sub-license',
     'update:sub-terms',
     'update:sub-limit-number',
@@ -168,6 +181,11 @@ const emit = defineEmits([
     'submit',
     'reset',
 ]);
+
+const updateFree = () => {
+    emit('update:sub-price-kind', t('data.designer.free'));
+    emit('update:sub-price', 0);
+};
 
 const updateInvestmentPlan = (title: string) => {
     showCreatePlan.value = false;
@@ -362,41 +380,84 @@ const switchDatasetOpen = ref<boolean>(false);
                     >
                         <div class="flex flex-col space-y-5">
                             <div class="flex flex-row gap-4">
-                                <UFormGroup
-                                    :label="$t('data.designer.subscriptionPrice')"
-                                    class="flex-1"
-                                    required
-                                    name="price"
-                                >
-                                    <UInput
-                                        :model-value="props.subscriptionDetails.price"
-                                        :placeholder="$t('data.designer.subscriptionPricePH')"
-                                        type="numeric"
-                                        @update:model-value="(value: string) => emit('update:sub-price', value)"
-                                    >
-                                        <template #trailing>
-                                            <span class="text-gray-500 text-xs">STC</span>
-                                        </template>
-                                    </UInput>
-                                </UFormGroup>
-                                <UFormGroup
-                                    :label="$t('data.designer.subscriptionFrequency')"
-                                    class="flex-1"
-                                    required
-                                    name="frequency"
-                                >
-                                    <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
-                                        <URadio
-                                            :label="$t('data.designer.monthly')"
-                                            :model-value="props.subscriptionDetails.frequency"
-                                        />
-                                        <URadio
-                                            :label="$t('data.designer.annual')"
-                                            :model-value="props.subscriptionDetails.frequency"
-                                        />
+                                <div class="flex gap-4 w-1/2">
+                                    <div class="flex-1 flex gap-4">
+                                        <UFormGroup
+                                            :label="$t('data.designer.subscriptionKind')"
+                                            required
+                                            name="subscriptionPriceKind"
+                                        >
+                                            <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
+                                                <URadio
+                                                    :label="$t('data.designer.free')"
+                                                    :value="$t('data.designer.free')"
+                                                    :model-value="props.subscriptionDetails.priceKind"
+                                                    @update:model-value="updateFree"
+                                                />
+                                                <URadio
+                                                    :label="$t('data.designer.paid')"
+                                                    :value="$t('data.designer.paid')"
+                                                    :model-value="props.subscriptionDetails.priceKind"
+                                                    @update:model-value="
+                                                        (value: string) => emit('update:sub-price-kind', value)
+                                                    "
+                                                />
+                                            </div>
+                                        </UFormGroup>
+                                        <UFormGroup
+                                            :label="$t('data.designer.subscriptionPrice')"
+                                            class="flex-1"
+                                            :required="props.subscriptionDetails.priceKind === $t('data.designer.paid')"
+                                            name="price"
+                                        >
+                                            <UInput
+                                                :class="
+                                                    props.subscriptionDetails.priceKind === $t('data.designer.free') ||
+                                                    !props.subscriptionDetails.priceKind
+                                                        ? 'opacity-50'
+                                                        : ''
+                                                "
+                                                :model-value="props.subscriptionDetails.price"
+                                                :disabled="
+                                                    props.subscriptionDetails.priceKind === $t('data.designer.free') ||
+                                                    !props.subscriptionDetails.priceKind
+                                                "
+                                                :placeholder="$t('data.designer.subscriptionPricePH')"
+                                                type="numeric"
+                                                @update:model-value="(value: string) => emit('update:sub-price', value)"
+                                            >
+                                                <template #trailing>
+                                                    <span class="text-gray-500 text-xs">STC</span>
+                                                </template>
+                                            </UInput>
+                                        </UFormGroup>
                                     </div>
-                                </UFormGroup>
-                                <UFormGroup :label="$t('license')" required class="flex-grow-2 flex-1" name="license">
+                                    <UFormGroup
+                                        :label="$t('data.designer.subscriptionFrequency')"
+                                        required
+                                        name="frequency"
+                                    >
+                                        <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
+                                            <URadio
+                                                :label="$t('data.designer.monthly')"
+                                                :value="$t('data.designer.monthly')"
+                                                :model-value="props.subscriptionDetails.frequency"
+                                                @update:model-value="
+                                                    (value: string) => emit('update:sub-frequency', value)
+                                                "
+                                            />
+                                            <URadio
+                                                :label="$t('data.designer.annual')"
+                                                :value="$t('data.designer.annual')"
+                                                :model-value="props.subscriptionDetails.frequency"
+                                                @update:model-value="
+                                                    (value: string) => emit('update:sub-frequency', value)
+                                                "
+                                            />
+                                        </div>
+                                    </UFormGroup>
+                                </div>
+                                <UFormGroup :label="$t('license')" required class="w-1/2" name="license">
                                     <USelectMenu
                                         :model-value="subscriptionDetails.license"
                                         :class="'gray'"

@@ -54,6 +54,8 @@ export default defineI18nConfig(() => ({
             data: {
                 data: 'My Data',
                 designer: {
+                    free: 'Free',
+                    paid: 'Paid',
                     title: 'Purchase / Subscription Plan Designer',
                     completeDataset: 'Complete Dataset',
                     selectDataset: 'Select the complete dataset',
@@ -98,6 +100,7 @@ export default defineI18nConfig(() => ({
                     subscriptionFrequency: 'Subscription Frequency',
                     subscriptionPrice: 'Subscription price',
                     subscriptionPricePH: 'Subscription price',
+                    subscriptionKind: 'Subscription kind',
                     nftPrice: 'NFT Price',
                     generateNFT: 'Generate New NFT',
                     searchEditCreatePlan: 'Search for / select / edit / create new plan',
