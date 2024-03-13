@@ -35,22 +35,26 @@ const props = defineProps({
     },
 });
 
-const monetizationSelections: { title: string; info: string }[] = [
+const monetizationSelections: { title: string; info: string; disabled: boolean }[] = [
     {
         title: t('data.designer.oneOffSale'),
         info: t('data.designer.oneOffSaleInfo'),
+        disabled: false,
     },
     {
         title: t('data.designer.subscription'),
         info: t('data.designer.subscriptionInfo'),
+        disabled: false,
     },
     {
         title: t('data.designer.nft'),
         info: t('data.designer.nftInfo'),
+        disabled: true,
     },
     {
         title: t('data.designer.investmentPlan'),
         info: t('data.designer.investmentPlanInfo'),
+        disabled: true,
     },
 ];
 
