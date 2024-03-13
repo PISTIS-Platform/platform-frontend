@@ -385,7 +385,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                     required
                                     name="frequency"
                                 >
-                                    <div class="flex items-start justify-start flex-row">
+                                    <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
                                         <URadio
                                             :label="$t('data.designer.monthly')"
                                             :model-value="props.subscriptionDetails.frequency"
