@@ -33,7 +33,7 @@ const outerQuery = ref<string>('');
 
 const dataSetSelections = computed(() => [
     {
-        title: t('data.usage.questionniare'),
+        title: t('data.usage.questionnaire'),
         info: t('data.usage.questionnaireInfo'),
     },
     {

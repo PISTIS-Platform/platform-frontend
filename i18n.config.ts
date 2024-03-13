@@ -164,7 +164,7 @@ export default defineI18nConfig(() => ({
                 },
                 usage: {
                     title: 'Data Usage and Intensions Analytics',
-                    questionniare: 'Questionnaire',
+                    questionnaire: 'Questionnaire',
                     dashboard: 'Dashboard',
                     questionnaireInfo: 'Display the questionnaire for selected dataset',
                     dashboardInfo: 'Display analytics for selected dataset',
