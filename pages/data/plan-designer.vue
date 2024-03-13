@@ -189,6 +189,7 @@ const resetMonetization = () => {
             :details-of-n-f-t="detailsOfNFT"
             :is-all-valid="isAllValid"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
+            @update:oneoff-kind="(value: string) => (oneOffSaleDetails.priceKind = value)"
             @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
             @update:oneoff-license="(value: string) => (oneOffSaleDetails.license = value)"
             @update:oneoff-terms="(value: string) => (oneOffSaleDetails.terms = value)"

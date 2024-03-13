@@ -91,6 +91,7 @@ export default defineI18nConfig(() => ({
                     monetizationMethod: 'Monetization Method',
                     monetizationMethodInfo: 'Info here',
                     oneOffPrice: 'One-off Sale Price',
+                    oneOffKind: 'One-off Sale kind',
                     assetPrice: 'Price of the asset',
                     selectLicense: 'Select a license',
                     typeTerms: 'Type the terms and conditions of your license here',
