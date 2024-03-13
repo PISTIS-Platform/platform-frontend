@@ -56,6 +56,7 @@ export default defineI18nConfig(() => ({
                 designer: {
                     free: 'Free',
                     paid: 'Paid',
+                    priceHigherThanZero: 'Price needs to be higher than zero',
                     title: 'Purchase / Subscription Plan Designer',
                     completeDataset: 'Complete Dataset',
                     selectDataset: 'Select the complete dataset',

@@ -70,7 +70,9 @@ const oneOffSaleSchema = z.object({
         },
         {
             message:
-                props.oneOffSaleDetails.priceKind === t('data.designer.free') ? '' : 'Price needs to be higher than 0',
+                props.oneOffSaleDetails.priceKind === t('data.designer.free')
+                    ? ''
+                    : t('data.designer.priceHigherThanZero'),
         },
     ),
     license: z.string(),
@@ -91,7 +93,7 @@ const subscriptionSchema = z.object({
             message:
                 props.subscriptionDetails.priceKind === t('data.designer.free')
                     ? ''
-                    : 'Price needs to be higher than 0',
+                    : t('data.designer.priceHigherThanZero'),
         },
     ),
     license: z.string(),
