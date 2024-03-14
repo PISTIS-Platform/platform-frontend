@@ -35,22 +35,26 @@ const props = defineProps({
     },
 });
 
-const monetizationSelections: { title: string; info: string }[] = [
+const monetizationSelections: { title: string; info: string; disabled: boolean }[] = [
     {
         title: t('data.designer.oneOffSale'),
         info: t('data.designer.oneOffSaleInfo'),
+        disabled: false,
     },
     {
         title: t('data.designer.subscription'),
         info: t('data.designer.subscriptionInfo'),
+        disabled: false,
     },
     {
         title: t('data.designer.nft'),
         info: t('data.designer.nftInfo'),
+        disabled: true,
     },
     {
         title: t('data.designer.investmentPlan'),
         info: t('data.designer.investmentPlanInfo'),
+        disabled: true,
     },
 ];
 
@@ -59,7 +63,18 @@ const licenseSelections: string[] = ['CC-BY', 'MIT', 'CC0'];
 const limitFrequencySelections = computed(() => [t('perDay'), t('perWeek'), t('perMonth'), t('perYear')]);
 
 const oneOffSaleSchema = z.object({
-    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
+    // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
+    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
+        (val) => {
+            return props.oneOffSaleDetails.priceKind === t('data.designer.free') ? val === 0 : val > 0;
+        },
+        {
+            message:
+                props.oneOffSaleDetails.priceKind === t('data.designer.free')
+                    ? ''
+                    : t('data.designer.priceHigherThanZero'),
+        },
+    ),
     license: z.string(),
     terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
     limitNumber: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
@@ -68,7 +83,19 @@ const oneOffSaleSchema = z.object({
 
 const subscriptionSchema = z.object({
     frequency: z.string(),
-    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
+    priceKind: z.string(),
+    // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
+    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
+        (val) => {
+            return props.subscriptionDetails.priceKind === t('data.designer.free') ? val === 0 : val > 0;
+        },
+        {
+            message:
+                props.subscriptionDetails.priceKind === t('data.designer.free')
+                    ? ''
+                    : t('data.designer.priceHigherThanZero'),
+        },
+    ),
     license: z.string(),
     terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
     limitNumber: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
@@ -141,6 +168,7 @@ watch(isMonetizationValid, () => {
 
 const emit = defineEmits([
     'update:monetization-selection',
+    'update:oneoff-kind',
     'update:oneoff-price',
     'update:oneoff-license',
     'update:oneoff-terms',
@@ -148,6 +176,7 @@ const emit = defineEmits([
     'update:oneoff-limit-frequency',
     'update:sub-frequency',
     'update:sub-price',
+    'update:sub-price-kind',
     'update:sub-license',
     'update:sub-terms',
     'update:sub-limit-number',
@@ -164,6 +193,16 @@ const emit = defineEmits([
     'submit',
     'reset',
 ]);
+
+const updateSubscriptionFree = () => {
+    emit('update:sub-price-kind', t('data.designer.free'));
+    emit('update:sub-price', 0);
+};
+
+const updateOneOffFree = () => {
+    emit('update:oneoff-kind', t('data.designer.free'));
+    emit('update:oneoff-price', 0);
+};
 
 const updateInvestmentPlan = (title: string) => {
     showCreatePlan.value = false;
@@ -254,23 +293,53 @@ const switchDatasetOpen = ref<boolean>(false);
                     >
                         <div class="flex flex-col space-y-5">
                             <div class="flex flex-row gap-4">
-                                <UFormGroup
-                                    :label="$t('data.designer.oneOffPrice')"
-                                    required
-                                    name="price"
-                                    class="flex-1"
-                                >
-                                    <UInput
-                                        :model-value="oneOffSaleDetails.price"
-                                        :placeholder="$t('data.designer.assetPrice')"
-                                        type="numeric"
-                                        @update:model-value="(value: string) => emit('update:oneoff-price', value)"
+                                <div class="flex-1 flex gap-4">
+                                    <UFormGroup :label="$t('data.designer.oneOffKind')" required name="oneOffKind">
+                                        <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
+                                            <URadio
+                                                :label="$t('data.designer.free')"
+                                                :value="$t('data.designer.free')"
+                                                :model-value="props.oneOffSaleDetails.priceKind"
+                                                @update:model-value="updateOneOffFree"
+                                            />
+                                            <URadio
+                                                :label="$t('data.designer.paid')"
+                                                :value="$t('data.designer.paid')"
+                                                :model-value="props.oneOffSaleDetails.priceKind"
+                                                @update:model-value="
+                                                    (value: string) => emit('update:oneoff-kind', value)
+                                                "
+                                            />
+                                        </div>
+                                    </UFormGroup>
+                                    <UFormGroup
+                                        :label="$t('data.designer.oneOffPrice')"
+                                        class="flex-1"
+                                        :required="props.oneOffSaleDetails.priceKind === $t('data.designer.paid')"
+                                        name="price"
                                     >
-                                        <template #trailing>
-                                            <span class="text-gray-500 text-xs">STC</span>
-                                        </template>
-                                    </UInput>
-                                </UFormGroup>
+                                        <UInput
+                                            :class="
+                                                props.oneOffSaleDetails.priceKind === $t('data.designer.free') ||
+                                                !props.oneOffSaleDetails.priceKind
+                                                    ? 'opacity-50'
+                                                    : ''
+                                            "
+                                            :model-value="props.oneOffSaleDetails.price"
+                                            :disabled="
+                                                props.oneOffSaleDetails.priceKind === $t('data.designer.free') ||
+                                                !props.oneOffSaleDetails.priceKind
+                                            "
+                                            :placeholder="$t('data.designer.oneOffPrice')"
+                                            type="numeric"
+                                            @update:model-value="(value: string) => emit('update:oneoff-price', value)"
+                                        >
+                                            <template #trailing>
+                                                <span class="text-gray-500 text-xs">STC</span>
+                                            </template>
+                                        </UInput>
+                                    </UFormGroup>
+                                </div>
                                 <UFormGroup :label="$t('license')" required name="license" class="flex-1 text-gray-200">
                                     <USelectMenu
                                         :ui="{
@@ -358,41 +427,84 @@ const switchDatasetOpen = ref<boolean>(false);
                     >
                         <div class="flex flex-col space-y-5">
                             <div class="flex flex-row gap-4">
-                                <UFormGroup
-                                    :label="$t('data.designer.subscriptionPrice')"
-                                    class="flex-1"
-                                    required
-                                    name="price"
-                                >
-                                    <UInput
-                                        :model-value="props.subscriptionDetails.price"
-                                        :placeholder="$t('data.designer.subscriptionPricePH')"
-                                        type="numeric"
-                                        @update:model-value="(value: string) => emit('update:sub-price', value)"
-                                    >
-                                        <template #trailing>
-                                            <span class="text-gray-500 text-xs">STC</span>
-                                        </template>
-                                    </UInput>
-                                </UFormGroup>
-                                <UFormGroup
-                                    :label="$t('data.designer.subscriptionFrequency')"
-                                    class="flex-1"
-                                    required
-                                    name="frequency"
-                                >
-                                    <div class="flex items-start justify-start flex-row">
-                                        <URadio
-                                            :label="$t('data.designer.monthly')"
-                                            :model-value="props.subscriptionDetails.frequency"
-                                        />
-                                        <URadio
-                                            :label="$t('data.designer.annual')"
-                                            :model-value="props.subscriptionDetails.frequency"
-                                        />
+                                <div class="flex gap-4 w-1/2">
+                                    <div class="flex-1 flex gap-4">
+                                        <UFormGroup
+                                            :label="$t('data.designer.subscriptionKind')"
+                                            required
+                                            name="subscriptionPriceKind"
+                                        >
+                                            <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
+                                                <URadio
+                                                    :label="$t('data.designer.free')"
+                                                    :value="$t('data.designer.free')"
+                                                    :model-value="props.subscriptionDetails.priceKind"
+                                                    @update:model-value="updateSubscriptionFree"
+                                                />
+                                                <URadio
+                                                    :label="$t('data.designer.paid')"
+                                                    :value="$t('data.designer.paid')"
+                                                    :model-value="props.subscriptionDetails.priceKind"
+                                                    @update:model-value="
+                                                        (value: string) => emit('update:sub-price-kind', value)
+                                                    "
+                                                />
+                                            </div>
+                                        </UFormGroup>
+                                        <UFormGroup
+                                            :label="$t('data.designer.subscriptionPrice')"
+                                            class="flex-1"
+                                            :required="props.subscriptionDetails.priceKind === $t('data.designer.paid')"
+                                            name="price"
+                                        >
+                                            <UInput
+                                                :class="
+                                                    props.subscriptionDetails.priceKind === $t('data.designer.free') ||
+                                                    !props.subscriptionDetails.priceKind
+                                                        ? 'opacity-50'
+                                                        : ''
+                                                "
+                                                :model-value="props.subscriptionDetails.price"
+                                                :disabled="
+                                                    props.subscriptionDetails.priceKind === $t('data.designer.free') ||
+                                                    !props.subscriptionDetails.priceKind
+                                                "
+                                                :placeholder="$t('data.designer.subscriptionPricePH')"
+                                                type="numeric"
+                                                @update:model-value="(value: string) => emit('update:sub-price', value)"
+                                            >
+                                                <template #trailing>
+                                                    <span class="text-gray-500 text-xs">STC</span>
+                                                </template>
+                                            </UInput>
+                                        </UFormGroup>
                                     </div>
-                                </UFormGroup>
-                                <UFormGroup :label="$t('license')" required class="flex-grow-2 flex-1" name="license">
+                                    <UFormGroup
+                                        :label="$t('data.designer.subscriptionFrequency')"
+                                        required
+                                        name="frequency"
+                                    >
+                                        <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
+                                            <URadio
+                                                :label="$t('data.designer.monthly')"
+                                                :value="$t('data.designer.monthly')"
+                                                :model-value="props.subscriptionDetails.frequency"
+                                                @update:model-value="
+                                                    (value: string) => emit('update:sub-frequency', value)
+                                                "
+                                            />
+                                            <URadio
+                                                :label="$t('data.designer.annual')"
+                                                :value="$t('data.designer.annual')"
+                                                :model-value="props.subscriptionDetails.frequency"
+                                                @update:model-value="
+                                                    (value: string) => emit('update:sub-frequency', value)
+                                                "
+                                            />
+                                        </div>
+                                    </UFormGroup>
+                                </div>
+                                <UFormGroup :label="$t('license')" required class="w-1/2" name="license">
                                     <USelectMenu
                                         :model-value="subscriptionDetails.license"
                                         :class="'gray'"

@@ -35,6 +35,7 @@ const monetizationSelection = ref<string>('');
 
 // one-off sale details
 const oneOffSaleDetails = ref<OneOffSaleDetails>({
+    priceKind: undefined,
     price: undefined,
     license: undefined,
     terms: undefined,
@@ -45,6 +46,7 @@ const oneOffSaleDetails = ref<OneOffSaleDetails>({
 //subscription details
 const subscriptionDetails = ref<SubscriptionDetails>({
     frequency: undefined,
+    priceKind: undefined,
     price: undefined,
     license: undefined,
     terms: undefined,
@@ -90,6 +92,7 @@ const reset = () => {
         keywords: [],
     };
     oneOffSaleDetails.value = {
+        priceKind: undefined,
         price: undefined,
         license: undefined,
         terms: undefined,
@@ -98,6 +101,7 @@ const reset = () => {
     };
     subscriptionDetails.value = {
         frequency: undefined,
+        priceKind: undefined,
         price: undefined,
         license: undefined,
         terms: undefined,
@@ -118,6 +122,7 @@ const reset = () => {
 
 const resetMonetization = () => {
     oneOffSaleDetails.value = {
+        priceKind: undefined,
         price: undefined,
         license: undefined,
         terms: undefined,
@@ -126,6 +131,7 @@ const resetMonetization = () => {
     };
     subscriptionDetails.value = {
         frequency: undefined,
+        priceKind: undefined,
         price: undefined,
         license: undefined,
         terms: undefined,
@@ -183,6 +189,7 @@ const resetMonetization = () => {
             :details-of-n-f-t="detailsOfNFT"
             :is-all-valid="isAllValid"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
+            @update:oneoff-kind="(value: string) => (oneOffSaleDetails.priceKind = value)"
             @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
             @update:oneoff-license="(value: string) => (oneOffSaleDetails.license = value)"
             @update:oneoff-terms="(value: string) => (oneOffSaleDetails.terms = value)"
@@ -190,6 +197,7 @@ const resetMonetization = () => {
             @update:oneoff-limit-frequency="(value: string) => (oneOffSaleDetails.limitFrequency = value)"
             @update:sub-frequency="(value: string) => (subscriptionDetails.frequency = value)"
             @update:sub-price="(value: number) => (subscriptionDetails.price = value)"
+            @update:sub-price-kind="(value: string) => (subscriptionDetails.priceKind = value)"
             @update:sub-license="(value: string) => (subscriptionDetails.license = value)"
             @update:sub-terms="(value: string) => (subscriptionDetails.terms = value)"
             @update:sub-limit-number="(value: number) => (subscriptionDetails.limitNumber = value)"

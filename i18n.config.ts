@@ -54,6 +54,9 @@ export default defineI18nConfig(() => ({
             data: {
                 data: 'My Data',
                 designer: {
+                    free: 'Free',
+                    paid: 'Paid',
+                    priceHigherThanZero: 'Price needs to be higher than zero',
                     title: 'Purchase / Subscription Plan Designer',
                     completeDataset: 'Complete Dataset',
                     selectDataset: 'Select the complete dataset',
@@ -89,6 +92,7 @@ export default defineI18nConfig(() => ({
                     monetizationMethod: 'Monetization Method',
                     monetizationMethodInfo: 'Info here',
                     oneOffPrice: 'One-off Sale Price',
+                    oneOffKind: 'One-off Sale kind',
                     assetPrice: 'Price of the asset',
                     selectLicense: 'Select a license',
                     typeTerms: 'Type the terms and conditions of your license here',
@@ -98,6 +102,7 @@ export default defineI18nConfig(() => ({
                     subscriptionFrequency: 'Subscription Frequency',
                     subscriptionPrice: 'Subscription price',
                     subscriptionPricePH: 'Subscription price',
+                    subscriptionKind: 'Subscription kind',
                     nftPrice: 'NFT Price',
                     generateNFT: 'Generate New NFT',
                     searchEditCreatePlan: 'Search for / select / edit / create new plan',
@@ -160,7 +165,7 @@ export default defineI18nConfig(() => ({
                 },
                 usage: {
                     title: 'Data Usage and Intensions Analytics',
-                    questionniare: 'Questionnaire',
+                    questionnaire: 'Questionnaire',
                     dashboard: 'Dashboard',
                     questionnaireInfo: 'Display the questionnaire for selected dataset',
                     dashboardInfo: 'Display analytics for selected dataset',

@@ -5,6 +5,7 @@ export interface AssetOfferingDetails {
 }
 
 export interface OneOffSaleDetails {
+    priceKind: string | undefined;
     price: number | undefined;
     license: string | undefined;
     terms: string | undefined;
@@ -14,6 +15,7 @@ export interface OneOffSaleDetails {
 
 export interface SubscriptionDetails {
     frequency: string | undefined;
+    priceKind: string | undefined;
     price: number | undefined;
     license: string | undefined;
     terms: string | undefined;
