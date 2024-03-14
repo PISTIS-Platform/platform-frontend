@@ -194,14 +194,46 @@ const emit = defineEmits([
     'reset',
 ]);
 
+const subscriptionForm = ref();
+
 const updateSubscriptionFree = () => {
     emit('update:sub-price-kind', t('data.designer.free'));
     emit('update:sub-price', 0);
+
+    subscriptionForm.value.setErrors(
+        subscriptionForm.value.getErrors().map((err: any) =>
+            err.path === 'price'
+                ? {
+                      message: '',
+                      path: 'price',
+                  }
+                : {
+                      message: err.message,
+                      path: err.path,
+                  },
+        ),
+    );
 };
+
+const oneOffForm = ref();
 
 const updateOneOffFree = () => {
     emit('update:oneoff-kind', t('data.designer.free'));
     emit('update:oneoff-price', 0);
+
+    oneOffForm.value.setErrors(
+        oneOffForm.value.getErrors().map((err: any) =>
+            err.path === 'price'
+                ? {
+                      message: '',
+                      path: 'price',
+                  }
+                : {
+                      message: err.message,
+                      path: err.path,
+                  },
+        ),
+    );
 };
 
 const updateInvestmentPlan = (title: string) => {
@@ -287,6 +319,7 @@ const switchDatasetOpen = ref<boolean>(false);
                 >
                     <UForm
                         v-if="monetizationSelection === t('data.designer.oneOffSale')"
+                        ref="oneOffForm"
                         class="flex flex-col w-full"
                         :state="oneOffSaleDetails"
                         :schema="oneOffSaleSchema"
