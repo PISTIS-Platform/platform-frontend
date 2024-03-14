@@ -454,6 +454,7 @@ const switchDatasetOpen = ref<boolean>(false);
                 >
                     <UForm
                         v-if="monetizationSelection === t('data.designer.subscription')"
+                        ref="subscriptionForm"
                         class="flex flex-col w-full"
                         :state="subscriptionDetails"
                         :schema="subscriptionSchema"
