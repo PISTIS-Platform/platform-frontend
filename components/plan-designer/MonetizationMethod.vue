@@ -192,17 +192,17 @@ const emit = defineEmits([
     'reset',
 ]);
 
-const subscriptionIsFree = ref(false);
-const subscriptionForm = ref();
+const oneOffIsFree = ref(false);
+const oneOffForm = ref();
 
-const updateSubscriptionFree = (value: boolean) => {
-    subscriptionIsFree.value = value;
+const updateOneOffFree = (value: boolean) => {
+    oneOffIsFree.value = value;
 
-    if (subscriptionIsFree.value) {
-        emit('update:sub-price', 0);
+    if (oneOffIsFree.value) {
+        emit('update:oneoff-price', 0);
 
-        subscriptionForm.value.setErrors(
-            subscriptionForm.value.getErrors().map((err: any) =>
+        oneOffForm.value.setErrors(
+            oneOffForm.value.getErrors().map((err: any) =>
                 err.path === 'price'
                     ? {
                           message: '',
@@ -217,17 +217,17 @@ const updateSubscriptionFree = (value: boolean) => {
     }
 };
 
-const oneOffIsFree = ref(false);
-const oneOffForm = ref();
+const subscriptionIsFree = ref(false);
+const subscriptionForm = ref();
 
-const updateOneOffFree = (value: boolean) => {
-    oneOffIsFree.value = value;
+const updateSubscriptionFree = (value: boolean) => {
+    subscriptionIsFree.value = value;
 
-    if (oneOffIsFree.value) {
-        emit('update:oneoff-price', 0);
+    if (subscriptionIsFree.value) {
+        emit('update:sub-price', 0);
 
-        oneOffForm.value.setErrors(
-            oneOffForm.value.getErrors().map((err: any) =>
+        subscriptionForm.value.setErrors(
+            subscriptionForm.value.getErrors().map((err: any) =>
                 err.path === 'price'
                     ? {
                           message: '',
