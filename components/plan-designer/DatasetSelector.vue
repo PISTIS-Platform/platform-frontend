@@ -39,6 +39,7 @@ const dataSetSelections = computed(() => [
     {
         title: t('data.designer.queryFilter'),
         info: t('data.designer.selectQueryFilter'),
+        disabled: true,
     },
 ]);
 

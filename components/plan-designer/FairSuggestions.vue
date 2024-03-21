@@ -12,6 +12,10 @@ defineProps({
         type: Number,
         required: true,
     },
+    selected: {
+        type: String,
+        required: true,
+    },
 });
 
 //TODO: Include emits for updating the oneOffPrice and subscriptionPrice here when there is an API call
@@ -30,7 +34,7 @@ setInterval(() => {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery" class="bg-secondary-50 border border-secondary-500">
+        <UCard v-if="completeOrQuery && selected" class="bg-secondary-50 border border-secondary-500">
             <template #header>
                 <div class="flex justify-between gap-4 items-start">
                     <SubHeading :title="$t('data.designer.fairTitle')" :info="$t('data.designer.fairInfo')" />

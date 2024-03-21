@@ -33,6 +33,10 @@ const props = defineProps({
         type: Boolean,
         required: true,
     },
+    selected: {
+        type: String,
+        required: true,
+    },
 });
 
 const monetizationSelections: { title: string; info: string; disabled: boolean }[] = [
@@ -297,7 +301,7 @@ const switchDatasetOpen = ref<boolean>(false);
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery">
+        <UCard v-if="completeOrQuery && selected">
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.monetizationMethod')"
