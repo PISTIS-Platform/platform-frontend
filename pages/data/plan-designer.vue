@@ -153,10 +153,6 @@ const resetMonetization = () => {
 
 <template>
     <div class="w-full h-full text-gray-700 space-y-8">
-        <h1 class="text-2xl">
-            {{ $t('data.designer.title') }}
-        </h1>
-
         <DatasetSelector
             :selected="selected"
             :complete-or-query="completeOrQuery"
