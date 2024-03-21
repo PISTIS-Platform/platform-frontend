@@ -120,7 +120,7 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
                                 class="flex items-center relative px-4 py-1.5 font-medium rounded-lg bg-primary-900 hover:bg-primary-950 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
                                 @click="signIn('keycloak')"
                             >
-                                <UIcon name="carbon:login" class="-ml-0.5" />
+                                <UIcon name="carbon:login" class="text-white" />
                                 <span class="ml-2">{{ $t('user.signIn') }}</span>
                             </button>
                         </div>
@@ -155,7 +155,7 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
                     >
                 </div>
                 <div class="border-t border-primary-700 pb-3 pt-4">
-                    <div v-if="status === 'authenticatedd'" class="flex items-center px-5">
+                    <div v-if="status === 'authenticated'" class="flex items-center px-5">
                         <div class="flex-shrink-0">
                             <UserCircleIcon class="text-primary-200 w-8 h-8" />
                         </div>
@@ -169,7 +169,7 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
                         >
                             <span class="absolute -inset-1.5" />
                             <span class="sr-only">View notifications</span>
-                            <BellIcon v-if="status === 'authenticatedd'" class="h-6 w-6" aria-hidden="true" />
+                            <BellIcon v-if="status === 'authenticated'" class="h-6 w-6" aria-hidden="true" />
                         </button>
                     </div>
                     <button
@@ -178,7 +178,7 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
                         class="ml-5 flex items-center relative px-4 py-1.5 font-medium rounded-lg bg-primary-900 hover:bg-primary-950 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
                         @click="signIn('keycloak')"
                     >
-                        <UIcon name="carbon:login" class="-ml-0.5" />
+                        <UIcon name="carbon:login" class="text-white" />
                         <span class="ml-2">{{ $t('user.signIn') }}</span>
                     </button>
                     <div class="mt-3 space-y-1 px-2">
