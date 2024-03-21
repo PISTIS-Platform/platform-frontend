@@ -8,7 +8,7 @@ const firstLevelRoutePath = route.fullPath.split('/')[1];
 
 const { signIn, signOut, data: session } = useAuth();
 
-const status = 'authenticatedd';
+const status = 'authenticated';
 
 useHead({
     htmlAttrs: { class: 'min-h-full bg-gray-100' },
