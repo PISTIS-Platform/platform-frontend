@@ -195,6 +195,7 @@ export default defineI18nConfig(() => ({
                 profile: 'Your Profile',
                 settings: 'Settings',
                 signOut: 'Sign out',
+                signIn: 'Sign in',
             },
             notifications: {
                 title: 'Notifications',

@@ -6,15 +6,15 @@ const route = useRoute();
 
 const firstLevelRoutePath = route.fullPath.split('/')[1];
 
+const { signIn, signOut, data: session } = useAuth();
+
+const status = 'authenticatedd';
+
 useHead({
     htmlAttrs: { class: 'min-h-full bg-gray-100' },
     bodyAttrs: { class: 'h-full' },
 });
 
-const user = {
-    name: 'John Doe',
-    email: 'john@doe.com',
-};
 const navigation = [
     { name: 'home.home', to: '/home' },
     { name: 'data.data', to: '/data' },
@@ -22,11 +22,7 @@ const navigation = [
     { name: 'market.market', to: '/market' },
 ];
 
-const userNavigation = [
-    { name: 'user.profile', href: '#' },
-    { name: 'user.settings', href: '#' },
-    { name: 'user.signOut', href: '#' },
-];
+const userNavigation: { name: 'string'; href: 'string' }[] = [];
 </script>
 
 <template>
@@ -39,7 +35,7 @@ const userNavigation = [
                             <img class="h-8 w-28" src="/img/PISTIS_logo_white.png" alt="PISTIS logo" />
                         </div>
                         <div class="hidden md:block">
-                            <div class="ml-10 flex items-baseline space-x-4">
+                            <div v-if="status === 'authenticated'" class="ml-10 flex items-baseline space-x-4">
                                 <NuxtLink
                                     v-for="item in navigation"
                                     :key="item.name"
@@ -64,20 +60,20 @@ const userNavigation = [
                             >
                                 <span class="absolute -inset-1.5" />
                                 <span class="sr-only">View notifications</span>
-                                <BellIcon class="h-6 w-6" aria-hidden="true" />
+                                <BellIcon v-if="status === 'authenticated'" class="h-6 w-6" aria-hidden="true" />
                             </button>
 
                             <!-- Profile dropdown -->
-                            <Menu as="div" class="relative ml-3">
+                            <Menu v-if="status === 'authenticated'" as="div" class="relative ml-3">
                                 <div>
                                     <MenuButton
                                         class="relative flex gap-2 text-primary-200 max-w-xs items-center rounded-full bg-primary-700 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
                                     >
                                         <span class="absolute -inset-1.5" />
                                         <span class="sr-only">Open user menu</span>
-                                        <UserCircleIcon class="text-primary-200 w-8 h-8" />
-                                        <div>
-                                            {{ user.name }}
+                                        <UAvatar :src="session?.user?.image" class="bg-primary-200" size="md" />
+                                        <div class="text-primary-100">
+                                            {{ session?.user?.name }}
                                         </div>
                                         <ChevronDownIcon class="w-4 h-4 text-primary-300" />
                                     </MenuButton>
@@ -103,9 +99,30 @@ const userNavigation = [
                                                 >{{ $t(item.name) }}</a
                                             >
                                         </MenuItem>
+                                        <MenuItem v-slot="{ active }">
+                                            <a
+                                                href="javascript:void(0)"
+                                                :class="[
+                                                    'block px-4 py-2 text-sm text-gray-700',
+                                                    active ? 'bg-primary-100 ' : undefined,
+                                                ]"
+                                                @click="signOut({ callbackUrl: '/' })"
+                                            >
+                                                {{ $t('user.signOut') }}
+                                            </a>
+                                        </MenuItem>
                                     </MenuItems>
                                 </transition>
                             </Menu>
+                            <button
+                                v-else
+                                type="button"
+                                class="flex items-center relative px-4 py-1.5 font-medium rounded-lg bg-primary-900 hover:bg-primary-950 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
+                                @click="signIn('keycloak')"
+                            >
+                                <UIcon name="carbon:login" class="-ml-0.5" />
+                                <span class="ml-2">{{ $t('user.signIn') }}</span>
+                            </button>
                         </div>
                     </div>
                     <div class="-mr-2 flex md:hidden">
@@ -138,13 +155,13 @@ const userNavigation = [
                     >
                 </div>
                 <div class="border-t border-primary-700 pb-3 pt-4">
-                    <div class="flex items-center px-5">
+                    <div v-if="status === 'authenticatedd'" class="flex items-center px-5">
                         <div class="flex-shrink-0">
                             <UserCircleIcon class="text-primary-200 w-8 h-8" />
                         </div>
                         <div class="ml-3">
-                            <div class="text-base font-medium text-white">{{ user.name }}</div>
-                            <div class="text-sm font-medium text-primary-300">{{ user.email }}</div>
+                            <div class="text-base font-medium text-white">{{ session?.user?.name }}</div>
+                            <div class="text-sm font-medium text-primary-300">{{ session?.user?.email }}</div>
                         </div>
                         <button
                             type="button"
@@ -152,9 +169,18 @@ const userNavigation = [
                         >
                             <span class="absolute -inset-1.5" />
                             <span class="sr-only">View notifications</span>
-                            <BellIcon class="h-6 w-6" aria-hidden="true" />
+                            <BellIcon v-if="status === 'authenticatedd'" class="h-6 w-6" aria-hidden="true" />
                         </button>
                     </div>
+                    <button
+                        v-else
+                        type="button"
+                        class="ml-5 flex items-center relative px-4 py-1.5 font-medium rounded-lg bg-primary-900 hover:bg-primary-950 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
+                        @click="signIn('keycloak')"
+                    >
+                        <UIcon name="carbon:login" class="-ml-0.5" />
+                        <span class="ml-2">{{ $t('user.signIn') }}</span>
+                    </button>
                     <div class="mt-3 space-y-1 px-2">
                         <DisclosureButton
                             v-for="item in userNavigation"
