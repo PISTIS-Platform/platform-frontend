@@ -55,7 +55,7 @@ export default defineNuxtConfig({
             addDefaultCallbackUrl: true,
         },
         globalAppMiddleware: {
-            isEnabled: false, // Note: Keep disabled until Keycloak is in-place
+            isEnabled: true, // Note: Keep disabled until Keycloak is in-place
             allow404WithoutAuth: true,
         },
     },
