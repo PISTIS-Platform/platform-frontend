@@ -10,6 +10,9 @@ export default defineNuxtConfig({
     ],
     plugins: ['~/plugins/vue3-tags.js', '~/plugins/vue3-chartjs'],
     devtools: { enabled: true },
+    ui: {
+        icons: ['heroicons', 'fa6-regular', 'formkit'],
+    },
     typescript: {
         strict: true,
         typeCheck: false, // Enabling this makes development slower, but performs proper type checking
