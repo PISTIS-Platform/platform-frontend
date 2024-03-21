@@ -1,14 +1,19 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
-import { Bars3Icon, BellIcon, ChevronDownIcon, UserCircleIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+import {
+    ArrowRightOnRectangleIcon,
+    Bars3Icon,
+    BellIcon,
+    ChevronDownIcon,
+    UserCircleIcon,
+    XMarkIcon,
+} from '@heroicons/vue/24/outline';
 
 const route = useRoute();
 
 const firstLevelRoutePath = route.fullPath.split('/')[1];
 
-const { signIn, signOut, data: session } = useAuth();
-
-const status = 'authenticated';
+const { status, signIn, signOut, data: session } = useAuth();
 
 useHead({
     htmlAttrs: { class: 'min-h-full bg-gray-100' },
@@ -114,15 +119,10 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
                                     </MenuItems>
                                 </transition>
                             </Menu>
-                            <button
-                                v-else
-                                type="button"
-                                class="flex items-center relative px-4 py-1.5 font-medium rounded-lg bg-primary-900 hover:bg-primary-950 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
-                                @click="signIn('keycloak')"
-                            >
-                                <UIcon name="carbon:login" class="text-white" />
-                                <span class="ml-2">{{ $t('user.signIn') }}</span>
-                            </button>
+                            <UButton v-else @click="signIn('keycloak')">
+                                <ArrowRightOnRectangleIcon class="h-4 w-4" />
+                                <span class="text-sm whitespace-nowrap">{{ $t('user.signIn') }}</span>
+                            </UButton>
                         </div>
                     </div>
                     <div class="-mr-2 flex md:hidden">
@@ -172,15 +172,10 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
                             <BellIcon v-if="status === 'authenticated'" class="h-6 w-6" aria-hidden="true" />
                         </button>
                     </div>
-                    <button
-                        v-else
-                        type="button"
-                        class="ml-5 flex items-center relative px-4 py-1.5 font-medium rounded-lg bg-primary-900 hover:bg-primary-950 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
-                        @click="signIn('keycloak')"
-                    >
-                        <UIcon name="carbon:login" class="text-white" />
-                        <span class="ml-2">{{ $t('user.signIn') }}</span>
-                    </button>
+                    <UButton v-else class="ml-5" @click="signIn('keycloak')">
+                        <ArrowRightOnRectangleIcon class="h-4 w-4" />
+                        <span class="text-sm whitespace-nowrap">{{ $t('user.signIn') }}</span>
+                    </UButton>
                     <div class="mt-3 space-y-1 px-2">
                         <DisclosureButton
                             v-for="item in userNavigation"
