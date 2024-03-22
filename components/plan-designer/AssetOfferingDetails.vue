@@ -13,6 +13,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    selected: {
+        type: String,
+        required: true,
+    },
 });
 
 const schema = z.object({
@@ -40,7 +44,7 @@ watch(isValid, () => {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery">
+        <UCard v-if="completeOrQuery && selected">
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.assetOfferingDetails')"

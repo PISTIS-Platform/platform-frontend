@@ -29,14 +29,14 @@ export default defineNuxtConfig({
     },
 
     runtimeConfig: {
-        authSecret: '',
-        keycloakClientId: '',
-        keycloakClientSecret: '',
-        keycloakIssuer: '',
+        authSecret: process.env.NUXT_NEXTAUTH_SECRET,
+        keycloakClientId: process.env.NUXT_KEYCLOAK_CLIENT_ID,
+        keycloakClientSecret: process.env.NUXT_KEYCLOAK_CLIENT_SECRET,
+        keycloakIssuer: process.env.NUXT_KEYCLOAK_ISSUER,
 
-        public: {
-            appUrl: '',
-        },
+        // public: {
+        //     appUrl: '',
+        // },
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],

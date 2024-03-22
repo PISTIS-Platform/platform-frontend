@@ -11,9 +11,11 @@ import type {
 
 const selected = ref<string>('');
 
+const { t } = useI18n();
+
 //data for selection whole dataset or query
 
-const completeOrQuery = ref<string>('');
+const completeOrQuery = ref<string>(t('data.designer.completeDataset'));
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
@@ -84,7 +86,7 @@ const submitAll = () => {
 
 const reset = () => {
     selected.value = '';
-    completeOrQuery.value = '';
+    completeOrQuery.value = t('data.designer.completeDataset');
     monetizationSelection.value = '';
     assetOfferingDetails.value = {
         title: undefined,
@@ -153,10 +155,6 @@ const resetMonetization = () => {
 
 <template>
     <div class="w-full h-full text-gray-700 space-y-8">
-        <h1 class="text-2xl">
-            {{ $t('data.designer.title') }}
-        </h1>
-
         <DatasetSelector
             :selected="selected"
             :complete-or-query="completeOrQuery"
@@ -166,6 +164,7 @@ const resetMonetization = () => {
         />
 
         <AssetOfferingDetails
+            :selected="selected"
             :asset-offering-details="assetOfferingDetails"
             :complete-or-query="completeOrQuery"
             @update:asset-title="(value: string) => (assetOfferingDetails.title = value)"
@@ -177,11 +176,13 @@ const resetMonetization = () => {
         <FairSuggestions
             v-model:oneOffPrice="oneOffPrice"
             v-model:subscriptionPrice="subscriptionPrice"
+            :selected="selected"
             :complete-or-query="completeOrQuery"
         />
 
         <MonetizationMethod
             :complete-or-query="completeOrQuery"
+            :selected="selected"
             :monetization-selection="monetizationSelection"
             :one-off-sale-details="oneOffSaleDetails"
             :subscription-details="subscriptionDetails"

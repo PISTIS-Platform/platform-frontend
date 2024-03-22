@@ -6,5 +6,10 @@ export default defineAppConfig({
     ui: {
         primary: 'pistis',
         gray: 'zinc',
+        avatar: {
+            default: {
+                icon: 'i-heroicons-user-solid',
+            },
+        },
     },
 });
