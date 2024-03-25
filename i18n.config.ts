@@ -236,6 +236,11 @@ export default defineI18nConfig(() => ({
                     },
                 },
             },
+            anonymizer: {
+                anonymizer: 'Anonymizer',
+                obfuscation: 'Obfuscation',
+                kAnonymity: 'k-Anonymity',
+            },
         },
     },
 }));
