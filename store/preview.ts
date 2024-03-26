@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 
-import { Dataset, Metadata, Report, tableRow } from '~/interfaces/dataset-preview';
+import { Dataset, Metadata, Preview, Report, TableRow } from '~/interfaces/dataset-preview';
+import { formatPreview } from '~/pages/anonymizer/data';
 
 //Store for sharing dataset previews across anonymizer components
 export const usePreviewStore = defineStore('preview', {
@@ -11,7 +12,8 @@ export const usePreviewStore = defineStore('preview', {
                 types: {},
             },
             report: {},
-            tableRows: [{}],
+            tableRows: [] as TableRow[],
+            columns: [] as string[],
         };
     },
     getters: {
@@ -24,22 +26,18 @@ export const usePreviewStore = defineStore('preview', {
         getReport(): Report {
             return this.report;
         },
-        getTableRows(): tableRow[] {
+        getTableRows(): TableRow[] {
             return this.tableRows;
         },
     },
     actions: {
-        changeDataset(dataset: Dataset): void {
+        changePreview(preview: Preview): void {
+            const { dataset, metadata, report } = preview;
             this.dataset = dataset;
-        },
-        changeMetadata(metadata: Metadata): void {
             this.metadata = metadata;
-        },
-        changeReport(report: Report) {
             this.report = report;
-        },
-        changeTableRows(tableRows: tableRow[]): void {
-            this.tableRows = tableRows;
+            this.tableRows = formatPreview(dataset) as TableRow[];
+            this.columns = Object.keys(dataset);
         },
     },
 });

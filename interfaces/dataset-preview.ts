@@ -15,6 +15,12 @@ export interface Report {
     };
 }
 
-export interface tableRow {
+export interface TableRow {
     [key: string | number]: string | number | null;
+}
+
+export interface Preview {
+    dataset: Dataset;
+    metadata: Metadata;
+    report: Report;
 }

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
+import { Preview } from '~/interfaces/dataset-preview';
 import { usePreviewStore } from '~/store/preview';
-
-import { formatPreview } from './anonymizer/data';
 
 const routes = ref([
     { name: 'anonymizer.anonymizer', to: '/anonymizer' },
@@ -12,14 +11,12 @@ const routes = ref([
 const previewStore = usePreviewStore();
 
 onMounted(async () => {
+    //Initialise data preview for sharing across anonymizer pages
     const response = await useFetch('/api/anonymizer/preview');
     const data = response.data.value;
 
-    const result = data.result;
-    previewStore.changeDataset(result.dataset);
-    previewStore.changeMetadata(result.metadata);
-    previewStore.changeReport(result.report);
-    previewStore.changeTableRows(formatPreview(previewStore.getDataset));
+    const result: Preview = data.result;
+    previewStore.changePreview(result);
 });
 </script>
 
