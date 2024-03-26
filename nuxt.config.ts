@@ -33,6 +33,7 @@ export default defineNuxtConfig({
         keycloakClientId: process.env.NUXT_KEYCLOAK_CLIENT_ID,
         keycloakClientSecret: process.env.NUXT_KEYCLOAK_CLIENT_SECRET,
         keycloakIssuer: process.env.NUXT_KEYCLOAK_ISSUER,
+        anonymizerApiUrl: process.env.ANONYMIZER_URL,
 
         // public: {
         //     appUrl: '',

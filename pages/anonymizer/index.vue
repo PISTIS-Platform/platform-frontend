@@ -1,31 +1,24 @@
 <script setup lang="ts">
-import { onMounted, Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { usePreviewStore } from '~/store/preview';
 
 import Title from '../../components/anonymizer/Title.vue';
-import { data, formatPreview, getSensitiveColumns } from './data';
+import { getSensitiveColumns } from './data';
 
 const { t } = useI18n();
 
 const title = t('anonymizer.anonymizer');
 
 const previewStore = usePreviewStore();
-const sensitiveColumns: Ref<string[]> = ref([]);
-const rows = ref([{}]);
 
-onMounted(() => {
-    const result = data.result;
-    previewStore.changeDataset(result.dataset);
-    previewStore.changeMetadata(result.metadata);
-    previewStore.changeReport(result.report);
-    previewStore.changeTableRows(formatPreview(previewStore.getDataset));
-
-    rows.value = previewStore.getTableRows;
-
-    sensitiveColumns.value = getSensitiveColumns(previewStore.getReport);
+previewStore.$subscribe((mutation, state) => {
+    rows.value = state.tableRows;
+    sensitiveColumns.value = getSensitiveColumns(state.report);
 });
+
+const rows = ref(previewStore.tableRows);
+const sensitiveColumns = ref(getSensitiveColumns(previewStore.getReport));
 </script>
 
 <template>
