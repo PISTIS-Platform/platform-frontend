@@ -1,13 +1,13 @@
-export function formatPreview(data: any): any {
-    const dataset = data['result']['dataset'];
+import { Dataset, Report, tableRow } from '~/interfaces/dataset-preview';
 
+export function formatPreview(dataset: Dataset): tableRow[] {
     const columns: string[] = Object.keys(dataset);
     const previewSize: number = dataset[columns[0]].length;
 
     const rows = [];
 
     for (let i = 0; i < previewSize; i++) {
-        const row: any = {};
+        const row: tableRow = {};
 
         columns.forEach((column: string) => {
             row[column] = dataset[column][i];
@@ -19,8 +19,7 @@ export function formatPreview(data: any): any {
     return rows;
 }
 
-export function getSensitiveColumns(data: any) {
-    const report = data['result']['report'];
+export function getSensitiveColumns(report: Report): string[] {
     const columns = Object.keys(report);
 
     columns.forEach((column) => {

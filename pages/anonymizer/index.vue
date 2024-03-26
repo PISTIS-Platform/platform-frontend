@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+import { usePreviewStore } from '~/store/preview';
 
 import Title from '../../components/anonymizer/Title.vue';
 import { data, formatPreview, getSensitiveColumns } from './data';
@@ -8,12 +10,21 @@ import { data, formatPreview, getSensitiveColumns } from './data';
 const { t } = useI18n();
 
 const title = t('anonymizer.anonymizer');
-const rows = ref([]);
-const sensitiveColumns = ref([]);
+
+const previewStore = usePreviewStore();
+const sensitiveColumns: Ref<string[]> = ref([]);
+const rows = ref([{}]);
 
 onMounted(() => {
-    rows.value = formatPreview(data);
-    sensitiveColumns.value = getSensitiveColumns(data);
+    const result = data.result;
+    previewStore.changeDataset(result.dataset);
+    previewStore.changeMetadata(result.metadata);
+    previewStore.changeReport(result.report);
+    previewStore.changeTableRows(formatPreview(previewStore.getDataset));
+
+    rows.value = previewStore.getTableRows;
+
+    sensitiveColumns.value = getSensitiveColumns(previewStore.getReport);
 });
 </script>
 
