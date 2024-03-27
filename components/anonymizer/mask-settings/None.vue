@@ -1,4 +1,4 @@
 <template>
     <h4 class="font-bold">Description</h4>
-    <p>Replace numerical values with a range of values.</p>
+    <p>No transformation will be made to this column.</p>
 </template>

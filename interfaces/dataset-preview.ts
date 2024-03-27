@@ -6,6 +6,9 @@ export interface Metadata {
     types: {
         [key: string | number]: string;
     };
+    recommendation: {
+        [key: string | number]: string;
+    };
 }
 
 export interface Report {

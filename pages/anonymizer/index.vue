@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
+import { TableRow } from '~/interfaces/dataset-preview';
 import { usePreviewStore } from '~/store/preview';
 
 import Title from '../../components/anonymizer/Title.vue';
@@ -12,8 +13,8 @@ const title = t('anonymizer.anonymizer');
 
 const previewStore = usePreviewStore();
 
-const rows = ref(previewStore.tableRows);
-const sensitiveColumns = ref(getSensitiveColumns(previewStore.getReport));
+const rows = ref<TableRow[]>(previewStore.tableRows);
+const sensitiveColumns = ref<string[]>(getSensitiveColumns(previewStore.getReport));
 
 previewStore.$subscribe((mutation, state) => {
     rows.value = state.tableRows;

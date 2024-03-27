@@ -10,6 +10,7 @@ export const usePreviewStore = defineStore('preview', {
             dataset: {},
             metadata: {
                 types: {},
+                recommendation: {},
             },
             report: {},
             tableRows: [] as TableRow[],

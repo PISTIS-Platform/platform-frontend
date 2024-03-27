@@ -19,3 +19,19 @@ export interface RangeSettings extends BaseSettings {
 export interface HashSettings extends BaseSettings {
     classification: string;
 }
+
+export enum MaskType {
+    ANY = 'ANY',
+    STRING = 'STRING',
+    NUMBER = 'NUMBER',
+}
+
+export interface MaskDetail {
+    name: string;
+    data_type: string;
+}
+
+export interface SortedMasks {
+    STRING: MaskDetail[];
+    NUMBER: MaskDetail[];
+}
