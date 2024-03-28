@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 import type CardSelection from '~/interfaces/card-selection';
+import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 import { MonetMethod } from '~/interfaces/monetization-method.enum';
 
 const { t } = useI18n();
@@ -74,7 +75,12 @@ const subscriptionIsFree = ref(false);
 
 const licenseSelections: string[] = ['CC-BY', 'MIT', 'CC0'];
 
-const limitFrequencySelections = computed(() => [t('perDay'), t('perWeek'), t('perMonth'), t('perYear')]);
+const limitFrequencySelections = computed(() => [
+    { title: t('perDay'), value: DownloadFrequency.DAY },
+    { title: t('perWeek'), value: DownloadFrequency.WEEK },
+    { title: t('perMonth'), value: DownloadFrequency.MONTH },
+    { title: t('perYear'), value: DownloadFrequency.YEAR },
+]);
 
 const oneOffSaleSchema = z.object({
     // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
@@ -412,6 +418,8 @@ const switchDatasetOpen = ref<boolean>(false);
                                         :model-value="oneOffSaleDetails.limitFrequency"
                                         :placeholder="$t('data.designer.selectFrequency')"
                                         :options="limitFrequencySelections"
+                                        value-attribute="value"
+                                        option-attribute="title"
                                         @update:model-value="
                                             (value: string) => emit('update:oneoff-limit-frequency', value)
                                         "
@@ -549,6 +557,8 @@ const switchDatasetOpen = ref<boolean>(false);
                                         :model-value="subscriptionDetails.limitFrequency"
                                         :placeholder="$t('data.designer.selectFrequency')"
                                         :options="limitFrequencySelections"
+                                        value-attribute="value"
+                                        option-attribute="title"
                                         @update:model-value="
                                             (value: string) => emit('update:sub-limit-frequency', value)
                                         "

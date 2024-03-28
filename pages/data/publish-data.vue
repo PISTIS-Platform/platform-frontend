@@ -156,7 +156,7 @@ const resetMonetization = () => {
 </script>
 
 <template>
-    {{ monetizationSelection }}
+    {{ subscriptionDetails }}
     <div class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             :selected="selected"
