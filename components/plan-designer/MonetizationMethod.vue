@@ -484,7 +484,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                         <UFormGroup
                                             :label="$t('data.designer.subscriptionPrice')"
                                             class="flex-1"
-                                            :required="props.subscriptionDetails.priceKind === $t('data.designer.paid')"
+                                            :required="!subscriptionIsFree"
                                             name="price"
                                         >
                                             <UInput
