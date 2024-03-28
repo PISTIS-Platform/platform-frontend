@@ -632,7 +632,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     <div class="flex flex-col space-y-5">
                         <div class="flex flex-col gap-4">
                             <UFormGroup
-                                v-if="props.monetizationSelection === t('data.designer.investmentPlan')"
+                                v-if="props.monetizationSelection === MonetMethod.INVESTMENT"
                                 :label="$t('data.designer.searchEditCreatePlan')"
                             >
                                 <div class="flex items-center gap-4">
