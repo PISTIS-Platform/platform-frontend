@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import type CardSelection from '~/interfaces/card-selection';
+
 defineProps({
     selections: {
-        type: Array<{ title: string; info: string; disabled: boolean }>,
+        type: Array<CardSelection>,
         required: true,
     },
     width: {
@@ -22,13 +24,13 @@ const emit = defineEmits(['update:model-value']);
     <div class="flex flex-row gap-4">
         <SelectionCard
             v-for="item in selections"
-            :key="item.title"
+            :key="item.value"
             :title="item.title"
             :info="item.info"
             :disabled="item.disabled"
-            :selected="modelValue === item.title"
+            :selected="modelValue === item.value"
             :width="width"
-            @click="item.disabled ? '' : emit('update:model-value', item.title)"
+            @click="item.disabled ? '' : emit('update:model-value', item.value)"
         />
     </div>
 </template>

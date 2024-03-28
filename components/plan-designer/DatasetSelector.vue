@@ -35,10 +35,12 @@ const dataSetSelections = computed(() => [
     {
         title: t('data.designer.completeDataset'),
         info: t('data.designer.selectDataset'),
+        value: 'Complete Dataset',
     },
     {
         title: t('data.designer.queryFilter'),
         info: t('data.designer.selectQueryFilter'),
+        value: 'Query / Filter',
         disabled: true,
     },
 ]);

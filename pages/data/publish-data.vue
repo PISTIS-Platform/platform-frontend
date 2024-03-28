@@ -15,7 +15,7 @@ const { t } = useI18n();
 
 //data for selection whole dataset or query
 
-const completeOrQuery = ref<string>(t('data.designer.completeDataset'));
+const completeOrQuery = ref<string>('Complete Dataset');
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
@@ -154,6 +154,7 @@ const resetMonetization = () => {
 </script>
 
 <template>
+    {{ completeOrQuery }}
     <div class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             :selected="selected"
