@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { DatasetKind } from '~/interfaces/dataset.enum';
+
 import type {
     AssetOfferingDetails,
     InvestmentPlanDetails,
@@ -15,7 +17,7 @@ const { t } = useI18n();
 
 //data for selection whole dataset or query
 
-const completeOrQuery = ref<string>(t('data.designer.completeDataset'));
+const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
