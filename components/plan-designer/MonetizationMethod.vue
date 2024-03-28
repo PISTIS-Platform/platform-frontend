@@ -5,6 +5,7 @@ import { z } from 'zod';
 import type CardSelection from '~/interfaces/card-selection';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 import { MonetMethod } from '~/interfaces/monetization-method.enum';
+import { SubscriptionFrequency } from '~/interfaces/subscription-frequency.enum';
 
 const { t } = useI18n();
 
@@ -472,7 +473,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                         <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
                                             <URadio
                                                 :label="$t('data.designer.monthly')"
-                                                :value="$t('data.designer.monthly')"
+                                                :value="SubscriptionFrequency.MONTHLY"
                                                 :model-value="props.subscriptionDetails.frequency"
                                                 @update:model-value="
                                                     (value: string) => emit('update:sub-frequency', value)
@@ -480,7 +481,7 @@ const switchDatasetOpen = ref<boolean>(false);
                                             />
                                             <URadio
                                                 :label="$t('data.designer.annual')"
-                                                :value="$t('data.designer.annual')"
+                                                :value="SubscriptionFrequency.ANNUAL"
                                                 :model-value="props.subscriptionDetails.frequency"
                                                 @update:model-value="
                                                     (value: string) => emit('update:sub-frequency', value)
