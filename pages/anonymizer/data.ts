@@ -11,7 +11,7 @@ export function formatPreview(dataset: Dataset): TableRow[] {
         const row: TableRow = {};
 
         columns.forEach((column: string) => {
-            row[column] = dataset[column][i];
+            row[column] = dataset[column][i]!;
         });
 
         rows.push(row);
@@ -22,13 +22,15 @@ export function formatPreview(dataset: Dataset): TableRow[] {
 
 //Retrieve list of sensitive column names
 export function getSensitiveColumns(report: Report): string[] {
-    const columns = Object.keys(report);
+    //Create temp copy to avoid altering anonymizerStore
+    const tempReport = { ...report };
+    const columns = Object.keys(tempReport);
 
     columns.forEach((column) => {
         if (report[column]['sensitivity'] === 'INSENSITIVE') {
-            delete report[column];
+            delete tempReport[column];
         }
     });
 
-    return Object.keys(report);
+    return Object.keys(tempReport);
 }

@@ -6,9 +6,8 @@ export interface Metadata {
     types: {
         [key: string | number]: string;
     };
-    recommendation: {
-        [key: string | number]: string;
-    };
+    recommendation: TableRow;
+    fakerOptions: string[];
 }
 
 export interface Report {
@@ -19,7 +18,7 @@ export interface Report {
 }
 
 export interface TableRow {
-    [key: string | number]: string | number | null;
+    [key: string | number]: string | number;
 }
 
 export interface Preview {

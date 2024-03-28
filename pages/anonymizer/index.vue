@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n';
 
 import { TableRow } from '~/interfaces/dataset-preview';
-import { usePreviewStore } from '~/store/preview';
+import { useAnonymizerStore } from '~/store/anonymizer';
 
 import Title from '../../components/anonymizer/Title.vue';
 import { getSensitiveColumns } from './data';
@@ -11,12 +11,12 @@ const { t } = useI18n();
 
 const title = t('anonymizer.anonymizer');
 
-const previewStore = usePreviewStore();
+const anonymizerStore = useAnonymizerStore();
 
-const rows = ref<TableRow[]>(previewStore.tableRows);
-const sensitiveColumns = ref<string[]>(getSensitiveColumns(previewStore.getReport));
+const rows = ref<TableRow[]>(anonymizerStore.getTableRows);
+const sensitiveColumns = ref<string[]>(getSensitiveColumns(anonymizerStore.getReport));
 
-previewStore.$subscribe((mutation, state) => {
+anonymizerStore.$subscribe((mutation, state) => {
     rows.value = state.tableRows;
     sensitiveColumns.value = getSensitiveColumns(state.report);
 });
@@ -59,3 +59,4 @@ previewStore.$subscribe((mutation, state) => {
         </UCard>
     </div>
 </template>
+~/store/anonymizer

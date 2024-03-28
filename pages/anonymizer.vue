@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Preview } from '~/interfaces/dataset-preview';
-import { usePreviewStore } from '~/store/preview';
+import { useAnonymizerStore } from '~/store/anonymizer';
 
 const routes = ref([
     { name: 'anonymizer.anonymizer', to: '/anonymizer' },
@@ -8,15 +8,16 @@ const routes = ref([
     { name: 'anonymizer.kAnonymity', to: '/anonymizer/k-anonymity' },
 ]);
 
-const previewStore = usePreviewStore();
+const anonymizerStore = useAnonymizerStore();
 
 onMounted(async () => {
     //Initialise data preview for sharing across anonymizer pages
+    //This is necessary for components to work
     const response = await useFetch('/api/anonymizer/preview');
     const data = response.data.value;
 
     const result: Preview = data.result;
-    previewStore.changePreview(result);
+    anonymizerStore.changePreview(result);
 });
 </script>
 
