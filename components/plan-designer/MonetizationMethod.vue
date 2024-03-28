@@ -2,6 +2,9 @@
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
+import type CardSelection from '~/interfaces/card-selection';
+import { MonetMethod } from '~/interfaces/monetization-method.enum';
+
 const { t } = useI18n();
 
 const props = defineProps({
@@ -39,28 +42,35 @@ const props = defineProps({
     },
 });
 
-const monetizationSelections: { title: string; info: string; disabled: boolean }[] = [
+const monetizationSelections: CardSelection[] = [
     {
         title: t('data.designer.oneOffSale'),
         info: t('data.designer.oneOffSaleInfo'),
+        value: MonetMethod.ONE_OFF,
         disabled: false,
     },
     {
         title: t('data.designer.subscription'),
         info: t('data.designer.subscriptionInfo'),
+        value: MonetMethod.SUBSCRIPTION,
         disabled: false,
     },
     {
         title: t('data.designer.nft'),
         info: t('data.designer.nftInfo'),
+        value: MonetMethod.NFT,
         disabled: true,
     },
     {
         title: t('data.designer.investmentPlan'),
         info: t('data.designer.investmentPlanInfo'),
+        value: MonetMethod.INVESTMENT,
         disabled: true,
     },
 ];
+
+const oneOffIsFree = ref(false);
+const subscriptionIsFree = ref(false);
 
 const licenseSelections: string[] = ['CC-BY', 'MIT', 'CC0'];
 
@@ -70,13 +80,10 @@ const oneOffSaleSchema = z.object({
     // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
     price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
         (val) => {
-            return props.oneOffSaleDetails.priceKind === t('data.designer.free') ? val === 0 : val > 0;
+            return oneOffIsFree.value ? val === 0 : val > 0;
         },
         {
-            message:
-                props.oneOffSaleDetails.priceKind === t('data.designer.free')
-                    ? ''
-                    : t('data.designer.priceHigherThanZero'),
+            message: oneOffIsFree.value ? '' : t('data.designer.priceHigherThanZero'),
         },
     ),
     license: z.string(),
@@ -91,13 +98,10 @@ const subscriptionSchema = z.object({
     // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
     price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
         (val) => {
-            return props.subscriptionDetails.priceKind === t('data.designer.free') ? val === 0 : val > 0;
+            return subscriptionIsFree.value ? val === 0 : val > 0;
         },
         {
-            message:
-                props.subscriptionDetails.priceKind === t('data.designer.free')
-                    ? ''
-                    : t('data.designer.priceHigherThanZero'),
+            message: subscriptionIsFree.value ? '' : t('data.designer.priceHigherThanZero'),
         },
     ),
     license: z.string(),
@@ -151,16 +155,16 @@ const isInvestmentPlanDetailsValid = computed(() => {
 });
 
 const isMonetizationValid = computed(() => {
-    if (props.monetizationSelection === t('data.designer.oneOffSale')) {
+    if (props.monetizationSelection === MonetMethod.ONE_OFF) {
         return isOneOffSaleDetailsValid.value;
     }
-    if (props.monetizationSelection === t('data.designer.subscription')) {
+    if (props.monetizationSelection === MonetMethod.SUBSCRIPTION) {
         return isSubscriptionDetailsValid.value;
     }
-    if (props.monetizationSelection === t('data.designer.nft')) {
+    if (props.monetizationSelection === MonetMethod.NFT) {
         return isNFTDetailsValid.value;
     }
-    if (props.monetizationSelection === t('data.designer.investmentPlan')) {
+    if (props.monetizationSelection === MonetMethod.INVESTMENT) {
         return isInvestmentPlanDetailsValid.value;
     }
     return false;
@@ -196,7 +200,6 @@ const emit = defineEmits([
     'reset',
 ]);
 
-const oneOffIsFree = ref(false);
 const oneOffForm = ref();
 
 const updateOneOffFree = (value: boolean) => {
@@ -221,7 +224,6 @@ const updateOneOffFree = (value: boolean) => {
     }
 };
 
-const subscriptionIsFree = ref(false);
 const subscriptionForm = ref();
 
 const updateSubscriptionFree = (value: boolean) => {
@@ -328,7 +330,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === t('data.designer.oneOffSale')"
+                        v-if="monetizationSelection === MonetMethod.ONE_OFF"
                         ref="oneOffForm"
                         class="flex flex-col w-full"
                         :state="oneOffSaleDetails"
@@ -445,7 +447,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === t('data.designer.subscription')"
+                        v-if="monetizationSelection === MonetMethod.SUBSCRIPTION"
                         ref="subscriptionForm"
                         class="flex flex-col w-full"
                         :state="subscriptionDetails"
@@ -583,7 +585,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === t('data.designer.nft')"
+                        v-if="monetizationSelection === MonetMethod.NFT"
                         class="flex flex-col w-full"
                         :state="detailsOfNFT"
                         :schema="NFTschema"
@@ -690,7 +692,7 @@ const switchDatasetOpen = ref<boolean>(false);
                             </div>
                         </div>
                         <UForm
-                            v-if="props.monetizationSelection === $t('data.designer.investmentPlan') && showCreatePlan"
+                            v-if="props.monetizationSelection === MonetMethod.INVESTMENT && showCreatePlan"
                             class="flex flex-col w-full"
                             :state="props.investmentPlanDetails"
                             :schema="investmentSchema"
