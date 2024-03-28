@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
+import { DatasetKind } from '~/interfaces/dataset.enum';
+
 import dummyData from '../../pages/data/dummy-data';
 
 const { t } = useI18n();
@@ -35,12 +37,12 @@ const dataSetSelections = computed(() => [
     {
         title: t('data.designer.completeDataset'),
         info: t('data.designer.selectDataset'),
-        value: 'Complete Dataset',
+        value: DatasetKind.COMPLETE,
     },
     {
         title: t('data.designer.queryFilter'),
         info: t('data.designer.selectQueryFilter'),
-        value: 'Query / Filter',
+        value: DatasetKind.QUERY_FILTER,
         disabled: true,
     },
 ]);
