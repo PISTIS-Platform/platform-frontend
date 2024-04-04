@@ -38,6 +38,9 @@ dependencies:
   vue-chartjs:
     specifier: ^5.2.0
     version: 5.2.0(chart.js@4.4.1)(vue@3.3.4)
+  vue-fast-marquee:
+    specifier: ^1.0.6
+    version: 1.0.6(vue@3.3.4)
   vue3-tags-input:
     specifier: ^1.0.12
     version: 1.0.12(vue@3.3.4)
@@ -10113,6 +10116,14 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /vue-fast-marquee@1.0.6(vue@3.3.4):
+    resolution: {integrity: sha512-VMqaeuBSS3L55Q84EuLJPHZ4Zv4UVBDXmh+2hb1IBTLKt/FmurJnWVXv8BNnbQSupA4kHbPlWDLwp+kvEMOF7A==}
+    peerDependencies:
+      vue: '>=3.2.0'
+    dependencies:
+      vue: 3.3.4
+    dev: false
 
   /vue-i18n-routing@0.13.4(vue-i18n@9.3.0-beta.27)(vue@3.3.4):
     resolution: {integrity: sha512-cihM/X4c6dgAnSVoIc3wUoiGG6B/Y+a3B3+Xt+7b9n2mjnKQ+ZkQ6oKVQxOd8WFRdJyohlP5dyL3Xsho4HZjBw==}

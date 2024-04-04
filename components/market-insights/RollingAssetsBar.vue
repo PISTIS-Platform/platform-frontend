@@ -11,6 +11,8 @@ defineProps({
 
 <template>
     <div class="flex items-center gap-12 bg-white w-full p-4 rounded-md border">
-        <RollingAsset v-for="asset in assets" :key="asset.name" :asset-info="asset" />
+        <Marquee>
+            <RollingAsset v-for="asset in assets" :key="asset.name" :asset-info="asset" />
+        </Marquee>
     </div>
 </template>
