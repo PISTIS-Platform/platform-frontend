@@ -19,5 +19,5 @@
 </script>
 
 <template>
-    <PageContainer> Overview Content goes here </PageContainer>
+    <PageContainer> Sectors Content goes here </PageContainer>
 </template>

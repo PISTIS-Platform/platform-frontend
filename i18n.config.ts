@@ -172,10 +172,10 @@ export default defineI18nConfig(() => ({
                 },
             },
             market: {
-                market: 'PISTIS Market',
-                store: 'Store',
-                log: 'Log',
-                insights: 'Insights',
+                overview: 'Overview',
+                assets: 'Assets',
+                sectors: 'Sectors',
+                market: 'Market Insights',
             },
             transactions: {
                 transactions: 'My Transactions',

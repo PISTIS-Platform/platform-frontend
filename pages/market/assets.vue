@@ -19,5 +19,5 @@
 </script>
 
 <template>
-    <PageContainer> Overview Content goes here </PageContainer>
+    <PageContainer> Content goes here </PageContainer>
 </template>
