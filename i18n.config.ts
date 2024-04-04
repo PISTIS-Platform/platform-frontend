@@ -174,8 +174,13 @@ export default defineI18nConfig(() => ({
             market: {
                 overview: 'Overview',
                 assets: 'Assets',
-                sectors: 'Sectors',
                 market: 'Market Insights',
+                sectors: {
+                    title: 'Sectors',
+                    overview: 'Sectors Overview',
+                    changeSince1WeekAgo: 'Change Since 1 Week Ago',
+                    errorInLoadingBasicInfo: 'Error occurred while loading sectors basic info',
+                },
             },
             transactions: {
                 transactions: 'My Transactions',
