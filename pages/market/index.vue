@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { timeframeIntervalSelections } from '~/constants/market-insights';
+//import { timeframeIntervalSelections } from '~/constants/market-insights';
 import { BasicAsset } from '~/interfaces/market-insights';
 
-const selection = ref('W');
+// const selection = ref('W');
 
-const triggerChangeSelection = (value: string) => {
-    selection.value = value;
-};
+// const triggerChangeSelection = (value: string) => {
+//     selection.value = value;
+// };
 
 const assets: BasicAsset[] = [
     {
@@ -40,10 +40,10 @@ const assets: BasicAsset[] = [
     <PageContainer>
         <RollingAssetsBar :assets="assets" />
 
-        <TimeframeSelector
+        <!-- <TimeframeSelector
             :model-value="selection"
             :selections="timeframeIntervalSelections"
             @update:model-value="triggerChangeSelection"
-        ></TimeframeSelector>
+        ></TimeframeSelector> -->
     </PageContainer>
 </template>
