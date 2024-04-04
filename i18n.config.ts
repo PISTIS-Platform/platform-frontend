@@ -180,6 +180,7 @@ export default defineI18nConfig(() => ({
                     overview: 'Sectors Overview',
                     changeSince1WeekAgo: 'Change Since 1 Week Ago',
                     errorInLoadingBasicInfo: 'Error occurred while loading sectors basic info',
+                    allSectorsSales: 'Sectors Sales By Date',
                 },
             },
             transactions: {
