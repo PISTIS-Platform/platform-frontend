@@ -1,23 +1,19 @@
 <script setup lang="ts">
-// import {
-//     ArcElement,
-//     BarElement,
-//     CategoryScale,
-//     Chart as ChartJS,
-//     Legend,
-//     LinearScale,
-//     LineElement,
-//     PointElement,
-//     Title,
-//     Tooltip,
-// } from 'chart.js';
-// import { Bar, Doughnut, Line } from 'vue-chartjs';
+import { timeframeIntervalSelections } from '~/constants/market-insights';
 
-// import { data, lineData, options, pieData } from './chart-data';
+const selection = ref('W');
 
-// ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement);
+const triggerChangeSelection = (value: string) => {
+    selection.value = value;
+};
 </script>
 
 <template>
-    <PageContainer> Overview Content goes here </PageContainer>
+    <PageContainer>
+        <TimeframeSelector
+            :model-value="selection"
+            :selections="timeframeIntervalSelections"
+            @update:model-value="triggerChangeSelection"
+        ></TimeframeSelector>
+    </PageContainer>
 </template>
