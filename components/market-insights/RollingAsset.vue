@@ -38,6 +38,7 @@ const options = {
     maintainAspectRatio: true,
     borderColor: props.assetInfo.change > 0 ? 'green' : props.assetInfo.change === 0 ? 'gray' : 'red',
     pointBorderWidth: 0,
+    pointRadius: 0,
     pointHoverRadius: 0,
     scales: {
         y: {
