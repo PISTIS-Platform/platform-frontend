@@ -86,6 +86,94 @@ const lineChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
 };
+
+const assetsColumns = [
+    {
+        key: 'assetName',
+        label: t('market.assets.assetsTable.assetName'),
+        sortable: true,
+    },
+    {
+        key: 'price',
+        label: t('market.assets.assetsTable.price'),
+        sortable: true,
+    },
+    {
+        key: 'totalSales',
+        label: t('market.assets.assetsTable.totalSales'),
+        sortable: true,
+    },
+    {
+        key: 'marketCap',
+        label: t('market.assets.assetsTable.marketCap'),
+        sortable: true,
+    },
+    {
+        key: 'change',
+        label: t('market.assets.assetsTable.change'),
+        sortable: true,
+    },
+];
+
+interface AssetTableRow {
+    assetName: string;
+    price: number;
+    totalSales: number;
+    marketCap: number;
+    change: number;
+}
+
+const assetsData = ref<AssetTableRow[]>([
+    {
+        assetName: 'Asset 1',
+        price: 11,
+        totalSales: 234,
+        marketCap: 3000,
+        change: 50,
+    },
+    {
+        assetName: 'Asset 2',
+        price: 20,
+        totalSales: 345,
+        marketCap: 24324,
+        change: -40,
+    },
+    {
+        assetName: 'Asset 3',
+        price: 1,
+        totalSales: 1500,
+        marketCap: 1235,
+        change: 30,
+    },
+    {
+        assetName: 'Asset 4',
+        price: 3,
+        totalSales: 8576,
+        marketCap: 9008,
+        change: -15,
+    },
+    {
+        assetName: 'Asset 5',
+        price: 3,
+        totalSales: 8576,
+        marketCap: 9008,
+        change: -15,
+    },
+]);
+
+//TODO: Change to more realistic number for later (5 or 10)
+const assetsPageCount = 3;
+
+const {
+    page: assetsPage,
+    sortBy: assetsSortBy,
+    searchString: assetsSearchString,
+    filteredRows: assetsFilteredRows,
+    paginatedRows: assetsPaginatedRows,
+} = useTable<AssetTableRow>(assetsData, assetsPageCount, {
+    column: 'assetName',
+    direction: 'desc',
+});
 </script>
 
 <template>
@@ -100,7 +188,7 @@ const lineChartOptions = {
             <template #right-header>
                 <div class="flex items-center gap-6">
                     <TimeframeSelector v-model="selectedInterval" is-interval />
-                    <USelectMenu v-model="selectedSector" size="md" :options="sectors"> </USelectMenu>
+                    <USelectMenu v-model="selectedSector" size="md" :options="sectors" />
                 </div>
             </template>
             <div class="h-72 w-full mt-1">
@@ -112,6 +200,24 @@ const lineChartOptions = {
                     :options="lineChartOptions"
                 />
             </div>
+        </ChartContainer>
+        <ChartContainer :title="$t('market.assets.assetsOverview')" class="mt-6 h-96">
+            <template #right-header>
+                <UInput v-model="assetsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
+                <USelectMenu v-model="selectedSector" size="md" :options="sectors" class="ml-6" />
+            </template>
+            <UTable v-model:sort="assetsSortBy" :columns="assetsColumns" :rows="assetsPaginatedRows" sort-mode="manual">
+                <template #change-data="{ row }">
+                    <ChangeText :change-value="row.change" />
+                </template>
+            </UTable>
+            <UPagination
+                v-if="assetsFilteredRows.length > assetsPageCount"
+                v-model="assetsPage"
+                :page-count="assetsPageCount"
+                :total="assetsFilteredRows.length"
+                class="self-end"
+            />
         </ChartContainer>
     </PageContainer>
 </template>

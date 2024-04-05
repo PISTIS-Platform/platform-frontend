@@ -18,6 +18,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            search: 'Search...',
             addNew: 'Add new',
             cancel: 'Cancel',
             yes: 'Yes',
@@ -192,6 +193,15 @@ export default defineI18nConfig(() => ({
                     title: 'Assets',
                     topPerforming: 'Top Performing Assets',
                     timeline: 'Timeline of assets sales vs average sales',
+                    assetsOverview: 'Assets Overview',
+                    transactionsOverview: 'Transactions Overview',
+                    assetsTable: {
+                        assetName: 'Asset Name',
+                        price: 'Price',
+                        totalSales: 'Total Sales',
+                        marketCap: 'Market Cap (STC)',
+                        change: 'Change (1M)',
+                    },
                 },
                 overview: {
                     title: 'Overview',
