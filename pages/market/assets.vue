@@ -20,11 +20,7 @@ ChartJS.register(CategoryScale, LinearScale, Title, Tooltip, Legend, PointElemen
 
 const selectedInterval = ref('D');
 
-const triggerIntervalChangeSelection = (value: string) => {
-    selectedInterval.value = value;
-    //TODO: Do something with the change here
-};
-
+//TODO: Get asset data from API call
 const assets: BasicAsset[] = [
     {
         name: 'Asset 1',
@@ -66,31 +62,27 @@ const sectors: Selection[] = [
 
 const selectedSector = ref(sectors[0]);
 
-const _triggerSectorChangeSelection = (value: Selection) => {
-    selectedSector.value = value;
-    //TODO: Do something with the change here
-    //selectedSector.value.value -> actual value
-};
+const { data: lineChartData, pending: lineChartPending } = useFetch('/market/assets/assets-vs-average');
 
-const lineData = {
-    labels: ['January', 'February', 'March', 'April'],
-    datasets: [
-        {
-            label: 'Earnings',
-            borderColor: '#7BA3A2',
-            backgroundColor: '#7BA3A2',
-            data: [20, 12, 11, 39],
-        },
-        {
-            label: 'Costs',
-            borderColor: '#4B6C6C',
-            backgroundColor: '#4B6C6C',
-            data: [11, 20, 12, 39],
-        },
-    ],
-};
+const computedLineChartData = computed(() => {
+    if (!lineChartData.value)
+        return {
+            labels: [],
+            datasets: [
+                {
+                    label: '',
+                    data: [],
+                },
+            ],
+        };
 
-const options = {
+    return {
+        labels: lineChartData.value.labels,
+        datasets: lineChartData.value[selectedSector.value.value][selectedInterval.value],
+    };
+});
+
+const lineChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
 };
@@ -107,16 +99,18 @@ const options = {
         <ChartContainer :title="$t('market.assets.timeline')" class="mt-6 h-96">
             <template #right-header>
                 <div class="flex items-center gap-6">
-                    <TimeframeSelector
-                        :model-value="selectedInterval"
-                        is-interval
-                        @update:model-value="triggerIntervalChangeSelection"
-                    />
+                    <TimeframeSelector v-model="selectedInterval" is-interval />
                     <USelectMenu v-model="selectedSector" size="md" :options="sectors"> </USelectMenu>
                 </div>
             </template>
-            <div class="h-72 w-full">
-                <Line class="w-full h-full" :data="lineData" :options="options" />
+            <div class="h-72 w-full mt-1">
+                <!-- TODO: Put loading skeleton or spinner here-->
+                <Line
+                    v-if="!lineChartPending"
+                    class="w-full h-full"
+                    :data="computedLineChartData"
+                    :options="lineChartOptions"
+                />
             </div>
         </ChartContainer>
     </PageContainer>
