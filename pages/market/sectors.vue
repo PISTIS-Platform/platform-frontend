@@ -3,7 +3,7 @@ import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title
 import { Bar } from 'vue-chartjs';
 import { useI18n } from 'vue-i18n';
 
-import type { AssetPerformanceList, BasicSector } from '~/interfaces/market-insights';
+import type { AssetPerformanceList, BasicAsset, BasicSector } from '~/interfaces/market-insights';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -76,7 +76,6 @@ const nodeComparisonOptions: string[] = [
 //sectors
 const selectedSector = ref<BasicSector | null>(null);
 
-//TODO:: load from server
 const sectors = computed(() => {
     if (!sectorsBasicInfo.value) {
         return [];
@@ -88,9 +87,15 @@ const sectors = computed(() => {
     }));
 });
 
-// Data fetching
+//TODO:: the purpose of this is that the sectors dropdown will be initialized with a value so that the data below won't be empty, check if watcher can be avoided
+watch(sectors, () => {
+    if (!selectedSector.value && sectors.value.length) {
+        selectedSector.value = sectors.value[0];
+    }
+});
+
+// Assets Performance (top & worst) data fetching
 //TODO:: add loading for asset performance data
-//TODO:: fix return types
 const { data: fetchedAssetsPerformanceData } = await useLazyFetch<Record<number, AssetPerformanceList>>(
     '/api/market-insights/sectors/asset-performance-by-sector',
 );
@@ -104,9 +109,20 @@ const computedAssetPerformanceData = computed(() => {
         };
     }
 
-    console.log({ computedBySectorParentComponent: fetchedAssetsPerformanceData.value[selectedSector.value.value] });
-
     return fetchedAssetsPerformanceData.value[selectedSector.value.value];
+});
+
+// Top Performing assets
+const { data: fetchedTopPerformingAssets } = await useLazyFetch<BasicAsset[]>(
+    '/api/market-insights/sectors/top-performing-assets',
+);
+
+const topPerformingAssets = computed(() => {
+    if (!fetchedTopPerformingAssets.value) {
+        return [];
+    }
+
+    return fetchedTopPerformingAssets.value;
 });
 </script>
 
@@ -192,6 +208,13 @@ const computedAssetPerformanceData = computed(() => {
             </div>
 
             <AssetsPerformanceCard :asset-data="computedAssetPerformanceData"></AssetsPerformanceCard>
+        </div>
+
+        <!-- Top Performing Assets -->
+        <div class="flex flex-col gap-8 w-full mt-8">
+            <SubHeading :title="$t('market.sectors.topPerformingAssets')" />
+
+            <TopPerformingAssetsList :assets-list="topPerformingAssets"></TopPerformingAssetsList>
         </div>
     </PageContainer>
 </template>

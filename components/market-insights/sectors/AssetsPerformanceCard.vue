@@ -54,12 +54,12 @@ const computedAssetData = computed(() => {
     };
 });
 
-console.log(computedAssetData.value);
+//TODO:: filter by TimeframeSelector
 </script>
 
 <template>
     <UCard>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 pb-6">
             <!-- selections -->
             <div class="flex justify-end items-center gap-4">
                 <TimeframeSelector v-model="assetPerformanceTimeframeBeforeSelection" size="sm"></TimeframeSelector>
