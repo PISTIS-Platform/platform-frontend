@@ -208,6 +208,13 @@ export default defineI18nConfig(() => ({
                         sector: 'Sector',
                         price: 'Price',
                     },
+                    latestTransTable: {
+                        price: 'Price',
+                        transactionDate: 'Transaction Date',
+                        plan: 'Monetisation Plan',
+                        buyer: 'Buyer',
+                    },
+                    latestTransactions: 'Latest Transactions for this asset',
                 },
                 overview: {
                     title: 'Overview',

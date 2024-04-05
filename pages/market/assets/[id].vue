@@ -3,6 +3,8 @@ import { useRoute } from 'nuxt/app';
 
 import { BasicAsset } from '~/interfaces/market-insights';
 
+const { t } = useI18n();
+
 // const { t } = useI18n();
 
 const route = useRoute();
@@ -46,6 +48,84 @@ const assetInfo = {
     data_quality_index: 5,
     sector: 'Aviation',
 };
+
+//TODO: Either have computed object that changes with sectors for table or watcher that calls API again
+
+const transactionsColumns = [
+    {
+        key: 'price',
+        label: t('market.assets.latestTransTable.price'),
+        sortable: true,
+    },
+    {
+        key: 'transactionDate',
+        label: t('market.assets.latestTransTable.transactionDate'),
+        sortable: true,
+    },
+    {
+        key: 'plan',
+        label: t('market.assets.latestTransTable.plan'),
+        sortable: true,
+    },
+    {
+        key: 'buyer',
+        label: t('market.assets.latestTransTable.buyer'),
+        sortable: true,
+    },
+];
+
+interface TransactionsTableRow {
+    price: number;
+    transactionDate: string;
+    plan: string;
+    buyer: string;
+}
+
+//TODO: Bring dates in YYYYY/MM/DD format for sorting
+const transactionsData = ref<TransactionsTableRow[]>([
+    {
+        price: 11,
+        transactionDate: '20/01/2024',
+        plan: 'Subscription',
+        buyer: 'Buyer',
+    },
+    {
+        price: 11,
+        transactionDate: '20/01/2024',
+        plan: 'Subscription',
+        buyer: 'Buyer',
+    },
+    {
+        price: 11,
+        transactionDate: '20/01/2024',
+        plan: 'Subscription',
+        buyer: 'Buyer',
+    },
+    {
+        price: 11,
+        transactionDate: '20/01/2024',
+        plan: 'Subscription',
+        buyer: 'Buyer',
+    },
+    {
+        price: 11,
+        transactionDate: '20/01/2024',
+        plan: 'Subscription',
+        buyer: 'Buyer',
+    },
+]);
+
+const transactionsPageCount = 5;
+
+const {
+    page: transactionsPage,
+    sortBy: transactionsSortBy,
+    filteredRows: transactionsFilteredRows,
+    paginatedRows: transactionsPaginatedRows,
+} = useTable<TransactionsTableRow>(transactionsData, transactionsPageCount, {
+    column: 'assetName',
+    direction: 'asc',
+});
 </script>
 
 <template>
@@ -84,6 +164,22 @@ const assetInfo = {
                     >
                 </div>
             </div>
+        </ChartContainer>
+        <ChartContainer :title="$t('market.assets.latestTransactions')" class="mt-6">
+            <UTable
+                v-model:sort="transactionsSortBy"
+                :columns="transactionsColumns"
+                :rows="transactionsPaginatedRows"
+                sort-mode="manual"
+            >
+            </UTable>
+            <UPagination
+                v-if="transactionsFilteredRows.length > transactionsPageCount"
+                v-model="transactionsPage"
+                :page-count="transactionsPageCount"
+                :total="transactionsFilteredRows.length"
+                class="self-end"
+            />
         </ChartContainer>
     </PageContainer>
 </template>

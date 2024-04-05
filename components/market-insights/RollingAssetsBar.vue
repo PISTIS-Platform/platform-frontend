@@ -11,7 +11,7 @@ defineProps({
 
 <template>
     <Marquee
-        class="flex items-center justify-around bg-white w-full p-4 rounded-md border"
+        class="flex items-center justify-around bg-white w-full p-4 rounded-lg border"
         auto-fill
         pause-on-hover
         gradient
