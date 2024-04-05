@@ -16,15 +16,18 @@ export default defineEventHandler(async () => {
 
     return [
         {
-            name: 'Sector 1',
+            value: 1,
+            label: 'Sector 1',
             change: 5.6,
         },
         {
-            name: 'Sector 2',
+            value: 2,
+            label: 'Sector 2',
             change: 7.6,
         },
         {
-            name: 'Sector 3',
+            value: 3,
+            label: 'Sector 3',
             change: -8.6,
         },
     ];

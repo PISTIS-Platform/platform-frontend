@@ -3,8 +3,7 @@ import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title
 import { Bar } from 'vue-chartjs';
 import { useI18n } from 'vue-i18n';
 
-import { timeframeBeforeSelections, timeframeIntervalSelections } from '~/constants/market-insights';
-import type { BasicSector } from '~/interfaces/market-insights';
+import type { AssetPerformanceList, BasicSector } from '~/interfaces/market-insights';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -75,7 +74,7 @@ const nodeComparisonOptions: string[] = [
 ];
 
 //sectors
-const selectedSector = ref('');
+const selectedSector = ref<BasicSector | null>(null);
 
 //TODO:: load from server
 const sectors = computed(() => {
@@ -83,14 +82,32 @@ const sectors = computed(() => {
         return [];
     }
 
-    return sectorsBasicInfo.value.map((s: BasicSector) => s.name);
+    return sectorsBasicInfo.value.map((s: BasicSector) => ({
+        label: s.label,
+        value: s.value,
+    }));
 });
 
-//Assets performance by sector
-const selectedSortByOption = ref('');
-const sortByOptions = ['Total Sales', 'Market Cap', 'Price', '% change since D/W/M/Y ago', 'Date of acquisition'];
+// Data fetching
+//TODO:: add loading for asset performance data
+//TODO:: fix return types
+const { data: fetchedAssetsPerformanceData } = await useLazyFetch<Record<number, AssetPerformanceList>>(
+    '/api/market-insights/sectors/asset-performance-by-sector',
+);
 
-const assetPerformanceTimeframeBeforeSelection = ref('W');
+//computed property for assets data based on sector selection
+const computedAssetPerformanceData = computed(() => {
+    if (!fetchedAssetsPerformanceData.value || !selectedSector.value) {
+        return {
+            top: {},
+            worst: {},
+        };
+    }
+
+    console.log({ computedBySectorParentComponent: fetchedAssetsPerformanceData.value[selectedSector.value.value] });
+
+    return fetchedAssetsPerformanceData.value[selectedSector.value.value];
+});
 </script>
 
 <template>
@@ -108,10 +125,10 @@ const assetPerformanceTimeframeBeforeSelection = ref('W');
                     class="h-24 w-72"
                 />
             </div>
-            <div v-for="sector in sectorsBasicInfo" v-else :key="sector.name">
+            <div v-for="sector in sectorsBasicInfo" v-else :key="sector.value">
                 <UCard>
                     <div class="flex flex-col justify-between gap-6">
-                        <span class="text-gray-600 text-xl font-bold">{{ sector.name }}</span>
+                        <span class="text-gray-600 text-xl font-bold">{{ sector.label }}</span>
                         <span
                             >{{ $t('market.sectors.changeSince1WeekAgo') }}
                             <ChangeText :change-value="sector.change" class="ml-1" size="xl"
@@ -125,8 +142,8 @@ const assetPerformanceTimeframeBeforeSelection = ref('W');
         <ChartContainer v-if="sectorsSales" :title="$t('market.sectors.allSectorsSales')" class="mt-8">
             <template #right-header>
                 <TimeframeSelector
+                    is-interval
                     :model-value="sectorsSalesTimeframeSelection"
-                    :selections="timeframeIntervalSelections"
                     @update:model-value="(value: string) => (sectorsSalesTimeframeSelection = value)"
                 ></TimeframeSelector>
             </template>
@@ -140,12 +157,10 @@ const assetPerformanceTimeframeBeforeSelection = ref('W');
                 <USelectMenu
                     :model-value="nodeComparisonSelection"
                     :options="nodeComparisonOptions"
-                    size="md"
                     @update:model-value="(value: string) => (nodeComparisonSelection = value)"
                 >
-                    <!-- including this wraps the text if it's too big -->
                     <template #option="{ option }">
-                        {{ option }}
+                        <span>{{ option }}</span>
                     </template>
                 </USelectMenu>
             </template>
@@ -171,28 +186,12 @@ const assetPerformanceTimeframeBeforeSelection = ref('W');
                 <USelectMenu v-model="selectedSector" :options="sectors" class="z-30">
                     <template #label>
                         <span v-if="!selectedSector">{{ $t('market.sectors.selectSector') }}</span>
-                        <span v-else>{{ selectedSector }}</span>
+                        <span v-else class="whitespace-nowrap">{{ selectedSector.label }}</span>
                     </template>
                 </USelectMenu>
             </div>
 
-            <UCard>
-                <div class="flex justify-end gap-4">
-                    <TimeframeSelector
-                        v-model="assetPerformanceTimeframeBeforeSelection"
-                        size="sm"
-                        :selections="timeframeBeforeSelections"
-                    ></TimeframeSelector>
-                    <USelectMenu v-model="selectedSortByOption" :options="sortByOptions" class="z-20 w-64">
-                        <template #label>
-                            <span v-if="!selectedSortByOption">{{ $t('sortBy') }}</span>
-                            <span v-else>{{ selectedSortByOption }}</span>
-                        </template>
-                    </USelectMenu>
-                </div>
-
-                <div class="mt-8 h-96">Asset1</div>
-            </UCard>
+            <AssetsPerformanceCard :asset-data="computedAssetPerformanceData"></AssetsPerformanceCard>
         </div>
     </PageContainer>
 </template>

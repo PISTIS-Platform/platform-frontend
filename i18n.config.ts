@@ -18,6 +18,16 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            intervals: {
+                daily: 'Daily',
+                weekly: 'Weekly',
+                monthly: 'Monthly',
+            },
+            before: {
+                day: '1D',
+                week: '1W',
+                month: '1M',
+            },
             addNew: 'Add new',
             cancel: 'Cancel',
             yes: 'Yes',
