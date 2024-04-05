@@ -22,32 +22,30 @@ if (sectorsBasicInfoError.value) {
     showErrorMessage(t('market.sectors.errorInLoadingBasicInfo'));
 }
 
-//Bar chart
+//Stacked Bar chart
+const { data: fetchedSectorSalesByDateData } = await useLazyFetch<
+    Record<
+        string,
+        {
+            dates: string[];
+            data: Record<string, any>[];
+        }
+    >
+>('/api/market-insights/sectors/sales-by-date');
+
 const sectorsSalesTimeframeSelection = ref('W');
 
-//TODO:: load from server
 const sectorsSales = computed(() => {
+    if (!fetchedSectorSalesByDateData.value) {
+        return null;
+    }
+
+    const fetchedDataByTimeframeSelection = fetchedSectorSalesByDateData.value[sectorsSalesTimeframeSelection.value];
+
     return {
         data: {
-            //FIXME:: fix labels based on actual data
-            labels: ['January', 'February', 'March', 'April'],
-            datasets: [
-                {
-                    label: 'Dataset 1',
-                    data: [1000, 490, 230, 900],
-                    backgroundColor: '#ACDC94',
-                },
-                {
-                    label: 'Dataset 2',
-                    data: [1000, 490, 230, 900].reverse(),
-                    backgroundColor: '#E9A364',
-                },
-                {
-                    label: 'Dataset 3',
-                    data: [460, 900, 90, 380],
-                    backgroundColor: '#5ABCCF',
-                },
-            ],
+            labels: fetchedDataByTimeframeSelection.dates,
+            datasets: fetchedDataByTimeframeSelection.data,
         },
         options: {
             responsive: true,
@@ -147,7 +145,7 @@ const topPerformingAssets = computed(() => {
                         <span class="text-gray-600 text-xl font-bold">{{ sector.label }}</span>
                         <span
                             >{{ $t('market.sectors.changeSince1WeekAgo') }}
-                            <ChangeText :change-value="sector.change" class="ml-1" size="xl"
+                            <ChangeText :change-value="sector.change || 0" class="ml-1" size="xl"
                         /></span>
                     </div>
                 </UCard>
