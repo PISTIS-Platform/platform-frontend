@@ -14,7 +14,7 @@ const props = defineProps({
         <UCard v-for="asset in props.assetsList" :key="asset.id" class="w-full">
             <div class="flex flex-col justify-between gap-6 text-gray-600">
                 <span class="text-xl font-bold">{{ asset.name }}</span>
-                <div class="flex justify-start items-center h-24">
+                <div class="flex justify-start items-center h-16">
                     <SimpleLineChart :data="asset.data" :change-value="asset.change" />
                 </div>
                 <div class="flex justify-between text-xl font-bold">
