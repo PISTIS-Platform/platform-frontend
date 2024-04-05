@@ -159,10 +159,23 @@ const assetsData = ref<AssetTableRow[]>([
         marketCap: 9008,
         change: -15,
     },
+    {
+        assetName: 'Asset 4',
+        price: 3,
+        totalSales: 8576,
+        marketCap: 9008,
+        change: -15,
+    },
+    {
+        assetName: 'Asset 5',
+        price: 3,
+        totalSales: 8576,
+        marketCap: 9008,
+        change: -15,
+    },
 ]);
 
-//TODO: Change to more realistic number for later (5 or 10)
-const assetsPageCount = 3;
+const assetsPageCount = 5;
 
 const {
     page: assetsPage,
@@ -201,7 +214,7 @@ const {
                 />
             </div>
         </ChartContainer>
-        <ChartContainer :title="$t('market.assets.assetsOverview')" class="mt-6 h-96">
+        <ChartContainer :title="$t('market.assets.assetsOverview')" class="mt-6 h-[450px]">
             <template #right-header>
                 <UInput v-model="assetsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
                 <USelectMenu v-model="selectedSector" size="md" :options="sectors" class="ml-6" />
