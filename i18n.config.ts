@@ -173,20 +173,15 @@ export default defineI18nConfig(() => ({
                 },
             },
             market: {
-                overview: 'Overview',
-                assets: 'Assets',
                 market: 'Market Insights',
+                assets: {
+                    title: 'Assets',
+                },
+                overview: {
+                    title: 'Overview',
+                },
                 sectors: {
                     title: 'Sectors',
-                    overview: 'Sectors Overview',
-                    selectSector: 'Select Sector',
-                    changeSince1WeekAgo: 'Change Since 1 Week Ago',
-                    errorInLoadingBasicInfo: 'Error occurred while loading sectors basic info',
-                    allSectorsSales: 'Sectors Sales By Date',
-                    movingAverages: 'Moving Averages',
-                    sectorsVsTotalMarketCap: 'Sectors vs Total Market Cap',
-                    assetsPerformanceBySector: 'Asset Performance By Sector',
-                    topPerformingAssets: 'Top Performing Assets',
                 },
             },
             transactions: {
