@@ -155,11 +155,7 @@ const topPerformingAssets = computed(() => {
         <!-- Sectors Stacked Bar Chart-->
         <ChartContainer v-if="sectorsSales" :title="$t('market.sectors.allSectorsSales')" class="mt-8">
             <template #right-header>
-                <TimeframeSelector
-                    is-interval
-                    :model-value="sectorsSalesTimeframeSelection"
-                    @update:model-value="(value: string) => (sectorsSalesTimeframeSelection = value)"
-                ></TimeframeSelector>
+                <TimeframeSelector v-model="sectorsSalesTimeframeSelection" is-interval></TimeframeSelector>
             </template>
 
             <Bar class="w-full h-full" :data="sectorsSales.data" :options="sectorsSales.options" />

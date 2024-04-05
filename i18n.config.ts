@@ -184,6 +184,11 @@ export default defineI18nConfig(() => ({
             },
             market: {
                 market: 'Market Insights',
+                totalSales: 'Total Sales',
+                marketCap: 'Market Cap',
+                changeSince1DayAgo: 'Change since 1 Day Ago',
+                changeSince1WeekAgo: 'Change since 1 Week Ago',
+                changeSince1MonthAgo: 'Change since 1 Month Ago',
                 assets: {
                     title: 'Assets',
                 },
