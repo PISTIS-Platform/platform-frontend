@@ -43,7 +43,7 @@ const simpleLineData = computed(() => ({
 const simpleLineOptions = computed(() => {
     return {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         borderColor: props.changeValue > 0 ? 'green' : props.changeValue === 0 ? 'gray' : 'red',
         pointBorderWidth: 0,
         pointRadius: 0,
