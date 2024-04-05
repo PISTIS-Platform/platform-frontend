@@ -202,6 +202,12 @@ export default defineI18nConfig(() => ({
                         marketCap: 'Market Cap (STC)',
                         change: 'Change (1M)',
                     },
+                    transactionsTable: {
+                        assetName: 'Asset Name',
+                        transactionDate: 'Transaction Date',
+                        sector: 'Sector',
+                        price: 'Price',
+                    },
                 },
                 overview: {
                     title: 'Overview',

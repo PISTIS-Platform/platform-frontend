@@ -160,14 +160,14 @@ const assetsData = ref<AssetTableRow[]>([
         change: -15,
     },
     {
-        assetName: 'Asset 4',
+        assetName: 'Asset 6',
         price: 3,
         totalSales: 8576,
         marketCap: 9008,
         change: -15,
     },
     {
-        assetName: 'Asset 5',
+        assetName: 'Asset 7',
         price: 3,
         totalSales: 8576,
         marketCap: 9008,
@@ -185,7 +185,98 @@ const {
     paginatedRows: assetsPaginatedRows,
 } = useTable<AssetTableRow>(assetsData, assetsPageCount, {
     column: 'assetName',
-    direction: 'desc',
+    direction: 'asc',
+});
+
+//TODO: Either have computed object that changes with sectors for table or watcher that calls API again
+
+const transactionsColumns = [
+    {
+        key: 'assetName',
+        label: t('market.assets.transactionsTable.assetName'),
+        sortable: true,
+    },
+    {
+        key: 'price',
+        label: t('market.assets.transactionsTable.price'),
+        sortable: true,
+    },
+    {
+        key: 'transactionDate',
+        label: t('market.assets.transactionsTable.transactionDate'),
+        sortable: true,
+    },
+    {
+        key: 'sector',
+        label: t('market.assets.transactionsTable.sector'),
+        sortable: true,
+    },
+];
+
+interface TransactionsTableRow {
+    assetName: string;
+    price: number;
+    transactionDate: string;
+    sector: string;
+}
+
+//TODO: Bring dates in YYYYY/MM/DD format for sorting
+const transactionsData = ref<TransactionsTableRow[]>([
+    {
+        assetName: 'Asset 1',
+        price: 11,
+        transactionDate: '20/01/2024',
+        sector: 'Aviation',
+    },
+    {
+        assetName: 'Asset 2',
+        price: 20,
+        transactionDate: '14/01/2024',
+        sector: 'Aviation',
+    },
+    {
+        assetName: 'Asset 3',
+        price: 1,
+        transactionDate: '10/01/2024',
+        sector: 'Aviation',
+    },
+    {
+        assetName: 'Asset 4',
+        price: 3,
+        transactionDate: '11/01/2024',
+        sector: 'Energy',
+    },
+    {
+        assetName: 'Asset 5',
+        price: 3,
+        transactionDate: '23/01/2024',
+        sector: 'Aviation',
+    },
+    {
+        assetName: 'Asset 6',
+        price: 3,
+        transactionDate: '01/02/2024',
+        sector: 'Energy',
+    },
+    {
+        assetName: 'Asset 7',
+        price: 3,
+        transactionDate: '14/01/2024',
+        sector: 'Energy',
+    },
+]);
+
+const transactionsPageCount = 5;
+
+const {
+    page: transactionsPage,
+    sortBy: transactionsSortBy,
+    searchString: transactionsSearchString,
+    filteredRows: transactionsFilteredRows,
+    paginatedRows: transactionsPaginatedRows,
+} = useTable<TransactionsTableRow>(transactionsData, transactionsPageCount, {
+    column: 'assetName',
+    direction: 'asc',
 });
 </script>
 
@@ -229,6 +320,26 @@ const {
                 v-model="assetsPage"
                 :page-count="assetsPageCount"
                 :total="assetsFilteredRows.length"
+                class="self-end"
+            />
+        </ChartContainer>
+        <ChartContainer :title="$t('market.assets.transactionsOverview')" class="mt-6 h-[450px]">
+            <template #right-header>
+                <UInput v-model="transactionsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
+                <USelectMenu v-model="selectedSector" size="md" :options="sectors" class="ml-6" />
+            </template>
+            <UTable
+                v-model:sort="transactionsSortBy"
+                :columns="transactionsColumns"
+                :rows="transactionsPaginatedRows"
+                sort-mode="manual"
+            >
+            </UTable>
+            <UPagination
+                v-if="transactionsFilteredRows.length > transactionsPageCount"
+                v-model="transactionsPage"
+                :page-count="transactionsPageCount"
+                :total="transactionsFilteredRows.length"
                 class="self-end"
             />
         </ChartContainer>
