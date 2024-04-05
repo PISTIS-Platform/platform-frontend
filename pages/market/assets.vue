@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { timeframeIntervalSelections } from '~/constants/market-insights';
 import { BasicAsset } from '~/interfaces/market-insights';
+import type Selection from '~/interfaces/selection';
 
 const { t } = useI18n();
 
@@ -22,10 +22,10 @@ const { t } = useI18n();
 
 // ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement);
 
-const selectedInterval = ref('Daily');
+const selectedInterval = ref('D');
 
 const triggerIntervalChangeSelection = (value: string) => {
-    selection.value = value;
+    selectedInterval.value = value;
 };
 
 const assets: BasicAsset[] = [
@@ -55,10 +55,8 @@ const assets: BasicAsset[] = [
     },
 ];
 
-const selectedSector = ref();
-
 //TODO: Get / find out actual sectors
-const sectors = [
+const sectors: Selection[] = [
     {
         label: t('sectors.aviation'),
         value: 'aviation',
@@ -68,6 +66,8 @@ const sectors = [
         value: 'energy',
     },
 ];
+
+const selectedSector = ref<Selection>(sectors[0]);
 </script>
 
 <template>
@@ -83,11 +83,12 @@ const sectors = [
                 <div class="flex items-center gap-6">
                     <TimeframeSelector
                         :model-value="selectedInterval"
-                        :selections="timeframeIntervalSelections"
+                        is-interval
                         @update:model-value="triggerIntervalChangeSelection"
                     />
                     <USelectMenu
                         v-model="selectedSector"
+                        size="md"
                         :options="sectors"
                         value-attribute="value"
                         option-attribute="label"

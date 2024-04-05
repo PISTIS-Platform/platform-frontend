@@ -45,6 +45,16 @@ export default defineI18nConfig(() => ({
                 aviation: 'Aviation',
                 energy: 'Energy',
             },
+            intervals: {
+                daily: 'Daily',
+                weekly: 'Weekly',
+                monthly: 'Monthly',
+            },
+            before: {
+                day: '1D',
+                week: '1W',
+                month: '1M',
+            },
             val: {
                 atLeastNumberChars: 'Must be at least {count} characters',
                 validNumber: 'Please enter a valid number',
