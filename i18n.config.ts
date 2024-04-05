@@ -41,6 +41,10 @@ export default defineI18nConfig(() => ({
             frequency: 'Frequency',
             or: 'or',
             sortBy: 'Sort By',
+            sectors: {
+                aviation: 'Aviation',
+                energy: 'Energy',
+            },
             val: {
                 atLeastNumberChars: 'Must be at least {count} characters',
                 validNumber: 'Please enter a valid number',
@@ -176,6 +180,8 @@ export default defineI18nConfig(() => ({
                 market: 'Market Insights',
                 assets: {
                     title: 'Assets',
+                    topPerforming: 'Top Performing Assets',
+                    timeline: 'Timeline of assets sales vs average sales',
                 },
                 overview: {
                     title: 'Overview',

@@ -1,5 +1,9 @@
-<script setup lang="ts">
+<script lang="ts" setup>
+import { timeframeIntervalSelections } from '~/constants/market-insights';
 import { BasicAsset } from '~/interfaces/market-insights';
+
+const { t } = useI18n();
+
 // import {
 //     ArcElement,
 //     BarElement,
@@ -17,6 +21,12 @@ import { BasicAsset } from '~/interfaces/market-insights';
 // import { data, lineData, options, pieData } from './chart-data';
 
 // ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement);
+
+const selectedInterval = ref('Daily');
+
+const triggerIntervalChangeSelection = (value: string) => {
+    selection.value = value;
+};
 
 const assets: BasicAsset[] = [
     {
@@ -44,15 +54,46 @@ const assets: BasicAsset[] = [
         data: [13, 56, 34, 20, 34, 45, 60],
     },
 ];
+
+const selectedSector = ref();
+
+//TODO: Get / find out actual sectors
+const sectors = [
+    {
+        label: t('sectors.aviation'),
+        value: 'aviation',
+    },
+    {
+        label: t('sectors.energy'),
+        value: 'energy',
+    },
+];
 </script>
 
 <template>
     <PageContainer>
-        <SubHeading title="Top Performing Assets" />
-        <div class="flex mt-6 gap-4 w-full">
+        <SubHeading :title="$t('market.assets.topPerforming')" />
+        <div class="flex mt-6 gap-6 w-full">
             <UCard v-for="asset in assets" :key="asset.name" class="w-full">
                 <RollingAsset :asset-info="asset" />
             </UCard>
         </div>
+        <ChartContainer :title="$t('market.assets.timeline')" class="mt-6">
+            <template #right-header>
+                <div class="flex items-center gap-6">
+                    <TimeframeSelector
+                        :model-value="selectedInterval"
+                        :selections="timeframeIntervalSelections"
+                        @update:model-value="triggerIntervalChangeSelection"
+                    />
+                    <USelectMenu
+                        v-model="selectedSector"
+                        :options="sectors"
+                        value-attribute="value"
+                        option-attribute="label"
+                    />
+                </div>
+            </template>
+        </ChartContainer>
     </PageContainer>
 </template>
