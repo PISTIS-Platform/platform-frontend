@@ -175,19 +175,19 @@ const topPerformingAssets = computed(() => {
         </ChartContainer>
 
         <!-- Moving averages -->
-        <ChartContainer :title="$t('market.sectors.movingAverages')" class="mt-8">
+        <!-- <ChartContainer :title="$t('market.sectors.movingAverages')" class="mt-8">
             <div class="h-52"></div>
-        </ChartContainer>
+        </ChartContainer> -->
 
         <!-- Pie chart and right chart -->
-        <div class="flex justify-between items-center gap-6 mt-8 w-full">
-            <ChartContainer :title="$t('market.sectors.sectorsVsTotalMarketCap')" class="w-1/2">
+        <!-- <div class="flex justify-between items-center gap-6 mt-8 w-full">
+            <ChartContainer :title="$t('market.sectors.marketCapPerSector')" class="w-1/2">
                 <div class="h-52"></div>
             </ChartContainer>
-            <ChartContainer :title="$t('market.sectors.sectorsVsTotalMarketCap')" class="w-1/2">
+            <ChartContainer :title="$t('market.sectors.totalSalesPerSector')" class="w-1/2">
                 <div class="h-52"></div>
             </ChartContainer>
-        </div>
+        </div> -->
 
         <!-- Assets Performance by sector-->
         <div v-if="sector" class="flex flex-col gap-8 w-full mt-8">
