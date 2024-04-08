@@ -51,6 +51,7 @@ export default defineI18nConfig(() => ({
             frequency: 'Frequency',
             or: 'or',
             sortBy: 'Sort By',
+            compareBy: 'Compare By',
             val: {
                 atLeastNumberChars: 'Must be at least {count} characters',
                 validNumber: 'Please enter a valid number',
@@ -203,7 +204,8 @@ export default defineI18nConfig(() => ({
                     errorInLoadingBasicInfo: 'Error occurred while loading sectors basic info',
                     allSectorsSales: 'Sectors Sales By Date',
                     movingAverages: 'Moving Averages',
-                    sectorsVsTotalMarketCap: 'Sectors vs Total Market Cap',
+                    marketCapPerSector: 'Market Cap per sector',
+                    totalSalesPerSector: 'Total Sales per sector',
                     assetsPerformanceBySector: 'Asset Performance By Sector',
                     topPerformingAssets: 'Top Performing Assets',
                     salesBySectorVsTotal: 'Total number of sales by sector vs total',

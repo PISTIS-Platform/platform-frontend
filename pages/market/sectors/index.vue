@@ -1,16 +1,42 @@
 <script setup lang="ts">
-import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js';
-import { Bar } from 'vue-chartjs';
+import {
+    ArcElement,
+    BarElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Filler,
+    Legend,
+    LinearScale,
+    LineElement,
+    PointElement,
+    Title,
+    Tooltip,
+} from 'chart.js';
+import { Bar, Line, Pie } from 'vue-chartjs';
 import { useI18n } from 'vue-i18n';
 
 import type {
     AssetPerformanceList,
     BasicAsset,
     BasicSector,
+    SectorDataItem,
     SectorSalesByTimeframe,
+    SectorsComparisonData,
 } from '~/interfaces/market-insights';
+import Selection from '~/interfaces/selection';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+ChartJS.register(
+    Title,
+    Tooltip,
+    Legend,
+    BarElement,
+    CategoryScale,
+    LineElement,
+    LinearScale,
+    PointElement,
+    Filler,
+    ArcElement,
+);
 
 const { t } = useI18n();
 
@@ -73,12 +99,113 @@ const sectorsSales = computed(() => {
 });
 
 //moving averages selections
-const nodeComparisonOptions = [
-    t('market.sectors.salesBySectorVsTotal'),
-    t('market.sectors.marketCapBySectorVsTotal'),
-    t('market.sectors.assetsComparison'),
+const nodeComparisonOptions: Selection[] = [
+    {
+        label: t('market.sectors.salesBySectorVsTotal'),
+        value: 'by_sales',
+    },
+    {
+        label: t('market.sectors.marketCapBySectorVsTotal'),
+        value: 'by_market_cap',
+    },
 ];
-const nodeComparisonSelection = ref(nodeComparisonOptions[0]);
+const selectedNodeComparison = ref<Selection>(nodeComparisonOptions[0]);
+
+const { data: fetchedSectorsComparisonsData } = await useLazyFetch<SectorsComparisonData>(
+    '/api/market-insights/sectors/sectors-comparisons',
+);
+
+const stackedLineOptions = computed(() => {
+    if (!fetchedSectorsComparisonsData.value || !selectedNodeComparison.value) {
+        return null;
+    }
+
+    const colors = ['#88DAEA', '#ECD076', '#6FE697'];
+
+    const datasets = fetchedSectorsComparisonsData.value.sectorsData[selectedNodeComparison.value.value].map(
+        (sectorItem: SectorDataItem, index: number) => {
+            return {
+                label: sectorItem.label,
+                data: sectorItem.percentages,
+                borderColor: colors[index],
+                fill: {
+                    target: 'origin',
+                    above: colors[index],
+                },
+            };
+        },
+    );
+
+    return {
+        data: {
+            labels: fetchedSectorsComparisonsData.value.timesData,
+            datasets,
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    stacked: true,
+                    title: {
+                        text: 'Percentage',
+                        display: true,
+                    },
+                },
+                x: {
+                    title: {
+                        text: 'Months',
+                        display: true,
+                        padding: {
+                            top: 15,
+                        },
+                    },
+                },
+            },
+        },
+    };
+});
+
+//Pie charts
+const pieChartsLabels = computed(() => {
+    if (!fetchedSectorsComparisonsData.value || !selectedNodeComparison.value) {
+        return [];
+    }
+
+    return fetchedSectorsComparisonsData.value.sectorsData.by_sales.map((sector: SectorDataItem) => sector.label);
+});
+
+const getPieChartsOptions = (nodeComparison: string) => {
+    if (!fetchedSectorsComparisonsData.value || !selectedNodeComparison.value) {
+        return null;
+    }
+
+    return {
+        data: {
+            labels: pieChartsLabels.value,
+            datasets: [
+                {
+                    backgroundColor: ['#88DAEA', '#ECD076', '#6FE697'],
+                    data: fetchedSectorsComparisonsData.value.sectorsData[nodeComparison].map(
+                        (sector: SectorDataItem) => sector.total,
+                    ),
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        },
+    };
+};
+
+const pieChartsSalesOptions = computed(() => {
+    return getPieChartsOptions('by_sales');
+});
+
+const pieChartsMarketCapOptions = computed(() => {
+    return getPieChartsOptions('by_market_cap');
+});
 
 //sectors
 const selectedSector = ref<BasicSector | null>(null);
@@ -163,29 +290,38 @@ const topPerformingAssets = computed(() => {
         </ChartContainer>
 
         <!-- Moving averages -->
-        <ChartContainer v-if="sectorsSales" :title="$t('market.sectors.movingAverages')" class="mt-8">
+        <ChartContainer v-if="stackedLineOptions" :title="$t('market.sectors.movingAverages')" class="mt-8">
             <template #right-header>
-                <USelectMenu
-                    :model-value="nodeComparisonSelection"
-                    :options="nodeComparisonOptions"
-                    @update:model-value="(value: string) => (nodeComparisonSelection = value)"
-                >
-                    <template #option="{ option }">
-                        <span>{{ option }}</span>
-                    </template>
-                </USelectMenu>
+                <div class="flex justify-end items-center gap-4">
+                    <span class="text-sm ml-2">{{ $t('compareBy') }}:</span>
+                    <USelectMenu
+                        v-model="selectedNodeComparison"
+                        :options="nodeComparisonOptions"
+                        class="w-80"
+                    ></USelectMenu>
+                </div>
             </template>
 
-            <div class="h-52"></div>
+            <div class="h-96">
+                <Line :data="stackedLineOptions.data" :options="stackedLineOptions.options"></Line>
+            </div>
         </ChartContainer>
 
-        <!-- Pie chart and right chart -->
+        <!-- Pie charts , right and left -->
         <div class="flex justify-between items-center gap-6 mt-8 w-full">
-            <ChartContainer v-if="sectorsSales" :title="$t('market.sectors.sectorsVsTotalMarketCap')" class="w-1/2">
-                <div class="h-52"></div>
+            <ChartContainer
+                v-if="pieChartsMarketCapOptions"
+                :title="$t('market.sectors.totalSalesPerSector')"
+                class="w-1/2"
+            >
+                <div class="h-72">
+                    <Pie :data="pieChartsMarketCapOptions.data" :options="pieChartsMarketCapOptions.options" />
+                </div>
             </ChartContainer>
-            <ChartContainer v-if="sectorsSales" :title="$t('market.sectors.sectorsVsTotalMarketCap')" class="w-1/2">
-                <div class="h-52"></div>
+            <ChartContainer v-if="pieChartsSalesOptions" :title="$t('market.sectors.marketCapPerSector')" class="w-1/2">
+                <div class="h-72">
+                    <Pie :data="pieChartsSalesOptions.data" :options="pieChartsSalesOptions.options" />
+                </div>
             </ChartContainer>
         </div>
 

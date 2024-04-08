@@ -24,6 +24,17 @@ export type SectorSalesByTimeframe = Record<
     }
 >;
 
+export type SectorDataItem = {
+    label: string;
+    percentages: number[];
+    total: number;
+};
+
+export interface SectorsComparisonData {
+    timesData: string[];
+    sectorsData: Record<string, SectorDataItem[]>;
+}
+
 export interface AssetPerformanceList {
     top: Record<
         string,
