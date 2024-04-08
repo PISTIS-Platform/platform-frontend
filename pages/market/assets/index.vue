@@ -305,7 +305,7 @@ const {
                 />
             </div>
         </ChartContainer>
-        <ChartContainer :title="$t('market.assets.assetsOverview')" class="mt-6 h-[450px]">
+        <ChartContainer :title="$t('market.assets.assetsOverview')" class="mt-6 h-[450px] relative">
             <template #right-header>
                 <UInput v-model="assetsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
                 <USelectMenu v-model="selectedSector" size="md" :options="sectors" class="ml-6" />
@@ -320,10 +320,10 @@ const {
                 v-model="assetsPage"
                 :page-count="assetsPageCount"
                 :total="assetsFilteredRows.length"
-                class="self-end"
+                class="absolute bottom-6 right-6"
             />
         </ChartContainer>
-        <ChartContainer :title="$t('market.assets.transactionsOverview')" class="mt-6 h-[450px]">
+        <ChartContainer :title="$t('market.assets.transactionsOverview')" class="mt-6 h-[450px] relative">
             <template #right-header>
                 <UInput v-model="transactionsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
                 <USelectMenu v-model="selectedSector" size="md" :options="sectors" class="ml-6" />
@@ -340,7 +340,7 @@ const {
                 v-model="transactionsPage"
                 :page-count="transactionsPageCount"
                 :total="transactionsFilteredRows.length"
-                class="self-end"
+                class="absolute bottom-6 right-6"
             />
         </ChartContainer>
     </PageContainer>
