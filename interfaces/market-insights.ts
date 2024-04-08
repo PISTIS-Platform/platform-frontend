@@ -1,4 +1,5 @@
 export interface BasicAsset {
+    id: number;
     name: string;
     price: number;
     change: number;

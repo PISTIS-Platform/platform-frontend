@@ -23,24 +23,28 @@ const selectedInterval = ref('D');
 //TODO: Get asset data from API call
 const assets: BasicAsset[] = [
     {
+        id: 1,
         name: 'Asset 1',
         price: 20000,
         change: 4.6,
         data: [13, 56, 34, 20, 34, 45, 60],
     },
     {
+        id: 2,
         name: 'Asset 2',
         price: 45000,
         change: 9.6,
         data: [13, 56, 34, 20, 34, 45, 60].reverse(),
     },
     {
+        id: 3,
         name: 'Asset 3',
         price: 90000,
         change: -5.6,
         data: [90, 16, 34, 20, 34, 45, 60],
     },
     {
+        id: 4,
         name: 'Asset 4',
         price: 90000,
         change: 0,
@@ -89,7 +93,7 @@ const lineChartOptions = {
 
 const assetsColumns = [
     {
-        key: 'assetName',
+        key: 'name',
         label: t('market.assets.assetsTable.assetName'),
         sortable: true,
     },
@@ -116,7 +120,8 @@ const assetsColumns = [
 ];
 
 interface AssetTableRow {
-    assetName: string;
+    id: number;
+    name: string;
     price: number;
     totalSales: number;
     marketCap: number;
@@ -125,49 +130,56 @@ interface AssetTableRow {
 
 const assetsData = ref<AssetTableRow[]>([
     {
-        assetName: 'Asset 1',
+        id: 1,
+        name: 'Asset 1',
         price: 11,
         totalSales: 234,
         marketCap: 3000,
         change: 50,
     },
     {
-        assetName: 'Asset 2',
+        id: 2,
+        name: 'Asset 2',
         price: 20,
         totalSales: 345,
         marketCap: 24324,
         change: -40,
     },
     {
-        assetName: 'Asset 3',
+        id: 3,
+        name: 'Asset 3',
         price: 1,
         totalSales: 1500,
         marketCap: 1235,
         change: 30,
     },
     {
-        assetName: 'Asset 4',
+        id: 4,
+        name: 'Asset 4',
         price: 3,
         totalSales: 8576,
         marketCap: 9008,
         change: -15,
     },
     {
-        assetName: 'Asset 5',
+        id: 5,
+        name: 'Asset 5',
         price: 3,
         totalSales: 8576,
         marketCap: 9008,
         change: -15,
     },
     {
-        assetName: 'Asset 6',
+        id: 6,
+        name: 'Asset 6',
         price: 3,
         totalSales: 8576,
         marketCap: 9008,
         change: -15,
     },
     {
-        assetName: 'Asset 7',
+        id: 7,
+        name: 'Asset 7',
         price: 3,
         totalSales: 8576,
         marketCap: 9008,
@@ -184,7 +196,7 @@ const {
     filteredRows: assetsFilteredRows,
     paginatedRows: assetsPaginatedRows,
 } = useTable<AssetTableRow>(assetsData, assetsPageCount, {
-    column: 'assetName',
+    column: 'name',
     direction: 'asc',
 });
 
@@ -192,7 +204,7 @@ const {
 
 const transactionsColumns = [
     {
-        key: 'assetName',
+        key: 'name',
         label: t('market.assets.transactionsTable.assetName'),
         sortable: true,
     },
@@ -214,7 +226,8 @@ const transactionsColumns = [
 ];
 
 interface TransactionsTableRow {
-    assetName: string;
+    id: number;
+    name: string;
     price: number;
     transactionDate: string;
     sector: string;
@@ -223,43 +236,50 @@ interface TransactionsTableRow {
 //TODO: Bring dates in YYYYY/MM/DD format for sorting
 const transactionsData = ref<TransactionsTableRow[]>([
     {
-        assetName: 'Asset 1',
+        id: 1,
+        name: 'Asset 1',
         price: 11,
         transactionDate: '20/01/2024',
         sector: 'Aviation',
     },
     {
-        assetName: 'Asset 2',
+        id: 2,
+        name: 'Asset 2',
         price: 20,
         transactionDate: '14/01/2024',
         sector: 'Aviation',
     },
     {
-        assetName: 'Asset 3',
+        id: 3,
+        name: 'Asset 3',
         price: 1,
         transactionDate: '10/01/2024',
         sector: 'Aviation',
     },
     {
-        assetName: 'Asset 4',
+        id: 4,
+        name: 'Asset 4',
         price: 3,
         transactionDate: '11/01/2024',
         sector: 'Energy',
     },
     {
-        assetName: 'Asset 5',
+        id: 5,
+        name: 'Asset 5',
         price: 3,
         transactionDate: '23/01/2024',
         sector: 'Aviation',
     },
     {
-        assetName: 'Asset 6',
+        id: 6,
+        name: 'Asset 6',
         price: 3,
         transactionDate: '01/02/2024',
         sector: 'Energy',
     },
     {
-        assetName: 'Asset 7',
+        id: 7,
+        name: 'Asset 7',
         price: 3,
         transactionDate: '14/01/2024',
         sector: 'Energy',
@@ -275,7 +295,7 @@ const {
     filteredRows: transactionsFilteredRows,
     paginatedRows: transactionsPaginatedRows,
 } = useTable<TransactionsTableRow>(transactionsData, transactionsPageCount, {
-    column: 'assetName',
+    column: 'name',
     direction: 'asc',
 });
 </script>
@@ -314,6 +334,9 @@ const {
                 <template #change-data="{ row }">
                     <ChangeText :change-value="row.change" />
                 </template>
+                <template #name-data="{ row }">
+                    <NuxtLink :to="`assets/${row.id}`">{{ row.name }}</NuxtLink>
+                </template>
             </UTable>
             <UPagination
                 v-if="assetsFilteredRows.length > assetsPageCount"
@@ -334,6 +357,9 @@ const {
                 :rows="transactionsPaginatedRows"
                 sort-mode="manual"
             >
+                <template #name-data="{ row }">
+                    <NuxtLink :to="`assets/${row.id}`">{{ row.name }}</NuxtLink>
+                </template>
             </UTable>
             <UPagination
                 v-if="transactionsFilteredRows.length > transactionsPageCount"
