@@ -2,6 +2,7 @@
 import { useRoute } from 'nuxt/app';
 
 import { BasicAsset } from '~/interfaces/market-insights';
+import type Selection from '~/interfaces/selection';
 
 const { t } = useI18n();
 
@@ -16,9 +17,9 @@ import {
     Title,
     Tooltip,
 } from 'chart.js';
-import { Bar } from 'vue-chartjs';
+import { Bar, Line } from 'vue-chartjs';
 
-const barChartOptions = { responsive: true, maintainAspectRatio: false };
+const chartOptions = { responsive: true, maintainAspectRatio: false };
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement);
 
@@ -293,6 +294,67 @@ const {
     column: 'year',
     direction: 'desc',
 });
+
+//Data for line performance comparison charts
+
+const comparisonModes: Selection[] = [
+    {
+        label: t('market.assets.comparisonModes.sales'),
+        value: 'sales',
+    },
+    {
+        label: t('market.assets.comparisonModes.marketCap'),
+        value: 'market_cap',
+    },
+    {
+        label: t('market.assets.comparisonModes.otherAsset'),
+        value: 'other_asset',
+    },
+];
+
+const selectedComparisonMode = ref(comparisonModes[0]);
+
+const selectedInterval = ref('D');
+
+const assetsSearchString = ref('');
+
+const { data: lineChartData, pending: _lineChartPending } = useFetch('/api/market-insights/assets/comparison');
+
+//TODO: reactive API call for changing ID/name of second asset to be compared to main one
+
+const { data: assetLineChartData, pending: _assetLineChartPending } = useFetch(
+    '/api/market-insights/assets/asset-sales',
+);
+//TODO: This API call to be deleted when individual param is fixed
+const { data: otherLineChartData, pending: _otherLineChartPending } = useFetch(
+    '/api/market-insights/assets/other-asset-sales',
+);
+
+const computedLineChartData = computed(() => {
+    if (!lineChartData.value || !assetLineChartData.value || !otherLineChartData.value)
+        return {
+            labels: [],
+            datasets: [
+                {
+                    label: '',
+                    data: [],
+                },
+            ],
+        };
+    if (selectedComparisonMode.value.value === 'other_asset')
+        return {
+            labels: lineChartData.value.labels,
+            datasets: [
+                assetLineChartData.value.sales_data[selectedInterval.value],
+                otherLineChartData.value.sales_data[selectedInterval.value],
+            ],
+        };
+
+    return {
+        labels: lineChartData.value.labels,
+        datasets: lineChartData.value[selectedComparisonMode.value.value][selectedInterval.value],
+    };
+});
 </script>
 
 <template>
@@ -334,7 +396,7 @@ const {
         </ChartContainer>
         <ChartContainer :title="$t('market.assets.assetPerformance')" class="mt-6 flex flex-col gap-6">
             <div class="w-full h-96">
-                <Bar :data="barChartData" :options="barChartOptions" class="w-full" />
+                <Bar :data="barChartData" :options="chartOptions" class="w-full" />
             </div>
             <div class="flex-col flex">
                 <UTable
@@ -354,6 +416,18 @@ const {
                     :total="performanceFilteredRows.length"
                     class="self-end"
                 />
+            </div>
+        </ChartContainer>
+        <ChartContainer class="mt-6" :title="$t('market.assets.performanceComparison')">
+            <template #right-header>
+                <div class="flex gap-6 items-center w-full">
+                    <UInput v-model="assetsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
+                    <TimeframeSelector v-model="selectedInterval" is-interval />
+                    <USelectMenu v-model="selectedComparisonMode" size="md" :options="comparisonModes" />
+                </div>
+            </template>
+            <div class="w-full h-96">
+                <Line :data="computedLineChartData" :options="chartOptions" class="w-full" />
             </div>
         </ChartContainer>
         <ChartContainer :title="$t('market.assets.latestTransactions')" class="mt-6">

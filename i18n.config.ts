@@ -232,6 +232,12 @@ export default defineI18nConfig(() => ({
                         total: 'Total',
                     },
                     latestTransactions: 'Latest Transactions for this asset',
+                    performanceComparison: 'Performance Comparison',
+                    comparisonModes: {
+                        sales: 'Total Asset Sales / Total Sector Sales / Total Sales',
+                        marketCap: 'Asset Market Cap / Sector Market Cap / Total Market Cap',
+                        otherAsset: 'Comparison with other individual asset',
+                    },
                 },
                 overview: {
                     title: 'Overview',
