@@ -1,10 +1,22 @@
 <script setup lang="ts">
+import {
+    CategoryScale,
+    Chart as ChartJS,
+    Legend,
+    LinearScale,
+    LineElement,
+    PointElement,
+    Title,
+    Tooltip,
+} from 'chart.js';
+import { Line } from 'vue-chartjs';
 import { useI18n } from 'vue-i18n';
 
 import { BasicAsset } from '~/interfaces/market-insights';
 
 import { latestTransactions, topPerformanceAsset, worstPerformanceAsset } from './dummy-overview-data';
 
+ChartJS.register(CategoryScale, LinearScale, Title, Tooltip, Legend, PointElement, LineElement);
 const selection = ref('W');
 const pageCount = 5;
 const { t } = useI18n();
@@ -42,30 +54,34 @@ const topPerformanceAssets = ref(topPerformanceAsset);
 const worstPerformanceAssets = ref(worstPerformanceAsset);
 const transactions = ref(latestTransactions);
 
-// const { data: lineChartData, pending: lineChartPending } = useFetch('market/total-vs-market');
-// console.log(lineChartData);
+const { data: lineChartData, pending: lineChartPending } = await useLazyFetch('/api/market-insights/total-vs-market');
 
-// const computedLineChartData = computed(() => {
-//     if (!lineChartData.value)
-//         return {
-//             labels: [],
-//             datasets: [
-//                 {
-//                     label: '',
-//                     data: [],
-//                 },
-//             ],
-//         };
-//     return {
-//         labels: lineChartData.value.labels,
-//         datasets: lineChartData.value[selectedSector.value][selection.value],
-//     };
-// });
+const computedLineChartData = computed(() => {
+    return {
+        labels: lineChartData?.value?.labels,
+        datasets: [
+            {
+                label: 'Total Sales',
+                data: lineChartData?.value?.totalAsset['W'],
+                borderColor: '#52d334',
+                fill: false,
+                tension: 0.4,
+            },
+            {
+                label: 'Market Cap',
+                data: lineChartData?.value?.marketCap['W'],
+                borderColor: '#493cfc',
+                fill: false,
+                tension: 0.4,
+            },
+        ],
+    };
+});
 
-// const lineChartOptions = {
-//     responsive: true,
-//     maintainAspectRatio: false,
-// };
+const lineChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+};
 
 const {
     page: pageTopAsset,
@@ -115,7 +131,7 @@ const assets: BasicAsset[] = [
     },
 ];
 
-const transactionsColumns: any = [
+const transactionsColumns = [
     {
         key: 'asset_name',
         label: t('market.overview.assetName'),
@@ -143,7 +159,7 @@ const transactionsColumns: any = [
     },
 ];
 
-const performingColumns: any = [
+const performingColumns = [
     {
         key: 'asset_name',
         label: t('market.overview.assetName'),
@@ -263,13 +279,12 @@ const performingColumns: any = [
                     </div>
                 </template>
                 <div class="h-72 w-full mt-1">
-                    //FIXME: add proper data for chart
-                    <!-- <Line
+                    <Line
                         v-if="!lineChartPending"
                         class="w-full h-full"
                         :data="computedLineChartData"
                         :options="lineChartOptions"
-                    /> -->
+                    />
                 </div>
             </ChartContainer>
         </div>
