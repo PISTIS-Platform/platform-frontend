@@ -26,3 +26,8 @@ export interface Preview {
     metadata: Metadata;
     report: Report;
 }
+
+export interface Solution {
+    transformation: { [key: string | number]: number };
+    informationLoss: string;
+}

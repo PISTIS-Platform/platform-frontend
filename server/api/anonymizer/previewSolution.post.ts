@@ -3,7 +3,7 @@ const { anonymizerApiUrl } = useRuntimeConfig();
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
 
-    const response = await fetch(`${anonymizerApiUrl}/api/dataset/preview/obfuscate`, {
+    const response = await fetch(`${anonymizerApiUrl}/api/k-anon/solution/preview`, {
         method: 'POST',
         headers: {
             'Content-type': 'application/json; charset=UTF-8',
