@@ -233,6 +233,12 @@ const performanceData = ref<PerformanceTableRow[]>([
 
 const performancePageCount = 5;
 
+const performanceSelected = ref([performanceData.value[0]]);
+
+const performanceSelect = (value: PerformanceTableRow) => {
+    performanceSelected.value = [value];
+};
+
 const {
     page: performancePage,
     sortBy: performanceSortBy,
@@ -284,10 +290,13 @@ const {
         <ChartContainer :title="$t('market.assets.assetPerformance')" class="mt-6 flex flex-col gap-6">
             <div class="flex-col flex">
                 <UTable
+                    v-model="performanceSelected"
                     v-model:sort="performanceSortBy"
+                    :ui="{ tr: { selected: 'bg-primary-50' } }"
                     :columns="performanceColumns"
                     :rows="performancePaginatedRows"
                     sort-mode="manual"
+                    @select="performanceSelect"
                 >
                 </UTable>
                 <UPagination
@@ -317,3 +326,10 @@ const {
         </ChartContainer>
     </PageContainer>
 </template>
+
+//Hide the checkbox column so that only one row is selectable
+<style>
+.ps-4 {
+    @apply hidden;
+}
+</style>
