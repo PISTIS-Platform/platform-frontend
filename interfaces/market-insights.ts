@@ -13,6 +13,19 @@ export interface BasicSector {
     change?: number;
 }
 
+export interface SectorCard {
+    id: number;
+    name: string;
+    changeTimeframeAgo: Record<
+        string,
+        {
+            label: string;
+            change: number;
+            value: number;
+        }[]
+    >;
+}
+
 export type SectorSalesByTimeframe = Record<
     string,
     {

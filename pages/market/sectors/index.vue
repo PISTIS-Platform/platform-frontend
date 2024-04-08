@@ -254,7 +254,7 @@ const topPerformingAssets = computed(() => {
         <SubHeading :title="$t('market.sectors.overview')" />
 
         <!-- Sectors Cards-->
-        <div class="flex gap-8 justify-start items-center mt-8 w-full">
+        <div class="flex justify-between gap-6 items-center mt-8 w-full">
             <div v-if="loadingSectorsBasicInfo" class="flex justify-start w-full gap-8">
                 <USkeleton
                     v-for="item in new Array(3)"
@@ -263,7 +263,7 @@ const topPerformingAssets = computed(() => {
                     class="h-24 w-72"
                 />
             </div>
-            <div v-for="sector in sectors" v-else :key="sector.value">
+            <div v-for="sector in sectors" v-else :key="sector.value" class="w-full">
                 <UCard>
                     <div class="flex flex-col justify-between gap-6">
                         <NuxtLink :to="`/market/sectors/${sector.value}`"

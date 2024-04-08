@@ -8,23 +8,31 @@ const props = defineProps({
         type: String,
         default: 'md',
     },
+    mode: {
+        type: String,
+        default: 'text',
+    },
 });
 
-const assetChangeText = computed(() => {
+const colorIndicator = computed(() => {
     if (props.changeValue > 0) {
-        return `+${props.changeValue}%`;
+        return 'green';
     }
 
-    return `${props.changeValue}%`;
+    if (props.changeValue < 0) {
+        return 'red';
+    }
+
+    return 'gray';
 });
 </script>
 
 <template>
     <span
         :class="[
-            `font-semibold text-${props.size}`,
-            props.changeValue > 0 ? 'text-green-600' : props.changeValue === 0 ? 'text-gray-600' : 'text-red-600',
+            `font-semibold text-${props.size} text-${colorIndicator}-600`,
+            props.mode === 'rounded' ? `px-2 py-1 rounded-lg bg-${colorIndicator}-200` : '',
         ]"
-        >{{ assetChangeText }}
+        >{{ `${props.changeValue > 0 ? '+' : ''}${props.changeValue}%` }}
     </span>
 </template>

@@ -3,7 +3,7 @@ import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title
 import { Bar } from 'vue-chartjs';
 import { useI18n } from 'vue-i18n';
 
-import { AssetPerformanceList, BasicAsset, SectorSalesByTimeframe } from '~/interfaces/market-insights';
+import { AssetPerformanceList, BasicAsset, SectorCard, SectorSalesByTimeframe } from '~/interfaces/market-insights';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -11,41 +11,84 @@ const { t } = useI18n();
 
 const route = useRoute();
 
+//TODO:: error handling (watchers for each error?) and add loading/skeleton componenents
+
 const sectorTimeframeSelection = ref('W');
 
-//TODO: fix type
-const sector: Record<string, any> = {
-    id: route.params.id,
+const sector = ref<SectorCard>({
+    id: parseInt(route.params.id as string),
     name: 'Sector 1',
     changeTimeframeAgo: {
-        D: {
-            change: 13,
-            totalSales: 230,
-            marketCap: 400,
-        },
-        W: {
-            change: 60,
-            totalSales: 450,
-            marketCap: 890,
-        },
-        M: {
-            change: -70,
-            totalSales: 100,
-            marketCap: 200,
-        },
+        D: [
+            {
+                label: t('market.totalSales'),
+                change: 12,
+                value: 700,
+            },
+            {
+                label: t('market.revenue'),
+                change: 34,
+                value: 523,
+            },
+            {
+                label: t('market.marketCap'),
+                change: -18.4,
+                value: 900,
+            },
+        ],
+        W: [
+            {
+                label: t('market.totalSales'),
+                change: 14,
+                value: 230,
+            },
+            {
+                label: t('market.revenue'),
+                change: -23.9,
+                value: 123,
+            },
+            {
+                label: t('market.marketCap'),
+                change: 18.4,
+                value: 340,
+            },
+        ],
+        M: [
+            {
+                label: t('market.totalSales'),
+                change: 18.9,
+                value: 1700,
+            },
+            {
+                label: t('market.revenue'),
+                change: 23,
+                value: 4059,
+            },
+            {
+                label: t('market.marketCap'),
+                change: 32,
+                value: 9504,
+            },
+        ],
     },
-};
+});
 
-const changeSinceTimeframeAgoText = computed(() => {
-    if (sectorTimeframeSelection.value === 'D') {
-        return t('market.changeSince1DayAgo');
-    }
+const sectorCardItems = computed(() => {
+    const sectorInfoItems = sector.value.changeTimeframeAgo[sectorTimeframeSelection.value];
 
-    if (sectorTimeframeSelection.value === 'W') {
-        return t('market.changeSince1WeekAgo');
-    }
+    const iconsMapping = {
+        [t('market.totalSales')]: 'i-heroicons-presentation-chart-bar',
+        [t('market.revenue')]: 'i-heroicons-currency-dollar',
+        [t('market.marketCap')]: 'i-heroicons-shopping-bag',
+    };
 
-    return t('market.changeSince1MonthAgo');
+    return sectorInfoItems.map((item: { label: string; change: number; value: number }) => {
+        return {
+            ...item,
+            icon: iconsMapping[item.label],
+            value: item.label === t('market.revenue') ? `${item.value} STC` : item.value,
+        };
+    });
 });
 
 //Sector sales - bar chart
@@ -54,7 +97,7 @@ const changeSinceTimeframeAgoText = computed(() => {
 const { data: fetchedSectorSalesByDateData } = await useLazyFetch<SectorSalesByTimeframe>(
     '/api/market-insights/sectors/sales-by-date',
     {
-        query: { sectorId: sector.id },
+        query: { sectorId: sector.value.id },
     },
 );
 
@@ -93,11 +136,10 @@ const sectorsSales = computed(() => {
 });
 
 // Assets Performance (top & worst) data fetching
-//TODO:: add loading for asset performance data
 const { data: fetchedAssetsPerformanceData } = await useLazyFetch<AssetPerformanceList>(
     '/api/market-insights/sectors/asset-performance-by-sector',
     {
-        query: { sectorId: sector.id },
+        query: { sectorId: sector.value.id },
     },
 );
 
@@ -117,7 +159,7 @@ const computedAssetPerformanceData = computed(() => {
 const { data: fetchedTopPerformingAssets } = await useLazyFetch<BasicAsset[]>(
     '/api/market-insights/sectors/top-performing-assets-by-sector',
     {
-        query: { sectorId: sector.id },
+        query: { sectorId: sector.value.id },
     },
 );
 
@@ -140,26 +182,12 @@ const topPerformingAssets = computed(() => {
                     <TimeframeSelector v-model="sectorTimeframeSelection" />
                 </div>
 
-                <div class="flex gap-48">
-                    <div>
-                        <span class="text-gray-500 text-sm">{{ changeSinceTimeframeAgoText }}</span>
-                        <ChangeText
-                            :change-value="sector.changeTimeframeAgo[sectorTimeframeSelection].change"
-                            size="2xl"
-                            class="ml-2"
-                        />
-                    </div>
-                    <div>
-                        <span class="text-gray-500 text-sm">{{ $t('market.totalSales') }}</span>
-                        <span class="text-gray-600 text-2xl ml-2 font-bold"
-                            >{{ sector.changeTimeframeAgo[sectorTimeframeSelection].totalSales }}STC</span
-                        >
-                    </div>
-                    <div>
-                        <span class="text-gray-500 text-sm">{{ $t('market.marketCap') }}</span>
-                        <span class="text-gray-600 text-2xl ml-2 font-bold">{{
-                            sector.changeTimeframeAgo[sectorTimeframeSelection].marketCap
-                        }}</span>
+                <div class="flex flex-col gap-4 lg:flex-row lg:gap-0 justify-between">
+                    <div v-for="item in sectorCardItems" :key="item.label" class="flex items-center gap-2">
+                        <UIcon :name="item.icon" class="h-6 w-6 text-primary-500" />
+                        <span class="text-gray-500 text-sm">{{ item.label }}</span>
+                        <span class="text-gray-600 text-2xl ml-2 font-bold">{{ item.value }}</span>
+                        <ChangeText :change-value="item.change" size="sm" mode="rounded" class="ml-2" />
                     </div>
                 </div>
             </div>
