@@ -352,7 +352,10 @@ const computedLineChartData = computed(() => {
 
     return {
         labels: lineChartData.value.labels,
-        datasets: lineChartData.value[selectedComparisonMode.value.value][selectedInterval.value],
+        datasets: [
+            assetLineChartData.value.sales_data[selectedInterval.value],
+            ...lineChartData.value[selectedComparisonMode.value.value][selectedInterval.value],
+        ],
     };
 });
 </script>
