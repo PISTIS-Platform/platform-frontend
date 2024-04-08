@@ -20,36 +20,6 @@ import { Bar } from 'vue-chartjs';
 
 const barChartOptions = { responsive: true, maintainAspectRatio: false };
 
-//TODO: Bring data from API call for both chart and table sales data
-
-const barChartSalesData = ref({
-    2024: [40, 20, 12, 39, 10, 40, 39, 20, 40, 20, 12, 11],
-    2023: [40, 20, 12, 39, 10, 40, 39, 20, 40, 20, 12, 11].reverse(),
-});
-const barChartData = computed(() => ({
-    labels: [
-        t('market.assets.performanceTable.jan'),
-        t('market.assets.performanceTable.feb'),
-        t('market.assets.performanceTable.mar'),
-        t('market.assets.performanceTable.apr'),
-        t('market.assets.performanceTable.may'),
-        t('market.assets.performanceTable.jun'),
-        t('market.assets.performanceTable.jul'),
-        t('market.assets.performanceTable.aug'),
-        t('market.assets.performanceTable.sep'),
-        t('market.assets.performanceTable.oct'),
-        t('market.assets.performanceTable.nov'),
-        t('market.assets.performanceTable.dec'),
-    ],
-    datasets: [
-        {
-            label: 'Sales',
-            backgroundColor: '#7BA3A2',
-            data: barChartSalesData.value[performanceSelected.value[0].year],
-        },
-    ],
-}));
-
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement);
 
 const route = useRoute();
@@ -275,6 +245,36 @@ const performanceData = ref<PerformanceTableRow[]>([
         total: 250,
     },
 ]);
+
+//TODO: Bring data from API call for both chart and table sales data
+
+const barChartSalesData = ref({
+    2024: [40, 20, 12, 39, 10, 40, 39, 20, 40, 20, 12, 11],
+    2023: [40, 20, 12, 39, 10, 40, 39, 20, 40, 20, 12, 11].reverse(),
+});
+const barChartData = computed(() => ({
+    labels: [
+        t('market.assets.performanceTable.jan'),
+        t('market.assets.performanceTable.feb'),
+        t('market.assets.performanceTable.mar'),
+        t('market.assets.performanceTable.apr'),
+        t('market.assets.performanceTable.may'),
+        t('market.assets.performanceTable.jun'),
+        t('market.assets.performanceTable.jul'),
+        t('market.assets.performanceTable.aug'),
+        t('market.assets.performanceTable.sep'),
+        t('market.assets.performanceTable.oct'),
+        t('market.assets.performanceTable.nov'),
+        t('market.assets.performanceTable.dec'),
+    ],
+    datasets: [
+        {
+            label: 'Sales',
+            backgroundColor: '#7BA3A2',
+            data: barChartSalesData.value[performanceSelected.value[0].year],
+        },
+    ],
+}));
 
 const performancePageCount = 5;
 
