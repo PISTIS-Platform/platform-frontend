@@ -422,7 +422,7 @@ const computedLineChartData = computed(() => {
                 >
                 </UTable>
                 <UPagination
-                    v-if="performanceFilteredRows.length > performancePageCount"
+                    v-show="performanceFilteredRows.length > performancePageCount"
                     v-model="performancePage"
                     :page-count="performancePageCount"
                     :total="performanceFilteredRows.length"
@@ -434,7 +434,7 @@ const computedLineChartData = computed(() => {
             <template #right-header>
                 <div class="flex gap-6 items-center w-full justify-end">
                     <USelectMenu
-                        v-if="selectedComparisonMode.value === 'other_asset'"
+                        v-show="selectedComparisonMode.value === 'other_asset'"
                         v-model="selectedOtherAsset"
                         size="md"
                         searchable
@@ -460,7 +460,7 @@ const computedLineChartData = computed(() => {
             >
             </UTable>
             <UPagination
-                v-if="transactionsFilteredRows.length > transactionsPageCount"
+                v-show="transactionsFilteredRows.length > transactionsPageCount"
                 v-model="transactionsPage"
                 :page-count="transactionsPageCount"
                 :total="transactionsFilteredRows.length"
