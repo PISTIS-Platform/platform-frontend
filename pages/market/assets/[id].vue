@@ -49,8 +49,7 @@ const assetInfo = {
     sector: 'Aviation',
 };
 
-//TODO: Either have computed object that changes with sectors for table or watcher that calls API again
-
+//Data for latest transactions table
 const transactionsColumns = [
     {
         key: 'price',
@@ -81,6 +80,7 @@ interface TransactionsTableRow {
     buyer: string;
 }
 
+//TODO: Get rows/data from API call
 //TODO: Bring dates in YYYYY/MM/DD format for sorting
 const transactionsData = ref<TransactionsTableRow[]>([
     {
@@ -126,6 +126,122 @@ const {
     column: 'assetName',
     direction: 'asc',
 });
+
+//Data for asset performance table
+
+const performanceColumns = [
+    {
+        key: 'year',
+        label: t('market.assets.performanceTable.year'),
+        sortable: true,
+    },
+    {
+        key: 'jan',
+        label: t('market.assets.performanceTable.jan'),
+    },
+    {
+        key: 'feb',
+        label: t('market.assets.performanceTable.feb'),
+    },
+    {
+        key: 'mar',
+        label: t('market.assets.performanceTable.mar'),
+    },
+    {
+        key: 'apr',
+        label: t('market.assets.performanceTable.apr'),
+    },
+    {
+        key: 'may',
+        label: t('market.assets.performanceTable.may'),
+    },
+    {
+        key: 'jun',
+        label: t('market.assets.performanceTable.jun'),
+    },
+    {
+        key: 'jul',
+        label: t('market.assets.performanceTable.jul'),
+    },
+    {
+        key: 'aug',
+        label: t('market.assets.performanceTable.aug'),
+    },
+    {
+        key: 'sep',
+        label: t('market.assets.performanceTable.sep'),
+    },
+    {
+        key: 'oct',
+        label: t('market.assets.performanceTable.oct'),
+    },
+    {
+        key: 'nov',
+        label: t('market.assets.performanceTable.nov'),
+    },
+    {
+        key: 'dec',
+        label: t('market.assets.performanceTable.dec'),
+    },
+    {
+        key: 'total',
+        label: t('market.assets.performanceTable.total'),
+        sortable: true,
+    },
+];
+
+interface PerformanceTableRow {
+    [key: string]: number;
+}
+
+//TODO: Get performance table data from API call
+//TODO: See if 0 or null makes more sense when bringing data to table for months that don't exist yet
+const performanceData = ref<PerformanceTableRow[]>([
+    {
+        year: 2024,
+        jan: 3,
+        feb: 35,
+        mar: 20,
+        apr: 0,
+        may: 0,
+        jun: 0,
+        jul: 0,
+        aug: 0,
+        sep: 0,
+        oct: 0,
+        nov: 0,
+        dec: 0,
+        total: 58,
+    },
+    {
+        year: 2023,
+        jan: 5,
+        feb: 20,
+        mar: 15,
+        apr: 32,
+        may: 40,
+        jun: 10,
+        jul: 5,
+        aug: 25,
+        sep: 2,
+        oct: 12,
+        nov: 32,
+        dec: 35,
+        total: 250,
+    },
+]);
+
+const performancePageCount = 5;
+
+const {
+    page: performancePage,
+    sortBy: performanceSortBy,
+    filteredRows: performanceFilteredRows,
+    paginatedRows: performancePaginatedRows,
+} = useTable<PerformanceTableRow>(performanceData, performancePageCount, {
+    column: 'year',
+    direction: 'desc',
+});
 </script>
 
 <template>
@@ -163,6 +279,24 @@ const {
                         >Data Quality Index: <span class="font-bold">{{ assetInfo.data_quality_index }}</span></span
                     >
                 </div>
+            </div>
+        </ChartContainer>
+        <ChartContainer :title="$t('market.assets.assetPerformance')" class="mt-6 flex flex-col gap-6">
+            <div class="flex-col flex">
+                <UTable
+                    v-model:sort="performanceSortBy"
+                    :columns="performanceColumns"
+                    :rows="performancePaginatedRows"
+                    sort-mode="manual"
+                >
+                </UTable>
+                <UPagination
+                    v-if="performanceFilteredRows.length > performancePageCount"
+                    v-model="performancePage"
+                    :page-count="performancePageCount"
+                    :total="performanceFilteredRows.length"
+                    class="self-end"
+                />
             </div>
         </ChartContainer>
         <ChartContainer :title="$t('market.assets.latestTransactions')" class="mt-6">
