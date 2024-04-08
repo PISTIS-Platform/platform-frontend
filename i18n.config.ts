@@ -238,6 +238,8 @@ export default defineI18nConfig(() => ({
                         marketCap: 'Asset Market Cap / Sector Market Cap / Total Market Cap',
                         otherAsset: 'Comparison with other individual asset',
                     },
+                    searchAssetCompare: 'Search for an asset to compare to...',
+                    selectAssetCompare: 'Select asset to compare to',
                 },
                 overview: {
                     title: 'Overview',

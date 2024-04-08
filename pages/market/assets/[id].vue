@@ -316,19 +316,28 @@ const selectedComparisonMode = ref(comparisonModes[0]);
 
 const selectedInterval = ref('D');
 
-const assetsSearchString = ref('');
+//TODO: Get list of assets (all?) in API call
+
+const sampleOtherAssets = ['Asset 1', 'Asset 2', 'Asset 3'];
+
+const selectedOtherAsset = ref('');
 
 const { data: lineChartData, pending: _lineChartPending } = useFetch('/api/market-insights/assets/comparison');
 
 //TODO: reactive API call for changing ID/name of second asset to be compared to main one
+//TODO: currently using watch and refresh
 
 const { data: assetLineChartData, pending: _assetLineChartPending } = useFetch(
     '/api/market-insights/assets/asset-sales',
 );
 //TODO: This API call to be deleted when individual param is fixed
-const { data: otherLineChartData, pending: _otherLineChartPending } = useFetch(
-    '/api/market-insights/assets/other-asset-sales',
-);
+const {
+    data: otherLineChartData,
+    pending: _otherLineChartPending,
+    refresh: otherAssetRefresh,
+} = useFetch('/api/market-insights/assets/other-asset-sales');
+
+watch(selectedOtherAsset, () => otherAssetRefresh());
 
 const computedLineChartData = computed(() => {
     if (!lineChartData.value || !assetLineChartData.value || !otherLineChartData.value)
@@ -423,8 +432,17 @@ const computedLineChartData = computed(() => {
         </ChartContainer>
         <ChartContainer class="mt-6" :title="$t('market.assets.performanceComparison')">
             <template #right-header>
-                <div class="flex gap-6 items-center w-full">
-                    <UInput v-model="assetsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
+                <div class="flex gap-6 items-center w-full justify-end">
+                    <USelectMenu
+                        v-if="selectedComparisonMode.value === 'other_asset'"
+                        v-model="selectedOtherAsset"
+                        size="md"
+                        searchable
+                        :searchable-placeholder="$t('market.assets.searchAssetCompare')"
+                        class="w-full ml-6"
+                        :placeholder="$t('market.assets.selectAssetCompare')"
+                        :options="sampleOtherAssets"
+                    />
                     <TimeframeSelector v-model="selectedInterval" is-interval />
                     <USelectMenu v-model="selectedComparisonMode" size="md" :options="comparisonModes" />
                 </div>
