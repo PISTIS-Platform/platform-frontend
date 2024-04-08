@@ -206,6 +206,9 @@ export default defineI18nConfig(() => ({
                     sectorsVsTotalMarketCap: 'Sectors vs Total Market Cap',
                     assetsPerformanceBySector: 'Asset Performance By Sector',
                     topPerformingAssets: 'Top Performing Assets',
+                    salesBySectorVsTotal: 'Total number of sales by sector vs total',
+                    marketCapBySectorVsTotal: 'Market Cap by sector vs total',
+                    assetsComparison: 'Compare individual assets',
                 },
             },
             transactions: {

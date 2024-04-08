@@ -1,6 +1,11 @@
 //const { marketInsightsUrl } = useRuntimeConfig();
 
-export default defineEventHandler(async () => {
+const generateRandomData = () => {
+    return Array.from({ length: 4 }, () => Math.floor(Math.random() * 100));
+};
+
+export default defineEventHandler(async (event) => {
+    const query = getQuery(event);
     //const token = await getToken({ event });
 
     // const results = await $fetch(`${marketInsightsUrl}/sectors`, {
@@ -9,66 +14,52 @@ export default defineEventHandler(async () => {
     //     },
     // });
 
+    let sectors = [
+        {
+            id: 1,
+            label: 'Sector 1',
+        },
+        {
+            id: 2,
+            label: 'Sector 2',
+        },
+        {
+            id: 3,
+            label: 'Sector 3',
+        },
+    ];
+
+    if (query.sectorId) {
+        sectors = sectors.filter((sector: Record<string, any>) => sector.id === parseInt(query.sectorId as string));
+    }
+
     const results = {
         D: {
             dates: ['Day 1', 'Day 2', 'Day 3', 'Day 4'],
-            data: [
-                {
-                    label: 'Sector 1',
-                    data: [1000, 490, 230, 900],
-                    backgroundColor: '#ACDC94',
-                },
-                {
-                    label: 'Sector 2',
-                    data: [1000, 490, 230, 900].reverse(),
-                    backgroundColor: '#E9A364',
-                },
-                {
-                    label: 'Sector 3',
-                    data: [460, 900, 90, 380],
-                    backgroundColor: '#5ABCCF',
-                },
-            ],
+            data: sectors.map((sector: Record<string, any>) => {
+                return {
+                    label: sector.label,
+                    data: generateRandomData(),
+                };
+            }),
         },
         W: {
             dates: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-            data: [
-                {
-                    label: 'Sector 1',
-                    data: [56, 490, 456, 465],
-                    backgroundColor: '#ACDC94',
-                },
-                {
-                    label: 'Sector 2',
-                    data: [89, 490, 230, 900].reverse(),
-                    backgroundColor: '#E9A364',
-                },
-                {
-                    label: 'Sector 3',
-                    data: [460, 12, 23, 67],
-                    backgroundColor: '#5ABCCF',
-                },
-            ],
+            data: sectors.map((sector: Record<string, any>) => {
+                return {
+                    label: sector.label,
+                    data: generateRandomData(),
+                };
+            }),
         },
         M: {
             dates: ['Month 1', 'Month 2', 'Month 3', 'Month 4'],
-            data: [
-                {
-                    label: 'Sector 1',
-                    data: [67, 73, 67, 38],
-                    backgroundColor: '#ACDC94',
-                },
-                {
-                    label: 'Sector 2',
-                    data: [244, 490, 130, 289].reverse(),
-                    backgroundColor: '#E9A364',
-                },
-                {
-                    label: 'Sector 3',
-                    data: [567, 23, 90, 907],
-                    backgroundColor: '#5ABCCF',
-                },
-            ],
+            data: sectors.map((sector: Record<string, any>) => {
+                return {
+                    label: sector.label,
+                    data: generateRandomData(),
+                };
+            }),
         },
     };
 

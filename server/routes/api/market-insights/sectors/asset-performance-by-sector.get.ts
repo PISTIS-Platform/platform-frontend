@@ -18,7 +18,8 @@ const generateAssetsArray = (numAssets = 5): Asset[] => {
     return assets;
 };
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+    const query = getQuery(event);
     //const token = await getToken({ event });
 
     // const results = await $fetch(`${marketInsightsUrl}/sectors`, {
@@ -27,7 +28,11 @@ export default defineEventHandler(async () => {
     //     },
     // });
 
-    const sectors = [1, 2, 3];
+    let sectors = [1, 2, 3];
+
+    if (query.sectorId) {
+        sectors = sectors.filter((sectorId: number) => sectorId === parseInt(query.sectorId as string));
+    }
 
     const sortByOptions = ['total_sales', 'market_cap', 'price', 'percentage_change', 'acquisition_date'];
 
@@ -48,6 +53,10 @@ export default defineEventHandler(async () => {
             });
         });
     });
+
+    if (query.sectorId) {
+        return finalResults[parseInt(query.sectorId as string)];
+    }
 
     return finalResults;
 });

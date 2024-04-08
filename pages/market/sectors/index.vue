@@ -3,35 +3,27 @@ import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title
 import { Bar } from 'vue-chartjs';
 import { useI18n } from 'vue-i18n';
 
-import type { AssetPerformanceList, BasicAsset, BasicSector } from '~/interfaces/market-insights';
+import type {
+    AssetPerformanceList,
+    BasicAsset,
+    BasicSector,
+    SectorSalesByTimeframe,
+} from '~/interfaces/market-insights';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
-const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
-//sector basic info
-const {
-    data: sectorsBasicInfo,
-    pending: loadingSectorsBasicInfo,
-    error: sectorsBasicInfoError,
-} = await useLazyFetch<BasicSector[]>('/api/market-insights/sectors');
+//TODO:: error handling (watchers for each error?) and add loading/skeleton componenents
 
-//TODO:: perhaps add watcher for errors (the below won't work with lazy fetch)
-if (sectorsBasicInfoError.value) {
-    showErrorMessage(t('market.sectors.errorInLoadingBasicInfo'));
-}
+//sector basic info
+const { data: sectors, pending: loadingSectorsBasicInfo } =
+    await useLazyFetch<BasicSector[]>('/api/market-insights/sectors');
 
 //Stacked Bar chart
-const { data: fetchedSectorSalesByDateData } = await useLazyFetch<
-    Record<
-        string,
-        {
-            dates: string[];
-            data: Record<string, any>[];
-        }
-    >
->('/api/market-insights/sectors/sales-by-date');
+const { data: fetchedSectorSalesByDateData } = await useLazyFetch<SectorSalesByTimeframe>(
+    '/api/market-insights/sectors/sales-by-date',
+);
 
 const sectorsSalesTimeframeSelection = ref('W');
 
@@ -41,11 +33,29 @@ const sectorsSales = computed(() => {
     }
 
     const fetchedDataByTimeframeSelection = fetchedSectorSalesByDateData.value[sectorsSalesTimeframeSelection.value];
+    //TODO:: TBD for palette colors for charts across market insights (and not only)
+    const backgroundColors = ['#88DAEA', '#ECD076', '#6FE697'];
+
+    const datasets = fetchedDataByTimeframeSelection.data.map(
+        (
+            sectorItem: {
+                label: string;
+                data: number;
+            },
+            index: number,
+        ) => {
+            return {
+                label: sectorItem.label,
+                data: sectorItem.data,
+                backgroundColor: backgroundColors[index],
+            };
+        },
+    );
 
     return {
         data: {
             labels: fetchedDataByTimeframeSelection.dates,
-            datasets: fetchedDataByTimeframeSelection.data,
+            datasets,
         },
         options: {
             responsive: true,
@@ -63,37 +73,24 @@ const sectorsSales = computed(() => {
 });
 
 //moving averages selections
-const nodeComparisonSelection = ref('Total number of sales by sector vs total');
-//TODO:: add translations
-const nodeComparisonOptions: string[] = [
-    'Total number of sales by sector vs total',
-    'Market cap by sector vs total',
-    'Compare individual assets',
+const nodeComparisonOptions = [
+    t('market.sectors.salesBySectorVsTotal'),
+    t('market.sectors.marketCapBySectorVsTotal'),
+    t('market.sectors.assetsComparison'),
 ];
+const nodeComparisonSelection = ref(nodeComparisonOptions[0]);
 
 //sectors
 const selectedSector = ref<BasicSector | null>(null);
 
-const sectors = computed(() => {
-    if (!sectorsBasicInfo.value) {
-        return [];
-    }
-
-    return sectorsBasicInfo.value.map((s: BasicSector) => ({
-        label: s.label,
-        value: s.value,
-    }));
-});
-
 //TODO:: the purpose of this is that the sectors dropdown will be initialized with a value so that the data below won't be empty, check if watcher can be avoided
 watch(sectors, () => {
-    if (!selectedSector.value && sectors.value.length) {
+    if (!selectedSector.value && sectors.value && sectors.value.length) {
         selectedSector.value = sectors.value[0];
     }
 });
 
 // Assets Performance (top & worst) data fetching
-//TODO:: add loading for asset performance data
 const { data: fetchedAssetsPerformanceData } = await useLazyFetch<Record<number, AssetPerformanceList>>(
     '/api/market-insights/sectors/asset-performance-by-sector',
 );
@@ -111,16 +108,16 @@ const computedAssetPerformanceData = computed(() => {
 });
 
 // Top Performing assets
-const { data: fetchedTopPerformingAssets } = await useLazyFetch<BasicAsset[]>(
-    '/api/market-insights/sectors/top-performing-assets',
+const { data: fetchedTopPerformingAssets } = await useLazyFetch<Record<number, BasicAsset[]>>(
+    '/api/market-insights/sectors/top-performing-assets-by-sector',
 );
 
 const topPerformingAssets = computed(() => {
-    if (!fetchedTopPerformingAssets.value) {
+    if (!fetchedTopPerformingAssets.value || !selectedSector.value) {
         return [];
     }
 
-    return fetchedTopPerformingAssets.value;
+    return fetchedTopPerformingAssets.value[selectedSector.value.value];
 });
 </script>
 
@@ -139,10 +136,14 @@ const topPerformingAssets = computed(() => {
                     class="h-24 w-72"
                 />
             </div>
-            <div v-for="sector in sectorsBasicInfo" v-else :key="sector.value">
+            <div v-for="sector in sectors" v-else :key="sector.value">
                 <UCard>
                     <div class="flex flex-col justify-between gap-6">
-                        <span class="text-gray-600 text-xl font-bold">{{ sector.label }}</span>
+                        <NuxtLink :to="`/market/sectors/${sector.value}`"
+                            ><span class="text-gray-600 text-xl font-bold hover:text-gray-500">{{
+                                sector.label
+                            }}</span></NuxtLink
+                        >
                         <span
                             >{{ $t('market.sectors.changeSince1WeekAgo') }}
                             <ChangeText :change-value="sector.change || 0" class="ml-1" size="xl"
@@ -189,7 +190,7 @@ const topPerformingAssets = computed(() => {
         </div>
 
         <!-- Assets Performance by sector-->
-        <div v-if="sectors.length" class="flex flex-col gap-8 w-full mt-8">
+        <div v-if="sectors && sectors.length" class="flex flex-col gap-8 w-full mt-8">
             <!-- Title and Sector Selection -->
             <div class="flex justify-between">
                 <SubHeading :title="$t('market.sectors.assetsPerformanceBySector')" />
@@ -205,7 +206,7 @@ const topPerformingAssets = computed(() => {
         </div>
 
         <!-- Top Performing Assets -->
-        <div class="flex flex-col gap-8 w-full mt-8">
+        <div v-if="sectors && sectors.length" class="flex flex-col gap-8 w-full mt-8">
             <SubHeading :title="$t('market.sectors.topPerformingAssets')" />
 
             <TopPerformingAssetsList :assets-list="topPerformingAssets"></TopPerformingAssetsList>

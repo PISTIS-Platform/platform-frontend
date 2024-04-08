@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js';
+import { Bar } from 'vue-chartjs';
 import { useI18n } from 'vue-i18n';
+
+import { AssetPerformanceList, BasicAsset, SectorSalesByTimeframe } from '~/interfaces/market-insights';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -8,11 +11,11 @@ const { t } = useI18n();
 
 const route = useRoute();
 
-const _sectorId = route.params.id;
-
 const sectorTimeframeSelection = ref('W');
 
-const sectorInfo: Record<string, any> = {
+//TODO: fix type
+const sector: Record<string, any> = {
+    id: route.params.id,
     name: 'Sector 1',
     changeTimeframeAgo: {
         D: {
@@ -44,6 +47,87 @@ const changeSinceTimeframeAgoText = computed(() => {
 
     return t('market.changeSince1MonthAgo');
 });
+
+//Sector sales - bar chart
+
+//Stacked Bar chart
+const { data: fetchedSectorSalesByDateData } = await useLazyFetch<SectorSalesByTimeframe>(
+    '/api/market-insights/sectors/sales-by-date',
+    {
+        query: { sectorId: sector.id },
+    },
+);
+
+const sectorsSalesTimeframeSelection = ref('W');
+
+const sectorsSales = computed(() => {
+    if (!fetchedSectorSalesByDateData.value) {
+        return null;
+    }
+
+    const fetchedDataByTimeframeSelection = fetchedSectorSalesByDateData.value[sectorsSalesTimeframeSelection.value];
+
+    const datasets = fetchedDataByTimeframeSelection.data.map((sectorItem: { label: string; data: number }) => {
+        return {
+            label: sectorItem.label,
+            data: sectorItem.data,
+            backgroundColor: '#88DAEA',
+        };
+    });
+
+    return {
+        data: {
+            labels: fetchedDataByTimeframeSelection.dates,
+            datasets,
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false,
+                },
+            },
+        },
+    };
+});
+
+// Assets Performance (top & worst) data fetching
+//TODO:: add loading for asset performance data
+const { data: fetchedAssetsPerformanceData } = await useLazyFetch<AssetPerformanceList>(
+    '/api/market-insights/sectors/asset-performance-by-sector',
+    {
+        query: { sectorId: sector.id },
+    },
+);
+
+//computed property for assets data based on sector selection
+const computedAssetPerformanceData = computed(() => {
+    if (!fetchedAssetsPerformanceData.value || !sector) {
+        return {
+            top: {},
+            worst: {},
+        };
+    }
+
+    return fetchedAssetsPerformanceData.value;
+});
+
+// Top Performing assets
+const { data: fetchedTopPerformingAssets } = await useLazyFetch<BasicAsset[]>(
+    '/api/market-insights/sectors/top-performing-assets-by-sector',
+    {
+        query: { sectorId: sector.id },
+    },
+);
+
+const topPerformingAssets = computed(() => {
+    if (!fetchedTopPerformingAssets.value) {
+        return [];
+    }
+
+    return fetchedTopPerformingAssets.value;
+});
 </script>
 
 <template>
@@ -52,7 +136,7 @@ const changeSinceTimeframeAgoText = computed(() => {
         <UCard class="w-full">
             <div class="flex flex-col gap-6">
                 <div class="flex justify-between gap-12">
-                    <span class="text-gray-600 text-xl font-bold">{{ sectorInfo.name }}</span>
+                    <span class="text-gray-600 text-xl font-bold">{{ sector.name }}</span>
                     <TimeframeSelector v-model="sectorTimeframeSelection" />
                 </div>
 
@@ -60,7 +144,7 @@ const changeSinceTimeframeAgoText = computed(() => {
                     <div>
                         <span class="text-gray-500 text-sm">{{ changeSinceTimeframeAgoText }}</span>
                         <ChangeText
-                            :change-value="sectorInfo.changeTimeframeAgo[sectorTimeframeSelection].change"
+                            :change-value="sector.changeTimeframeAgo[sectorTimeframeSelection].change"
                             size="2xl"
                             class="ml-2"
                         />
@@ -68,20 +152,27 @@ const changeSinceTimeframeAgoText = computed(() => {
                     <div>
                         <span class="text-gray-500 text-sm">{{ $t('market.totalSales') }}</span>
                         <span class="text-gray-600 text-2xl ml-2 font-bold"
-                            >{{ sectorInfo.changeTimeframeAgo[sectorTimeframeSelection].totalSales }}STC</span
+                            >{{ sector.changeTimeframeAgo[sectorTimeframeSelection].totalSales }}STC</span
                         >
                     </div>
                     <div>
                         <span class="text-gray-500 text-sm">{{ $t('market.marketCap') }}</span>
                         <span class="text-gray-600 text-2xl ml-2 font-bold">{{
-                            sectorInfo.changeTimeframeAgo[sectorTimeframeSelection].marketCap
+                            sector.changeTimeframeAgo[sectorTimeframeSelection].marketCap
                         }}</span>
                     </div>
                 </div>
             </div>
         </UCard>
 
-        <!-- Sectors Stacked Bar Chart-->
+        <!-- Sector Bar Chart-->
+        <ChartContainer v-if="sectorsSales" :title="$t('market.sectors.allSectorsSales')" class="mt-8">
+            <template #right-header>
+                <TimeframeSelector v-model="sectorsSalesTimeframeSelection" is-interval></TimeframeSelector>
+            </template>
+
+            <Bar class="w-full h-full" :data="sectorsSales.data" :options="sectorsSales.options" />
+        </ChartContainer>
 
         <!-- Moving averages -->
         <ChartContainer :title="$t('market.sectors.movingAverages')" class="mt-8">
@@ -96,6 +187,20 @@ const changeSinceTimeframeAgoText = computed(() => {
             <ChartContainer :title="$t('market.sectors.sectorsVsTotalMarketCap')" class="w-1/2">
                 <div class="h-52"></div>
             </ChartContainer>
+        </div>
+
+        <!-- Assets Performance by sector-->
+        <div v-if="sector" class="flex flex-col gap-8 w-full mt-8">
+            <SubHeading :title="$t('market.sectors.assetsPerformanceBySector')" />
+
+            <AssetsPerformanceCard :asset-data="computedAssetPerformanceData"></AssetsPerformanceCard>
+        </div>
+
+        <!-- Top Performing Assets -->
+        <div v-if="sector" class="flex flex-col gap-8 w-full mt-8">
+            <SubHeading :title="$t('market.sectors.topPerformingAssets')" />
+
+            <TopPerformingAssetsList :assets-list="topPerformingAssets"></TopPerformingAssetsList>
         </div>
     </PageContainer>
 </template>

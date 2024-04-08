@@ -13,6 +13,17 @@ export interface BasicSector {
     change?: number;
 }
 
+export type SectorSalesByTimeframe = Record<
+    string,
+    {
+        dates: string[];
+        data: {
+            label: string;
+            data: number;
+        }[];
+    }
+>;
+
 export interface AssetPerformanceList {
     top: Record<
         string,
