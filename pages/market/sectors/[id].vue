@@ -15,65 +15,13 @@ const route = useRoute();
 
 const sectorTimeframeSelection = ref('W');
 
-const sector = ref<SectorCard>({
-    id: parseInt(route.params.id as string),
-    name: 'Sector 1',
-    changeTimeframeAgo: {
-        D: [
-            {
-                label: t('market.totalSales'),
-                change: 12,
-                value: 700,
-            },
-            {
-                label: t('market.revenue'),
-                change: 34,
-                value: 523,
-            },
-            {
-                label: t('market.marketCap'),
-                change: -18.4,
-                value: 900,
-            },
-        ],
-        W: [
-            {
-                label: t('market.totalSales'),
-                change: 14,
-                value: 230,
-            },
-            {
-                label: t('market.revenue'),
-                change: -23.9,
-                value: 123,
-            },
-            {
-                label: t('market.marketCap'),
-                change: 18.4,
-                value: 340,
-            },
-        ],
-        M: [
-            {
-                label: t('market.totalSales'),
-                change: 18.9,
-                value: 1700,
-            },
-            {
-                label: t('market.revenue'),
-                change: 23,
-                value: 4059,
-            },
-            {
-                label: t('market.marketCap'),
-                change: 32,
-                value: 9504,
-            },
-        ],
-    },
-});
+const { data: sector } = await useLazyFetch<SectorCard>(`/api/market-insights/sectors/${route.params.id}`);
 
 const sectorCardItems = computed(() => {
+    if (!sector.value) {
+        return [];
+    }
+
     const sectorInfoItems = sector.value.changeTimeframeAgo[sectorTimeframeSelection.value];
 
     const iconsMapping = {
@@ -97,7 +45,7 @@ const sectorCardItems = computed(() => {
 const { data: fetchedSectorSalesByDateData } = await useLazyFetch<SectorSalesByTimeframe>(
     '/api/market-insights/sectors/sales-by-date',
     {
-        query: { sectorId: sector.value.id },
+        query: { sectorId: route.params.id },
     },
 );
 
@@ -139,7 +87,7 @@ const sectorsSales = computed(() => {
 const { data: fetchedAssetsPerformanceData } = await useLazyFetch<AssetPerformanceList>(
     '/api/market-insights/sectors/asset-performance-by-sector',
     {
-        query: { sectorId: sector.value.id },
+        query: { sectorId: route.params.id },
     },
 );
 
@@ -159,7 +107,7 @@ const computedAssetPerformanceData = computed(() => {
 const { data: fetchedTopPerformingAssets } = await useLazyFetch<BasicAsset[]>(
     '/api/market-insights/sectors/top-performing-assets-by-sector',
     {
-        query: { sectorId: sector.value.id },
+        query: { sectorId: route.params.id },
     },
 );
 
@@ -175,7 +123,7 @@ const topPerformingAssets = computed(() => {
 <template>
     <PageContainer>
         <!-- Sectors Info Card -->
-        <UCard class="w-full">
+        <UCard v-if="sector" class="w-full">
             <div class="flex flex-col gap-6">
                 <div class="flex justify-between gap-12">
                     <span class="text-gray-600 text-xl font-bold">{{ sector.name }}</span>
