@@ -434,7 +434,7 @@ const computedLineChartData = computed(() => {
             <template #right-header>
                 <div class="flex gap-6 items-center w-full justify-end">
                     <USelectMenu
-                        v-show="selectedComparisonMode.value === 'other_asset'"
+                        v-if="selectedComparisonMode.value === 'other_asset'"
                         v-model="selectedOtherAsset"
                         size="md"
                         searchable
