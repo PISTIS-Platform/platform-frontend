@@ -62,7 +62,7 @@ const sectors: Selection[] = [
 
 const selectedSector = ref(sectors[0]);
 
-const { data: lineChartData, pending: lineChartPending } = useFetch('/market/assets/assets-vs-average');
+const { data: lineChartData, pending: lineChartPending } = useFetch('/api/market-insights/assets/assets-vs-average');
 
 const computedLineChartData = computed(() => {
     if (!lineChartData.value)
