@@ -51,6 +51,9 @@ export default defineI18nConfig(() => ({
                 dashboard: 'Dashboard',
                 analytics: 'Analytics',
             },
+            example: {
+                token: 'Token contents',
+            },
             data: {
                 data: 'My Data',
                 designer: {

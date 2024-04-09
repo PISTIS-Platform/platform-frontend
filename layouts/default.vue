@@ -13,9 +13,9 @@ const route = useRoute();
 
 const firstLevelRoutePath = route.fullPath.split('/')[1];
 
-const { signIn, signOut, data: session } = useAuth();
+const { signIn, signOut, data: session, status } = useAuth();
 
-const status = 'authenticated'; //TODO: Remove this and add status to useAuth exports after keycloak is in place
+//const status = 'authenticated'; //TODO: Remove this and add status to useAuth exports after keycloak is in place
 
 useHead({
     htmlAttrs: { class: 'min-h-full bg-gray-100' },
@@ -27,6 +27,7 @@ const navigation = [
     { name: 'data.data', to: '/data' },
     { name: 'transactions.transactions', to: '/transactions' },
     { name: 'market.market', to: '/market' },
+    { name: 'example.token', to: '/example/token' },
 ];
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
