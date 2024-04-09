@@ -17,9 +17,21 @@ enum Sensitivity {
 }
 
 const anonymizerStore = useAnonymizerStore();
-const solutions = ref([] as Solution[]);
-const solutionColumns = ref([] as TableRow[]);
-const obfuscatedRows = ref([] as TableRow[]);
+const intervals = ref([] as number[]);
+
+const solutions = ref([] as Solution[]); // list of possible transformations
+const displayedSolutions = ref([] as TableRow[]); // list of transformations as displayed
+const solutionColumns = ref([] as TableRow[]); // columns names for solutions table
+const obfuscatedRows = ref([] as TableRow[]); // preview of obfuscated dataset
+
+// paginated view of displayedSolutions
+const page = ref(1);
+const pageCount = 5;
+
+const displayedSolutionView = computed(() => {
+    return displayedSolutions.value.slice((page.value - 1) * pageCount, page.value * pageCount);
+});
+
 const loadingSolutions = ref(false);
 const loadingPreview = ref(false);
 const isAnonymizing = ref(false);
@@ -95,14 +107,47 @@ async function generateSolutions() {
     });
 
     solutions.value = response.data.value as Solution[];
-    solutionColumns.value = formatColumns(Object.keys(solutions.value[0].transformation));
+    solutionColumns.value = formatColumns(Object.keys(rawPreview.columns));
+    displayedSolutions.value = formatSolutions(solutions.value, rawPreview.columns, rawPreview.columnSensitivity);
     loadingSolutions.value = false;
+
+    console.log(solutions);
 }
 
 //format solution from the server for UTable component
-function formatSolutions(solutions: Solution[]): TableRow[] {
-    return solutions.map((solution) => {
-        return Object.assign(solution.transformation, { informationLoss: solution.informationLoss });
+function formatSolutions(solutions: Solution[], columns: TableRow, columnSensitivity: TableRow): TableRow[] {
+    return solutions.map((solution, index) => {
+        let row: TableRow = {};
+
+        for (const [column, type] of Object.entries(columns)) {
+            if (columnSensitivity[column] == Sensitivity.Sensitive) {
+                row[column] = 'Delete column';
+            } else if (columnSensitivity[column] == Sensitivity.QuasiIdentifier) {
+                //Display appropriate text based on column type
+                if (type === 'STRING') {
+                    row[column] = `Remove the ${solution.transformation[column]} leftmost characters`;
+                } else if (type === 'NUMBER') {
+                    const interval = intervals.value[solution.transformation[column]];
+
+                    if (interval) {
+                        row[column] = `Numbers will be replaced by intervals of ${interval}`;
+                    } else if (interval === 0) {
+                        row[column] = 'Numbers will not be changed';
+                    } else {
+                        row[column] = 'Numbers will be deleted';
+                    }
+                } else {
+                    row[column] = 'Data type not yet supported!';
+                }
+            } else {
+                row[column] = 'No transformation';
+            }
+        }
+
+        row['index'] = index;
+        row['informationLoss'] = solution.informationLoss;
+
+        return row;
     });
 }
 
@@ -124,23 +169,21 @@ function formatPreview(dataset: string[][]): TableRow[] {
     return rows;
 }
 
-async function generatePreview(row: TableRow) {
+async function generatePreview(transformation: TableRow) {
     loadingPreview.value = true;
 
-    let tempRow = { ...row };
-    delete tempRow['informationLoss'];
     let response = await useFetch('/api/anonymizer/previewSolution', {
         method: 'POST',
         body: {
             columnSensitivity: rawPreview.columnSensitivity,
-            transformation: tempRow,
+            transformation: transformation,
         },
     });
 
     const preview = response.data.value as string[][];
     obfuscatedRows.value = formatPreview(preview);
     currentSolution.columnSensitivity = rawPreview.columnSensitivity;
-    currentSolution.transformation = tempRow;
+    currentSolution.transformation = transformation;
     loadingPreview.value = false;
 }
 
@@ -150,8 +193,6 @@ async function submitObfuscation() {
         method: 'POST',
         body: currentSolution,
     });
-
-    console.log(response.data.value);
 
     if (response.data.value['code'] === 200) {
         window.alert('Dataset successfully anonymized!');
@@ -168,6 +209,12 @@ async function submitObfuscation() {
 
     isAnonymizing.value = false;
 }
+
+onMounted(async () => {
+    const response = await useFetch('/api/anonymizer/intervals');
+    intervals.value = response.data.value;
+    console.log(intervals.value);
+});
 </script>
 
 <template>
@@ -197,11 +244,15 @@ async function submitObfuscation() {
 
             <div :hidden="solutions.length === 0" class="mt-3">
                 <h2 class="text-2xl">Solutions</h2>
-                <UTable :rows="formatSolutions(solutions)" :columns="solutionColumns" :loading="solutions.length === 0">
+                <p>Below you can find a list of configurations to keep your data anonymous.</p>
+                <UTable :rows="displayedSolutionView" :columns="solutionColumns" :loading="solutions.length === 0">
                     <template #actions-data="{ row }">
-                        <UButton @click="generatePreview(row)">Preview</UButton>
+                        <UButton @click="generatePreview(solutions[row.index].transformation)">Preview</UButton>
                     </template>
                 </UTable>
+                <div class="flex justify-start px-3 py-3.5 border-t border-gray-200 dark:border-gray-700">
+                    <UPagination v-model="page" :page-count="pageCount" :total="displayedSolutions.length" />
+                </div>
             </div>
 
             <div :hidden="obfuscatedRows.length === 0 && !loadingPreview" class="mt-3">
