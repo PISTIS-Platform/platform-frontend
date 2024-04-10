@@ -12,18 +12,19 @@ function getDecodedAccessToken(at: any): any {
     }
 }
 
-const tokenInfo = await getDecodedAccessToken(token.value?.access_token); // decode token
+const idTokenInfo = await getDecodedAccessToken(token.value?.id_token); // decode token
+const accessTokenInfo = await getDecodedAccessToken(token.value?.access_token); // decode token
 </script>
 
 <template>
     <div class="w-full h-full">
         <div class="flex flex-col w-full mt-8 p-6">
             <hr style="height: 50px" />
-            <h1>Keycloak JWT</h1>
-            <code>{{ token.access_token }}</code>
+            <h1>Decompiled ID Token</h1>
+            <pre>{{ idTokenInfo }}</pre>
             <hr style="height: 50px" />
-            <h1>Decompiled JWT</h1>
-            <pre>{{ tokenInfo }}</pre>
+            <h1>Decompiled Access Token (for account audience)</h1>
+            <pre>{{ accessTokenInfo }}</pre>
         </div>
     </div>
 </template>
