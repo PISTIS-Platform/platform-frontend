@@ -1,4 +1,4 @@
-export default interface TimeframeSelection {
+export default interface Selection {
     label: string;
     value: string;
     disabled?: boolean;
