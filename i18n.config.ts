@@ -56,6 +56,7 @@ export default defineI18nConfig(() => ({
                 week: '1W',
                 month: '1M',
             },
+            compareBy: 'Compare By',
             val: {
                 atLeastNumberChars: 'Must be at least {count} characters',
                 validNumber: 'Please enter a valid number',
@@ -189,6 +190,12 @@ export default defineI18nConfig(() => ({
             },
             market: {
                 market: 'Market Insights',
+                totalSales: 'Total Sales',
+                marketCap: 'Market Cap',
+                revenue: 'Total Revenue',
+                changeSince1DayAgo: 'Change since 1 Day Ago',
+                changeSince1WeekAgo: 'Change since 1 Week Ago',
+                changeSince1MonthAgo: 'Change since 1 Month Ago',
                 assets: {
                     title: 'Assets',
                     topPerforming: 'Top Performing Assets',
@@ -246,6 +253,19 @@ export default defineI18nConfig(() => ({
                 },
                 sectors: {
                     title: 'Sectors',
+                    overview: 'Sectors Overview',
+                    selectSector: 'Select Sector',
+                    changeSince1WeekAgo: 'Change Since 1 Week Ago',
+                    errorInLoadingBasicInfo: 'Error occurred while loading sectors basic info',
+                    allSectorsSales: 'Sectors Sales By Date',
+                    movingAverages: 'Moving Averages',
+                    marketCapPerSector: 'Market Cap per sector',
+                    totalSalesPerSector: 'Total Sales per sector',
+                    assetsPerformanceBySector: 'Asset Performance By Sector',
+                    topPerformingAssets: 'Top Performing Assets',
+                    salesBySectorVsTotal: 'Total number of sales by sector vs total',
+                    marketCapBySectorVsTotal: 'Market Cap by sector vs total',
+                    assetsComparison: 'Compare individual assets',
                 },
             },
             transactions: {
