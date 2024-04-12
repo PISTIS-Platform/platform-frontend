@@ -110,8 +110,6 @@ async function generateSolutions() {
     solutionColumns.value = formatColumns(Object.keys(rawPreview.columns));
     displayedSolutions.value = formatSolutions(solutions.value, rawPreview.columns, rawPreview.columnSensitivity);
     loadingSolutions.value = false;
-
-    console.log(solutions);
 }
 
 //format solution from the server for UTable component
@@ -213,7 +211,6 @@ async function submitObfuscation() {
 onMounted(async () => {
     const response = await useFetch('/api/anonymizer/intervals');
     intervals.value = response.data.value;
-    console.log(intervals.value);
 });
 </script>
 

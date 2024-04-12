@@ -12,6 +12,7 @@ const { t } = useI18n();
 
 const title: string = `${t('anonymizer.anonymizer')} - ${t('anonymizer.obfuscation')}`;
 const anonymizerStore = useAnonymizerStore();
+const router = useRouter();
 
 //Preview before anonymization
 const rawPreview = reactive({
@@ -37,6 +38,7 @@ const masks = ref<SortedMasks>({ STRING: [], NUMBER: [] });
 const obfuscationBody = reactive<ObfuscationBody>({});
 const hidePreview = ref<boolean>(true);
 const loadingPreview = ref<boolean>(false);
+const submittingObfuscation = ref<boolean>(false);
 
 //Get list of available masks from the anonymizer
 async function loadAvailableMasks(): Promise<SortedMasks> {
@@ -67,8 +69,6 @@ function configureBody(config: ConfigEmit): void {
         }
         obfuscationBody[config.mask].push(config.config);
     }
-
-    console.log(obfuscationBody);
 }
 
 async function submitObfuscation(isPreview: boolean): Promise<void> {
@@ -100,6 +100,7 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
 
             loadingPreview.value = false;
         } else {
+            submittingObfuscation.value = true;
             //Apply the obfuscation to the entire original dataset
             const response = await useFetch('/api/anonymizer/obfuscate', {
                 method: 'POST',
@@ -123,6 +124,9 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
             delete obfuscationBody.delete;
 
             hidePreview.value = true;
+            submittingObfuscation.value = false;
+            //temporary fix for weirdness that happens after anonymization
+            router.push({ name: 'anonymizer' });
         }
     }
 }
@@ -170,7 +174,9 @@ onMounted(async () => {
             <div :hidden="hidePreview" class="mt-3">
                 <h1 class="text-2xl">Anonymization Preview</h1>
                 <UTable class="mt-5" :rows="obfuscatedRows" :loading="loadingPreview" />
-                <UButton class="w-44 mt-5" @click="submitObfuscation(false)">Apply Transformation</UButton>
+                <UButton class="w-44 mt-5" :loading="submittingObfuscation" @click="submitObfuscation(false)"
+                    >Apply Transformation</UButton
+                >
             </div>
         </div>
     </UCard>

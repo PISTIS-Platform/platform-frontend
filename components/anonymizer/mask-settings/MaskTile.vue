@@ -56,7 +56,7 @@ anonymizerStore.$subscribe((mutation, state) => {
 //Used to dynamically load mask components by name
 function loadMaskComponent(maskName: string) {
     maskName = formatName(maskName);
-    return defineAsyncComponent(() => import(`./${maskName}.vue`));
+    return defineAsyncComponent(() => import(/* @vite-ignore */ `./${maskName}.vue`));
 }
 
 function formatName(maskName: string): string {
