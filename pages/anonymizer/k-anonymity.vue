@@ -17,6 +17,7 @@ enum Sensitivity {
 }
 
 const anonymizerStore = useAnonymizerStore();
+const router = useRouter();
 const intervals = ref([] as number[]);
 
 const solutions = ref([] as Solution[]); // list of possible transformations
@@ -96,20 +97,26 @@ function formatColumns(columns: string[]): TableRow[] {
 
 // request list of solutions from the server
 async function generateSolutions() {
-    loadingSolutions.value = true;
+    //check that there is a single quasi identifier
+    const sensitivities = Object.values(rawPreview.columnSensitivity);
+    if (!sensitivities.includes('QUASI_IDENTIFIER')) {
+        window.alert('Please select at least one quasi identifier!');
+    } else {
+        loadingSolutions.value = true;
 
-    //Fetch a preview of the obfuscation
-    let response = await useFetch('/api/anonymizer/solution', {
-        method: 'POST',
-        body: {
-            columnSensitivity: rawPreview.columnSensitivity,
-        },
-    });
+        //Fetch a preview of the obfuscation
+        let response = await useFetch('/api/anonymizer/solution', {
+            method: 'POST',
+            body: {
+                columnSensitivity: rawPreview.columnSensitivity,
+            },
+        });
 
-    solutions.value = response.data.value as Solution[];
-    solutionColumns.value = formatColumns(Object.keys(rawPreview.columns));
-    displayedSolutions.value = formatSolutions(solutions.value, rawPreview.columns, rawPreview.columnSensitivity);
-    loadingSolutions.value = false;
+        solutions.value = response.data.value as Solution[];
+        solutionColumns.value = formatColumns(Object.keys(rawPreview.columns));
+        displayedSolutions.value = formatSolutions(solutions.value, rawPreview.columns, rawPreview.columnSensitivity);
+        loadingSolutions.value = false;
+    }
 }
 
 //format solution from the server for UTable component
@@ -206,6 +213,7 @@ async function submitObfuscation() {
     anonymizerStore.changePreview(result);
 
     isAnonymizing.value = false;
+    router.push({ name: 'anonymizer' });
 }
 
 onMounted(async () => {

@@ -76,6 +76,11 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
     if (Object.keys(obfuscationBody).length === 0) {
         window.alert('Please configure a transformation!');
     } else if (
+        obfuscationBody['delete'] &&
+        obfuscationBody['delete'].length === Object.keys(rawPreview.columns).length
+    ) {
+        window.alert('You cannot delete all columns in a dataset!');
+    } else if (
         obfuscationBody['location'] &&
         (obfuscationBody['location'].length !== 2 ||
             obfuscationBody['location'][0]['isLat'] == obfuscationBody['location'][1]['isLat'])

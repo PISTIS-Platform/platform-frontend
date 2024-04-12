@@ -43,18 +43,20 @@ anonymizerStore.$subscribe((mutation, state) => {
 
                 <h3 class="font-bold">Obfuscation</h3>
                 <p>Obscure sensitive data by either removing it or masking it by replacing values.</p>
-                <UButton to="/anonymizer/obfuscation">Obfuscation Utilities</UButton>
+                <UButton class="w-44" to="/anonymizer/obfuscation">Obfuscation Utilities</UButton>
 
                 <h3 class="font-bold">k-Anonymity</h3>
                 <p>
                     Based on analysis we will select columns containing sensitive data and provide a series of solutions
                     to keep your data safe.
                 </p>
-                <UButton to="/anonymizer/k-anonymity">k-Anonymity</UButton>
+                <UButton class="w-44" to="/anonymizer/k-anonymity">k-Anonymity</UButton>
 
+                <!-- Temporarily disabled while differential privacy is not in place
                 <h3 class="font-bold">Differential Privacy</h3>
                 <p>Inject noise into your dataset so that personally identifiable information is obscured.</p>
-                <UButton>Differential Privacy</UButton>
+                <UButton class="w-44">Differential Privacy</UButton>
+                -->
             </div>
         </UCard>
     </div>
