@@ -348,16 +348,6 @@ export default defineI18nConfig(() => ({
                     },
                 },
             },
-            intervals: {
-                daily: 'Daily',
-                weekly: 'Weekly',
-                monthly: 'Monthly',
-            },
-            before: {
-                day: '1D',
-                week: '1W',
-                month: '1M',
-            },
         },
     },
 }));
