@@ -14,24 +14,24 @@ const props = defineProps({
     },
 });
 
-const colorIndicator = computed(() => {
-    if (props.changeValue > 0) {
-        return 'green';
-    }
+const textSize = computed(() => `text-${props.size}`);
 
-    if (props.changeValue < 0) {
-        return 'red';
-    }
+const textColor = computed(() => {
+    return props.changeValue > 0 ? 'text-green-600' : props.changeValue < 0 ? 'text-red-600' : 'text-gray-600';
+});
 
-    return 'gray';
+const bgColor = computed(() => {
+    return props.changeValue > 0 ? 'bg-green-100' : props.changeValue < 0 ? 'bg-red-100' : 'bg-gray-100';
 });
 </script>
 
 <template>
     <span
         :class="[
-            `font-semibold text-${props.size} text-${colorIndicator}-600`,
-            props.mode === 'rounded' ? `px-2 py-1 rounded-lg bg-${colorIndicator}-200` : '',
+            `font-semibold`,
+            textSize,
+            textColor,
+            props.mode === 'rounded' ? `px-2 py-1 rounded-lg ${bgColor}` : '',
         ]"
         >{{ `${props.changeValue > 0 ? '+' : ''}${props.changeValue}%` }}
     </span>
