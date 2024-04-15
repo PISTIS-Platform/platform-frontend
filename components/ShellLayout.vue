@@ -11,7 +11,7 @@ defineProps<{
 
 <template>
     <div class="flex flex-col flex-1">
-        <Disclosure as="nav" class="bg-white shadow-sm sticky top-0 z-10">
+        <Disclosure as="nav" class="bg-white shadow-sm sticky top-0 z-50">
             <div class="mx-auto px-2 max-w-7xl">
                 <div class="flex h-12 justify-start">
                     <div class="flex">

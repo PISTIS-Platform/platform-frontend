@@ -56,7 +56,7 @@ const rows = computed(() => {
 
 <template>
     <PageContainer>
-        <div class="flex flex-col w-full mt-8">
+        <div class="flex flex-col w-full">
             <UCard>
                 <template #header>
                     <SubHeading :title="$t('transactions.auditor')" />

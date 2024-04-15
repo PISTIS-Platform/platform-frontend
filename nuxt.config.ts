@@ -34,6 +34,8 @@ export default defineNuxtConfig({
         keycloakClientSecret: process.env.NUXT_KEYCLOAK_CLIENT_SECRET,
         keycloakIssuer: process.env.NUXT_KEYCLOAK_ISSUER,
 
+        marketInsightsUrl: process.env.NUXT_MARKET_INSIGHTS_URL,
+
         // public: {
         //     appUrl: '',
         // },

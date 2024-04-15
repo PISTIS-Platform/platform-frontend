@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 const routes = ref([
-    { name: 'market.store', to: '/market' },
-    { name: 'market.log', to: '/market/log' },
-    { name: 'market.insights', to: '/market/insights' },
+    { name: 'market.overview.title', to: '/market' },
+    { name: 'market.assets.title', to: '/market/assets' },
+    { name: 'market.sectors.title', to: '/market/sectors' },
 ]);
 </script>
 

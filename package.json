@@ -52,6 +52,7 @@
         "pinia": "^2.1.6",
         "ramda": "^0.29.0",
         "vue-chartjs": "^5.2.0",
+        "vue-fast-marquee": "^1.0.6",
         "vue3-tags-input": "^1.0.12",
         "zod": "^3.22.4"
     }
