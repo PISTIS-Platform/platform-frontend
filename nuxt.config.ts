@@ -8,6 +8,9 @@ export default defineNuxtConfig({
             pathPrefix: false,
         },
     ],
+    alias: {
+        cookie: 'cookie',
+    },
     plugins: ['~/plugins/vue3-tags.js', '~/plugins/vue3-chartjs'],
     devtools: { enabled: true },
     ui: {
@@ -30,9 +33,11 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         authSecret: process.env.NUXT_NEXTAUTH_SECRET,
-        keycloakClientId: process.env.NUXT_KEYCLOAK_CLIENT_ID,
-        keycloakClientSecret: process.env.NUXT_KEYCLOAK_CLIENT_SECRET,
-        keycloakIssuer: process.env.NUXT_KEYCLOAK_ISSUER,
+        keycloak: {
+            issuer: process.env.NUXT_KEYCLOAK_ISSUER,
+            clientId: process.env.NUXT_KEYCLOAK_CLIENT_ID,
+            clientSecret: process.env.NUXT_KEYCLOAK_CLIENT_SECRET,
+        },
 
         marketInsightsUrl: process.env.NUXT_MARKET_INSIGHTS_URL,
 
@@ -49,16 +54,17 @@ export default defineNuxtConfig({
     },
 
     auth: {
-        isEnabled: true,
         baseURL: '/_auth',
         provider: {
             type: 'authjs',
             defaultProvider: 'keycloak',
-            addDefaultCallbackUrl: true,
+        },
+        session: {
+            enableRefreshPeriodically: false,
+            enableRefreshOnWindowFocus: true,
         },
         globalAppMiddleware: {
-            isEnabled: false, // Note: Keep disabled until Keycloak is in-place
-            allow404WithoutAuth: true,
+            isEnabled: true,
         },
     },
     colorMode: {
