@@ -1,4 +1,4 @@
-import TimeframeSelection from '~/interfaces/timeframe-selection';
+import TimeframeSelection from '~/interfaces/selection';
 
 //FIXME:: fix translations
 
