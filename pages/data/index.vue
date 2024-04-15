@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { useIntlDates } from '../../composables/dates';
-
 const { t } = useI18n();
 
-const { data: transactionsData } = await useLazyFetch<Record<string, any>[]>('/api/wallet/transaction-data');
+const { data: transactionsData } = await useLazyFetch<Record<string, any>[]>('/api/wallet/transactions-data');
 
 //cards info data
 const cardInfoData = computed(() => [
@@ -67,6 +65,7 @@ const transactionsRows = computed(() => {
         ? transactionsData.value.slice((page.value - 1) * pageCount, page.value * pageCount)
         : [];
 });
+console.log(transactionsRows.value);
 </script>
 <template>
     <div class="w-full h-full">

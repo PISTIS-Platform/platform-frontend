@@ -5,7 +5,7 @@ export default defineEventHandler(async (_event) => {
             date: '8/2/2023',
             type: 'Incoming',
             amount: 300,
-            from: 'Org Test 123',
+            fromTo: 'Org Test 123',
         },
         {
             id: 13234,
