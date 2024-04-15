@@ -10,11 +10,6 @@ import {
     Tooltip,
 } from 'chart.js';
 import { Line } from 'vue-chartjs';
-import { useI18n } from 'vue-i18n';
-
-import { BasicAsset } from '~/interfaces/market-insights';
-
-import { latestTransactions, topPerformanceAsset, worstPerformanceAsset } from './dummy-overview-data';
 
 ChartJS.register(CategoryScale, LinearScale, Title, Tooltip, Legend, PointElement, LineElement);
 const selection = ref('W');
@@ -25,51 +20,28 @@ const triggerChangeSelection = (value: string) => {
     selection.value = value;
 };
 
-const sectors = [
-    {
-        label: 'Sector 1',
-        value: 'sector1',
-    },
-    {
-        label: 'Sector 2',
-        value: 'sector2',
-    },
-    {
-        label: 'Sector 3',
-        value: 'sector3',
-    },
-    {
-        label: 'Sector 4',
-        value: 'sector4',
-    },
-    {
-        label: 'Sector 5',
-        value: 'sector5',
-    },
-];
+const { data: sectors } = await useLazyFetch<Record<string, any>[]>('/api/market-insights/sectors-data');
 
-const selectedSector = ref(sectors[0]);
-
-const topPerformanceAssets = ref(topPerformanceAsset);
-const worstPerformanceAssets = ref(worstPerformanceAsset);
-const transactions = ref(latestTransactions);
-
+const selectedSector = computed(() => (sectors.value ? sectors.value[0] : null));
+const { data: topPerformanceData } = await useLazyFetch('/api/market-insights/overview/top-performance-data');
+const { data: worstPerformanceData } = await useLazyFetch('/api/market-insights/overview/worst-performance-data');
+const { data: latestTransactions } = await useLazyFetch('/api/market-insights/overview/latest-transactions-data');
 const { data: lineChartData, pending: lineChartPending } = await useLazyFetch('/api/market-insights/total-vs-market');
 
 const computedLineChartData = computed(() => {
     return {
-        labels: lineChartData?.value?.labels,
+        labels: lineChartData.value.labels,
         datasets: [
             {
                 label: 'Total Sales',
-                data: lineChartData?.value?.totalAsset['W'],
+                data: lineChartData.value.totalAsset['W'],
                 borderColor: '#52d334',
                 fill: false,
                 tension: 0.4,
             },
             {
                 label: 'Market Cap',
-                data: lineChartData?.value?.marketCap['W'],
+                data: lineChartData.value.marketCap['W'],
                 borderColor: '#493cfc',
                 fill: false,
                 tension: 0.4,
@@ -88,49 +60,23 @@ const {
     sortBy: sortByTopAsset,
     filteredRows: filteredRowsTopAsset,
     paginatedRows: paginatedRowsTopAsset,
-} = useTable(topPerformanceAssets, pageCount);
+} = useTable(topPerformanceData, pageCount);
 
 const {
     page: pageWorstAsset,
     sortBy: sortByWorstAsset,
     filteredRows: filteredRowsWorstAsset,
     paginatedRows: paginatedRowsWorstAsset,
-} = useTable(worstPerformanceAssets, pageCount);
+} = useTable(worstPerformanceData, pageCount);
 
 const {
     page: pageTransaction,
     sortBy: sortByTransaction,
     filteredRows: filteredRowsTransaction,
     paginatedRows: paginatedRowsTransaction,
-} = useTable(transactions, pageCount);
+} = useTable(latestTransactions, pageCount);
 
-const assets: BasicAsset[] = [
-    {
-        name: 'Asset 1',
-        price: 20000,
-        change: 4.6,
-        data: [13, 56, 34, 20, 34, 45, 60],
-    },
-    {
-        name: 'Asset 2',
-        price: 45000,
-        change: 9.6,
-        data: [13, 56, 34, 20, 34, 45, 60].reverse(),
-    },
-    {
-        name: 'Asset 3',
-        price: 90000,
-        change: -5.6,
-        data: [90, 16, 34, 20, 34, 45, 60],
-    },
-    {
-        name: 'Asset 4',
-        price: 90000,
-        change: 0,
-        data: [13, 56, 34, 20, 34, 45, 60],
-    },
-];
-
+const { data: assets } = await useLazyFetch('/api/market-insights/rolling-assets-data');
 const transactionsColumns = [
     {
         key: 'asset_name',
@@ -196,7 +142,7 @@ const performingColumns = [
 
 <template>
     <PageContainer>
-        <RollingAssetsBar :assets="assets" />
+        <RollingAssetsBar v-if="assets" :assets="assets" />
         <div class="flex flex-row w-full mt-4">
             <div class="flex flex-col w-1/2">
                 <div class="flex flex-row mr-2 mb-2">
@@ -372,3 +318,4 @@ const performingColumns = [
         </div>
     </PageContainer>
 </template>
+../../server/routes/api/market-insights/dummy-overview-data
