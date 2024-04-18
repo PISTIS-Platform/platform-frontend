@@ -34,7 +34,7 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
 
 <template>
     <div class="h-full flex flex-col">
-        <Disclosure v-slot="{ open }" as="nav" class="bg-primary-700 sticky top-0 z-20">
+        <Disclosure v-slot="{ open }" as="nav" class="bg-primary-700 sticky top-0 z-50">
             <div class="mx-auto px-8 max-w-7xl">
                 <div class="flex h-16 items-center justify-between">
                     <div class="flex items-center">

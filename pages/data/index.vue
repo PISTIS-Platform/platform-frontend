@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { useIntlDates } from '../../composables/dates';
-import { transactionsDummyData } from './transactions-dummy-data';
-
 const { t } = useI18n();
+
+const { data: transactionsData } = await useLazyFetch<Record<string, any>[]>('/api/wallet/transactions-data');
 
 //cards info data
 const cardInfoData = computed(() => [
@@ -24,9 +23,6 @@ const cardInfoData = computed(() => [
         amount: 800,
     },
 ]);
-
-//transactions data
-const transactions = computed(() => transactionsDummyData);
 
 const transactionsColumns: any = [
     {
@@ -65,8 +61,11 @@ const page = ref<number>(1);
 const pageCount = 5;
 
 const transactionsRows = computed(() => {
-    return transactions.value.slice((page.value - 1) * pageCount, page.value * pageCount);
+    return transactionsData.value
+        ? transactionsData.value.slice((page.value - 1) * pageCount, page.value * pageCount)
+        : [];
 });
+console.log(transactionsRows.value);
 </script>
 <template>
     <div class="w-full h-full">
@@ -119,11 +118,11 @@ const transactionsRows = computed(() => {
                 </UTable>
 
                 <!-- Display the pagination only if the total number of transactions is larger than the page count -->
-                <div v-if="transactions.length > pageCount" class="flex justify-end mt-2">
+                <div v-if="transactionsData && transactionsData?.length > pageCount" class="flex justify-end mt-2">
                     <UPagination
                         v-model="page"
                         :page-count="pageCount"
-                        :total="transactions.length"
+                        :total="transactionsData?.length"
                         :active-button="{ variant: 'outline' }"
                     />
                 </div>
