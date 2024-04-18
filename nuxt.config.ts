@@ -40,11 +40,13 @@ export default defineNuxtConfig({
         },
 
         marketInsightsUrl: process.env.NUXT_MARKET_INSIGHTS_URL,
+        anonymizerApiUrl: process.env.ANONYMIZER_URL,
 
         // public: {
         //     appUrl: '',
         // },
     },
+
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
     // Modules Configuration
