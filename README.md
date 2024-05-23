@@ -82,12 +82,85 @@ To use an additional language, copy the entire `en` object, give it a key corres
 
 ### Authentication
 
+#### Introduction
+
 The `@sidebase/nuxt-auth` package is used for authentication (documentation [here](https://sidebase.io/nuxt-auth/getting-started)).
 
 The default provider set up is keycloak and the global auth middleware is currently disabled in `nuxt.config.ts`.
 To enable it, change `globalAppMiddleware.isEnabled` from `false` to `true`.
 
 You will also have to make a copy of `.env.example`, copy it to a file which you will name `.env`, and then give it the proper values. For more information about how environmental variables are used, see the [official documentation](https://nuxt.com/docs/guide/directory-structure/env).
+
+#### Integration with Keycloak
+
+**Keycloak parameters**
+An example Keycloak configuration that can be used is:
+```
+CLIENT_ID = pistis-test-only
+CLIENT_SECRET = DYuAlXn8kC1SVzFiYgApfjcodZhdxreL
+ISSUER = https://auth.pistis-market.eu/auth/realms/PISTIS/protocol/openid-connect/token
+```
+The above values are meant to be used only for testing/evaluating and the redirect URIs of the client are set to: http://localhost:8080/* http://127.0.0.1:8080/*
+
+Together with a random string for securing cookies the entire configuration, i.e. `.env.local` should look like:
+```
+AUTH_ORIGIN = http://localhost:8080
+
+NUXT_APP_URL = http://localhost:8080
+NUXT_AUTH_SECRET = b*BDZVh8gi3Hh7nbKqfSz*H6Zh5G9Z3qDXy$2!43JNZwPn4m3m!WdD%p%
+NUXT_KEYCLOAK_CLIENT_ID = pistis-test-only
+NUXT_KEYCLOAK_CLIENT_SECRET = DYuAlXn8kC1SVzFiYgApfjcodZhdxreL
+NUXT_KEYCLOAK_ISSUER = https://auth.pistis-market.eu/auth/realms/PISTIS
+```
+
+Then, you need to start the project with: `pnpm run dev --dotenv .env.local`
+
+**Nuxt configuration**
+
+Edit file [nuxt.config.ts](nuxt.config.ts) to enable Keycloak:
+```
+auth.globalAppMiddleware.isEnable: true
+```
+
+***Sample user to test***
+A demo user to test is:
+```
+Username: 00_test
+Password: 00_test
+```
+belonging to a the 00_TEST Group with the following attributes:
+```
+country  GR
+type     Research
+size     Medium
+domain   ICT
+```
+
+**PISTIS specific token contents**
+
+An authentication token issed with the abobe mentioned information will extend the standard JWT structure with a _pistis_ node, currenty with the following information:
+```
+...
+"pistis": {
+          "user": {
+                    "role": [
+                              "PISTIS_USER",
+                              "offline_access",
+                              "uma_authorization",
+                              "default-roles-pistis"
+                    ]
+          },
+          "group": {
+                    "country": "GR",
+                    "size": "Medium",
+                    "domain": "ICT",
+                    "type": "Research"
+          }
+},
+...
+
+```
+
 
 ### VS Code extensions
 
