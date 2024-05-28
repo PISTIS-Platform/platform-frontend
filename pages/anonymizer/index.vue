@@ -47,8 +47,7 @@ anonymizerStore.$subscribe((mutation, state) => {
 
                 <h3 class="font-bold">k-Anonymity</h3>
                 <p>
-                    Based on analysis we will select columns containing sensitive data and provide a series of solutions
-                    to keep your data safe.
+                    Based on analysis we will select columns containing sensitive data and apply anonymization to them.
                 </p>
                 <UButton class="w-44" to="/anonymizer/k-anonymity">k-Anonymity</UButton>
 
