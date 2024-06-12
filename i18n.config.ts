@@ -355,6 +355,7 @@ export default defineI18nConfig(() => ({
                 errorInRetrievingQuestionnaire: 'Error occurred while retrieving the questionnaire',
                 selectedOptionsMinLength: 'Please select at least one option',
                 answerTextInfo: 'Enter your answer',
+                checkInputs: 'Please ensure all answers are filled correctly before submitting the form',
                 submitAnswers: 'Submit Answers',
                 errorInSubmitAnswers: 'Error occurred while submitting answers',
             },

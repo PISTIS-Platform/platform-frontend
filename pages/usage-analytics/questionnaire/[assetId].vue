@@ -68,7 +68,7 @@ const isSubmitDisabled = computed(() => {
 const saveAnswers = async () => {
     // if even at least 1 answer has validation errors -> do not proceed
     if (answers.value.some((a: QuestionAnswer) => !a.isValid)) {
-        showErrorMessage(t('data.usage.questionnaire.checkInputs'));
+        showErrorMessage(t('usageAnalytics.checkInputs'));
         return;
     }
 
@@ -157,7 +157,7 @@ const saveAnswers = async () => {
 
             <!-- Submit Buttons -->
             <div class="flex gap-4 justify-between items-center mt-8">
-                <UTooltip :text="$t('data.usage.questionnaire.submitAnswers')">
+                <UTooltip :text="$t('usageAnalytics.submitAnswers')">
                     <UButton
                         size="lg"
                         :label="$t('submit')"
