@@ -9,15 +9,12 @@ const answers = ref<QuestionAnswer[]>([]);
 const errorMsg = ref('');
 const submitPending = ref<boolean>(false);
 
-console.log('route.query.assetId');
-console.log(route.query.assetId);
-
 const {
     data: questionnaire,
     pending: loadingQuestionnaire,
     error,
-} = await useAsyncData<Questionnaire>(`fetchQuestionnaire-asset-${route.query.assetId}`, () =>
-    $fetch(`/api/usage-analytics/${route.query.assetId}`),
+} = await useAsyncData<Questionnaire>(`fetchQuestionnaire-asset-${route.params.assetId}`, () =>
+    $fetch(`/api/usage-analytics/${route.params.assetId}`),
 );
 
 if (error.value || !questionnaire.value) {
@@ -27,7 +24,7 @@ if (error.value || !questionnaire.value) {
     let answerId = 0;
 
     answers.value =
-        questionnaire.value?.questions.map((question: Question) => {
+        questionnaire.value?.questions?.map((question: Question) => {
             let availableOptions: SelectedOption[] = [];
 
             if (question?.options) {
@@ -129,11 +126,17 @@ const saveAnswers = async () => {
         </div>
         <UCard v-else class="w-full">
             <template #header>
-                <SubHeading :title="questionnaire?.title || ''" :info="questionnaire?.description || ''" />
+                <SubHeading
+                    :title="questionnaire?.title || $t('usageAnalytics.noQuestionnaireFound')"
+                    :info="questionnaire?.description || ''"
+                />
             </template>
 
             <!-- Questionnaire Answers -->
             <div class="flex flex-col space-y-8">
+                <div v-if="!questionnaire?.questions?.length" class="text-sm text-gray-500">
+                    {{ $t('usageAnalytics.noQuestionnaireForThisId') }}
+                </div>
                 <div v-for="answer in answers" :key="answer.id">
                     <UCard :ui="{ base: 'overflow-visible' }">
                         <template #header>
@@ -156,7 +159,7 @@ const saveAnswers = async () => {
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex gap-4 justify-between items-center mt-8">
+            <div v-if="questionnaire?.questions?.length" class="flex gap-4 justify-between items-center mt-8">
                 <UTooltip :text="$t('usageAnalytics.submitAnswers')">
                     <UButton
                         size="lg"
