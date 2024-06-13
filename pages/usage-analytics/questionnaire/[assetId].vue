@@ -19,6 +19,9 @@ const {
 
 if (error.value || !questionnaire.value) {
     //TODO:: check if errorMsg (for when user has already answered the questionnaire) should be filled
+    // if (error.value?.statusCode === 400) {
+    //     errorMsg.value = error.value.message;
+    // }
     showErrorMessage(t('usageAnalytics.errorInRetrievingQuestionnaire'));
 } else {
     let answerId = 0;
@@ -112,6 +115,7 @@ const saveAnswers = async () => {
         //TODO:: add any navigation after success
     } catch (error) {
         showErrorMessage(t('usageAnalytics.errorInSubmitAnswers'));
+        submitPending.value = false;
     }
 };
 </script>
