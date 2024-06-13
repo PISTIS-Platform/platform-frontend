@@ -18,11 +18,14 @@ const {
 );
 
 if (error.value || !questionnaire.value) {
-    //TODO:: check if errorMsg (for when user has already answered the questionnaire) should be filled
-    // if (error.value?.statusCode === 400) {
-    //     errorMsg.value = error.value.message;
-    // }
-    showErrorMessage(t('usageAnalytics.errorInRetrievingQuestionnaire'));
+    const serverError = error.value as Record<string, any>;
+
+    if (serverError?.statusCode === 400 || serverError?.statusCode === 404) {
+        errorMsg.value = serverError?.data?.data?.message || t('usageAnalytics.errorInRetrievingQuestionnaire');
+        //TODO:: add navigation to go back to previous page (?)
+    } else {
+        showErrorMessage(t('usageAnalytics.errorInRetrievingQuestionnaire'));
+    }
 } else {
     let answerId = 0;
 
@@ -87,7 +90,7 @@ const saveAnswers = async () => {
             options: string[] | null;
         }[];
     } = {
-        assetId: route.params.id as string,
+        assetId: route.params.assetId as string,
         responses: [],
     };
 
@@ -110,9 +113,9 @@ const saveAnswers = async () => {
             body,
         });
 
-        showSuccessMessage(t('usageAnalytics.savedAnswers'));
+        showSuccessMessage(t('usageAnalytics.answersSubmitted'));
 
-        //TODO:: add any navigation after success
+        //TODO:: add any navigation after success (?)
     } catch (error) {
         showErrorMessage(t('usageAnalytics.errorInSubmitAnswers'));
         submitPending.value = false;
@@ -125,23 +128,22 @@ const saveAnswers = async () => {
         <div v-if="loadingQuestionnaire">
             <UProgress animation="carousel" />
         </div>
-        <div v-else-if="!loadingQuestionnaire && error" class="flex w-full h-96 justify-center items-center">
-            <span v-if="errorMsg">{{ $t('usageAnalytics.questionnaireAlreadyAnswered') }} </span>
+        <div v-else-if="!loadingQuestionnaire && error && !questionnaire">
+            <UCard v-if="errorMsg" class="w-full">
+                <SubHeading :title="errorMsg" />
+            </UCard>
         </div>
         <UCard v-else class="w-full">
             <template #header>
-                <SubHeading
-                    :title="questionnaire?.title || $t('usageAnalytics.noQuestionnaireFound')"
-                    :info="questionnaire?.description || ''"
-                />
+                <SubHeading :title="questionnaire?.title || ''" :info="questionnaire?.description || ''" />
             </template>
 
             <!-- Questionnaire Answers -->
             <div class="flex flex-col space-y-8">
                 <div v-if="!questionnaire?.questions?.length" class="text-sm text-gray-500">
-                    {{ $t('usageAnalytics.noQuestionnaireForThisId') }}
+                    {{ $t('usageAnalytics.noQuestionsWereFound') }}
                 </div>
-                <div v-for="answer in answers" :key="answer.id">
+                <div v-for="answer in answers" v-else :key="answer.id">
                     <UCard :ui="{ base: 'overflow-visible' }">
                         <template #header>
                             <div class="flex justify-start items-center gap-1">

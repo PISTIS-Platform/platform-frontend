@@ -357,9 +357,9 @@ export default defineI18nConfig(() => ({
                 answerTextInfo: 'Enter your answer',
                 checkInputs: 'Please ensure all answers are filled correctly before submitting the form',
                 submitAnswers: 'Submit Answers',
+                answersSubmitted: 'Your answers have been submitted successfully',
                 errorInSubmitAnswers: 'Error occurred while submitting answers',
-                noQuestionnaireFound: 'No questionnaire found',
-                noQuestionnaireForThisId: 'No questionnaire was found for the ID provided',
+                noQuestionsWereFound: 'No questions were found for this questionnaire',
             },
             anonymizer: {
                 anonymizer: 'Anonymizer',
