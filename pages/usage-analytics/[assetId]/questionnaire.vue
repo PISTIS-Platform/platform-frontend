@@ -86,22 +86,18 @@ const saveAnswers = async () => {
         responses: {
             questionId: string;
             questionTitle: string;
-            text: string | null;
-            options: string[] | null;
+            text?: string;
+            options?: string[];
         }[];
     } = {
         assetId: route.params.assetId as string,
-        responses: [],
+        responses: answers.value.map((answer) => ({
+            questionId: answer.question?.id ?? '',
+            questionTitle: answer.question?.title ?? '',
+            text: answer?.text,
+            options: answer.selectedOptions?.map((option: SelectedOption) => option.value),
+        })),
     };
-
-    answers.value.forEach((answer: QuestionAnswer) => {
-        body.responses.push({
-            questionId: answer.question?.id || '',
-            questionTitle: answer.question?.title || '',
-            text: answer?.text || null,
-            options: answer.selectedOptions?.map((option: SelectedOption) => option.value) || null,
-        });
-    });
 
     try {
         await $fetch(`/api/usage-analytics/submit-answers`, {
