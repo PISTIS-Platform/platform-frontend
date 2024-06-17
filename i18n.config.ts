@@ -59,9 +59,11 @@ export default defineI18nConfig(() => ({
             compareBy: 'Compare By',
             val: {
                 atLeastNumberChars: 'Must be at least {count} characters',
+                moreThanNumberChars: 'Cannot be more than {count} characters',
                 validNumber: 'Please enter a valid number',
                 zeroOrPositive: 'Must be 0 or a positive number',
                 positive: 'Must be a positive number',
+                required: 'Required',
             },
             home: {
                 home: 'Home',
@@ -347,6 +349,17 @@ export default defineI18nConfig(() => ({
                         assets: 'Total Assets',
                     },
                 },
+            },
+            usageAnalytics: {
+                questionnaireAlreadyAnswered: 'You have already submitted answers for this questionnaire',
+                errorInRetrievingQuestionnaire: 'Error occurred while retrieving the questionnaire',
+                selectedOptionsMinLength: 'Please select at least one option',
+                answerTextInfo: 'Enter your answer',
+                checkInputs: 'Please ensure all answers are filled correctly before submitting the form',
+                submitAnswers: 'Submit Answers',
+                answersSubmitted: 'Your answers have been submitted successfully',
+                errorInSubmitAnswers: 'Error occurred while submitting answers',
+                noQuestionsWereFound: 'No questions were found for this questionnaire',
             },
             anonymizer: {
                 anonymizer: 'Anonymizer',
