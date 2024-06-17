@@ -4,6 +4,7 @@ import { Question, QuestionAnswer, Questionnaire, QuestionOption, SelectedOption
 const { t } = useI18n();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 const route = useRoute();
+const router = useRouter();
 
 const answers = ref<QuestionAnswer[]>([]);
 const errorMsg = ref('');
@@ -110,10 +111,13 @@ const saveAnswers = async () => {
         });
 
         showSuccessMessage(t('usageAnalytics.answersSubmitted'));
+        await delay(3);
+        router.back();
 
         //TODO:: add any navigation after success (?)
     } catch (error) {
         showErrorMessage(t('usageAnalytics.errorInSubmitAnswers'));
+
         submitPending.value = false;
     }
 };
