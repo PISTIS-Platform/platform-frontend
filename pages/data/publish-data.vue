@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DatasetKind } from '~/interfaces/dataset.enum';
+import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 import { MonetMethod } from '~/interfaces/monetization-method.enum';
 
 import type {
@@ -9,6 +10,8 @@ import type {
     OneOffSaleDetails,
     SubscriptionDetails,
 } from '../../interfaces/plan-designer';
+
+const { t } = useI18n();
 
 //data for selected dataset
 
@@ -23,6 +26,8 @@ const selected = ref<{ id: string | number; title: string; description: string }
 //data for selection whole dataset or query
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
+
+const selectedPage = ref('planner'); //other value is 'preview'
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
@@ -82,6 +87,11 @@ const isAssetOfferingDetailsValid = ref<boolean>(false);
 const isMonetizationValid = ref<boolean>(false);
 
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
+
+const changePage = (value: string) => {
+    console.log('CHANGE');
+    selectedPage.value = value;
+};
 
 const submitAll = () => {
     if (!isAllValid.value) return;
@@ -162,10 +172,17 @@ const resetMonetization = () => {
         price: undefined,
     };
 };
+
+const limitFrequencySelections = computed(() => [
+    { title: t('perDay'), value: DownloadFrequency.DAY },
+    { title: t('perWeek'), value: DownloadFrequency.WEEK },
+    { title: t('perMonth'), value: DownloadFrequency.MONTH },
+    { title: t('perYear'), value: DownloadFrequency.YEAR },
+]);
 </script>
 
 <template>
-    <div class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 'planner'" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             :selected="selected"
             :complete-or-query="completeOrQuery"
@@ -219,8 +236,135 @@ const resetMonetization = () => {
             @update:nft-price="(value: number) => (detailsOfNFT.price = value)"
             @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @reset-monetization="resetMonetization"
-            @submit="submitAll"
+            @change-page="changePage"
             @reset="reset"
         />
+    </div>
+
+    <div v-if="isAllValid">
+        <div v-show="selectedPage === 'preview'" class="w-full h-full text-gray-700 space-y-8">
+            <UCard v-if="completeOrQuery && selected?.title">
+                <template #header>
+                    <SubHeading
+                        :title="$t('data.designer.assetOfferingDetails') + ' - ' + $t('preview')"
+                        :info="$t('data.designer.assetOfferingDetailsInfo')"
+                    />
+                </template>
+                <div class="flex flex-col gap-8">
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('title') }}</span>
+                        <span>{{ assetOfferingDetails?.title }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('description') }}</span>
+                        <span>{{ assetOfferingDetails?.description }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('keywords') }}</span>
+                        <div class="flex items-center gap-2">
+                            <div
+                                v-for="keyword in assetOfferingDetails.keywords"
+                                :key="keyword"
+                                class="bg-gray-100 text-gray-500 p-1 rounded-md"
+                            >
+                                {{ keyword }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </UCard>
+            <UCard>
+                <template #header>
+                    <SubHeading
+                        :title="$t('data.designer.monetizationMethod') + ' - ' + $t('preview')"
+                        :info="$t('data.designer.monetizationMethodInfo')"
+                    />
+                </template>
+                <div v-if="monetizationSelection === MonetMethod.ONE_OFF" class="flex flex-col gap-8">
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.designer.monetizationMethod')
+                        }}</span>
+                        <span>{{ $t('data.designer.oneOffSale') }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.oneOffPrice') }}</span>
+                        <span>{{ oneOffSaleDetails.price + ' STC' || $t('data.designer.free') }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
+                        <span>{{ oneOffSaleDetails.license }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
+                        }}</span>
+                        <span>{{
+                            oneOffSaleDetails.limitNumber +
+                            ' ' +
+                            $t('times') +
+                            ' ' +
+                            limitFrequencySelections.find((item) => item.value === oneOffSaleDetails.limitFrequency)
+                                .title
+                        }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
+                        <span>{{ oneOffSaleDetails.terms }}</span>
+                    </div>
+                </div>
+                <div v-if="monetizationSelection === MonetMethod.SUBSCRIPTION" class="flex flex-col gap-8">
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.designer.monetizationMethod')
+                        }}</span>
+                        <span>{{ $t('data.designer.subscription') }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.designer.subscriptionPrice') + ' & ' + $t('data.designer.subscriptionFrequency')
+                        }}</span>
+                        <span>{{
+                            subscriptionDetails.price
+                                ? subscriptionDetails.price +
+                                  ' STC ' +
+                                  (subscriptionDetails.frequency === 'annual'
+                                      ? $t('data.designer.annual')
+                                      : $t('data.designer.monthly'))
+                                : $t('data.designer.free')
+                        }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
+                        <span>{{ subscriptionDetails.license }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
+                        }}</span>
+                        <span>{{
+                            subscriptionDetails.limitNumber +
+                            ' ' +
+                            $t('times') +
+                            ' ' +
+                            limitFrequencySelections.find((item) => item.value === subscriptionDetails.limitFrequency)
+                                .title
+                        }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
+                        <span>{{ subscriptionDetails.terms }}</span>
+                    </div>
+                </div>
+                <div class="w-full flex justify-between items-center mt-8">
+                    <UButton size="md" color="gray" variant="outline" @click="selectedPage = 'planner'">
+                        {{ $t('back') }}
+                    </UButton>
+                    <UButton class="px-4 py-2" @click="submitAll">
+                        {{ $t('submit') }}
+                    </UButton>
+                </div>
+            </UCard>
+        </div>
     </div>
 </template>

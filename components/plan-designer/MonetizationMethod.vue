@@ -104,7 +104,6 @@ const oneOffSaleSchema = z.object({
 
 const subscriptionSchema = z.object({
     frequency: z.string(),
-    priceKind: z.string(),
     // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
     price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
         (val) => {
@@ -206,7 +205,7 @@ const emit = defineEmits([
     'update:nft-price',
     'isMonetizationValid',
     'reset-monetization',
-    'submit',
+    'changePage',
     'reset',
 ]);
 
@@ -792,8 +791,11 @@ const saveInvestmentPlan = () => {
                         :trailing="false"
                         @click="switchDatasetOpen = true"
                     />
-                    <UButton class="px-4 py-2 order-last" :disabled="!isAllValid" @click="emit('submit')"
-                        >{{ $t('submit') }}
+                    <UButton
+                        class="px-4 py-2 order-last"
+                        :disabled="!props.isAllValid"
+                        @click="emit('changePage', 'preview')"
+                        >{{ $t('next') }}
                     </UButton>
                 </div>
             </div>

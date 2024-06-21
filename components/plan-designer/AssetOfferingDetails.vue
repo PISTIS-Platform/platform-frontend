@@ -20,7 +20,7 @@ const props = defineProps({
 });
 
 const schema = z.object({
-    title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
+    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
     description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
 });
 
