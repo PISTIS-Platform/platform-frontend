@@ -103,24 +103,48 @@ const submitAll = () => {
             type: 'one-off',
             price: oneOffSaleDetails.value.price,
             assetId: selected.value.id,
-            limit: {
-                times: oneOffSaleDetails.value.limitNumber,
-                frequency: oneOffSaleDetails.value.limitFrequency,
+            //TODO: get sellerId from same API call for asset details?
+            seller: null,
+            downloadlimit: {
+                downloadtimes: oneOffSaleDetails.value.limitNumber,
+                downloadfrequency: oneOffSaleDetails.value.limitFrequency,
                 //TODO: What to put in until?
-                until: null,
+                downloaduntil: null,
+            },
+            license: {
+                //TODO: Details for license?
+                userGroupId: null,
+                canResell: null,
+                canShare: null,
+                NumofShare: 0,
+                NumofResell: 0,
+                canEdit: null,
+                licenseTypes: oneOffSaleDetails.value.license, //says 'exclusive on POSTMAN body'
             },
         };
     } else if (monetizationSelection.value === MonetMethod.SUBSCRIPTION) {
         objToSend = {
             type: 'subscription',
             price: subscriptionDetails.value.price,
-            frequency: subscriptionDetails.value.frequency,
             assetId: selected.value.id,
-            limit: {
-                times: subscriptionDetails.value.limitNumber,
-                frequency: subscriptionDetails.value.limitFrequency,
+            //TODO: Get sellerId from same API call for asset details?
+            seller: null,
+            subscriptionfrequency: subscriptionDetails.value.frequency,
+            downloadlimit: {
+                downloadtimes: subscriptionDetails.value.limitNumber,
+                downloadfrequency: subscriptionDetails.value.limitFrequency,
                 //TODO: What to put in until?
-                until: null,
+                downloaduntil: null,
+            },
+            license: {
+                //TODO: details for license?
+                userGroupId: null,
+                canResell: null,
+                canShare: null,
+                NumofShare: 0,
+                NumofResell: 0,
+                canEdit: null,
+                licenseTypes: subscriptionDetails.value.license, //says 'exclusive' on POSTMAN body
             },
         };
     }
