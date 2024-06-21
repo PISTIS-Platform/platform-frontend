@@ -1,6 +1,7 @@
 export const enum DownloadFrequency {
-    DAY = 'per day',
-    WEEK = 'per week',
-    MONTH = 'per month',
-    YEAR = 'per year',
+    HOUR = 'hour',
+    DAY = 'day',
+    WEEK = 'week',
+    MONTH = 'month',
+    YEAR = 'year',
 }

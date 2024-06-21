@@ -94,9 +94,39 @@ const changePage = (value: string) => {
 };
 
 const submitAll = () => {
+    let objToSend;
+
     if (!isAllValid.value) return;
-    //TODO: Do something for submit here
-    console.log('SUCCESS');
+
+    if (monetizationSelection.value === MonetMethod.ONE_OFF) {
+        objToSend = {
+            type: 'one-off',
+            price: oneOffSaleDetails.value.price,
+            assetId: selected.value.id,
+            limit: {
+                times: oneOffSaleDetails.value.limitNumber,
+                frequency: oneOffSaleDetails.value.limitFrequency,
+                //TODO: What to put in until?
+                until: null,
+            },
+        };
+    } else if (monetizationSelection.value === MonetMethod.SUBSCRIPTION) {
+        objToSend = {
+            type: 'subscription',
+            price: subscriptionDetails.value.price,
+            frequency: subscriptionDetails.value.frequency,
+            assetId: selected.value.id,
+            limit: {
+                times: subscriptionDetails.value.limitNumber,
+                frequency: subscriptionDetails.value.limitFrequency,
+                //TODO: What to put in until?
+                until: null,
+            },
+        };
+    }
+
+    //TODO: Send final object / JSON to API (blockchain)
+    return objToSend;
 };
 
 // clear data when switching selection of dataset
@@ -174,6 +204,7 @@ const resetMonetization = () => {
 };
 
 const limitFrequencySelections = computed(() => [
+    { title: t('perHour'), value: DownloadFrequency.HOUR },
     { title: t('perDay'), value: DownloadFrequency.DAY },
     { title: t('perWeek'), value: DownloadFrequency.WEEK },
     { title: t('perMonth'), value: DownloadFrequency.MONTH },

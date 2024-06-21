@@ -80,6 +80,7 @@ const subscriptionIsFree = ref(false);
 const licenseSelections: string[] = ['CC-BY', 'MIT', 'CC0'];
 
 const limitFrequencySelections = computed(() => [
+    { title: t('perHour'), value: DownloadFrequency.HOUR },
     { title: t('perDay'), value: DownloadFrequency.DAY },
     { title: t('perWeek'), value: DownloadFrequency.WEEK },
     { title: t('perMonth'), value: DownloadFrequency.MONTH },
