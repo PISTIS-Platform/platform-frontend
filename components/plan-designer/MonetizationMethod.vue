@@ -44,6 +44,9 @@ const props = defineProps({
     },
 });
 
+const switchWarningOpen = ref(false);
+const monetizationToSend = ref();
+
 const monetizationSelections: CardSelection[] = [
     {
         title: t('data.designer.oneOffSale'),
@@ -297,8 +300,6 @@ const saveInvestmentPlan = () => {
     showCreatePlan.value = false;
     selectedInvestmentPlan.value = props.investmentPlanDetails.title;
 };
-
-const switchDatasetOpen = ref<boolean>(false);
 </script>
 
 <template>
@@ -319,14 +320,10 @@ const switchDatasetOpen = ref<boolean>(false);
             </template>
             <div class="space-y-5">
                 <SelectionCards
-                    :model-value="monetizationSelection"
+                    :model-value="props.monetizationSelection"
                     :selections="monetizationSelections"
-                    @update:model-value="
-                        (value: string) => {
-                            emit('update:monetization-selection', value);
-                            emit('reset-monetization');
-                        }
-                    "
+                    @click="switchWarningOpen = true"
+                    @update:model-value="(value: string) => (monetizationToSend = value)"
                 />
                 <Transition
                     enter-active-class="duration-300 ease-out"
@@ -337,7 +334,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === MonetMethod.ONE_OFF"
+                        v-if="props.monetizationSelection === MonetMethod.ONE_OFF"
                         ref="oneOffForm"
                         class="flex flex-col w-full"
                         :state="oneOffSaleDetails"
@@ -456,7 +453,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === MonetMethod.SUBSCRIPTION"
+                        v-if="props.monetizationSelection === MonetMethod.SUBSCRIPTION"
                         ref="subscriptionForm"
                         class="flex flex-col w-full"
                         :state="subscriptionDetails"
@@ -596,7 +593,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === MonetMethod.NFT"
+                        v-if="props.monetizationSelection === MonetMethod.NFT"
                         class="flex flex-col w-full"
                         :state="detailsOfNFT"
                         :schema="NFTschema"
@@ -802,17 +799,23 @@ const switchDatasetOpen = ref<boolean>(false);
             </div>
         </UCard>
     </Transition>
-    <UModal v-model="switchDatasetOpen">
+    <UModal v-model="switchWarningOpen">
         <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
             <p class="font-bold text-xl">{{ $t('data.designer.areYouSure') }}</p>
             <p class="text-gray-400 mt-6">{{ $t('data.designer.willReset') }}</p>
             <div class="flex gap-8 w-full justify-center mt-6">
-                <UButton color="white" class="w-20 flex justify-center" @click="switchDatasetOpen = false">{{
+                <UButton color="white" class="w-20 flex justify-center" @click="switchWarningOpen = false">{{
                     $t('cancel')
                 }}</UButton>
-                <UButton class="w-20 flex justify-center" @click="emit('reset'), (switchDatasetOpen = false)">{{
-                    $t('yes')
-                }}</UButton>
+                <UButton
+                    class="w-20 flex justify-center"
+                    @click="
+                        emit('update:monetization-selection', monetizationToSend);
+                        emit('reset-monetization');
+                        switchWarningOpen = false;
+                    "
+                    >{{ $t('yes') }}</UButton
+                >
             </div>
         </UCard>
     </UModal>

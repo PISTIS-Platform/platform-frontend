@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DatasetKind } from '~/interfaces/dataset.enum';
+import { MonetMethod } from '~/interfaces/monetization-method.enum';
 
 import type {
     AssetOfferingDetails,
@@ -39,7 +40,7 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
 
 // data for monetization selections
 
-const monetizationSelection = ref<string>('');
+const monetizationSelection = ref<string>(MonetMethod.ONE_OFF);
 
 // one-off sale details
 const oneOffSaleDetails = ref<OneOffSaleDetails>({
@@ -97,7 +98,7 @@ const reset = () => {
         description: '',
     };
     completeOrQuery.value = 'Complete Dataset';
-    monetizationSelection.value = '';
+    monetizationSelection.value = MonetMethod.ONE_OFF;
     assetOfferingDetails.value = {
         title: undefined,
         description: undefined,
