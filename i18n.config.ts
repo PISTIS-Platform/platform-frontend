@@ -92,7 +92,8 @@ export default defineI18nConfig(() => ({
                     assetDescription: 'Asset Description',
                     atLeastNumberChars: 'Must be at least {count} characters',
                     assetOfferingDetails: 'Asset Offering Details',
-                    assetOfferingDetailsInfo: 'More info here',
+                    assetOfferingDetailsInfo:
+                        'The details the customer will see when you publish your dataset to the market',
                     titleOfAsset: 'Title of the asset',
                     descriptionOfAsset: 'Type a description for the asset here',
                     keywordsOfAsset: 'Type keywords separated by commas or use the Enter button',

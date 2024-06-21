@@ -32,8 +32,8 @@ const subscriptionPrice = ref<number>(20);
 // data for asset offering details
 
 const assetOfferingDetails = ref<AssetOfferingDetails>({
-    title: undefined,
-    description: undefined,
+    title: selected.value.title,
+    description: selected.value.description,
     keywords: [],
 });
 
