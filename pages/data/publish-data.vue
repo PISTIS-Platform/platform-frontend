@@ -11,9 +11,13 @@ import type {
 
 //data for selected dataset
 
-const selected = ref<string>('');
-
-const { t } = useI18n();
+//TODO: Get ID and data to pass down to DatasetSelector from API call
+const selected = ref<{ id: string | number; title: string; description: string }>({
+    id: 1,
+    title: 'Dataset 1',
+    description:
+        '1Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id. Sed rhoncus, tortor sed eleifend tristique, tortor mauris molestie elit, et lacinia ipsum quam nec dui.',
+});
 
 //data for selection whole dataset or query
 
@@ -87,8 +91,12 @@ const submitAll = () => {
 // clear data when switching selection of dataset
 
 const reset = () => {
-    selected.value = '';
-    completeOrQuery.value = t('data.designer.completeDataset');
+    selected.value = {
+        id: '',
+        title: '',
+        description: '',
+    };
+    completeOrQuery.value = 'Complete Dataset';
     monetizationSelection.value = '';
     assetOfferingDetails.value = {
         title: undefined,
@@ -160,7 +168,6 @@ const resetMonetization = () => {
         <DatasetSelector
             :selected="selected"
             :complete-or-query="completeOrQuery"
-            @update:selected="(value: string) => (selected = value)"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
             @reset="reset"
         />

@@ -39,7 +39,7 @@ const props = defineProps({
         required: true,
     },
     selected: {
-        type: String,
+        type: Object as PropType<{ id: number | string; title: string; description: string }>,
         required: true,
     },
 });
@@ -216,7 +216,7 @@ const updateOneOffFree = (value: boolean) => {
         emit('update:oneoff-price', 0);
 
         oneOffForm.value.setErrors(
-            oneOffForm.value.getErrors().map((err: any) =>
+            oneOffForm.value.getErrors().map((err: unknown) =>
                 err.path === 'price'
                     ? {
                           message: '',
@@ -240,7 +240,7 @@ const updateSubscriptionFree = (value: boolean) => {
         emit('update:sub-price', 0);
 
         subscriptionForm.value.setErrors(
-            subscriptionForm.value.getErrors().map((err: any) =>
+            subscriptionForm.value.getErrors().map((err: unknown) =>
                 err.path === 'price'
                     ? {
                           message: '',
@@ -310,7 +310,7 @@ const switchDatasetOpen = ref<boolean>(false);
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery && selected">
+        <UCard v-if="completeOrQuery && selected.title">
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.monetizationMethod')"

@@ -3,13 +3,11 @@ import { useI18n } from 'vue-i18n';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
 
-import dummyData from '../../pages/data/dummy-data';
-
 const { t } = useI18n();
 
 defineProps({
     selected: {
-        type: String,
+        type: Object as PropType<{ id: number | string; title: string; description: string }>,
         required: true,
     },
     completeOrQuery: {
@@ -22,16 +20,16 @@ const emit = defineEmits(['reset', 'update:selected', 'update:complete-or-query'
 
 //data for selecting specific dataset
 
-const selections = Object.keys(dummyData);
-const displayTable = ref<boolean>(false);
+// const selections = Object.keys(dummyData);
+// const displayTable = ref<boolean>(false);
 
 const switchDatasetOpen = ref<boolean>(false);
 
-const filteredSelections = computed(() =>
-    outerQuery.value ? selections.filter((selection: string) => selection.includes(outerQuery.value)) : selections,
-);
+// const filteredSelections = computed(() =>
+//     outerQuery.value ? selections.filter((selection: string) => selection.includes(outerQuery.value)) : selections,
+// );
 
-const outerQuery = ref<string>('');
+// const outerQuery = ref<string>('');
 
 const dataSetSelections = computed(() => [
     {
@@ -47,21 +45,18 @@ const dataSetSelections = computed(() => [
     },
 ]);
 
-function toggleTable() {
-    displayTable.value = !displayTable.value;
-}
+// function toggleTable() {
+//     displayTable.value = !displayTable.value;
+// }
 </script>
 
 <template>
     <UCard class="overflow-visible">
         <template #header>
-            <SubHeading
-                :title="$t('data.designer.datasetSelection')"
-                :info="$t('data.designer.datasetSelectionInfo')"
-            />
+            <SubHeading :title="$t('data.designer.datasetSelected')" :info="$t('data.designer.datasetSelectedInfo')" />
         </template>
         <div class="space-y-5">
-            <div v-if="!selected" class="flex">
+            <!-- <div v-if="!selected" class="flex">
                 <USelectMenu
                     :model-value="selected"
                     icon="i-heroicons-magnifying-glass-20-solid"
@@ -86,18 +81,17 @@ function toggleTable() {
                     :label="displayTable ? 'Hide datasets' : 'Browse datasets'"
                     @click="toggleTable"
                 />
-            </div>
-            <div
-                v-else
+            </div> -->
+            <!-- <div
                 class="flex gap-2 items-center text-primary cursor-pointer w-60"
                 @click="switchDatasetOpen = true"
             >
                 <UIcon name="i-heroicons-arrow-left-20-solid" class="h-5 w-5" />
                 <span>{{ $t('data.designer.selectDifferent') }}</span>
-            </div>
+            </div> -->
 
             <div>
-                <div v-if="!selected && displayTable">
+                <!-- <div v-if="!selected && displayTable">
                     <Transition
                         enter-active-class="duration-300 ease-out"
                         enter-from-class="transform opacity-0"
@@ -109,8 +103,8 @@ function toggleTable() {
                             @update:model-value="(value: string) => emit('update:selected', value)"
                         />
                     </Transition>
-                </div>
-                <div v-if="selected" class="space-y-5">
+                </div> -->
+                <div v-if="selected.title" class="space-y-5">
                     <Transition
                         enter-active-class="duration-300 ease-out"
                         enter-from-class="transform opacity-0"
@@ -125,8 +119,8 @@ function toggleTable() {
                                 <p>{{ $t('data.designer.assetDescription') }}:</p>
                             </div>
                             <div class="flex flex-col items-start justify-start gap-4">
-                                <p class="font-bold">{{ selected }}</p>
-                                <p>{{ dummyData[selected].description }}</p>
+                                <p class="font-bold">{{ selected.title }}</p>
+                                <p>{{ selected.description }}</p>
                             </div>
                         </div>
                     </Transition>

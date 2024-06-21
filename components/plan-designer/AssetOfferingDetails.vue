@@ -14,7 +14,7 @@ const props = defineProps({
         required: true,
     },
     selected: {
-        type: String,
+        type: Object as PropType<{ id: number | string; title: string; description: string }>,
         required: true,
     },
 });
@@ -44,7 +44,7 @@ watch(isValid, () => {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery && selected">
+        <UCard v-if="completeOrQuery && selected.title">
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.assetOfferingDetails')"
