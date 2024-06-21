@@ -782,15 +782,7 @@ const saveInvestmentPlan = () => {
                         </UForm>
                     </div>
                 </Transition>
-                <div class="flex w-full justify-between">
-                    <UButton
-                        size="md"
-                        color="gray"
-                        variant="outline"
-                        :label="$t('cancel')"
-                        :trailing="false"
-                        @click="switchDatasetOpen = true"
-                    />
+                <div class="flex w-full justify-end">
                     <UButton
                         class="px-4 py-2 order-last"
                         :disabled="!props.isAllValid"
