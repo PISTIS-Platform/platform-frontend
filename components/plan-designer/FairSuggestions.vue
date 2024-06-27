@@ -1,18 +1,19 @@
 <script setup lang="ts">
-defineProps({
+const props = defineProps({
     completeOrQuery: {
         type: String,
         required: true,
     },
     modelValue: {
         type: Object as PropType<{
-            totalRating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
+            overallRating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
             dataQuality: number;
             technical: number;
             business: number;
             legal: number;
             privacy: number;
         }>,
+        required: true,
     },
     selected: {
         type: Object as PropType<{ id: number | string; title: string; description: string }>,
@@ -23,6 +24,32 @@ defineProps({
         required: true,
     },
 });
+
+const computedColor = computed(() => {
+    switch (props.modelValue.overallRating) {
+        case 'A':
+        case 'B':
+            return 'bg-green-500';
+        case 'C':
+        case 'D':
+            return 'bg-yellow-500';
+        case 'E':
+        case 'F':
+            return 'bg-red-500';
+        default:
+            return 'bg-gray-500';
+    }
+});
+
+const computedMeterColor = (value: number) => {
+    if (value >= 0 && value < 15) {
+        return 'red';
+    }
+    if (value >= 15 && value < 25) {
+        return 'yellow';
+    }
+    if (value >= 25) return 'green';
+};
 
 //TODO: Include emits for updating the oneOffPrice and subscriptionPrice here when there is an API call
 // setInterval(() => {
@@ -50,10 +77,32 @@ defineProps({
                 <UProgress animation="carousel" />
             </div>
             <div v-else class="space-y-5">
-                <!-- <div>
-                    {{ $t('data.designer.suggestedOneOff') }}:
-                    <span class="font-bold">{{ oneOffPrice }} STC</span>
-                </div> -->
+                <div class="flex items-center gap-4">
+                    <span class="w-28 whitespace-nowrap">{{ $t('data.designer.overallRating') }}:</span>
+                    <div
+                        :class="[
+                            'h-7 w-7 flex items-center justify-center text-white rounded-full font-bold',
+                            computedColor,
+                        ]"
+                    >
+                        {{ modelValue.overallRating }}
+                    </div>
+                </div>
+
+                <div
+                    v-for="key in Object.keys(modelValue).slice(1)"
+                    :key="key"
+                    class="flex items-start gap-4 whitespace-nowrap"
+                >
+                    <div class="w-28">{{ $t(`data.designer.${key}`) }}:</div>
+                    <UMeter
+                        class="w-32 mt-2.5"
+                        :color="computedMeterColor(modelValue[key])"
+                        :value="modelValue[key]"
+                        :max="35"
+                        :label="modelValue[key] + ' / ' + 35"
+                    />
+                </div>
             </div>
         </UCard>
     </Transition>

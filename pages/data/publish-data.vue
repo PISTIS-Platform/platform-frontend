@@ -33,18 +33,18 @@ const selectedPage = ref('planner'); //other value is 'preview'
 //TODO: Will probably receive data from the component with its own API call
 
 const fairValuationInfo = ref<{
-    totalRating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
+    overallRating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
     dataQuality: number;
     technical: number;
     business: number;
     legal: number;
     privacy: number;
 }>({
-    totalRating: 'A',
+    overallRating: 'A',
     dataQuality: 28,
     technical: 20,
     business: 32,
-    legal: 15,
+    legal: 13,
     privacy: 30,
 });
 
