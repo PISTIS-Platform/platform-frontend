@@ -4,25 +4,30 @@ defineProps({
         type: String,
         required: true,
     },
-    oneOffPrice: {
-        type: Number,
-        required: true,
-    },
-    subscriptionPrice: {
-        type: Number,
-        required: true,
+    modelValue: {
+        type: Object as PropType<{
+            totalRating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
+            dataQuality: number;
+            technical: number;
+            business: number;
+            legal: number;
+            privacy: number;
+        }>,
     },
     selected: {
         type: Object as PropType<{ id: number | string; title: string; description: string }>,
         required: true,
     },
+    loadingValuation: {
+        type: Boolean,
+        required: true,
+    },
 });
 
 //TODO: Include emits for updating the oneOffPrice and subscriptionPrice here when there is an API call
-const receivedValuation = ref<boolean>(true);
-setInterval(() => {
-    receivedValuation.value = false;
-}, 10000);
+// setInterval(() => {
+//     receivedValuation.value = false;
+// }, 10000);
 </script>
 
 <template>
@@ -41,18 +46,14 @@ setInterval(() => {
                     <a href="" class="text-xs text-primary-500 underline">{{ $t('learnMore') }}</a>
                 </div>
             </template>
-            <div v-if="receivedValuation">
+            <div v-if="loadingValuation">
                 <UProgress animation="carousel" />
             </div>
             <div v-else class="space-y-5">
-                <div>
+                <!-- <div>
                     {{ $t('data.designer.suggestedOneOff') }}:
                     <span class="font-bold">{{ oneOffPrice }} STC</span>
-                </div>
-                <div>
-                    {{ $t('data.designer.suggestedSubscription') }}:
-                    <span class="font-bold">{{ subscriptionPrice }} STC {{ $t('perMonth') }}</span>
-                </div>
+                </div> -->
             </div>
         </UCard>
     </Transition>

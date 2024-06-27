@@ -32,8 +32,23 @@ const selectedPage = ref('planner'); //other value is 'preview'
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
 
-const oneOffPrice = ref<number>(500);
-const subscriptionPrice = ref<number>(20);
+const fairValuationInfo = ref<{
+    totalRating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
+    dataQuality: number;
+    technical: number;
+    business: number;
+    legal: number;
+    privacy: number;
+}>({
+    totalRating: 'A',
+    dataQuality: 28,
+    technical: 20,
+    business: 32,
+    legal: 15,
+    privacy: 30,
+});
+
+const loadingValuation = ref(false);
 
 // data for asset offering details
 
@@ -256,8 +271,8 @@ const limitFrequencySelections = computed(() => [
         />
 
         <FairSuggestions
-            v-model:oneOffPrice="oneOffPrice"
-            v-model:subscriptionPrice="subscriptionPrice"
+            v-model="fairValuationInfo"
+            :loading-valuation="loadingValuation"
             :selected="selected"
             :complete-or-query="completeOrQuery"
         />
