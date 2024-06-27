@@ -41,16 +41,6 @@ const computedColor = computed(() => {
     }
 });
 
-const computedMeterColor = (value: number) => {
-    if (value >= 0 && value < 15) {
-        return 'red';
-    }
-    if (value >= 15 && value < 25) {
-        return 'yellow';
-    }
-    if (value >= 25) return 'green';
-};
-
 //TODO: Include emits for updating the oneOffPrice and subscriptionPrice here when there is an API call
 // setInterval(() => {
 //     receivedValuation.value = false;
@@ -89,19 +79,16 @@ const computedMeterColor = (value: number) => {
                     </div>
                 </div>
 
-                <div
-                    v-for="key in Object.keys(modelValue).slice(1)"
-                    :key="key"
-                    class="flex items-start gap-4 whitespace-nowrap"
-                >
-                    <div class="w-28">{{ $t(`data.designer.${key}`) }}:</div>
-                    <UMeter
-                        class="w-32 mt-2.5"
-                        :color="computedMeterColor(modelValue[key])"
-                        :value="modelValue[key]"
-                        :max="35"
-                        :label="modelValue[key] + ' / ' + 35"
-                    />
+                <div class="flex items-center gap-2 divide-x-2">
+                    <div
+                        v-for="(key, idx) in Object.keys(modelValue).slice(1)"
+                        :key="key"
+                        class="flex items-start gap-4 whitespace-nowrap"
+                        :class="idx === 0 ? '' : 'pl-2'"
+                    >
+                        <div>{{ $t(`data.designer.${key}`) }}:</div>
+                        <span class="font-bold">{{ modelValue[key] }}</span>
+                    </div>
                 </div>
             </div>
         </UCard>
