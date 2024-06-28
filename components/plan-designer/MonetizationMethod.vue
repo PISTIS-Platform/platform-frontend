@@ -38,10 +38,6 @@ const props = defineProps({
         type: Boolean,
         required: true,
     },
-    selected: {
-        type: Object as PropType<{ id: number | string; title: string; description: string }>,
-        required: true,
-    },
 });
 
 const switchWarningOpen = ref(false);
@@ -311,7 +307,7 @@ const saveInvestmentPlan = () => {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery && selected.title">
+        <UCard v-if="completeOrQuery">
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.monetizationMethod')"
@@ -320,7 +316,7 @@ const saveInvestmentPlan = () => {
             </template>
             <div class="space-y-5">
                 <SelectionCards
-                    :model-value="props.monetizationSelection"
+                    :model-value="monetizationSelection"
                     :selections="monetizationSelections"
                     @click="switchWarningOpen = true"
                     @update:model-value="(value: string) => (monetizationToSend = value)"

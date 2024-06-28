@@ -18,18 +18,7 @@ defineProps({
 
 const emit = defineEmits(['reset', 'update:selected', 'update:complete-or-query']);
 
-//data for selecting specific dataset
-
-// const selections = Object.keys(dummyData);
-// const displayTable = ref<boolean>(false);
-
 const switchDatasetOpen = ref<boolean>(false);
-
-// const filteredSelections = computed(() =>
-//     outerQuery.value ? selections.filter((selection: string) => selection.includes(outerQuery.value)) : selections,
-// );
-
-// const outerQuery = ref<string>('');
 
 const dataSetSelections = computed(() => [
     {
@@ -44,10 +33,6 @@ const dataSetSelections = computed(() => [
         disabled: true,
     },
 ]);
-
-// function toggleTable() {
-//     displayTable.value = !displayTable.value;
-// }
 </script>
 
 <template>
@@ -56,55 +41,8 @@ const dataSetSelections = computed(() => [
             <SubHeading :title="$t('data.designer.datasetSelected')" :info="$t('data.designer.datasetSelectedInfo')" />
         </template>
         <div class="space-y-5">
-            <!-- <div v-if="!selected" class="flex">
-                <USelectMenu
-                    :model-value="selected"
-                    icon="i-heroicons-magnifying-glass-20-solid"
-                    :searchable="
-                        (query: string) => {
-                            outerQuery = query;
-                            return selections.filter((selection: string) => selection.includes(query));
-                        }
-                    "
-                    :searchable-placeholder="$t('data.designer.searchDataset')"
-                    :placeholder="$t('data.designer.selectSearchDataset')"
-                    :options="selections"
-                    size="md"
-                    class="w-full"
-                    @update:model-value="(value: string) => emit('update:selected', value)"
-                />
-
-                <UButton
-                    size="md"
-                    block
-                    class="w-36 ml-2"
-                    :label="displayTable ? 'Hide datasets' : 'Browse datasets'"
-                    @click="toggleTable"
-                />
-            </div> -->
-            <!-- <div
-                class="flex gap-2 items-center text-primary cursor-pointer w-60"
-                @click="switchDatasetOpen = true"
-            >
-                <UIcon name="i-heroicons-arrow-left-20-solid" class="h-5 w-5" />
-                <span>{{ $t('data.designer.selectDifferent') }}</span>
-            </div> -->
-
             <div>
-                <!-- <div v-if="!selected && displayTable">
-                    <Transition
-                        enter-active-class="duration-300 ease-out"
-                        enter-from-class="transform opacity-0"
-                        enter-to-class="opacity-100"
-                    >
-                        <FileBrowser
-                            :model-value="selected"
-                            :files="filteredSelections"
-                            @update:model-value="(value: string) => emit('update:selected', value)"
-                        />
-                    </Transition>
-                </div> -->
-                <div v-if="selected.title" class="space-y-5">
+                <div v-if="selected.id" class="space-y-5">
                     <Transition
                         enter-active-class="duration-300 ease-out"
                         enter-from-class="transform opacity-0"
