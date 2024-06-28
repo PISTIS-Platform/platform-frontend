@@ -38,11 +38,10 @@ const props = defineProps({
         type: Boolean,
         required: true,
     },
-    selected: {
-        type: String,
-        required: true,
-    },
 });
+
+const switchWarningOpen = ref(false);
+const monetizationToSend = ref();
 
 const monetizationSelections: CardSelection[] = [
     {
@@ -77,6 +76,7 @@ const subscriptionIsFree = ref(false);
 const licenseSelections: string[] = ['CC-BY', 'MIT', 'CC0'];
 
 const limitFrequencySelections = computed(() => [
+    { title: t('perHour'), value: DownloadFrequency.HOUR },
     { title: t('perDay'), value: DownloadFrequency.DAY },
     { title: t('perWeek'), value: DownloadFrequency.WEEK },
     { title: t('perMonth'), value: DownloadFrequency.MONTH },
@@ -101,7 +101,6 @@ const oneOffSaleSchema = z.object({
 
 const subscriptionSchema = z.object({
     frequency: z.string(),
-    priceKind: z.string(),
     // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
     price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
         (val) => {
@@ -203,7 +202,7 @@ const emit = defineEmits([
     'update:nft-price',
     'isMonetizationValid',
     'reset-monetization',
-    'submit',
+    'changePage',
     'reset',
 ]);
 
@@ -216,7 +215,7 @@ const updateOneOffFree = (value: boolean) => {
         emit('update:oneoff-price', 0);
 
         oneOffForm.value.setErrors(
-            oneOffForm.value.getErrors().map((err: any) =>
+            oneOffForm.value.getErrors().map((err: unknown) =>
                 err.path === 'price'
                     ? {
                           message: '',
@@ -240,7 +239,7 @@ const updateSubscriptionFree = (value: boolean) => {
         emit('update:sub-price', 0);
 
         subscriptionForm.value.setErrors(
-            subscriptionForm.value.getErrors().map((err: any) =>
+            subscriptionForm.value.getErrors().map((err: unknown) =>
                 err.path === 'price'
                     ? {
                           message: '',
@@ -297,8 +296,6 @@ const saveInvestmentPlan = () => {
     showCreatePlan.value = false;
     selectedInvestmentPlan.value = props.investmentPlanDetails.title;
 };
-
-const switchDatasetOpen = ref<boolean>(false);
 </script>
 
 <template>
@@ -310,7 +307,7 @@ const switchDatasetOpen = ref<boolean>(false);
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery && selected">
+        <UCard v-if="completeOrQuery">
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.monetizationMethod')"
@@ -321,12 +318,8 @@ const switchDatasetOpen = ref<boolean>(false);
                 <SelectionCards
                     :model-value="monetizationSelection"
                     :selections="monetizationSelections"
-                    @update:model-value="
-                        (value: string) => {
-                            emit('update:monetization-selection', value);
-                            emit('reset-monetization');
-                        }
-                    "
+                    @click="switchWarningOpen = true"
+                    @update:model-value="(value: string) => (monetizationToSend = value)"
                 />
                 <Transition
                     enter-active-class="duration-300 ease-out"
@@ -337,7 +330,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === MonetMethod.ONE_OFF"
+                        v-if="props.monetizationSelection === MonetMethod.ONE_OFF"
                         ref="oneOffForm"
                         class="flex flex-col w-full"
                         :state="oneOffSaleDetails"
@@ -456,7 +449,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === MonetMethod.SUBSCRIPTION"
+                        v-if="props.monetizationSelection === MonetMethod.SUBSCRIPTION"
                         ref="subscriptionForm"
                         class="flex flex-col w-full"
                         :state="subscriptionDetails"
@@ -596,7 +589,7 @@ const switchDatasetOpen = ref<boolean>(false);
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        v-if="monetizationSelection === MonetMethod.NFT"
+                        v-if="props.monetizationSelection === MonetMethod.NFT"
                         class="flex flex-col w-full"
                         :state="detailsOfNFT"
                         :schema="NFTschema"
@@ -786,33 +779,34 @@ const switchDatasetOpen = ref<boolean>(false);
                         </UForm>
                     </div>
                 </Transition>
-                <div class="flex w-full justify-between">
+                <div class="flex w-full justify-end">
                     <UButton
-                        size="md"
-                        color="gray"
-                        variant="outline"
-                        :label="$t('cancel')"
-                        :trailing="false"
-                        @click="switchDatasetOpen = true"
-                    />
-                    <UButton class="px-4 py-2 order-last" :disabled="!isAllValid" @click="emit('submit')"
-                        >{{ $t('submit') }}
+                        class="px-4 py-2 order-last"
+                        :disabled="!props.isAllValid"
+                        @click="emit('changePage', 'preview')"
+                        >{{ $t('next') }}
                     </UButton>
                 </div>
             </div>
         </UCard>
     </Transition>
-    <UModal v-model="switchDatasetOpen">
+    <UModal v-model="switchWarningOpen">
         <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
             <p class="font-bold text-xl">{{ $t('data.designer.areYouSure') }}</p>
             <p class="text-gray-400 mt-6">{{ $t('data.designer.willReset') }}</p>
             <div class="flex gap-8 w-full justify-center mt-6">
-                <UButton color="white" class="w-20 flex justify-center" @click="switchDatasetOpen = false">{{
+                <UButton color="white" class="w-20 flex justify-center" @click="switchWarningOpen = false">{{
                     $t('cancel')
                 }}</UButton>
-                <UButton class="w-20 flex justify-center" @click="emit('reset'), (switchDatasetOpen = false)">{{
-                    $t('yes')
-                }}</UButton>
+                <UButton
+                    class="w-20 flex justify-center"
+                    @click="
+                        emit('update:monetization-selection', monetizationToSend);
+                        emit('reset-monetization');
+                        switchWarningOpen = false;
+                    "
+                    >{{ $t('yes') }}</UButton
+                >
             </div>
         </UCard>
     </UModal>

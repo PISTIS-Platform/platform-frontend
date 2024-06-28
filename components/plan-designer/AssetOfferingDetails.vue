@@ -13,14 +13,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    selected: {
-        type: String,
-        required: true,
-    },
 });
 
 const schema = z.object({
-    title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
+    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
     description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
 });
 
@@ -44,7 +40,7 @@ watch(isValid, () => {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery && selected">
+        <UCard v-if="completeOrQuery">
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.assetOfferingDetails')"
