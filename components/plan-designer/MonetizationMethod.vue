@@ -7,6 +7,7 @@ import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 import { MonetMethod } from '~/interfaces/monetization-method.enum';
 import { SubscriptionFrequency } from '~/interfaces/subscription-frequency.enum';
 
+const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
 const props = defineProps({
@@ -782,8 +783,11 @@ const saveInvestmentPlan = () => {
                 <div class="flex w-full justify-end">
                     <UButton
                         class="px-4 py-2 order-last"
-                        :disabled="!props.isAllValid"
-                        @click="emit('changePage', 'preview')"
+                        @click="
+                            isAllValid
+                                ? emit('changePage', 'preview')
+                                : showErrorMessage(t('data.designer.pleaseCheck'))
+                        "
                         >{{ $t('next') }}
                     </UButton>
                 </div>

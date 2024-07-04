@@ -146,6 +146,7 @@ export default defineI18nConfig(() => ({
                     saveInvestmentPlan: 'Save Investment Plan',
                     monthly: 'Monthly',
                     annual: 'Annual',
+                    pleaseCheck: 'Please check the form and fill in all required (*) fields',
                 },
                 log: 'Data Log',
                 wallet: {
