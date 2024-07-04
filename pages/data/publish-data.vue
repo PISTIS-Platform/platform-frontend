@@ -382,32 +382,36 @@ const handleStepSelect = (href: string) => {
                     />
                 </template>
                 <div v-if="monetizationSelection === MonetMethod.ONE_OFF" class="flex flex-col gap-8">
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.monetizationMethod')
-                        }}</span>
-                        <span>{{ $t('data.designer.oneOffSale') }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.oneOffPrice') }}</span>
-                        <span>{{ oneOffSaleDetails.price + ' STC' || $t('data.designer.free') }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
-                        <span>{{ oneOffSaleDetails.license }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
-                        }}</span>
-                        <span>{{
-                            oneOffSaleDetails.limitNumber +
-                            ' ' +
-                            $t('times') +
-                            ' ' +
-                            limitFrequencySelections.find((item) => item.value === oneOffSaleDetails.limitFrequency)
-                                ?.title
-                        }}</span>
+                    <div class="flex items-start gap-8">
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.monetizationMethod')
+                            }}</span>
+                            <span>{{ $t('data.designer.oneOffSale') }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.oneOffPrice')
+                            }}</span>
+                            <span>{{ oneOffSaleDetails.price + ' STC' || $t('data.designer.free') }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
+                            <span>{{ oneOffSaleDetails.license }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
+                            }}</span>
+                            <span>{{
+                                oneOffSaleDetails.limitNumber +
+                                ' ' +
+                                $t('times') +
+                                ' ' +
+                                limitFrequencySelections.find((item) => item.value === oneOffSaleDetails.limitFrequency)
+                                    ?.title
+                            }}</span>
+                        </div>
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
@@ -415,42 +419,47 @@ const handleStepSelect = (href: string) => {
                     </div>
                 </div>
                 <div v-if="monetizationSelection === MonetMethod.SUBSCRIPTION" class="flex flex-col gap-8">
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.monetizationMethod')
-                        }}</span>
-                        <span>{{ $t('data.designer.subscription') }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.subscriptionPrice') + ' & ' + $t('data.designer.subscriptionFrequency')
-                        }}</span>
-                        <span>{{
-                            subscriptionDetails.price
-                                ? subscriptionDetails.price +
-                                  ' STC ' +
-                                  (subscriptionDetails.frequency === 'annual'
-                                      ? $t('data.designer.annual')
-                                      : $t('data.designer.monthly'))
-                                : $t('data.designer.free')
-                        }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
-                        <span>{{ subscriptionDetails.license }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
-                        }}</span>
-                        <span>{{
-                            subscriptionDetails.limitNumber +
-                            ' ' +
-                            $t('times') +
-                            ' ' +
-                            limitFrequencySelections.find((item) => item.value === subscriptionDetails.limitFrequency)
-                                ?.title
-                        }}</span>
+                    <div class="flex items-start gap-8">
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.monetizationMethod')
+                            }}</span>
+                            <span>{{ $t('data.designer.subscription') }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.subscriptionPrice') +
+                                ' & ' +
+                                $t('data.designer.subscriptionFrequency')
+                            }}</span>
+                            <span>{{
+                                subscriptionDetails.price
+                                    ? subscriptionDetails.price +
+                                      ' STC ' +
+                                      (subscriptionDetails.frequency === 'annual'
+                                          ? $t('data.designer.annual')
+                                          : $t('data.designer.monthly'))
+                                    : $t('data.designer.free')
+                            }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
+                            <span>{{ subscriptionDetails.license }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
+                            }}</span>
+                            <span>{{
+                                subscriptionDetails.limitNumber +
+                                ' ' +
+                                $t('times') +
+                                ' ' +
+                                limitFrequencySelections.find(
+                                    (item) => item.value === subscriptionDetails.limitFrequency,
+                                )?.title
+                            }}</span>
+                        </div>
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
