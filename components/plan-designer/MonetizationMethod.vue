@@ -119,35 +119,59 @@ const oneOffSaleSchema = z
         ),
         license: z.string(),
         terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
-        limitNumber: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
+        limitNumber: z.coerce
+            .number({ invalid_type_error: t('val.validNumber') })
+            .gte(0, t('val.zeroOrPositive'))
+            .refine(
+                (val) => {
+                    return val > 0;
+                },
+                {
+                    message: t('val.zeroOrPositive'),
+                },
+            ),
         limitFrequency: z.string(),
     })
     .required();
 
-const subscriptionSchema = z.object({
-    frequency: z.string(),
-    // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
-    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
-        (val) => {
-            return subscriptionIsFree.value ? val === 0 : val > 0;
-        },
-        {
-            message: subscriptionIsFree.value ? '' : t('data.designer.priceHigherThanZero'),
-        },
-    ),
-    license: z.string(),
-    terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
-    limitNumber: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
-    limitFrequency: z.string(),
-});
+const subscriptionSchema = z
+    .object({
+        frequency: z.string(),
+        // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
+        price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
+            (val) => {
+                return subscriptionIsFree.value ? val === 0 : val > 0;
+            },
+            {
+                message: subscriptionIsFree.value ? '' : t('data.designer.priceHigherThanZero'),
+            },
+        ),
+        license: z.string(),
+        terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+        limitNumber: z.coerce
+            .number({ invalid_type_error: t('val.validNumber') })
+            .gte(0, t('val.zeroOrPositive'))
+            .refine(
+                (val) => {
+                    return val > 0;
+                },
+                {
+                    message: t('val.zeroOrPositive'),
+                },
+            ),
+        limitFrequency: z.string(),
+    })
+    .required();
 
-const investmentSchema = z.object({
-    title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
-    totalEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-    minEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-    eqPrice: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-    maxNoInvestors: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-});
+const investmentSchema = z
+    .object({
+        title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
+        totalEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+        minEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+        eqPrice: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+        maxNoInvestors: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
+    })
+    .required();
 
 type investment = z.output<typeof investmentSchema>;
 
@@ -168,9 +192,11 @@ const investmentPlans = ref<{ [key: string]: investment }>({
     },
 });
 
-const NFTschema = z.object({
-    price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
-});
+const NFTschema = z
+    .object({
+        price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
+    })
+    .required();
 
 const isOneOffSaleDetailsValid = computed(() => {
     return oneOffSaleSchema.safeParse(oneOffSaleDetails).success;
