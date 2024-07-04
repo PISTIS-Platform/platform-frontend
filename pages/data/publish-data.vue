@@ -183,33 +183,6 @@ const reset = () => {
         description: undefined,
         keywords: [],
     };
-    oneOffSaleDetails.value = {
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    };
-    subscriptionDetails.value = {
-        frequency: undefined,
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    };
-    investmentPlanDetails.value = {
-        title: undefined,
-        totalEqPercentage: undefined,
-        minEqPercentage: undefined,
-        eqPrice: undefined,
-        maxNoInvestors: undefined,
-    };
-    detailsOfNFT.value = {
-        price: undefined,
-    };
 };
 
 const resetMonetization = () => {
@@ -281,29 +254,12 @@ const limitFrequencySelections = computed(() => [
             :complete-or-query="completeOrQuery"
             :selected="selected"
             :monetization-selection="monetizationSelection"
-            :one-off-sale-details="oneOffSaleDetails"
-            :subscription-details="subscriptionDetails"
-            :investment-plan-details="investmentPlanDetails"
-            :details-of-n-f-t="detailsOfNFT"
             :is-all-valid="isAllValid"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
-            @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
-            @update:oneoff-license="(value: string) => (oneOffSaleDetails.license = value)"
-            @update:oneoff-terms="(value: string) => (oneOffSaleDetails.terms = value)"
-            @update:oneoff-limit-number="(value: number) => (oneOffSaleDetails.limitNumber = value)"
-            @update:oneoff-limit-frequency="(value: string) => (oneOffSaleDetails.limitFrequency = value)"
-            @update:sub-frequency="(value: string) => (subscriptionDetails.frequency = value)"
-            @update:sub-price="(value: number) => (subscriptionDetails.price = value)"
-            @update:sub-license="(value: string) => (subscriptionDetails.license = value)"
-            @update:sub-terms="(value: string) => (subscriptionDetails.terms = value)"
-            @update:sub-limit-number="(value: number) => (subscriptionDetails.limitNumber = value)"
-            @update:sub-limit-frequency="(value: string) => (subscriptionDetails.limitFrequency = value)"
-            @update:plan-title="(value: string) => (investmentPlanDetails.title = value)"
-            @update:plan-total-eq-percentage="(value: number) => (investmentPlanDetails.totalEqPercentage = value)"
-            @update:plan-min-eq-percentage="(value: number) => (investmentPlanDetails.minEqPercentage = value)"
-            @update:plan-eq-price="(value: number) => (investmentPlanDetails.eqPrice = value)"
-            @update:plan-max-no-investors="(value: number) => (investmentPlanDetails.maxNoInvestors = value)"
-            @update:nft-price="(value: number) => (detailsOfNFT.price = value)"
+            @update:one-off-sale-details="(value: OneOffSaleDetails) => (oneOffSaleDetails = value)"
+            @update:subscription-details="(value: SubscriptionDetails) => (subscriptionDetails = value)"
+            @update:nft-details="(value: NFTDetails) => (detailsOfNFT = value)"
+            @update:investment-details="(value: InvestmentPlanDetails) => (investmentPlanDetails = value)"
             @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @reset-monetization="resetMonetization"
             @change-page="changePage"
@@ -375,7 +331,7 @@ const limitFrequencySelections = computed(() => [
                             $t('times') +
                             ' ' +
                             limitFrequencySelections.find((item) => item.value === oneOffSaleDetails.limitFrequency)
-                                .title
+                                ?.title
                         }}</span>
                     </div>
                     <div class="flex gap-2 flex-col">
@@ -418,7 +374,7 @@ const limitFrequencySelections = computed(() => [
                             $t('times') +
                             ' ' +
                             limitFrequencySelections.find((item) => item.value === subscriptionDetails.limitFrequency)
-                                .title
+                                ?.title
                         }}</span>
                     </div>
                     <div class="flex gap-2 flex-col">
