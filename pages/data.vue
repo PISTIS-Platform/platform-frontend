@@ -8,6 +8,8 @@ const routes = ref([
 
 <template>
     <ShellLayout :navigation="routes">
-        <NuxtPage />
+        <div class="w-full h-full flex flex-col justify-start">
+            <NuxtPage />
+        </div>
     </ShellLayout>
 </template>

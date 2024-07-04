@@ -23,7 +23,7 @@ onMounted(async () => {
 
 <template>
     <ShellLayout :navigation="routes">
-        <div class="w-full h-full">
+        <div class="w-full h-full flex flex-col justify-start">
             <NuxtPage />
         </div>
     </ShellLayout>

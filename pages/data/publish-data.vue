@@ -27,8 +27,6 @@ const selected = ref<{ id: string | number; title: string; description: string }
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
 
-const selectedPage = ref('planner'); //other value is 'preview'
-
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
 
@@ -221,9 +219,89 @@ const limitFrequencySelections = computed(() => [
     { title: t('perMonth'), value: DownloadFrequency.MONTH },
     { title: t('perYear'), value: DownloadFrequency.YEAR },
 ]);
+
+const steps = [
+    { id: 'Step 1', name: 'Select Dataset', href: 'select', status: 'current' },
+    { id: 'Step 2', name: 'Monetization Planner', href: 'planner', status: 'upcoming' },
+    { id: 'Step 3', name: 'Access Policies Editor', href: 'editor', status: 'upcoming' },
+    { id: 'Step 4', name: 'Preview', href: 'preview', status: 'upcoming' },
+];
+
+const selectedPage = ref('select'); //other value is 'preview'
+
+const handleStepSelect = (href: string) => {
+    const index = steps.findIndex((item) => item.href === href);
+
+    switch (index) {
+        case 0:
+            selectedPage.value = href;
+            break;
+        case 1:
+            //TODO: Check if asset is selected before moving on to monetization planner
+            selectedPage.value = href;
+            break;
+        case 2:
+            if (isAllValid.value) {
+                selectedPage.value = href;
+            }
+            break;
+        case 3:
+            //TODO: Check both step 3 and if the access policies editor is ready
+            if (isAllValid.value) {
+                selectedPage.value = href;
+            }
+            break;
+    }
+
+    for (let i = 0; i < steps.length; i++) {
+        if (i < index) {
+            steps[i].status = 'complete';
+        } else if (i === index) {
+            steps[i].status = 'current';
+        } else {
+            steps[i].status = 'upcoming';
+        }
+    }
+};
 </script>
 
 <template>
+    <nav aria-label="Progress" class="w-full mb-4">
+        <ol role="list" class="space-y-4 md:flex md:space-x-8 md:space-y-0">
+            <li
+                v-for="step in steps"
+                :key="step.name"
+                class="md:flex-1 cursor-pointer"
+                @click="handleStepSelect(step.href)"
+            >
+                <a
+                    v-if="step.status === 'complete'"
+                    class="group flex flex-col border-l-4 border-indigo-600 py-2 pl-4 hover:border-indigo-800 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
+                >
+                    <span class="text-sm font-medium text-indigo-600 group-hover:text-indigo-800">{{ step.id }}</span>
+                    <span class="text-sm font-medium">{{ step.name }}</span>
+                </a>
+                <a
+                    v-else-if="step.status === 'current'"
+                    class="flex flex-col border-l-4 border-indigo-600 py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
+                    aria-current="step"
+                >
+                    <span class="text-sm font-medium text-indigo-600">{{ step.id }}</span>
+                    <span class="text-sm font-medium">{{ step.name }}</span>
+                </a>
+                <a
+                    v-else
+                    class="group flex flex-col border-l-4 border-gray-200 py-2 pl-4 hover:border-gray-300 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
+                >
+                    <span class="text-sm font-medium text-gray-500 group-hover:text-gray-700">{{ step.id }}</span>
+                    <span class="text-sm font-medium">{{ step.name }}</span>
+                </a>
+            </li>
+        </ol>
+    </nav>
+
+    <div v-show="selectedPage === 'select'">Select dataset</div>
+
     <div v-show="selectedPage === 'planner'" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             :selected="selected"
@@ -265,6 +343,8 @@ const limitFrequencySelections = computed(() => [
             @reset="reset"
         />
     </div>
+
+    <div v-show="selectedPage === 'editor'">Access policies editor</div>
 
     <div v-if="isAllValid">
         <div v-show="selectedPage === 'preview'" class="w-full h-full text-gray-700 space-y-8">
