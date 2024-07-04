@@ -78,6 +78,7 @@ export default defineI18nConfig(() => ({
             data: {
                 data: 'My Data',
                 designer: {
+                    pleaseSelectDataset: 'Please select a dataset',
                     free: 'Free',
                     paid: 'Paid',
                     priceHigherThanZero: 'Price needs to be higher than zero',

@@ -11,6 +11,8 @@ import type {
     SubscriptionDetails,
 } from '../../interfaces/plan-designer';
 
+const { showErrorMessage } = useAlertMessage();
+
 const { t } = useI18n();
 
 //data for selected dataset
@@ -252,6 +254,8 @@ const handleStepSelect = (href: string) => {
         case 1:
             if (selected.value) {
                 selectedPage.value = href;
+            } else {
+                showErrorMessage(t('data.designer.pleaseSelectDataset'));
             }
             break;
         case 2:
