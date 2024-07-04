@@ -78,6 +78,12 @@ export default defineI18nConfig(() => ({
             data: {
                 data: 'My Data',
                 designer: {
+                    nav: {
+                        selectDataset: 'Select Dataset',
+                        monetizationPlanner: 'Monetization Planner',
+                        accessPoliciesEditor: 'Access Policies Editor',
+                        preview: 'Preview',
+                    },
                     pleaseSelectDataset: 'Please select a dataset',
                     free: 'Free',
                     paid: 'Paid',

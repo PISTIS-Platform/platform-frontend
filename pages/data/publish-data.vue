@@ -236,10 +236,10 @@ const limitFrequencySelections = computed(() => [
 ]);
 
 const steps = [
-    { id: 'Step 1', name: 'Select Dataset', href: 'select', status: 'current' },
-    { id: 'Step 2', name: 'Monetization Planner', href: 'planner', status: 'upcoming' },
-    { id: 'Step 3', name: 'Access Policies Editor', href: 'editor', status: 'upcoming' },
-    { id: 'Step 4', name: 'Preview', href: 'preview', status: 'upcoming' },
+    { id: 'Step 1', name: t('data.designer.nav.selectDataset'), href: 'select', status: 'current' },
+    { id: 'Step 2', name: t('data.designer.nav.monetizationPlanner'), href: 'planner', status: 'upcoming' },
+    { id: 'Step 3', name: t('data.designer.nav.accessPoliciesEditor'), href: 'editor', status: 'upcoming' },
+    { id: 'Step 4', name: t('data.designer.nav.preview'), href: 'preview', status: 'upcoming' },
 ];
 
 const selectedPage = ref('select'); //other value is 'preview'
