@@ -284,6 +284,8 @@ const handleStepSelect = (href: string) => {
 
 const handleDatasetSelection = (dataset: { id: string | number; title: string; description: string }) => {
     selected.value = dataset;
+    assetOfferingDetails.value.title = selected.value.title;
+    assetOfferingDetails.value.description = selected.value.description;
     handleStepSelect('planner');
 };
 </script>
