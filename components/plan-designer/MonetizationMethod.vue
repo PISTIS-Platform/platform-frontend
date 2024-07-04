@@ -222,15 +222,15 @@ watch(oneOffSaleDetails, () => {
 });
 
 watch(subscriptionDetails, () => {
-    emit('update:one-off-sale-details', subscriptionDetails);
+    emit('update:subscription-details', subscriptionDetails);
 });
 
 watch(detailsOfNFT, () => {
-    emit('update:one-off-sale-details', detailsOfNFT);
+    emit('update:nft-details', detailsOfNFT);
 });
 
 watch(investmentPlanDetails, () => {
-    emit('update:one-off-sale-details', investmentPlanDetails);
+    emit('update:investment-details', investmentPlanDetails);
 });
 
 const oneOffForm = ref();
@@ -323,6 +323,11 @@ const saveInvestmentPlan = () => {
     showCreatePlan.value = false;
     selectedInvestmentPlan.value = investmentPlanDetails.title;
 };
+
+const handleMonetizationClick = (value: string) => {
+    switchWarningOpen.value = true;
+    monetizationToSend.value = value;
+};
 </script>
 
 <template>
@@ -345,8 +350,12 @@ const saveInvestmentPlan = () => {
                 <SelectionCards
                     :model-value="monetizationSelection"
                     :selections="monetizationSelections"
-                    @click="switchWarningOpen = true"
-                    @update:model-value="(value: string) => (monetizationToSend = value)"
+                    @update:model-value="
+                        (value: string) =>
+                            value === MonetMethod.NFT || value === MonetMethod.INVESTMENT
+                                ? null
+                                : handleMonetizationClick(value)
+                    "
                 />
                 <Transition
                     enter-active-class="duration-300 ease-out"
