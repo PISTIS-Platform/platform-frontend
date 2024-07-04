@@ -13,4 +13,4 @@ COPY --from=builder /app/.output /app
 ENV HOST 0.0.0.0
 ENV PORT 8080
 EXPOSE 8080
-ENTRYPOINT [ "node", "./output/server/index.mjs" ]
+ENTRYPOINT [ "node", "./server/index.mjs" ]
