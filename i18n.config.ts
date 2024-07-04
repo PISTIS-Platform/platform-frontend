@@ -94,8 +94,8 @@ export default defineI18nConfig(() => ({
                     willReset: 'Any configuration you have made will be reset',
                     searchDataset: 'Search for a dataset...',
                     selectSearchDataset: 'Select / search for a dataset',
-                    assetTitle: 'Asset Title',
-                    assetDescription: 'Asset Description',
+                    assetTitle: 'Title',
+                    assetDescription: 'Description',
                     atLeastNumberChars: 'Must be at least {count} characters',
                     assetOfferingDetails: 'Asset Offering Details',
                     assetOfferingDetailsInfo:
