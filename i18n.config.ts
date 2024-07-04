@@ -18,6 +18,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            select: 'Select',
             search: 'Search...',
             addNew: 'Add new',
             cancel: 'Cancel',

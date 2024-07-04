@@ -16,12 +16,29 @@ const { t } = useI18n();
 //data for selected dataset
 
 //TODO: Get ID and data to pass down to DatasetSelector from API call
-const selected = ref<{ id: string | number; title: string; description: string }>({
-    id: 1,
-    title: 'Dataset 1',
-    description:
-        '1Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id. Sed rhoncus, tortor sed eleifend tristique, tortor mauris molestie elit, et lacinia ipsum quam nec dui.',
-});
+const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
+
+//TODO: Get list of datasets from API call
+const dataSets: { id: string | number; title: string; description: string }[] = [
+    {
+        id: 1,
+        title: 'Dataset 1',
+        description:
+            '1Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id. Sed rhoncus, tortor sed eleifend tristique, tortor mauris molestie elit, et lacinia ipsum quam nec dui.',
+    },
+    {
+        id: 2,
+        title: 'Dataset 2',
+        description:
+            '1Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id. Sed rhoncus, tortor sed eleifend tristique, tortor mauris molestie elit, et lacinia ipsum quam nec dui.',
+    },
+    {
+        id: 3,
+        title: 'Dataset 3',
+        description:
+            '1Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id. Sed rhoncus, tortor sed eleifend tristique, tortor mauris molestie elit, et lacinia ipsum quam nec dui.',
+    },
+];
 
 //data for selection whole dataset or query
 
@@ -51,8 +68,8 @@ const loadingValuation = ref(false);
 // data for asset offering details
 
 const assetOfferingDetails = ref<AssetOfferingDetails>({
-    title: selected.value.title,
-    description: selected.value.description,
+    title: undefined,
+    description: undefined,
     keywords: [],
 });
 
@@ -233,17 +250,18 @@ const handleStepSelect = (href: string) => {
             selectedPage.value = href;
             break;
         case 1:
-            //TODO: Check if asset is selected before moving on to monetization planner
-            selectedPage.value = href;
+            if (selected.value) {
+                selectedPage.value = href;
+            }
             break;
         case 2:
-            if (isAllValid.value) {
+            if (selected.value && isAllValid.value) {
                 selectedPage.value = href;
             }
             break;
         case 3:
             //TODO: Check both step 3 and if the access policies editor is ready
-            if (isAllValid.value) {
+            if (selected.value && isAllValid.value) {
                 selectedPage.value = href;
             }
             break;
@@ -259,10 +277,15 @@ const handleStepSelect = (href: string) => {
         }
     }
 };
+
+const handleDatasetSelection = (dataset: { id: string | number; title: string; description: string }) => {
+    selected.value = dataset;
+    handleStepSelect('planner');
+};
 </script>
 
 <template>
-    <nav aria-label="Progress" class="w-full mb-4">
+    <nav aria-label="Progress" class="w-full mb-8">
         <ol role="list" class="space-y-4 md:flex md:space-x-8 md:space-y-0">
             <li
                 v-for="step in steps"
@@ -296,10 +319,25 @@ const handleStepSelect = (href: string) => {
         </ol>
     </nav>
 
-    <div v-show="selectedPage === 'select'">Select dataset</div>
+    <div v-show="selectedPage === 'select'" class="w-full h-full text-gray-700 space-y-8">
+        <UCard v-for="dataset in dataSets" :key="dataset.id">
+            <template #header>
+                <span class="font-bold">{{ dataset.title }}</span>
+            </template>
+            <p>
+                {{ dataset.description }}
+            </p>
+            <template #footer>
+                <div class="flex justify-end w-full">
+                    <UButton @click="handleDatasetSelection(dataset)">{{ $t('select') }}</UButton>
+                </div>
+            </template>
+        </UCard>
+    </div>
 
     <div v-show="selectedPage === 'planner'" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
+            v-if="selected"
             :selected="selected"
             :complete-or-query="completeOrQuery"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
