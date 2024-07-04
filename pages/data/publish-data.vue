@@ -104,7 +104,6 @@ const isMonetizationValid = ref<boolean>(false);
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
 const changePage = (value: string) => {
-    console.log('CHANGE');
     selectedPage.value = value;
 };
 

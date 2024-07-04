@@ -35,6 +35,7 @@ export default defineI18nConfig(() => ({
             termsConditions: 'Terms and conditions',
             keywords: 'Keywords',
             times: 'times',
+            perHour: 'per hour',
             perDay: 'per day',
             perWeek: 'per week',
             perMonth: 'per month',
