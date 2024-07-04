@@ -807,9 +807,7 @@ const handleMonetizationClick = (value: string) => {
                     <UButton
                         class="px-4 py-2 order-last"
                         @click="
-                            isAllValid
-                                ? emit('changePage', 'preview')
-                                : showErrorMessage(t('data.designer.pleaseCheck'))
+                            isAllValid ? emit('changePage', 'editor') : showErrorMessage(t('data.designer.pleaseCheck'))
                         "
                         >{{ $t('next') }}
                     </UButton>

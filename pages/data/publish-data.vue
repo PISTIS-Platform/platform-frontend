@@ -101,10 +101,6 @@ const isMonetizationValid = ref<boolean>(false);
 
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
-const changePage = (value: string) => {
-    selectedPage.value = value;
-};
-
 const submitAll = () => {
     let objToSend;
 
@@ -339,7 +335,7 @@ const handleStepSelect = (href: string) => {
             @update:investment-details="(value: InvestmentPlanDetails) => (investmentPlanDetails = value)"
             @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @reset-monetization="resetMonetization"
-            @change-page="changePage"
+            @change-page="handleStepSelect"
             @reset="reset"
         />
     </div>
@@ -462,7 +458,7 @@ const handleStepSelect = (href: string) => {
                     </div>
                 </div>
                 <div class="w-full flex justify-between items-center mt-8">
-                    <UButton size="md" color="gray" variant="outline" @click="selectedPage = 'planner'">
+                    <UButton size="md" color="gray" variant="outline" @click="handleStepSelect('editor')">
                         {{ $t('back') }}
                     </UButton>
                     <UButton class="px-4 py-2" @click="submitAll">
