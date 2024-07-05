@@ -32,7 +32,7 @@ const props = defineProps({
     },
 });
 
-let oneOffSaleDetails = reactive<OneOffSaleDetails>({
+const oneOffSaleDetails = reactive<OneOffSaleDetails>({
     priceKind: undefined,
     price: undefined,
     license: undefined,
@@ -41,7 +41,7 @@ let oneOffSaleDetails = reactive<OneOffSaleDetails>({
     limitFrequency: undefined,
 });
 
-let subscriptionDetails = reactive<SubscriptionDetails>({
+const subscriptionDetails = reactive<SubscriptionDetails>({
     frequency: undefined,
     priceKind: undefined,
     price: undefined,
@@ -51,7 +51,7 @@ let subscriptionDetails = reactive<SubscriptionDetails>({
     limitFrequency: undefined,
 });
 
-let investmentPlanDetails = reactive<InvestmentPlanDetails>({
+const investmentPlanDetails = reactive<InvestmentPlanDetails>({
     title: undefined,
     totalEqPercentage: undefined,
     minEqPercentage: undefined,
@@ -59,38 +59,33 @@ let investmentPlanDetails = reactive<InvestmentPlanDetails>({
     maxNoInvestors: undefined,
 });
 
-let detailsOfNFT = reactive<NFTDetails>({
+const detailsOfNFT = reactive<NFTDetails>({
     price: undefined,
 });
 
 const resetMonetization = () => {
-    oneOffSaleDetails = reactive({
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    });
-    subscriptionDetails = reactive({
-        frequency: undefined,
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    });
-    investmentPlanDetails = reactive({
-        title: undefined,
-        totalEqPercentage: undefined,
-        minEqPercentage: undefined,
-        eqPrice: undefined,
-        maxNoInvestors: undefined,
-    });
-    detailsOfNFT = reactive({
-        price: undefined,
-    });
+    oneOffSaleDetails.priceKind = undefined;
+    oneOffSaleDetails.price = undefined;
+    oneOffSaleDetails.license = undefined;
+    oneOffSaleDetails.terms = undefined;
+    oneOffSaleDetails.limitNumber = undefined;
+    oneOffSaleDetails.limitFrequency = undefined;
+
+    subscriptionDetails.frequency = undefined;
+    subscriptionDetails.priceKind = undefined;
+    subscriptionDetails.price = undefined;
+    subscriptionDetails.license = undefined;
+    subscriptionDetails.terms = undefined;
+    subscriptionDetails.limitNumber = undefined;
+    subscriptionDetails.limitFrequency = undefined;
+
+    investmentPlanDetails.title = undefined;
+    investmentPlanDetails.totalEqPercentage = undefined;
+    investmentPlanDetails.minEqPercentage = undefined;
+    investmentPlanDetails.eqPrice = undefined;
+    investmentPlanDetails.maxNoInvestors = undefined;
+
+    detailsOfNFT.price = undefined;
 };
 
 const switchWarningOpen = ref(false);
@@ -383,8 +378,6 @@ const saveInvestmentPlan = () => {
 const handleMonetizationClick = (value: string) => {
     switchWarningOpen.value = true;
     monetizationToSend.value = value;
-    resetMonetization();
-    emit('reset-monetization');
 };
 </script>
 
@@ -859,6 +852,7 @@ const handleMonetizationClick = (value: string) => {
                     class="w-20 flex justify-center"
                     @click="
                         emit('update:monetization-selection', monetizationToSend);
+                        resetMonetization();
                         emit('reset-monetization');
                         switchWarningOpen = false;
                     "
