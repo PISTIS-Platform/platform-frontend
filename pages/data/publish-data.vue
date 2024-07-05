@@ -358,16 +358,14 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
     <div v-show="selectedPage === 'select'" class="w-full h-full text-gray-700 space-y-8">
         <UCard v-for="dataset in dataSets" :key="dataset.id">
             <template #header>
-                <span class="font-bold">{{ dataset.title }}</span>
+                <div class="flex items-center w-full justify-between">
+                    <span class="font-bold">{{ dataset.title }}</span>
+                    <UButton @click="handleDatasetSelection(dataset)">{{ $t('select') }}</UButton>
+                </div>
             </template>
             <p>
                 {{ dataset.description }}
             </p>
-            <template #footer>
-                <div class="flex justify-end w-full">
-                    <UButton @click="handleDatasetSelection(dataset)">{{ $t('select') }}</UButton>
-                </div>
-            </template>
         </UCard>
     </div>
 
