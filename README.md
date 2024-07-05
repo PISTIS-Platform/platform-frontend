@@ -125,8 +125,8 @@ auth.globalAppMiddleware.isEnable: true
 ***Sample user to test***
 A demo user to test is:
 ```
-Username: 00_test
-Password: 00_test
+Username: 00-test
+Password: 00-test
 ```
 belonging to a the 00_TEST Group with the following attributes:
 ```
