@@ -147,26 +147,26 @@ const performingColumns = [
             <div class="flex flex-col w-1/2">
                 <div class="flex flex-row mr-6 mb-6">
                     <UCard class="mr-6 w-1/2">
-                        <p class="text-xl text-center font-bold">{{ t('market.overview.totalAssets') }}</p>
+                        <p class="text-center">{{ t('market.overview.totalAssets') }}</p>
                         <br />
-                        <p class="text-center">20000</p>
+                        <p class="text-xl text-center font-bold">20000</p>
                     </UCard>
                     <UCard class="w-1/2">
-                        <p class="text-xl text-center font-bold h-18">{{ t('market.overview.averageSales') }}</p>
+                        <p class="text-center h-18">{{ t('market.overview.averageSales') }}</p>
                         <br />
-                        <p class="text-center">20000</p></UCard
+                        <p class="text-xl font-bold text-center font-bold">20000</p></UCard
                     >
                 </div>
                 <div class="flex flex-row mr-6">
                     <UCard class="w-1/2 mr-6">
-                        <p class="text-xl text-center font-bold">{{ t('market.overview.totalMarketCap') }}</p>
+                        <p class="text-center">{{ t('market.overview.totalMarketCap') }}</p>
                         <br />
-                        <p class="text-center">20000</p>
+                        <p class="text-xl font-bold text-center">20000</p>
                     </UCard>
                     <UCard class="w-1/2">
-                        <p class="text-xl text-center font-bold">{{ t('market.overview.totalSales') }}</p>
+                        <p class="text-center">{{ t('market.overview.totalSales') }}</p>
                         <br />
-                        <p class="text-center">20000</p>
+                        <p class="text-xl font-bold text-center">20000</p>
                     </UCard>
                 </div>
             </div>
@@ -195,7 +195,7 @@ const performingColumns = [
             </div>
             <div class="flex flex-col h-full w-1/4">
                 <UCard class="w-full h-full">
-                    <p class="text-xl text-center font-bold">{{ t('market.overview.salesVolume') }}</p>
+                    <p class="text-lg text-center font-semibold">{{ t('market.overview.salesVolume') }}</p>
 
                     <div class="flex flex-col">
                         <div class="flex flex-row mb-4 mt-4 justify-between">
