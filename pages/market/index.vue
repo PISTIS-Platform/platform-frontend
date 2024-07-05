@@ -154,7 +154,7 @@ const performingColumns = [
                     <UCard class="w-1/2">
                         <p class="text-center h-18">{{ t('market.overview.averageSales') }}</p>
                         <br />
-                        <p class="text-xl font-bold text-center font-bold">20000</p></UCard
+                        <p class="text-xl font-bold text-center">20000</p></UCard
                     >
                 </div>
                 <div class="flex flex-row mr-6">
