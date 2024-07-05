@@ -32,7 +32,7 @@ const props = defineProps({
     },
 });
 
-const oneOffSaleDetails = reactive<OneOffSaleDetails>({
+let oneOffSaleDetails = reactive<OneOffSaleDetails>({
     priceKind: undefined,
     price: undefined,
     license: undefined,
@@ -41,7 +41,7 @@ const oneOffSaleDetails = reactive<OneOffSaleDetails>({
     limitFrequency: undefined,
 });
 
-const subscriptionDetails = reactive<SubscriptionDetails>({
+let subscriptionDetails = reactive<SubscriptionDetails>({
     frequency: undefined,
     priceKind: undefined,
     price: undefined,
@@ -51,7 +51,7 @@ const subscriptionDetails = reactive<SubscriptionDetails>({
     limitFrequency: undefined,
 });
 
-const investmentPlanDetails = reactive<InvestmentPlanDetails>({
+let investmentPlanDetails = reactive<InvestmentPlanDetails>({
     title: undefined,
     totalEqPercentage: undefined,
     minEqPercentage: undefined,
@@ -59,9 +59,39 @@ const investmentPlanDetails = reactive<InvestmentPlanDetails>({
     maxNoInvestors: undefined,
 });
 
-const detailsOfNFT = reactive<NFTDetails>({
+let detailsOfNFT = reactive<NFTDetails>({
     price: undefined,
 });
+
+const resetMonetization = () => {
+    oneOffSaleDetails = reactive({
+        priceKind: undefined,
+        price: undefined,
+        license: undefined,
+        terms: undefined,
+        limitNumber: undefined,
+        limitFrequency: undefined,
+    });
+    subscriptionDetails = reactive({
+        frequency: undefined,
+        priceKind: undefined,
+        price: undefined,
+        license: undefined,
+        terms: undefined,
+        limitNumber: undefined,
+        limitFrequency: undefined,
+    });
+    investmentPlanDetails = reactive({
+        title: undefined,
+        totalEqPercentage: undefined,
+        minEqPercentage: undefined,
+        eqPrice: undefined,
+        maxNoInvestors: undefined,
+    });
+    detailsOfNFT = reactive({
+        price: undefined,
+    });
+};
 
 const switchWarningOpen = ref(false);
 const monetizationToSend = ref();
@@ -353,6 +383,8 @@ const saveInvestmentPlan = () => {
 const handleMonetizationClick = (value: string) => {
     switchWarningOpen.value = true;
     monetizationToSend.value = value;
+    resetMonetization();
+    emit('reset-monetization');
 };
 </script>
 
