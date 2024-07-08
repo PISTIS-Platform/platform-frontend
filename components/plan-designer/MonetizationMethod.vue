@@ -38,7 +38,7 @@ const oneOffSaleSchema = z
                 message: oneOffIsFree.value ? '' : t('data.designer.priceHigherThanZero'),
             },
         ),
-        license: z.string(),
+        license: z.string().min(1, t('val.required')),
         terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
         limitNumber: z.coerce
             .number({ invalid_type_error: t('val.validNumber') })
@@ -68,7 +68,7 @@ const subscriptionSchema = z
                 message: subscriptionIsFree.value ? '' : t('data.designer.priceHigherThanZero'),
             },
         ),
-        license: z.string(),
+        license: z.string().min(1, t('val.required')),
         terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
         limitNumber: z.coerce
             .number({ invalid_type_error: t('val.validNumber') })
@@ -109,10 +109,10 @@ type monetizationType = z.infer<typeof monetizationSchema>;
 
 let monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
-    price: 0,
+    price: '',
     license: '',
     terms: '',
-    limitNumber: 0,
+    limitNumber: '',
     limitFrequency: '',
 });
 
@@ -122,20 +122,20 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
             type: 'one-off',
-            price: 0,
+            price: '',
             license: '',
             terms: '',
-            limitNumber: 0,
+            limitNumber: '',
             limitFrequency: '',
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
             type: 'subscription',
             frequency: '',
-            price: 0,
+            price: '',
             license: '',
             terms: '',
-            limitNumber: 0,
+            limitNumber: '',
             limitFrequency: '',
         };
     } else if (monetizationType === 'investment') {
@@ -143,7 +143,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     } else if (monetizationType === 'nft') {
         monetizationDetails.value = {
             type: 'nft',
-            price: undefined,
+            price: '',
         };
     }
     emit('update:monetization-details', monetizationDetails);

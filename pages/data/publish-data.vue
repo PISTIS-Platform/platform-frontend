@@ -158,8 +158,6 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
 </script>
 
 <template>
-    {{ monetizationDetails }}<br />
-    {{ isMonetizationValid }}
     <nav aria-label="Progress">
         <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0 mb-8">
             <li
