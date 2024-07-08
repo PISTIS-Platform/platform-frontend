@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
-import { MonetMethod } from '~/interfaces/monetization-method.enum';
 
 import type {
     AssetOfferingDetails,
@@ -77,42 +76,9 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
 
 // data for monetization selections
 
-const monetizationSelection = ref<string>(MonetMethod.ONE_OFF);
+const monetizationSelection = ref<string>('one-off');
 
-// one-off sale details
-const oneOffSaleDetails = ref<OneOffSaleDetails>({
-    priceKind: undefined,
-    price: undefined,
-    license: undefined,
-    terms: undefined,
-    limitNumber: undefined,
-    limitFrequency: undefined,
-});
-
-//subscription details
-const subscriptionDetails = ref<SubscriptionDetails>({
-    frequency: undefined,
-    priceKind: undefined,
-    price: undefined,
-    license: undefined,
-    terms: undefined,
-    limitNumber: undefined,
-    limitFrequency: undefined,
-});
-
-//NFT details
-const detailsOfNFT = ref<NFTDetails>({
-    price: undefined,
-});
-
-//investment plan details
-const investmentPlanDetails = ref<InvestmentPlanDetails>({
-    title: undefined,
-    totalEqPercentage: undefined,
-    minEqPercentage: undefined,
-    eqPrice: undefined,
-    maxNoInvestors: undefined,
-});
+const monetizationDetails = ref<OneOffSaleDetails | SubscriptionDetails | NFTDetails | InvestmentPlanDetails>();
 
 // validation data
 const isAssetOfferingDetailsValid = ref<boolean>(false);
@@ -122,109 +88,10 @@ const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetiz
 
 const submitAll = () => {
     let objToSend;
-
-    if (!isAllValid.value) return;
-
-    if (monetizationSelection.value === MonetMethod.ONE_OFF) {
-        objToSend = {
-            type: 'one-off',
-            price: oneOffSaleDetails.value.price,
-            assetId: selected.value.id,
-            //TODO: get sellerId from same API call for asset details?
-            seller: null,
-            downloadlimit: {
-                downloadtimes: oneOffSaleDetails.value.limitNumber,
-                downloadfrequency: oneOffSaleDetails.value.limitFrequency,
-                //TODO: What to put in until?
-                downloaduntil: null,
-            },
-            license: {
-                //TODO: Details for license?
-                userGroupId: null,
-                canResell: null,
-                canShare: null,
-                NumofShare: 0,
-                NumofResell: 0,
-                canEdit: null,
-                licenseTypes: oneOffSaleDetails.value.license, //says 'exclusive on POSTMAN body'
-            },
-        };
-    } else if (monetizationSelection.value === MonetMethod.SUBSCRIPTION) {
-        objToSend = {
-            type: 'subscription',
-            price: subscriptionDetails.value.price,
-            assetId: selected.value.id,
-            //TODO: Get sellerId from same API call for asset details?
-            seller: null,
-            subscriptionfrequency: subscriptionDetails.value.frequency,
-            downloadlimit: {
-                downloadtimes: subscriptionDetails.value.limitNumber,
-                downloadfrequency: subscriptionDetails.value.limitFrequency,
-                //TODO: What to put in until?
-                downloaduntil: null,
-            },
-            license: {
-                //TODO: details for license?
-                userGroupId: null,
-                canResell: null,
-                canShare: null,
-                NumofShare: 0,
-                NumofResell: 0,
-                canEdit: null,
-                licenseTypes: subscriptionDetails.value.license, //says 'exclusive' on POSTMAN body
-            },
-        };
-    }
+    //TODO: Figure out final form for each monetization method
 
     //TODO: Send final object / JSON to API (blockchain)
     return objToSend;
-};
-
-// clear data when switching selection of dataset
-
-const reset = () => {
-    selected.value = {
-        id: '',
-        title: '',
-        description: '',
-    };
-    completeOrQuery.value = 'Complete Dataset';
-    monetizationSelection.value = MonetMethod.ONE_OFF;
-    assetOfferingDetails.value = {
-        title: undefined,
-        description: undefined,
-        keywords: [],
-    };
-};
-
-const resetMonetization = () => {
-    oneOffSaleDetails.value = {
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    };
-    subscriptionDetails.value = {
-        frequency: undefined,
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    };
-    investmentPlanDetails.value = {
-        title: undefined,
-        totalEqPercentage: undefined,
-        minEqPercentage: undefined,
-        eqPrice: undefined,
-        maxNoInvestors: undefined,
-    };
-    detailsOfNFT.value = {
-        price: undefined,
-    };
 };
 
 const limitFrequencySelections = computed(() => [
@@ -291,6 +158,8 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
 </script>
 
 <template>
+    {{ monetizationDetails }}<br />
+    {{ isMonetizationValid }}
     <nav aria-label="Progress">
         <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0 mb-8">
             <li
@@ -375,7 +244,6 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
             :selected="selected"
             :complete-or-query="completeOrQuery"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
-            @reset="reset"
         />
 
         <AssetOfferingDetails
@@ -398,17 +266,12 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
         <MonetizationMethod
             :complete-or-query="completeOrQuery"
             :selected="selected"
-            :monetization-selection="monetizationSelection"
             :is-all-valid="isAllValid"
+            :monetization-selection="monetizationSelection"
             @update:monetization-selection="(value: string) => (monetizationSelection = value)"
-            @update:one-off-sale-details="(value: OneOffSaleDetails) => (oneOffSaleDetails = value)"
-            @update:subscription-details="(value: SubscriptionDetails) => (subscriptionDetails = value)"
-            @update:nft-details="(value: NFTDetails) => (detailsOfNFT = value)"
-            @update:investment-details="(value: InvestmentPlanDetails) => (investmentPlanDetails = value)"
+            @update:monetization-details="(value: typeof monetizationDetails) => (monetizationDetails = value)"
             @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
-            @reset-monetization="resetMonetization"
             @change-page="handleStepSelect"
-            @reset="reset"
         />
     </div>
 
@@ -453,7 +316,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                         :info="$t('data.designer.monetizationMethodInfo')"
                     />
                 </template>
-                <div v-if="monetizationSelection === MonetMethod.ONE_OFF" class="flex flex-col gap-8">
+                <div v-if="monetizationSelection === 'one-off'" class="flex flex-col gap-8">
                     <div class="flex items-start gap-8">
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{
@@ -465,32 +328,33 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                             <span class="text-sm font-semibold text-gray-400">{{
                                 $t('data.designer.oneOffPrice')
                             }}</span>
-                            <span>{{ oneOffSaleDetails.price + ' STC' || $t('data.designer.free') }}</span>
+                            <span>{{ monetizationDetails.price + ' STC' || $t('data.designer.free') }}</span>
                         </div>
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
-                            <span>{{ oneOffSaleDetails.license }}</span>
+                            <span>{{ monetizationDetails.license }}</span>
                         </div>
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{
                                 $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
                             }}</span>
                             <span>{{
-                                oneOffSaleDetails.limitNumber +
+                                monetizationDetails.limitNumber +
                                 ' ' +
                                 $t('times') +
                                 ' ' +
-                                limitFrequencySelections.find((item) => item.value === oneOffSaleDetails.limitFrequency)
-                                    ?.title
+                                limitFrequencySelections.find(
+                                    (item) => item.value === monetizationDetails.limitFrequency,
+                                )?.title
                             }}</span>
                         </div>
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ oneOffSaleDetails.terms }}</span>
+                        <span>{{ monetizationDetails.terms }}</span>
                     </div>
                 </div>
-                <div v-if="monetizationSelection === MonetMethod.SUBSCRIPTION" class="flex flex-col gap-8">
+                <div v-if="monetizationSelection === 'subscription'" class="flex flex-col gap-8">
                     <div class="flex items-start gap-8">
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{
@@ -505,10 +369,10 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                                 $t('data.designer.subscriptionFrequency')
                             }}</span>
                             <span>{{
-                                subscriptionDetails.price
-                                    ? subscriptionDetails.price +
+                                monetizationDetails.price
+                                    ? monetizationDetails.price +
                                       ' STC ' +
-                                      (subscriptionDetails.frequency === 'annual'
+                                      (monetizationDetails.frequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))
                                     : $t('data.designer.free')
@@ -516,26 +380,26 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                         </div>
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
-                            <span>{{ subscriptionDetails.license }}</span>
+                            <span>{{ monetizationDetails.license }}</span>
                         </div>
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{
                                 $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
                             }}</span>
                             <span>{{
-                                subscriptionDetails.limitNumber +
+                                monetizationDetails.limitNumber +
                                 ' ' +
                                 $t('times') +
                                 ' ' +
                                 limitFrequencySelections.find(
-                                    (item) => item.value === subscriptionDetails.limitFrequency,
+                                    (item) => item.value === monetizationDetails.limitFrequency,
                                 )?.title
                             }}</span>
                         </div>
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ subscriptionDetails.terms }}</span>
+                        <span>{{ monetizationDetails.terms }}</span>
                     </div>
                 </div>
                 <div class="w-full flex justify-between items-center mt-8">
