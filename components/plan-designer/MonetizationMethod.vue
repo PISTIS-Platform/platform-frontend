@@ -9,7 +9,7 @@ import { SubscriptionFrequency } from '~/interfaces/subscription-frequency.enum'
 const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
-defineProps({
+const props = defineProps({
     completeOrQuery: {
         type: String,
         required: true,
@@ -239,6 +239,14 @@ const handleMonetizationClick = (value: string) => {
     switchWarningOpen.value = true;
     monetizationToSend.value = value;
 };
+
+async function onSubmit(): Promise<void> {
+    if (props.isAllValid) {
+        emit('changePage', 'editor');
+    } else {
+        showErrorMessage(t('data.designer.pleaseCheck'));
+    }
+}
 </script>
 
 <template>
@@ -280,6 +288,7 @@ const handleMonetizationClick = (value: string) => {
                         class="flex flex-col w-full"
                         :state="monetizationDetailsState"
                         :schema="monetizationSchema"
+                        @submit="onSubmit"
                     >
                         <template v-if="monetizationDetails.type === 'one-off'">
                             <div class="flex flex-col space-y-5">
@@ -515,17 +524,9 @@ const handleMonetizationClick = (value: string) => {
                                 }}</UButton>
                             </div>
                         </template>
+                        <UButton class="px-4 py-2 order-last self-end mt-4" type="submit">{{ $t('next') }} </UButton>
                     </UForm>
                 </Transition>
-                <div class="flex w-full justify-end">
-                    <UButton
-                        class="px-4 py-2 order-last"
-                        @click="
-                            isAllValid ? emit('changePage', 'editor') : showErrorMessage(t('data.designer.pleaseCheck'))
-                        "
-                        >{{ $t('next') }}
-                    </UButton>
-                </div>
             </div>
         </UCard>
     </Transition>
