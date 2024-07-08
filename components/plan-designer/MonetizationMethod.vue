@@ -24,86 +24,7 @@ const props = defineProps({
     },
 });
 
-const oneOffIsFree = ref(false);
-const subscriptionIsFree = ref(false);
-
-const oneOffSaleSchema = z
-    .object({
-        type: z.literal('one-off'),
-        price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
-            (val) => {
-                return oneOffIsFree.value ? val === 0 : val > 0;
-            },
-            {
-                message: oneOffIsFree.value ? '' : t('data.designer.priceHigherThanZero'),
-            },
-        ),
-        license: z.string().min(1, t('val.required')),
-        terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
-        limitNumber: z.coerce
-            .number({ invalid_type_error: t('val.validNumber') })
-            .gte(0, t('val.zeroOrPositive'))
-            .refine(
-                (val) => {
-                    return val > 0;
-                },
-                {
-                    message: t('val.zeroOrPositive'),
-                },
-            ),
-        limitFrequency: z.string().min(1, t('val.required')),
-    })
-    .required();
-
-const subscriptionSchema = z
-    .object({
-        type: z.literal('subscription'),
-        frequency: z.string().min(1, t('val.required')),
-        // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
-        price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
-            (val) => {
-                return subscriptionIsFree.value ? val === 0 : val > 0;
-            },
-            {
-                message: subscriptionIsFree.value ? '' : t('data.designer.priceHigherThanZero'),
-            },
-        ),
-        license: z.string().min(1, t('val.required')),
-        terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
-        limitNumber: z.coerce
-            .number({ invalid_type_error: t('val.validNumber') })
-            .gte(0, t('val.zeroOrPositive'))
-            .refine(
-                (val) => {
-                    return val > 0;
-                },
-                {
-                    message: t('val.zeroOrPositive'),
-                },
-            ),
-        limitFrequency: z.string().min(1, t('val.required')),
-    })
-    .required();
-
-const investmentSchema = z
-    .object({
-        type: z.literal('investment'),
-        title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
-        totalEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-        minEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-        eqPrice: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-        maxNoInvestors: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-    })
-    .required();
-
-const NFTschema = z
-    .object({
-        type: z.literal('nft'),
-        price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
-    })
-    .required();
-
-const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema, investmentSchema, NFTschema]);
+const { isFree, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
@@ -212,9 +133,9 @@ emit('update:monetization-details', monetizationDetails);
 const form = ref();
 
 const updateFree = (value: boolean) => {
-    oneOffIsFree.value = value;
+    isFree.value = value;
 
-    if (oneOffIsFree.value) {
+    if (isFree.value) {
         monetizationDetails.value.price = 0;
 
         form.value.setErrors(
@@ -295,13 +216,13 @@ async function onSubmit(): Promise<void> {
                                         <UFormGroup
                                             :label="$t('data.designer.oneOffPrice')"
                                             class="flex-1"
-                                            :required="!oneOffIsFree"
+                                            :required="!isFree"
                                             name="price"
                                         >
                                             <UInput
                                                 v-model="monetizationDetails.price"
-                                                :class="oneOffIsFree ? 'opacity-50' : ''"
-                                                :disabled="oneOffIsFree"
+                                                :class="isFree ? 'opacity-50' : ''"
+                                                :disabled="isFree"
                                                 :placeholder="$t('data.designer.oneOffPrice')"
                                                 type="numeric"
                                             >
@@ -312,7 +233,7 @@ async function onSubmit(): Promise<void> {
                                         </UFormGroup>
                                         <UFormGroup :label="$t('data.designer.free')" name="free">
                                             <UCheckbox
-                                                :model-value="oneOffIsFree"
+                                                :model-value="isFree"
                                                 name="oneOffFree"
                                                 class="mt-2.5 flex-1 justify-center"
                                                 @update:model-value="(value: boolean) => updateFree(value)"
@@ -414,13 +335,13 @@ async function onSubmit(): Promise<void> {
                                             <UFormGroup
                                                 :label="$t('data.designer.subscriptionPrice')"
                                                 class="flex-1"
-                                                :required="!subscriptionIsFree"
+                                                :required="!isFree"
                                                 name="price"
                                             >
                                                 <UInput
                                                     v-model="monetizationDetails.price"
-                                                    :class="subscriptionIsFree ? 'opacity-50' : ''"
-                                                    :disabled="subscriptionIsFree"
+                                                    :class="isFree ? 'opacity-50' : ''"
+                                                    :disabled="isFree"
                                                     :placeholder="$t('data.designer.subscriptionPricePH')"
                                                     type="numeric"
                                                 >
@@ -431,7 +352,7 @@ async function onSubmit(): Promise<void> {
                                             </UFormGroup>
                                             <UFormGroup :label="$t('data.designer.free')" name="free">
                                                 <UCheckbox
-                                                    :model-value="subscriptionIsFree"
+                                                    :model-value="isFree"
                                                     name="subscriptionFree"
                                                     class="mt-2.5 flex-1 justify-center"
                                                     @update:model-value="(value: boolean) => updateFree(value)"
