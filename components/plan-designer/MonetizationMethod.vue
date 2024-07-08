@@ -116,8 +116,6 @@ let monetizationDetails = ref<Partial<monetizationType>>({
     limitFrequency: '',
 });
 
-const monetizationDetailsState = computed(() => reactive(monetizationDetails.value));
-
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
@@ -286,7 +284,7 @@ async function onSubmit(): Promise<void> {
                         ref="form"
                         :key="monetizationDetails.type"
                         class="flex flex-col w-full"
-                        :state="monetizationDetailsState"
+                        :state="monetizationDetails"
                         :schema="monetizationSchema"
                         @submit="onSubmit"
                     >
