@@ -32,6 +32,7 @@ export default defineNuxtConfig({
     },
 
     runtimeConfig: {
+        orgId: process.env.NUXT_ORGANISATION_ID,
         authSecret: process.env.NUXT_NEXTAUTH_SECRET,
         keycloak: {
             issuer: process.env.NUXT_KEYCLOAK_ISSUER,
