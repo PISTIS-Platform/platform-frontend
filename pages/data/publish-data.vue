@@ -326,7 +326,11 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                             <span class="text-sm font-semibold text-gray-400">{{
                                 $t('data.designer.oneOffPrice')
                             }}</span>
-                            <span>{{ monetizationDetails.price + ' STC' || $t('data.designer.free') }}</span>
+                            <span>{{
+                                monetizationDetails.price
+                                    ? monetizationDetails.price + ' STC'
+                                    : $t('data.designer.free')
+                            }}</span>
                         </div>
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
