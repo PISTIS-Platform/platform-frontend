@@ -373,7 +373,11 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                                       (monetizationDetails.frequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))
-                                    : $t('data.designer.free')
+                                    : $t('data.designer.free') +
+                                      ' - ' +
+                                      (monetizationDetails.frequency === 'annual'
+                                          ? $t('data.designer.annual')
+                                          : $t('data.designer.monthly'))
                             }}</span>
                         </div>
                         <div class="flex gap-2 flex-col">

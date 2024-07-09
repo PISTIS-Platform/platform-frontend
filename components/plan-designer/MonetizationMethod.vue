@@ -38,6 +38,7 @@ let monetizationDetails = ref<Partial<monetizationType>>({
 });
 
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
+    isFree.value = false;
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
             type: 'one-off',
