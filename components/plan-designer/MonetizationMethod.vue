@@ -14,34 +14,39 @@ const props = defineProps({
         type: Boolean,
         required: true,
     },
+    monDet: {
+        type: Object as PropType<Partial<monetizationType>>,
+        required: true,
+    },
 });
 
 const { isFree, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
-const monetizationDetails = ref<Partial<monetizationType>>({
-    type: 'one-off',
-    price: '',
-    license: '',
-    terms: '',
-    limitNumber: '',
-    limitFrequency: '',
+//use computed getter and setter to avoid prop mutation
+const monetizationDetails = computed({
+    get() {
+        return props.monDet;
+    },
+    set(newValue: Partial<monetizationType>) {
+        emit('update:monetization-details', newValue);
+    },
 });
 
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
     isFree.value = false;
     if (monetizationType === 'one-off') {
-        monetizationDetails.value = {
+        emit('update:monetization-details', {
             type: 'one-off',
             price: '',
             license: '',
             terms: '',
             limitNumber: '',
             limitFrequency: '',
-        };
+        });
     } else if (monetizationType === 'subscription') {
-        monetizationDetails.value = {
+        emit('update:monetization-details', {
             type: 'subscription',
             frequency: '',
             price: '',
@@ -49,16 +54,12 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             terms: '',
             limitNumber: '',
             limitFrequency: '',
-        };
+        });
     } else if (monetizationType === 'investment') {
         //TODO: Do once we know what goes here
     } else if (monetizationType === 'nft') {
-        monetizationDetails.value = {
-            type: 'nft',
-            price: '',
-        };
+        //TODO: Do once we know what goes here
     }
-    emit('update:monetization-details', monetizationDetails.value);
 };
 
 const switchWarningOpen = ref(false);
@@ -103,17 +104,16 @@ const limitFrequencySelections = computed(() => [
 
 const emit = defineEmits(['update:monetization-details', 'changePage']);
 
-watch(monetizationDetails, () => {
-    emit('update:monetization-details', monetizationDetails.value);
-});
-
 const form = ref();
 
 const updateFree = (value: boolean) => {
     isFree.value = value;
 
     if (isFree.value) {
-        monetizationDetails.value.price = 0;
+        emit('update:monetization-details', {
+            ...props.monetizationDetails,
+            price: 0,
+        });
 
         form.value.setErrors(
             form.value.getErrors().map((err: unknown) =>
