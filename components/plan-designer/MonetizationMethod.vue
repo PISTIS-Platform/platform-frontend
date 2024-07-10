@@ -30,14 +30,14 @@ const monetizationDetails = computed({
         return props.monDet;
     },
     set(newValue: Partial<monetizationType>) {
-        emit('update:monetization-details', newValue);
+        emit('update:mon-det', newValue);
     },
 });
 
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
     isFree.value = false;
     if (monetizationType === 'one-off') {
-        emit('update:monetization-details', {
+        emit('update:mon-det', {
             type: 'one-off',
             price: '',
             license: '',
@@ -46,7 +46,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             limitFrequency: '',
         });
     } else if (monetizationType === 'subscription') {
-        emit('update:monetization-details', {
+        emit('update:mon-det', {
             type: 'subscription',
             frequency: '',
             price: '',
@@ -102,7 +102,7 @@ const limitFrequencySelections = computed(() => [
     { title: t('perYear'), value: DownloadFrequency.YEAR },
 ]);
 
-const emit = defineEmits(['update:monetization-details', 'changePage']);
+const emit = defineEmits(['update:mon-det', 'changePage']);
 
 const form = ref();
 
@@ -110,7 +110,7 @@ const updateFree = (value: boolean) => {
     isFree.value = value;
 
     if (isFree.value) {
-        emit('update:monetization-details', {
+        emit('update:mon-det', {
             ...props.monetizationDetails,
             price: 0,
         });

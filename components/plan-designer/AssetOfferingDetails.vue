@@ -11,7 +11,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['update:asset-details', 'update:asset-keywords', 'isValid']);
+const emit = defineEmits(['update:asset-det', 'update:asset-keywords', 'isValid']);
 
 const schema = z.object({
     title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
@@ -24,7 +24,7 @@ const assetOfferingDetails = computed({
         return props.assetDet;
     },
     set(newValue) {
-        emit('update:asset-details', newValue);
+        emit('update:asset-det', newValue);
     },
 });
 
