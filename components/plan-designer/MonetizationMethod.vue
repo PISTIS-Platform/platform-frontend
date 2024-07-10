@@ -113,10 +113,6 @@ const isMonetizationValid = computed(() => {
     return monetizationSchema.safeParse(monetizationDetails.value).success;
 });
 
-watch(isMonetizationValid, () => {
-    emit('isMonetizationValid', isMonetizationValid.value);
-});
-
 const emit = defineEmits([
     'update:monetization-details',
     'update:monetization-selection',
@@ -126,7 +122,8 @@ const emit = defineEmits([
 ]);
 
 watch(monetizationDetails, () => {
-    emit('update:monetization-details', monetizationDetails);
+    emit('update:monetization-details', monetizationDetails.value);
+    emit('isMonetizationValid', isMonetizationValid.value);
 });
 
 emit('update:monetization-details', monetizationDetails);
