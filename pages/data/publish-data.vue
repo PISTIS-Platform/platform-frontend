@@ -19,27 +19,17 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
-//TODO: Get list of datasets from API call
-const dataSets: { id: string | number; title: string; description: string }[] = [
-    {
-        id: 1,
-        title: 'Dataset 1',
-        description:
-            '1Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id. Sed rhoncus, tortor sed eleifend tristique, tortor mauris molestie elit, et lacinia ipsum quam nec dui.',
-    },
-    {
-        id: 2,
-        title: 'Dataset 2',
-        description:
-            '1Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id. Sed rhoncus, tortor sed eleifend tristique, tortor mauris molestie elit, et lacinia ipsum quam nec dui.',
-    },
-    {
-        id: 3,
-        title: 'Dataset 3',
-        description:
-            '1Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id. Sed rhoncus, tortor sed eleifend tristique, tortor mauris molestie elit, et lacinia ipsum quam nec dui.',
-    },
-];
+const { data: allDatasets, pending: datasetsPending } = useFetch('/api/datasets/get-all');
+
+const datasetsTransformed = computed(() => {
+    if (!allDatasets.value?.result?.results?.length) return [];
+
+    return allDatasets.value.result.results.map((result) => ({
+        id: result.id,
+        title: result.title.en,
+        description: result.description.en,
+    }));
+});
 
 //data for selection whole dataset or query
 
@@ -219,9 +209,10 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
             </li>
         </ol>
     </nav>
+    <UProgress v-if="datasetsPending" animation="carousel" />
 
-    <div v-show="selectedPage === 'select'" class="w-full h-full text-gray-700 space-y-8">
-        <UCard v-for="dataset in dataSets" :key="dataset.id">
+    <div v-show="selectedPage === 'select' && !datasetsPending" class="w-full h-full text-gray-700 space-y-8">
+        <UCard v-for="dataset in datasetsTransformed" :key="dataset.id">
             <template #header>
                 <div class="flex items-center w-full justify-between">
                     <span class="font-bold">{{ dataset.title }}</span>
