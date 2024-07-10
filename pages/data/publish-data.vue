@@ -146,6 +146,8 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
 </script>
 
 <template>
+    {{ isAssetOfferingDetailsValid }}
+    {{ isMonetizationValid }}
     <nav aria-label="Progress">
         <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0 mb-8">
             <li
@@ -256,6 +258,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
             :selected="selected"
             :is-all-valid="isAllValid"
             @change-page="handleStepSelect"
+            @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
         />
     </div>
 
