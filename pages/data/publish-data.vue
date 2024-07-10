@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { z } from 'zod';
+
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
@@ -62,6 +64,17 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
     keywords: [],
 });
 
+const assetOfferingDetailsSchema = z.object({
+    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+});
+
+const isAssetOfferingDetailsValid = computed(
+    () =>
+        assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
+        assetOfferingDetails.value.keywords.length > 0,
+);
+
 // data for monetization selections
 
 const monetizationDetails = ref<OneOffSaleDetails | SubscriptionDetails | NFTDetails | InvestmentPlanDetails>({
@@ -78,7 +91,6 @@ const { monetizationSchema } = useMonetizationSchema();
 const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
 // validation data
-const isAssetOfferingDetailsValid = ref<boolean>(false);
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
 const submitAll = () => {
@@ -207,7 +219,6 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
         <AssetOfferingDetails
             v-model:asset-det="assetOfferingDetails"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
-            @is-valid="(value: boolean) => (isAssetOfferingDetailsValid = value)"
         />
 
         <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" />

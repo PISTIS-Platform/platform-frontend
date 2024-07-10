@@ -27,14 +27,6 @@ const assetOfferingDetails = computed({
         emit('update:asset-det', newValue);
     },
 });
-
-const isValid = computed(
-    () => schema.safeParse(assetOfferingDetails.value).success && assetOfferingDetails.value.keywords.length > 0,
-);
-
-watch(isValid, () => {
-    emit('isValid', isValid.value);
-});
 </script>
 
 <template>
