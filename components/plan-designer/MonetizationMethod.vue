@@ -66,7 +66,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             price: '',
         };
     }
-    emit('update:monetization-details', monetizationDetails);
+    emit('update:monetization-details', monetizationDetails.value);
 };
 
 const switchWarningOpen = ref(false);
