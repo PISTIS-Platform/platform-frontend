@@ -260,11 +260,10 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
         />
 
         <MonetizationMethod
+            v-model:monetization-details="monetizationDetails"
             :complete-or-query="completeOrQuery"
             :selected="selected"
             :is-all-valid="isAllValid"
-            @update:monetization-details="(value: typeof monetizationDetails) => (monetizationDetails = value)"
-            @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @change-page="handleStepSelect"
         />
     </div>
