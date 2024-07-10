@@ -223,7 +223,6 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
 
         <MonetizationMethod
             v-model:monetization-details="monetizationDetails"
-            :complete-or-query="completeOrQuery"
             :is-all-valid="isAllValid"
             @change-page="(value: number) => (selectedPage = value)"
         />

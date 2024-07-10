@@ -10,10 +10,6 @@ const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
 const props = defineProps({
-    completeOrQuery: {
-        type: String,
-        required: true,
-    },
     isAllValid: {
         type: Boolean,
         required: true,
@@ -105,21 +101,10 @@ const limitFrequencySelections = computed(() => [
     { title: t('perYear'), value: DownloadFrequency.YEAR },
 ]);
 
-const isMonetizationValid = computed(() => {
-    return monetizationSchema.safeParse(monetizationDetails.value).success;
-});
+const emit = defineEmits(['update:monetization-details', 'changePage']);
 
-const emit = defineEmits([
-    'update:monetization-details',
-    'update:monetization-selection',
-    'isMonetizationValid',
-    'reset-monetization',
-    'changePage',
-]);
-
-watch([monetizationDetails, isMonetizationValid], () => {
+watch(monetizationDetails, () => {
     emit('update:monetization-details', monetizationDetails.value);
-    emit('isMonetizationValid', isMonetizationValid.value);
 });
 
 const form = ref();
@@ -169,7 +154,7 @@ async function onSubmit(): Promise<void> {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery">
+        <UCard>
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.monetizationMethod')"
