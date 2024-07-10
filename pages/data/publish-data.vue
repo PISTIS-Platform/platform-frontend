@@ -10,8 +10,6 @@ import type {
     SubscriptionDetails,
 } from '../../interfaces/plan-designer';
 
-const { showErrorMessage } = useAlertMessage();
-
 const { t } = useI18n();
 
 //data for selected dataset
@@ -66,12 +64,21 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
 
 // data for monetization selections
 
-const monetizationDetails = ref<OneOffSaleDetails | SubscriptionDetails | NFTDetails | InvestmentPlanDetails>();
+const monetizationDetails = ref<OneOffSaleDetails | SubscriptionDetails | NFTDetails | InvestmentPlanDetails>({
+    type: 'one-off',
+    price: '',
+    license: '',
+    terms: '',
+    limitNumber: '',
+    limitFrequency: '',
+});
+
+const { monetizationSchema } = useMonetizationSchema();
+
+const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
 // validation data
 const isAssetOfferingDetailsValid = ref<boolean>(false);
-const isMonetizationValid = ref<boolean>(false);
-
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
 const submitAll = () => {
@@ -90,58 +97,21 @@ const limitFrequencySelections = computed(() => [
     { title: t('perYear'), value: DownloadFrequency.YEAR },
 ]);
 
-const steps = [
-    { id: '1', name: t('data.designer.nav.selectDataset'), href: 'select', status: 'current' },
-    { id: '2', name: t('data.designer.nav.monetizationPlanner'), href: 'planner', status: 'upcoming' },
-    { id: '3', name: t('data.designer.nav.accessPoliciesEditor'), href: 'editor', status: 'upcoming' },
-    { id: '4', name: t('data.designer.nav.preview'), href: 'preview', status: 'upcoming' },
-];
+const steps = computed(() => [
+    { name: t('data.designer.nav.selectDataset'), isActive: true },
+    { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value },
+    { name: t('data.designer.nav.accessPoliciesEditor'), isActive: selected.value && isAllValid.value },
+    //TODO: Add extra check for completed access policies info
+    { name: t('data.designer.nav.preview'), isActive: selected.value && isAllValid.value },
+]);
 
-const selectedPage = ref('select'); //other value is 'preview'
-
-const handleStepSelect = (href: string) => {
-    const index = steps.findIndex((item) => item.href === href);
-
-    switch (index) {
-        case 0:
-            selectedPage.value = href;
-            break;
-        case 1:
-            if (selected.value) {
-                selectedPage.value = href;
-            } else {
-                showErrorMessage(t('data.designer.pleaseSelectDataset'));
-            }
-            break;
-        case 2:
-            if (selected.value && isAllValid.value) {
-                selectedPage.value = href;
-            }
-            break;
-        case 3:
-            //TODO: Check both step 3 and if the access policies editor is ready
-            if (selected.value && isAllValid.value) {
-                selectedPage.value = href;
-            }
-            break;
-    }
-
-    for (let i = 0; i < steps.length; i++) {
-        if (i < index) {
-            steps[i].status = 'complete';
-        } else if (i === index) {
-            steps[i].status = 'current';
-        } else {
-            steps[i].status = 'upcoming';
-        }
-    }
-};
+const selectedPage = ref(0);
 
 const handleDatasetSelection = (dataset: { id: string | number; title: string; description: string }) => {
     selected.value = dataset;
     assetOfferingDetails.value.title = selected.value.title;
     assetOfferingDetails.value.description = selected.value.description;
-    handleStepSelect('planner');
+    selectedPage.value = 1;
 };
 </script>
 
@@ -152,9 +122,10 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                 v-for="(step, stepIdx) in steps"
                 :key="step.name"
                 class="relative md:flex md:flex-1 cursor-pointer"
-                @click="handleStepSelect(step.href)"
+                :class="step.isActive ? '' : 'pointer-events-none'"
+                @click="selectedPage = stepIdx"
             >
-                <a v-if="step.status === 'complete'" class="group flex w-full items-center">
+                <a v-if="selectedPage > stepIdx" class="group flex w-full items-center">
                     <span class="flex items-center px-6 py-4 text-sm font-medium">
                         <span
                             class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white group-hover:bg-indigo-800"
@@ -165,14 +136,14 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                     </span>
                 </a>
                 <a
-                    v-else-if="step.status === 'current'"
+                    v-else-if="selectedPage === stepIdx"
                     class="flex items-center px-6 py-4 text-sm font-medium"
                     aria-current="step"
                 >
                     <span
                         class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-indigo-600"
                     >
-                        <span class="text-indigo-600">{{ step.id }}</span>
+                        <span class="text-indigo-600">{{ stepIdx + 1 }}</span>
                     </span>
                     <span class="ml-4 text-sm font-medium text-indigo-600">{{ step.name }}</span>
                 </a>
@@ -181,7 +152,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                         <span
                             class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 group-hover:border-gray-400"
                         >
-                            <span class="text-gray-500 group-hover:text-gray-900">{{ step.id }}</span>
+                            <span class="text-gray-500 group-hover:text-gray-900">{{ stepIdx + 1 }}</span>
                         </span>
                         <span class="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">{{
                             step.name
@@ -211,7 +182,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
     </nav>
     <UProgress v-if="datasetsPending" animation="carousel" />
 
-    <div v-show="selectedPage === 'select' && !datasetsPending" class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 0 && !datasetsPending" class="w-full h-full text-gray-700 space-y-8">
         <UCard v-for="dataset in datasetsTransformed" :key="dataset.id">
             <template #header>
                 <div class="flex items-center w-full justify-between">
@@ -225,7 +196,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
         </UCard>
     </div>
 
-    <div v-show="selectedPage === 'planner'" class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             v-if="selected"
             :selected="selected"
@@ -253,17 +224,15 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
         <MonetizationMethod
             v-model:monetization-details="monetizationDetails"
             :complete-or-query="completeOrQuery"
-            :selected="selected"
             :is-all-valid="isAllValid"
-            @change-page="handleStepSelect"
-            @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
+            @change-page="(value: number) => (selectedPage = value)"
         />
     </div>
 
-    <div v-show="selectedPage === 'editor'">Access policies editor</div>
+    <div v-show="selectedPage === 2">Access policies editor</div>
 
     <div v-if="isAllValid">
-        <div v-show="selectedPage === 'preview'" class="w-full h-full text-gray-700 space-y-8">
+        <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">
             <UCard v-if="completeOrQuery && selected?.title">
                 <template #header>
                     <SubHeading
@@ -396,7 +365,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                     </div>
                 </div>
                 <div class="w-full flex justify-between items-center mt-8">
-                    <UButton size="md" color="gray" variant="outline" @click="handleStepSelect('editor')">
+                    <UButton size="md" color="gray" variant="outline" @click="selectedPage = 2">
                         {{ $t('back') }}
                     </UButton>
                     <UButton class="px-4 py-2" @click="submitAll">

@@ -153,7 +153,7 @@ const handleMonetizationClick = (value: string) => {
 
 async function onSubmit(): Promise<void> {
     if (props.isAllValid) {
-        emit('changePage', 'editor');
+        emit('changePage', 2);
     } else {
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
@@ -432,7 +432,12 @@ async function onSubmit(): Promise<void> {
                                 }}</UButton>
                             </div>
                         </template>
-                        <UButton class="px-4 py-2 order-last self-end mt-4" type="submit">{{ $t('next') }} </UButton>
+                        <div class="w-full flex items-center justify-between mt-4">
+                            <UButton size="md" color="gray" variant="outline" @click="emit('changePage', 0)">
+                                {{ $t('back') }}
+                            </UButton>
+                            <UButton size="md" type="submit">{{ $t('next') }} </UButton>
+                        </div>
                     </UForm>
                 </Transition>
             </div>
