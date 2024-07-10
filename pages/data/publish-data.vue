@@ -210,12 +210,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
             @is-valid="(value: boolean) => (isAssetOfferingDetailsValid = value)"
         />
 
-        <FairSuggestions
-            v-model="fairValuationInfo"
-            :loading-valuation="loadingValuation"
-            :selected="selected"
-            :complete-or-query="completeOrQuery"
-        />
+        <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" />
 
         <MonetizationMethod
             v-model:mon-det="monetizationDetails"
