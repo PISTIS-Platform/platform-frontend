@@ -205,11 +205,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
         />
 
         <AssetOfferingDetails
-            :selected="selected"
-            :asset-offering-details="assetOfferingDetails"
-            :complete-or-query="completeOrQuery"
-            @update:asset-title="(value: string) => (assetOfferingDetails.title = value)"
-            @update:asset-description="(value: string) => (assetOfferingDetails.description = value)"
+            v-model:asset-det="assetOfferingDetails"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
             @is-valid="(value: boolean) => (isAssetOfferingDetailsValid = value)"
         />
