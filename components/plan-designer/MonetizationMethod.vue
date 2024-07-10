@@ -186,10 +186,7 @@ async function onSubmit(): Promise<void> {
                 <SelectionCards
                     :model-value="monetizationSelection"
                     :selections="monetizationSelections"
-                    @update:model-value="
-                        (value: string) =>
-                            value === 'nft' || value === 'investment' ? null : handleMonetizationClick(value)
-                    "
+                    @update:model-value="(value: string) => handleMonetizationClick(value)"
                 />
                 <Transition
                     enter-active-class="duration-300 ease-out"
