@@ -28,7 +28,7 @@ const { isFree, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
-let monetizationDetails = ref<Partial<monetizationType>>({
+const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
     price: '',
     license: '',
