@@ -14,10 +14,6 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    monetizationSelection: {
-        type: String,
-        required: true,
-    },
     isAllValid: {
         type: Boolean,
         required: true,
@@ -121,12 +117,10 @@ const emit = defineEmits([
     'changePage',
 ]);
 
-watch(monetizationDetails, () => {
+watch([monetizationDetails, isMonetizationValid], () => {
     emit('update:monetization-details', monetizationDetails.value);
     emit('isMonetizationValid', isMonetizationValid.value);
 });
-
-emit('update:monetization-details', monetizationDetails);
 
 const form = ref();
 
@@ -184,7 +178,7 @@ async function onSubmit(): Promise<void> {
             </template>
             <div class="space-y-5">
                 <SelectionCards
-                    :model-value="monetizationSelection"
+                    :model-value="monetizationDetails.type"
                     :selections="monetizationSelections"
                     @update:model-value="(value: string) => handleMonetizationClick(value)"
                 />
@@ -416,11 +410,11 @@ async function onSubmit(): Promise<void> {
                             </div>
                         </template>
 
-                        <template v-if="monetizationSelection === 'investment'">
+                        <template v-if="monetizationDetails.type === 'investment'">
                             <!--TODO: Figure out what goes here when investment gets activated-->
                         </template>
 
-                        <template v-if="monetizationSelection === 'nft'">
+                        <template v-if="monetizationDetails.type === 'nft'">
                             <div class="flex flex-col space-y-5">
                                 <UFormGroup :label="$t('data.designer.nftPrice')" required name="price">
                                     <UInput

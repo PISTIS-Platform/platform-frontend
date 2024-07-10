@@ -76,8 +76,6 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
 
 // data for monetization selections
 
-const monetizationSelection = ref<string>('one-off');
-
 const monetizationDetails = ref<OneOffSaleDetails | SubscriptionDetails | NFTDetails | InvestmentPlanDetails>();
 
 // validation data
@@ -265,8 +263,6 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
             :complete-or-query="completeOrQuery"
             :selected="selected"
             :is-all-valid="isAllValid"
-            :monetization-selection="monetizationSelection"
-            @update:monetization-selection="(value: string) => (monetizationSelection = value)"
             @update:monetization-details="(value: typeof monetizationDetails) => (monetizationDetails = value)"
             @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
             @change-page="handleStepSelect"
@@ -314,7 +310,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                         :info="$t('data.designer.monetizationMethodInfo')"
                     />
                 </template>
-                <div v-if="monetizationSelection === 'one-off'" class="flex flex-col gap-8">
+                <div v-if="monetizationDetails.type === 'one-off'" class="flex flex-col gap-8">
                     <div class="flex items-start gap-8">
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{
@@ -356,7 +352,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                         <span>{{ monetizationDetails.terms }}</span>
                     </div>
                 </div>
-                <div v-if="monetizationSelection === 'subscription'" class="flex flex-col gap-8">
+                <div v-if="monetizationDetails.type === 'subscription'" class="flex flex-col gap-8">
                     <div class="flex items-start gap-8">
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{
