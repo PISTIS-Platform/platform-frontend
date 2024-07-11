@@ -111,7 +111,7 @@ const updateFree = (value: boolean) => {
 
     if (isFree.value) {
         emit('update:mon-det', {
-            ...props.monetizationDetails,
+            ...monetizationDetails.value,
             price: 0,
         });
 
