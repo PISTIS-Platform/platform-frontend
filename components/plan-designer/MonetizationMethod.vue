@@ -114,6 +114,11 @@ const updateFree = (value: boolean) => {
             ...monetizationDetails.value,
             price: 0,
         });
+    } else {
+        emit('update:mon-det', {
+            ...monetizationDetails.value,
+            price: '',
+        });
     }
 };
 
