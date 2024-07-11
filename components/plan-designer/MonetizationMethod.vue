@@ -104,7 +104,7 @@ const limitFrequencySelections = computed(() => [
 
 const emit = defineEmits(['update:mon-det', 'changePage']);
 
-const form = ref();
+const formRef = ref();
 
 const updateFree = (value: boolean) => {
     isFree.value = value;
@@ -114,20 +114,6 @@ const updateFree = (value: boolean) => {
             ...monetizationDetails.value,
             price: 0,
         });
-
-        form.value.setErrors(
-            form.value.getErrors().map((err: unknown) =>
-                form.path === 'price'
-                    ? {
-                          message: '',
-                          path: 'price',
-                      }
-                    : {
-                          message: err.message,
-                          path: err.path,
-                      },
-            ),
-        );
     }
 };
 
@@ -176,7 +162,7 @@ async function onSubmit(): Promise<void> {
                     leave-to-class="transform opacity-0"
                 >
                     <UForm
-                        ref="form"
+                        ref="formRef"
                         :key="monetizationDetails.type"
                         class="flex flex-col w-full"
                         :state="monetizationDetails"
@@ -204,6 +190,17 @@ async function onSubmit(): Promise<void> {
                                                     <span class="text-gray-500 text-xs">STC</span>
                                                 </template>
                                             </UInput>
+                                            <template #error="{ error }">
+                                                <span
+                                                    :class="[
+                                                        error
+                                                            ? 'text-red-500 dark:text-red-400'
+                                                            : 'text-primary-500 dark:text-primary-400',
+                                                    ]"
+                                                >
+                                                    {{ isFree ? '' : error }}
+                                                </span>
+                                            </template>
                                         </UFormGroup>
                                         <UFormGroup :label="$t('data.designer.free')" name="free">
                                             <UCheckbox
@@ -323,6 +320,17 @@ async function onSubmit(): Promise<void> {
                                                         <span class="text-gray-500 text-xs">STC</span>
                                                     </template>
                                                 </UInput>
+                                                <template #error="{ error }">
+                                                    <span
+                                                        :class="[
+                                                            error
+                                                                ? 'text-red-500 dark:text-red-400'
+                                                                : 'text-primary-500 dark:text-primary-400',
+                                                        ]"
+                                                    >
+                                                        {{ isFree ? '' : error }}
+                                                    </span>
+                                                </template>
                                             </UFormGroup>
                                             <UFormGroup :label="$t('data.designer.free')" name="free">
                                                 <UCheckbox
