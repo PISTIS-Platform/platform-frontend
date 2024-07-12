@@ -151,7 +151,7 @@ async function onSubmit(): Promise<void> {
             </template>
             <div class="space-y-5">
                 <SelectionCards
-                    :model-value="monetizationDetails.type"
+                    :model-value="monetizationDetails.type || ''"
                     :selections="monetizationSelections"
                     @update:model-value="(value: string) => handleMonetizationClick(value)"
                 />

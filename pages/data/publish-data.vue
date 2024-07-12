@@ -13,12 +13,12 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
-const { data: allDatasets, pending: datasetsPending } = useFetch('/api/datasets/get-all');
+const { data: allDatasets, pending: datasetsPending } = useFetch<Record<string, any>>('/api/datasets/get-all');
 
 const datasetsTransformed = computed(() => {
     if (!allDatasets.value?.result?.results?.length) return [];
 
-    return allDatasets.value.result.results.map((result) => ({
+    return allDatasets.value.result.results.map((result: Record<string, any>) => ({
         id: result.id,
         title: result.title.en,
         description: result.description.en,
