@@ -41,20 +41,20 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
             type: 'one-off',
-            price: '',
+            price: undefined,
             license: '',
             terms: '',
-            limitNumber: '',
+            limitNumber: undefined,
             limitFrequency: '',
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
             type: 'subscription',
             frequency: '',
-            price: '',
+            price: undefined,
             license: '',
             terms: '',
-            limitNumber: '',
+            limitNumber: undefined,
             limitFrequency: '',
         };
     } else if (monetizationType === 'investment') {
@@ -115,7 +115,7 @@ const updateFree = (value: boolean) => {
     if (isFree.value) {
         monetizationDetails.value.price = 0;
     } else {
-        monetizationDetails.value.price = '';
+        monetizationDetails.value.price = undefined;
     }
 };
 
@@ -405,28 +405,12 @@ async function onSubmit(): Promise<void> {
                             </div>
                         </template>
 
-                        <template v-if="monetizationDetails.type === 'investment'">
-                            <!--TODO: Figure out what goes here when investment gets activated-->
+                        <!-- <template v-if="monetizationDetails.type === 'investment'">
                         </template>
 
                         <template v-if="monetizationDetails.type === 'nft'">
-                            <div class="flex flex-col space-y-5">
-                                <UFormGroup :label="$t('data.designer.nftPrice')" required name="price">
-                                    <UInput
-                                        v-model="monetizationDetails.price"
-                                        :placeholder="$t('price')"
-                                        type="numeric"
-                                    >
-                                        <template #trailing>
-                                            <span class="text-gray-500 text-xs">STC</span>
-                                        </template>
-                                    </UInput>
-                                </UFormGroup>
-                                <UButton color="white" class="w-40 flex items-center justify-center">{{
-                                    $t('data.designer.generateNFT')
-                                }}</UButton>
-                            </div>
-                        </template>
+                        </template> -->
+
                         <div class="w-full flex items-center justify-between mt-4">
                             <UButton size="md" color="gray" variant="outline" @click="emit('changePage', 0)">
                                 {{ $t('back') }}

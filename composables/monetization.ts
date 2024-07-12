@@ -62,25 +62,7 @@ export const useMonetizationSchema = () => {
         })
         .required();
 
-    const investmentSchema = z
-        .object({
-            type: z.literal('investment'),
-            title: z.string().min(10, t('val.atLeastNumberChars', { count: 10 })),
-            totalEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-            minEqPercentage: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-            eqPrice: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-            maxNoInvestors: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.positive')),
-        })
-        .required();
-
-    const NFTschema = z
-        .object({
-            type: z.literal('nft'),
-            price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gte(0, t('val.zeroOrPositive')),
-        })
-        .required();
-
-    const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema, investmentSchema, NFTschema]);
+    const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema]);
 
     return {
         isFree,

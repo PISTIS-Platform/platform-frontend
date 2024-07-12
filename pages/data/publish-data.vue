@@ -77,10 +77,10 @@ type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
-    price: '',
+    price: undefined,
     license: '',
     terms: '',
-    limitNumber: '',
+    limitNumber: undefined,
     limitFrequency: '',
 });
 
