@@ -4,13 +4,7 @@ import { z } from 'zod';
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
-import type {
-    AssetOfferingDetails,
-    InvestmentPlanDetails,
-    NFTDetails,
-    OneOffSaleDetails,
-    SubscriptionDetails,
-} from '../../interfaces/plan-designer';
+import type { AssetOfferingDetails } from '../../interfaces/plan-designer';
 
 const { t } = useI18n();
 
@@ -77,7 +71,11 @@ const isAssetOfferingDetailsValid = computed(
 
 // data for monetization selections
 
-const monetizationDetails = ref<OneOffSaleDetails | SubscriptionDetails | NFTDetails | InvestmentPlanDetails>({
+const { isFree, monetizationSchema } = useMonetizationSchema();
+
+type monetizationType = z.infer<typeof monetizationSchema>;
+
+const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
     price: '',
     license: '',
@@ -85,8 +83,6 @@ const monetizationDetails = ref<OneOffSaleDetails | SubscriptionDetails | NFTDet
     limitNumber: '',
     limitFrequency: '',
 });
-
-const { isFree, monetizationSchema } = useMonetizationSchema();
 
 const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
