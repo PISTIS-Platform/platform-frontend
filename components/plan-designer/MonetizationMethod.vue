@@ -113,15 +113,9 @@ const updateFree = (value: boolean) => {
     emit('update:is-free', value);
 
     if (isFree.value) {
-        monetizationDetails.value = {
-            ...monetizationDetails.value,
-            price: 0,
-        };
+        monetizationDetails.value.price = 0;
     } else {
-        monetizationDetails.value = {
-            ...monetizationDetails.value,
-            price: '',
-        };
+        monetizationDetails.value.price = '';
     }
 };
 
