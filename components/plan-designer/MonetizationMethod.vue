@@ -449,7 +449,6 @@ async function onSubmit(): Promise<void> {
                 <UButton
                     class="w-20 flex justify-center"
                     @click="
-                        emit('update:monetization-selection', monetizationToSend);
                         resetMonetization(monetizationToSend);
                         switchWarningOpen = false;
                     "
