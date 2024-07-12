@@ -5,13 +5,13 @@ import { z } from 'zod';
 const { t } = useI18n();
 
 const props = defineProps({
-    assetDet: {
+    assetDetailsProp: {
         type: Object,
         required: true,
     },
 });
 
-const emit = defineEmits(['update:asset-det', 'update:asset-keywords', 'isValid']);
+const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid']);
 
 const schema = z.object({
     title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
@@ -21,10 +21,10 @@ const schema = z.object({
 //use computed getter and setter to avoid prop mutation
 const assetOfferingDetails = computed({
     get() {
-        return props.assetDet;
+        return props.assetDetailsProp;
     },
     set(newValue) {
-        emit('update:asset-det', newValue);
+        emit('update:asset-details-prop', newValue);
     },
 });
 </script>

@@ -14,7 +14,7 @@ const props = defineProps({
         type: Boolean,
         required: true,
     },
-    monDet: {
+    monetizationDetailsProp: {
         type: Object as PropType<Partial<monetizationType>>,
         required: true,
     },
@@ -27,26 +27,28 @@ type monetizationType = z.infer<typeof monetizationSchema>;
 //use computed getter and setter to avoid prop mutation
 const monetizationDetails = computed({
     get() {
-        return props.monDet;
+        return props.monetizationDetailsProp;
     },
     set(newValue: Partial<monetizationType>) {
-        emit('update:mon-det', newValue);
+        emit('update:monetization-details-prop', newValue);
     },
 });
 
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
     isFree.value = false;
+    emit('update:is-free', false);
+
     if (monetizationType === 'one-off') {
-        emit('update:mon-det', {
+        monetizationDetails.value = {
             type: 'one-off',
             price: '',
             license: '',
             terms: '',
             limitNumber: '',
             limitFrequency: '',
-        });
+        };
     } else if (monetizationType === 'subscription') {
-        emit('update:mon-det', {
+        monetizationDetails.value = {
             type: 'subscription',
             frequency: '',
             price: '',
@@ -54,7 +56,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             terms: '',
             limitNumber: '',
             limitFrequency: '',
-        });
+        };
     } else if (monetizationType === 'investment') {
         //TODO: Do once we know what goes here
     } else if (monetizationType === 'nft') {
@@ -102,23 +104,24 @@ const limitFrequencySelections = computed(() => [
     { title: t('perYear'), value: DownloadFrequency.YEAR },
 ]);
 
-const emit = defineEmits(['update:mon-det', 'changePage']);
+const emit = defineEmits(['update:monetization-details-prop', 'update:is-free', 'changePage']);
 
 const formRef = ref();
 
 const updateFree = (value: boolean) => {
     isFree.value = value;
+    emit('update:is-free', value);
 
     if (isFree.value) {
-        emit('update:mon-det', {
+        monetizationDetails.value = {
             ...monetizationDetails.value,
             price: 0,
-        });
+        };
     } else {
-        emit('update:mon-det', {
+        monetizationDetails.value = {
             ...monetizationDetails.value,
             price: '',
-        });
+        };
     }
 };
 

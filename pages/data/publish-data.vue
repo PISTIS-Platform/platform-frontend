@@ -86,7 +86,7 @@ const monetizationDetails = ref<OneOffSaleDetails | SubscriptionDetails | NFTDet
     limitFrequency: '',
 });
 
-const { monetizationSchema } = useMonetizationSchema();
+const { isFree, monetizationSchema } = useMonetizationSchema();
 
 const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
@@ -217,16 +217,17 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
         />
 
         <AssetOfferingDetails
-            v-model:asset-det="assetOfferingDetails"
+            v-model:asset-details-prop="assetOfferingDetails"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
         />
 
         <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" />
 
         <MonetizationMethod
-            v-model:mon-det="monetizationDetails"
+            v-model:monetization-details-prop="monetizationDetails"
             :is-all-valid="isAllValid"
             @change-page="(value: number) => (selectedPage = value)"
+            @update:is-free="(value: boolean) => (isFree = value)"
         />
     </div>
 
