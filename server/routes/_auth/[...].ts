@@ -28,6 +28,10 @@ const getPistisRoles = (profile: any) => {
     return profile.realm_access.roles.filter((role: string) => PistisRoles.includes(role)) || [];
 };
 
+const getUserOrgId = (profile: any) => {
+    return profile.pistis.group.id || '';
+};
+
 async function refreshAccessToken(token: JWT) {
     try {
         if (!token.refresh_token) return token;
@@ -80,7 +84,9 @@ export const authOptions = {
                 token.provider = account.provider;
                 token.access_token = account.access_token;
                 token.refresh_token = account.refresh_token;
-                token.roles = getPistisRoles(jwtDecode(account.access_token));
+                const decodedJWT = jwtDecode(account.access_token);
+                token.roles = getPistisRoles(decodedJWT);
+                token.orgId = getUserOrgId(decodedJWT);
                 if (account.expires_at) {
                     token.expires_at = (account.expires_at - 15) * 1000;
                 }
@@ -98,6 +104,7 @@ export const authOptions = {
             if (token?.error === 'RefreshAccessTokenError') return Promise.resolve(null);
 
             session.roles = token.roles;
+            session.orgId = token.orgId;
             session.user = {
                 ...session.user,
                 ...token,

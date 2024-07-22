@@ -32,6 +32,10 @@ export default defineNuxtConfig({
     },
 
     runtimeConfig: {
+        public: {
+            orgId: process.env.NUXT_ORGANISATION_ID,
+        },
+        orgId: process.env.NUXT_ORGANISATION_ID,
         authSecret: process.env.NUXT_NEXTAUTH_SECRET,
         keycloak: {
             issuer: process.env.NUXT_KEYCLOAK_ISSUER,
@@ -42,10 +46,6 @@ export default defineNuxtConfig({
         marketInsightsUrl: process.env.NUXT_MARKET_INSIGHTS_URL,
         anonymizerApiUrl: process.env.ANONYMIZER_URL,
         intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
-
-        // public: {
-        //     appUrl: '',
-        // },
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
