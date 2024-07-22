@@ -1,33 +1,33 @@
 <script setup lang="ts">
+import { z } from 'zod';
+
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
-import { MonetMethod } from '~/interfaces/monetization-method.enum';
 
-import type {
-    AssetOfferingDetails,
-    InvestmentPlanDetails,
-    NFTDetails,
-    OneOffSaleDetails,
-    SubscriptionDetails,
-} from '../../interfaces/plan-designer';
+import type { AssetOfferingDetails } from '../../interfaces/plan-designer';
 
 const { t } = useI18n();
 
 //data for selected dataset
 
 //TODO: Get ID and data to pass down to DatasetSelector from API call
-const selected = ref<{ id: string | number; title: string; description: string }>({
-    id: 1,
-    title: 'Dataset 1',
-    description:
-        '1Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, ac blandit elit tincidunt id. Sed rhoncus, tortor sed eleifend tristique, tortor mauris molestie elit, et lacinia ipsum quam nec dui.',
+const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
+
+const { data: allDatasets, pending: datasetsPending } = useFetch<Record<string, any>>('/api/datasets/get-all');
+
+const datasetsTransformed = computed(() => {
+    if (!allDatasets.value?.result?.results?.length) return [];
+
+    return allDatasets.value.result.results.map((result: Record<string, any>) => ({
+        id: result.id,
+        title: result.title.en,
+        description: result.description.en,
+    }));
 });
 
 //data for selection whole dataset or query
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
-
-const selectedPage = ref('planner'); //other value is 'preview'
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
@@ -53,193 +53,48 @@ const loadingValuation = ref(false);
 // data for asset offering details
 
 const assetOfferingDetails = ref<AssetOfferingDetails>({
-    title: selected.value.title,
-    description: selected.value.description,
+    title: undefined,
+    description: undefined,
     keywords: [],
 });
 
+const assetOfferingDetailsSchema = z.object({
+    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+});
+
+const isAssetOfferingDetailsValid = computed(
+    () =>
+        assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
+        assetOfferingDetails.value.keywords.length > 0,
+);
+
 // data for monetization selections
 
-const monetizationSelection = ref<string>(MonetMethod.ONE_OFF);
+const { isFree, monetizationSchema } = useMonetizationSchema();
 
-// one-off sale details
-const oneOffSaleDetails = ref<OneOffSaleDetails>({
-    priceKind: undefined,
+type monetizationType = z.infer<typeof monetizationSchema>;
+
+const monetizationDetails = ref<Partial<monetizationType>>({
+    type: 'one-off',
     price: undefined,
-    license: undefined,
-    terms: undefined,
+    license: '',
+    terms: '',
     limitNumber: undefined,
-    limitFrequency: undefined,
+    limitFrequency: '',
 });
 
-//subscription details
-const subscriptionDetails = ref<SubscriptionDetails>({
-    frequency: undefined,
-    priceKind: undefined,
-    price: undefined,
-    license: undefined,
-    terms: undefined,
-    limitNumber: undefined,
-    limitFrequency: undefined,
-});
-
-//NFT details
-const detailsOfNFT = ref<NFTDetails>({
-    price: undefined,
-});
-
-//investment plan details
-const investmentPlanDetails = ref<InvestmentPlanDetails>({
-    title: undefined,
-    totalEqPercentage: undefined,
-    minEqPercentage: undefined,
-    eqPrice: undefined,
-    maxNoInvestors: undefined,
-});
+const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
 // validation data
-const isAssetOfferingDetailsValid = ref<boolean>(false);
-const isMonetizationValid = ref<boolean>(false);
-
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
-
-const changePage = (value: string) => {
-    console.log('CHANGE');
-    selectedPage.value = value;
-};
 
 const submitAll = () => {
     let objToSend;
-
-    if (!isAllValid.value) return;
-
-    if (monetizationSelection.value === MonetMethod.ONE_OFF) {
-        objToSend = {
-            type: 'one-off',
-            price: oneOffSaleDetails.value.price,
-            assetId: selected.value.id,
-            //TODO: get sellerId from same API call for asset details?
-            seller: null,
-            downloadlimit: {
-                downloadtimes: oneOffSaleDetails.value.limitNumber,
-                downloadfrequency: oneOffSaleDetails.value.limitFrequency,
-                //TODO: What to put in until?
-                downloaduntil: null,
-            },
-            license: {
-                //TODO: Details for license?
-                userGroupId: null,
-                canResell: null,
-                canShare: null,
-                NumofShare: 0,
-                NumofResell: 0,
-                canEdit: null,
-                licenseTypes: oneOffSaleDetails.value.license, //says 'exclusive on POSTMAN body'
-            },
-        };
-    } else if (monetizationSelection.value === MonetMethod.SUBSCRIPTION) {
-        objToSend = {
-            type: 'subscription',
-            price: subscriptionDetails.value.price,
-            assetId: selected.value.id,
-            //TODO: Get sellerId from same API call for asset details?
-            seller: null,
-            subscriptionfrequency: subscriptionDetails.value.frequency,
-            downloadlimit: {
-                downloadtimes: subscriptionDetails.value.limitNumber,
-                downloadfrequency: subscriptionDetails.value.limitFrequency,
-                //TODO: What to put in until?
-                downloaduntil: null,
-            },
-            license: {
-                //TODO: details for license?
-                userGroupId: null,
-                canResell: null,
-                canShare: null,
-                NumofShare: 0,
-                NumofResell: 0,
-                canEdit: null,
-                licenseTypes: subscriptionDetails.value.license, //says 'exclusive' on POSTMAN body
-            },
-        };
-    }
+    //TODO: Figure out final form for each monetization method
 
     //TODO: Send final object / JSON to API (blockchain)
     return objToSend;
-};
-
-// clear data when switching selection of dataset
-
-const reset = () => {
-    selected.value = {
-        id: '',
-        title: '',
-        description: '',
-    };
-    completeOrQuery.value = 'Complete Dataset';
-    monetizationSelection.value = MonetMethod.ONE_OFF;
-    assetOfferingDetails.value = {
-        title: undefined,
-        description: undefined,
-        keywords: [],
-    };
-    oneOffSaleDetails.value = {
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    };
-    subscriptionDetails.value = {
-        frequency: undefined,
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    };
-    investmentPlanDetails.value = {
-        title: undefined,
-        totalEqPercentage: undefined,
-        minEqPercentage: undefined,
-        eqPrice: undefined,
-        maxNoInvestors: undefined,
-    };
-    detailsOfNFT.value = {
-        price: undefined,
-    };
-};
-
-const resetMonetization = () => {
-    oneOffSaleDetails.value = {
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    };
-    subscriptionDetails.value = {
-        frequency: undefined,
-        priceKind: undefined,
-        price: undefined,
-        license: undefined,
-        terms: undefined,
-        limitNumber: undefined,
-        limitFrequency: undefined,
-    };
-    investmentPlanDetails.value = {
-        title: undefined,
-        totalEqPercentage: undefined,
-        minEqPercentage: undefined,
-        eqPrice: undefined,
-        maxNoInvestors: undefined,
-    };
-    detailsOfNFT.value = {
-        price: undefined,
-    };
 };
 
 const limitFrequencySelections = computed(() => [
@@ -249,70 +104,133 @@ const limitFrequencySelections = computed(() => [
     { title: t('perMonth'), value: DownloadFrequency.MONTH },
     { title: t('perYear'), value: DownloadFrequency.YEAR },
 ]);
+
+const steps = computed(() => [
+    { name: t('data.designer.nav.selectDataset'), isActive: true },
+    { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value },
+    { name: t('data.designer.nav.accessPoliciesEditor'), isActive: selected.value && isAllValid.value },
+    //TODO: Add extra check for completed access policies info
+    { name: t('data.designer.nav.preview'), isActive: selected.value && isAllValid.value },
+]);
+
+const selectedPage = ref(0);
+
+const handleDatasetSelection = (dataset: { id: string | number; title: string; description: string }) => {
+    selected.value = dataset;
+    assetOfferingDetails.value.title = selected.value.title;
+    assetOfferingDetails.value.description = selected.value.description;
+    selectedPage.value = 1;
+};
 </script>
 
 <template>
-    <div v-show="selectedPage === 'planner'" class="w-full h-full text-gray-700 space-y-8">
+    <nav aria-label="Progress">
+        <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0 mb-8">
+            <li
+                v-for="(step, stepIdx) in steps"
+                :key="step.name"
+                class="relative md:flex md:flex-1 cursor-pointer"
+                :class="step.isActive ? '' : 'pointer-events-none'"
+                @click="selectedPage = stepIdx"
+            >
+                <a v-if="selectedPage > stepIdx" class="group flex w-full items-center">
+                    <span class="flex items-center px-6 py-4 text-sm font-medium">
+                        <span
+                            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white group-hover:bg-indigo-800"
+                        >
+                            <UIcon name="i-fa6-regular-circle-check" class="text-white h-5 w-5" />
+                        </span>
+                        <span class="ml-4 text-sm font-medium text-gray-900">{{ step.name }}</span>
+                    </span>
+                </a>
+                <a
+                    v-else-if="selectedPage === stepIdx"
+                    class="flex items-center px-6 py-4 text-sm font-medium"
+                    aria-current="step"
+                >
+                    <span
+                        class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-indigo-600"
+                    >
+                        <span class="text-indigo-600">{{ stepIdx + 1 }}</span>
+                    </span>
+                    <span class="ml-4 text-sm font-medium text-indigo-600">{{ step.name }}</span>
+                </a>
+                <a v-else class="group flex items-center">
+                    <span class="flex items-center px-6 py-4 text-sm font-medium">
+                        <span
+                            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 group-hover:border-gray-400"
+                        >
+                            <span class="text-gray-500 group-hover:text-gray-900">{{ stepIdx + 1 }}</span>
+                        </span>
+                        <span class="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">{{
+                            step.name
+                        }}</span>
+                    </span>
+                </a>
+                <template v-if="stepIdx !== steps.length - 1">
+                    <!-- Arrow separator for lg screens and up -->
+                    <div class="absolute right-0 top-0 hidden h-full w-5 md:block" aria-hidden="true">
+                        <svg
+                            class="h-full w-full text-gray-300"
+                            viewBox="0 0 22 80"
+                            fill="none"
+                            preserveAspectRatio="none"
+                        >
+                            <path
+                                d="M0 -2L20 40L0 82"
+                                vector-effect="non-scaling-stroke"
+                                stroke="currentcolor"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                    </div>
+                </template>
+            </li>
+        </ol>
+    </nav>
+    <UProgress v-if="datasetsPending" animation="carousel" />
+
+    <div v-show="selectedPage === 0 && !datasetsPending" class="w-full h-full text-gray-700 space-y-8">
+        <UCard v-for="dataset in datasetsTransformed" :key="dataset.id">
+            <template #header>
+                <div class="flex items-center w-full justify-between">
+                    <span class="font-bold">{{ dataset.title }}</span>
+                    <UButton @click="handleDatasetSelection(dataset)">{{ $t('select') }}</UButton>
+                </div>
+            </template>
+            <p>
+                {{ dataset.description }}
+            </p>
+        </UCard>
+    </div>
+
+    <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
+            v-if="selected"
             :selected="selected"
             :complete-or-query="completeOrQuery"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
-            @reset="reset"
         />
 
         <AssetOfferingDetails
-            :selected="selected"
-            :asset-offering-details="assetOfferingDetails"
-            :complete-or-query="completeOrQuery"
-            @update:asset-title="(value: string) => (assetOfferingDetails.title = value)"
-            @update:asset-description="(value: string) => (assetOfferingDetails.description = value)"
+            v-model:asset-details-prop="assetOfferingDetails"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
-            @is-valid="(value: boolean) => (isAssetOfferingDetailsValid = value)"
         />
 
-        <FairSuggestions
-            v-model="fairValuationInfo"
-            :loading-valuation="loadingValuation"
-            :selected="selected"
-            :complete-or-query="completeOrQuery"
-        />
+        <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" />
 
         <MonetizationMethod
-            :complete-or-query="completeOrQuery"
-            :selected="selected"
-            :monetization-selection="monetizationSelection"
-            :one-off-sale-details="oneOffSaleDetails"
-            :subscription-details="subscriptionDetails"
-            :investment-plan-details="investmentPlanDetails"
-            :details-of-n-f-t="detailsOfNFT"
+            v-model:monetization-details-prop="monetizationDetails"
             :is-all-valid="isAllValid"
-            @update:monetization-selection="(value: string) => (monetizationSelection = value)"
-            @update:oneoff-price="(value: number) => (oneOffSaleDetails.price = value)"
-            @update:oneoff-license="(value: string) => (oneOffSaleDetails.license = value)"
-            @update:oneoff-terms="(value: string) => (oneOffSaleDetails.terms = value)"
-            @update:oneoff-limit-number="(value: number) => (oneOffSaleDetails.limitNumber = value)"
-            @update:oneoff-limit-frequency="(value: string) => (oneOffSaleDetails.limitFrequency = value)"
-            @update:sub-frequency="(value: string) => (subscriptionDetails.frequency = value)"
-            @update:sub-price="(value: number) => (subscriptionDetails.price = value)"
-            @update:sub-license="(value: string) => (subscriptionDetails.license = value)"
-            @update:sub-terms="(value: string) => (subscriptionDetails.terms = value)"
-            @update:sub-limit-number="(value: number) => (subscriptionDetails.limitNumber = value)"
-            @update:sub-limit-frequency="(value: string) => (subscriptionDetails.limitFrequency = value)"
-            @update:plan-title="(value: string) => (investmentPlanDetails.title = value)"
-            @update:plan-total-eq-percentage="(value: number) => (investmentPlanDetails.totalEqPercentage = value)"
-            @update:plan-min-eq-percentage="(value: number) => (investmentPlanDetails.minEqPercentage = value)"
-            @update:plan-eq-price="(value: number) => (investmentPlanDetails.eqPrice = value)"
-            @update:plan-max-no-investors="(value: number) => (investmentPlanDetails.maxNoInvestors = value)"
-            @update:nft-price="(value: number) => (detailsOfNFT.price = value)"
-            @is-monetization-valid="(value: boolean) => (isMonetizationValid = value)"
-            @reset-monetization="resetMonetization"
-            @change-page="changePage"
-            @reset="reset"
+            @change-page="(value: number) => (selectedPage = value)"
+            @update:is-free="(value: boolean) => (isFree = value)"
         />
     </div>
 
+    <div v-show="selectedPage === 2">Access policies editor</div>
+
     <div v-if="isAllValid">
-        <div v-show="selectedPage === 'preview'" class="w-full h-full text-gray-700 space-y-8">
+        <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">
             <UCard v-if="completeOrQuery && selected?.title">
                 <template #header>
                     <SubHeading
@@ -350,84 +268,102 @@ const limitFrequencySelections = computed(() => [
                         :info="$t('data.designer.monetizationMethodInfo')"
                     />
                 </template>
-                <div v-if="monetizationSelection === MonetMethod.ONE_OFF" class="flex flex-col gap-8">
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.monetizationMethod')
-                        }}</span>
-                        <span>{{ $t('data.designer.oneOffSale') }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.oneOffPrice') }}</span>
-                        <span>{{ oneOffSaleDetails.price + ' STC' || $t('data.designer.free') }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
-                        <span>{{ oneOffSaleDetails.license }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
-                        }}</span>
-                        <span>{{
-                            oneOffSaleDetails.limitNumber +
-                            ' ' +
-                            $t('times') +
-                            ' ' +
-                            limitFrequencySelections.find((item) => item.value === oneOffSaleDetails.limitFrequency)
-                                .title
-                        }}</span>
+                <div v-if="monetizationDetails.type === 'one-off'" class="flex flex-col gap-8">
+                    <div class="flex items-start gap-8">
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.monetizationMethod')
+                            }}</span>
+                            <span>{{ $t('data.designer.oneOffSale') }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.oneOffPrice')
+                            }}</span>
+                            <span>{{
+                                monetizationDetails.price
+                                    ? monetizationDetails.price + ' STC'
+                                    : $t('data.designer.free')
+                            }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
+                            <span>{{ monetizationDetails.license }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
+                            }}</span>
+                            <span>{{
+                                monetizationDetails.limitNumber +
+                                ' ' +
+                                $t('times') +
+                                ' ' +
+                                limitFrequencySelections.find(
+                                    (item) => item.value === monetizationDetails.limitFrequency,
+                                )?.title
+                            }}</span>
+                        </div>
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ oneOffSaleDetails.terms }}</span>
+                        <span>{{ monetizationDetails.terms }}</span>
                     </div>
                 </div>
-                <div v-if="monetizationSelection === MonetMethod.SUBSCRIPTION" class="flex flex-col gap-8">
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.monetizationMethod')
-                        }}</span>
-                        <span>{{ $t('data.designer.subscription') }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.subscriptionPrice') + ' & ' + $t('data.designer.subscriptionFrequency')
-                        }}</span>
-                        <span>{{
-                            subscriptionDetails.price
-                                ? subscriptionDetails.price +
-                                  ' STC ' +
-                                  (subscriptionDetails.frequency === 'annual'
-                                      ? $t('data.designer.annual')
-                                      : $t('data.designer.monthly'))
-                                : $t('data.designer.free')
-                        }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
-                        <span>{{ subscriptionDetails.license }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
-                        }}</span>
-                        <span>{{
-                            subscriptionDetails.limitNumber +
-                            ' ' +
-                            $t('times') +
-                            ' ' +
-                            limitFrequencySelections.find((item) => item.value === subscriptionDetails.limitFrequency)
-                                .title
-                        }}</span>
+                <div v-if="monetizationDetails.type === 'subscription'" class="flex flex-col gap-8">
+                    <div class="flex items-start gap-8">
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.monetizationMethod')
+                            }}</span>
+                            <span>{{ $t('data.designer.subscription') }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.subscriptionPrice') +
+                                ' & ' +
+                                $t('data.designer.subscriptionFrequency')
+                            }}</span>
+                            <span>{{
+                                monetizationDetails.price
+                                    ? monetizationDetails.price +
+                                      ' STC ' +
+                                      (monetizationDetails.frequency === 'annual'
+                                          ? $t('data.designer.annual')
+                                          : $t('data.designer.monthly'))
+                                    : $t('data.designer.free') +
+                                      ' - ' +
+                                      (monetizationDetails.frequency === 'annual'
+                                          ? $t('data.designer.annual')
+                                          : $t('data.designer.monthly'))
+                            }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
+                            <span>{{ monetizationDetails.license }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{
+                                $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
+                            }}</span>
+                            <span>{{
+                                monetizationDetails.limitNumber +
+                                ' ' +
+                                $t('times') +
+                                ' ' +
+                                limitFrequencySelections.find(
+                                    (item) => item.value === monetizationDetails.limitFrequency,
+                                )?.title
+                            }}</span>
+                        </div>
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ subscriptionDetails.terms }}</span>
+                        <span>{{ monetizationDetails.terms }}</span>
                     </div>
                 </div>
                 <div class="w-full flex justify-between items-center mt-8">
-                    <UButton size="md" color="gray" variant="outline" @click="selectedPage = 'planner'">
+                    <UButton size="md" color="gray" variant="outline" @click="selectedPage = 2">
                         {{ $t('back') }}
                     </UButton>
                     <UButton class="px-4 py-2" @click="submitAll">

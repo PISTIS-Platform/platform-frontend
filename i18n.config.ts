@@ -18,6 +18,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            select: 'Select',
             search: 'Search...',
             addNew: 'Add new',
             cancel: 'Cancel',
@@ -35,6 +36,7 @@ export default defineI18nConfig(() => ({
             termsConditions: 'Terms and conditions',
             keywords: 'Keywords',
             times: 'times',
+            perHour: 'per hour',
             perDay: 'per day',
             perWeek: 'per week',
             perMonth: 'per month',
@@ -76,6 +78,13 @@ export default defineI18nConfig(() => ({
             data: {
                 data: 'My Data',
                 designer: {
+                    nav: {
+                        selectDataset: 'Select Dataset',
+                        monetizationPlanner: 'Monetization Planner',
+                        accessPoliciesEditor: 'Access Policies Editor',
+                        preview: 'Preview',
+                    },
+                    pleaseSelectDataset: 'Please select a dataset',
                     free: 'Free',
                     paid: 'Paid',
                     priceHigherThanZero: 'Price needs to be higher than zero',
@@ -91,8 +100,8 @@ export default defineI18nConfig(() => ({
                     willReset: 'Any configuration you have made will be reset',
                     searchDataset: 'Search for a dataset...',
                     selectSearchDataset: 'Select / search for a dataset',
-                    assetTitle: 'Asset Title',
-                    assetDescription: 'Asset Description',
+                    assetTitle: 'Title',
+                    assetDescription: 'Description',
                     atLeastNumberChars: 'Must be at least {count} characters',
                     assetOfferingDetails: 'Asset Offering Details',
                     assetOfferingDetailsInfo:
@@ -146,6 +155,7 @@ export default defineI18nConfig(() => ({
                     saveInvestmentPlan: 'Save Investment Plan',
                     monthly: 'Monthly',
                     annual: 'Annual',
+                    pleaseCheck: 'Please check the form and fill in all required (*) fields',
                 },
                 log: 'Data Log',
                 wallet: {

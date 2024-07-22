@@ -5,29 +5,27 @@ import { z } from 'zod';
 const { t } = useI18n();
 
 const props = defineProps({
-    assetOfferingDetails: {
+    assetDetailsProp: {
         type: Object,
         required: true,
     },
-    completeOrQuery: {
-        type: String,
-        required: true,
-    },
 });
+
+const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid']);
 
 const schema = z.object({
     title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
     description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
 });
 
-const emit = defineEmits(['update:asset-title', 'update:asset-description', 'update:asset-keywords', 'isValid']);
-
-const isValid = computed(
-    () => schema.safeParse(props.assetOfferingDetails).success && props.assetOfferingDetails.keywords.length > 0,
-);
-
-watch(isValid, () => {
-    emit('isValid', isValid.value);
+//use computed getter and setter to avoid prop mutation
+const assetOfferingDetails = computed({
+    get() {
+        return props.assetDetailsProp;
+    },
+    set(newValue) {
+        emit('update:asset-details-prop', newValue);
+    },
 });
 </script>
 
@@ -40,7 +38,7 @@ watch(isValid, () => {
         leave-from-class="opacity-100"
         leave-to-class="transform opacity-0"
     >
-        <UCard v-if="completeOrQuery">
+        <UCard>
             <template #header>
                 <SubHeading
                     :title="$t('data.designer.assetOfferingDetails')"
@@ -49,21 +47,17 @@ watch(isValid, () => {
             </template>
             <UForm class="flex flex-col space-y-5 w-full" :state="assetOfferingDetails" :schema="schema">
                 <UFormGroup :label="$t('title')" required name="title">
-                    <UInput
-                        :model-value="assetOfferingDetails.title"
-                        :placeholder="$t('data.designer.titleOfAsset')"
-                        @update:model-value="(value: string) => emit('update:asset-title', value)"
-                    />
+                    <UInput v-model="assetOfferingDetails.title" :placeholder="$t('data.designer.titleOfAsset')" />
                 </UFormGroup>
                 <UFormGroup :label="$t('description')" required name="description">
                     <UTextarea
-                        :model-value="assetOfferingDetails.description"
+                        v-model="assetOfferingDetails.description"
                         :placeholder="$t('data.designer.descriptionOfAsset')"
                         icon="i-heroicons-envelope"
-                        @update:model-value="(value: string) => emit('update:asset-description', value)"
                     />
                 </UFormGroup>
                 <UFormGroup :label="$t('keywords')" required>
+                    <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->
                     <vue3-tags-input
                         :tags="assetOfferingDetails.keywords"
                         :placeholder="assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')"

@@ -143,34 +143,34 @@ const performingColumns = [
 <template>
     <PageContainer>
         <RollingAssetsBar v-if="assets" :assets="assets" />
-        <div class="flex flex-row w-full mt-4">
+        <div class="flex flex-row w-full mt-6">
             <div class="flex flex-col w-1/2">
-                <div class="flex flex-row mr-2 mb-2">
-                    <UCard class="mr-2 w-1/2">
-                        <p class="text-xl text-center font-bold">{{ t('market.overview.totalAssets') }}</p>
+                <div class="flex flex-row mr-6 mb-6">
+                    <UCard class="mr-6 w-1/2">
+                        <p class="text-center">{{ t('market.overview.totalAssets') }}</p>
                         <br />
-                        <p class="text-center">20000</p>
+                        <p class="text-xl text-center font-bold">20000</p>
                     </UCard>
                     <UCard class="w-1/2">
-                        <p class="text-xl text-center font-bold h-18">{{ t('market.overview.averageSales') }}</p>
+                        <p class="text-center h-18">{{ t('market.overview.averageSales') }}</p>
                         <br />
-                        <p class="text-center">20000</p></UCard
+                        <p class="text-xl font-bold text-center">20000</p></UCard
                     >
                 </div>
-                <div class="flex flex-row mr-2">
-                    <UCard class="w-1/2 mr-2">
-                        <p class="text-xl text-center font-bold">{{ t('market.overview.totalMarketCap') }}</p>
+                <div class="flex flex-row mr-6">
+                    <UCard class="w-1/2 mr-6">
+                        <p class="text-center">{{ t('market.overview.totalMarketCap') }}</p>
                         <br />
-                        <p class="text-center">20000</p>
+                        <p class="text-xl font-bold text-center">20000</p>
                     </UCard>
                     <UCard class="w-1/2">
-                        <p class="text-xl text-center font-bold">{{ t('market.overview.totalSales') }}</p>
+                        <p class="text-center">{{ t('market.overview.totalSales') }}</p>
                         <br />
-                        <p class="text-center">20000</p>
+                        <p class="text-xl font-bold text-center">20000</p>
                     </UCard>
                 </div>
             </div>
-            <div class="flex flex-col w-1/4 mr-1">
+            <div class="flex flex-col w-1/4 mr-6">
                 <UCard class="w-full h-full">
                     <TimeframeSelector
                         class="w-full mb-8"
@@ -195,7 +195,7 @@ const performingColumns = [
             </div>
             <div class="flex flex-col h-full w-1/4">
                 <UCard class="w-full h-full">
-                    <p class="text-xl text-center font-bold">{{ t('market.overview.salesVolume') }}</p>
+                    <p class="text-center font-semibold">{{ t('market.overview.salesVolume') }}</p>
 
                     <div class="flex flex-col">
                         <div class="flex flex-row mb-4 mt-4 justify-between">
@@ -217,7 +217,7 @@ const performingColumns = [
             </div>
         </div>
 
-        <div class="w-full mt-4">
+        <div class="w-full">
             <ChartContainer :title="$t('market.overview.timeline')" class="mt-6 h-96">
                 <template #right-header>
                     <div class="flex items-center gap-6">
@@ -235,7 +235,7 @@ const performingColumns = [
             </ChartContainer>
         </div>
 
-        <div class="w-full mt-4">
+        <div class="w-full">
             <ChartContainer :title="$t('market.overview.topPerforming')" class="mt-6 mr-4">
                 <template #right-header>
                     <TimeframeSelector
@@ -264,7 +264,7 @@ const performingColumns = [
                 />
             </ChartContainer>
         </div>
-        <div class="w-full mt-4">
+        <div class="w-full">
             <ChartContainer :title="$t('market.overview.worstPerforming')" class="mt-6">
                 <template #right-header>
                     <TimeframeSelector
@@ -293,7 +293,7 @@ const performingColumns = [
                 />
             </ChartContainer>
         </div>
-        <div class="w-full mt-4">
+        <div class="w-full">
             <ChartContainer :title="$t('market.overview.latestTransactions')" class="mt-6">
                 <template #right-header>
                     <USelectMenu v-model="selectedSector" size="md" :options="sectors" class="ml-6" />

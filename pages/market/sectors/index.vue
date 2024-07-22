@@ -254,8 +254,8 @@ const topPerformingAssets = computed(() => {
         <SubHeading :title="$t('market.sectors.overview')" />
 
         <!-- Sectors Cards-->
-        <div class="flex justify-between gap-6 items-center mt-8 w-full">
-            <div v-if="loadingSectorsBasicInfo" class="flex justify-start w-full gap-8">
+        <div class="flex justify-between gap-6 items-center mt-6 w-full">
+            <div v-if="loadingSectorsBasicInfo" class="flex justify-start w-full gap-6">
                 <USkeleton
                     v-for="item in new Array(3)"
                     :key="item"
@@ -281,7 +281,7 @@ const topPerformingAssets = computed(() => {
         </div>
 
         <!-- Sectors Stacked Bar Chart-->
-        <ChartContainer v-if="sectorsSales" :title="$t('market.sectors.allSectorsSales')" class="mt-8">
+        <ChartContainer v-if="sectorsSales" :title="$t('market.sectors.allSectorsSales')" class="mt-6">
             <template #right-header>
                 <TimeframeSelector v-model="sectorsSalesTimeframeSelection" is-interval></TimeframeSelector>
             </template>
@@ -290,7 +290,7 @@ const topPerformingAssets = computed(() => {
         </ChartContainer>
 
         <!-- Moving averages -->
-        <ChartContainer v-if="stackedLineOptions" :title="$t('market.sectors.movingAverages')" class="mt-8">
+        <ChartContainer v-if="stackedLineOptions" :title="$t('market.sectors.movingAverages')" class="mt-6">
             <template #right-header>
                 <div class="flex justify-end items-center gap-4">
                     <span class="text-sm ml-2">{{ $t('compareBy') }}:</span>
@@ -308,7 +308,7 @@ const topPerformingAssets = computed(() => {
         </ChartContainer>
 
         <!-- Pie charts , right and left -->
-        <div class="flex justify-between items-center gap-6 mt-8 w-full">
+        <div class="flex justify-between items-center gap-6 mt-6 w-full">
             <ChartContainer
                 v-if="pieChartsMarketCapOptions"
                 :title="$t('market.sectors.totalSalesPerSector')"
@@ -326,7 +326,7 @@ const topPerformingAssets = computed(() => {
         </div>
 
         <!-- Assets Performance by sector-->
-        <div v-if="sectors && sectors.length" class="flex flex-col gap-8 w-full mt-8">
+        <div v-if="sectors && sectors.length" class="flex flex-col gap-6 w-full mt-6">
             <!-- Title and Sector Selection -->
             <div class="flex justify-between">
                 <SubHeading :title="$t('market.sectors.assetsPerformanceBySector')" />
@@ -342,7 +342,7 @@ const topPerformingAssets = computed(() => {
         </div>
 
         <!-- Top Performing Assets -->
-        <div v-if="sectors && sectors.length" class="flex flex-col gap-8 w-full mt-8">
+        <div v-if="sectors && sectors.length" class="flex flex-col gap-6 w-full mt-6">
             <SubHeading :title="$t('market.sectors.topPerformingAssets')" />
 
             <TopPerformingAssetsList :assets-list="topPerformingAssets"></TopPerformingAssetsList>

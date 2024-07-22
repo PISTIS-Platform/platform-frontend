@@ -13,9 +13,7 @@ const route = useRoute();
 
 const firstLevelRoutePath = route.fullPath.split('/')[1];
 
-const { signIn, signOut, data: session } = useAuth();
-
-const status = 'authenticated'; //TODO: Remove this and add status to useAuth exports after keycloak is in place
+const { status, signIn, signOut, data: session } = useAuth();
 
 useHead({
     htmlAttrs: { class: 'min-h-full bg-gray-100' },
