@@ -17,6 +17,7 @@ declare module 'next-auth/jwt' {
 declare module 'next-auth' {
     interface Session {
         roles?: string[];
+        orgId?: string;
     }
 }
 
@@ -29,7 +30,7 @@ const getPistisRoles = (profile: any) => {
 };
 
 const getUserOrgId = (profile: any) => {
-    return profile.pistis.group.id || '';
+    return profile.pistis?.group?.id || '';
 };
 
 async function refreshAccessToken(token: JWT) {
@@ -109,7 +110,6 @@ export const authOptions = {
                 ...session.user,
                 ...token,
             };
-
             return Promise.resolve(session);
         },
     },
