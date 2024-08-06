@@ -13,7 +13,7 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
-const { data: allDatasets, pending: datasetsPending } = useFetch<Record<string, any>>('/api/datasets/get-all');
+const { data: allDatasets, pending: datasetsPending } = useAsyncData(() => $fetch('/api/datasets/get-all'));
 
 const datasetsTransformed = computed(() => {
     if (!allDatasets.value?.result?.results?.length) return [];
@@ -261,6 +261,13 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                     </div>
                 </div>
             </UCard>
+
+            <!-- Terms Document -->
+            <DataShareTerms
+                :monetization-details="monetizationDetails"
+                :asset-offering-details="assetOfferingDetails"
+            />
+
             <UCard>
                 <template #header>
                     <SubHeading
@@ -328,12 +335,12 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                                 monetizationDetails.price
                                     ? monetizationDetails.price +
                                       ' STC ' +
-                                      (monetizationDetails.frequency === 'annual'
+                                      (monetizationDetails.subscriptionFrequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))
                                     : $t('data.designer.free') +
                                       ' - ' +
-                                      (monetizationDetails.frequency === 'annual'
+                                      (monetizationDetails.subscriptionFrequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))
                             }}</span>

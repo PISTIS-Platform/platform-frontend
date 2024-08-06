@@ -50,7 +50,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
             type: 'subscription',
-            frequency: '',
+            subscriptionFrequency: '',
             price: undefined,
             license: '',
             terms: '',
@@ -289,16 +289,16 @@ async function onSubmit(): Promise<void> {
                                         <UFormGroup
                                             :label="$t('data.designer.subscriptionFrequency')"
                                             required
-                                            name="frequency"
+                                            name="subscriptionFrequency"
                                         >
                                             <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
                                                 <URadio
-                                                    v-model="monetizationDetails.frequency"
+                                                    v-model="monetizationDetails.subscriptionFrequency"
                                                     :label="$t('data.designer.monthly')"
                                                     :value="SubscriptionFrequency.MONTHLY"
                                                 />
                                                 <URadio
-                                                    v-model="monetizationDetails.frequency"
+                                                    v-model="monetizationDetails.subscriptionFrequency"
                                                     :label="$t('data.designer.annual')"
                                                     :value="SubscriptionFrequency.ANNUAL"
                                                 />

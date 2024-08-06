@@ -1,6 +1,6 @@
 import { getServerSession } from '#auth';
 
-const { orgId } = useRuntimeConfig();
+const { orgId } = useRuntimeConfig().public;
 
 export default eventHandler(async (event) => {
     const session = await getServerSession(event);
