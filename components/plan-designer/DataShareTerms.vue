@@ -56,7 +56,7 @@ const placeholders = computed(() => {
                     <h3>WHAT & WHY</h3>
                 </div>
 
-                <div class="flex gap-4 mt-4">
+                <div class="flex gap-4 mt-4 ml-4">
                     <span>a.</span>
                     <p>
                         Where the Grant Agreement (‘GA’) and Consortium Agreement (‘CA’) of Project PISTIS (‘Project’)
@@ -74,7 +74,7 @@ const placeholders = computed(() => {
                     <h3>FOR WHOM</h3>
                 </div>
 
-                <div class="flex gap-4 mt-4">
+                <div class="flex gap-4 mt-4 ml-4">
                     <span>a.</span>
                     <p>
                         The generic terms of data sharing are prepared for the PISTIS demonstrator partners solely to be
@@ -82,7 +82,7 @@ const placeholders = computed(() => {
                         PISTIS Data Marketplace, which is still under development and testing.
                     </p>
                 </div>
-                <div class="flex gap-4 mt-4">
+                <div class="flex gap-4 mt-4 ml-4">
                     <span>b.</span>
                     <p>
                         These terms of data sharing provide explanations and options only for informational purposes,
@@ -93,11 +93,11 @@ const placeholders = computed(() => {
                         in their various roles, such
                     </p>
                 </div>
-                <div class="flex gap-4 mt-4">
+                <div class="flex gap-4 mt-4 ml-4">
                     <span>c.</span>
                     <p>as data provider, data recipient, or otherwise.</p>
                 </div>
-                <div class="flex gap-4 mt-4">
+                <div class="flex gap-4 mt-4 ml-4">
                     <span>d.</span>
                     <p>
                         The users of these terms are advised to consult their legal advisors for further advice and
@@ -110,7 +110,7 @@ const placeholders = computed(() => {
                     <h3>HOW</h3>
                 </div>
 
-                <div class="flex gap-4 mt-4">
+                <div class="flex gap-4 mt-4 ml-4">
                     <span>a.</span>
                     <p>
                         These terms are part of the seven (7) elements of the PISTIS data sharing contract framework,
@@ -122,7 +122,7 @@ const placeholders = computed(() => {
                         Providers and Data Recipients.
                     </p>
                 </div>
-                <div class="flex gap-4 mt-4">
+                <div class="flex gap-4 mt-4 ml-4">
                     <span>b.</span>
                     <p>
                         These terms are generic. This means that it is a set of non-exhaustive recommended terms to be
@@ -135,7 +135,7 @@ const placeholders = computed(() => {
                         such arrangements to these terms.
                     </p>
                 </div>
-                <div class="flex gap-4 mt-4">
+                <div class="flex gap-4 mt-4 ml-4">
                     <span>c.</span>
                     <p>
                         The PISTIS consortium will not be liable for any loss, whether direct, indirect, special, or
