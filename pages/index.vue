@@ -139,7 +139,7 @@ const features = [
                 This project has received funding from the European Union under Grant Agreement n° 101093016. Views and
                 opinions expressed are however those of the author(s) only and do not necessarily reflect those of the
                 European Union or the European Commission. Neither the European Union nor the granting authority can be
-                held responsible for them.”
+                held responsible for them.
             </p>
         </footer>
     </div>
