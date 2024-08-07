@@ -7,6 +7,11 @@ definePageMeta({
 
 const { status, signIn } = useAuth();
 
+const runtimeConfig = useRuntimeConfig();
+
+const orgName = computed(() => runtimeConfig.public?.orgName || 'My Organisation');
+const orgLogo = computed(() => runtimeConfig.public?.orgLogo || '');
+
 const callbackUrl = '/home';
 </script>
 
@@ -46,9 +51,12 @@ const callbackUrl = '/home';
             class="flex flex-col sm:flex-row items-center justify-center sm:justify-between w-full gap-12 sm:gap-12 2xl:gap-0 px-8 sm:px-16 2xl:px-48 mt-20"
         >
             <div class="relative flex flex-col items-center sm:items-start justify-center space-y-6">
-                <h2 class="text-primary-600 text-center sm:text-left tracking-wide font-bold text-4xl xl:text-5xl">
-                    PISTIS - Your sharing data platform
-                </h2>
+                <div class="flex gap-2 justify-start items-center">
+                    <img v-if="orgLogo" class="w-22 h-12" :src="`/img/${orgLogo}`" alt="Pistis Organisation Logo" />
+                    <h2 class="text-primary-600 text-center sm:text-left tracking-wide font-bold text-xl xl:text-3xl">
+                        {{ orgName }} PISTIS Data Factory
+                    </h2>
+                </div>
 
                 <p
                     class="font-normal text-center sm:text-left tracking-wide text-lg lg:text-xl max-w-2xl sm:max-w-4xl text-primary-600"
