@@ -61,7 +61,7 @@ const placeholders = computed(() => {
             text3: 'term 3',
         },
         terminationTerm: 'termination term',
-        price: props.monetizationDetails.price,
+        price: `${props.monetizationDetails.price} STC`,
         personalDataText:
             'In the event that the dataset contains personal data including pseudonymised personal data, the Data Provider is advised to consider defining the terms and conditions for the transfer and processing of personal data]',
     };
