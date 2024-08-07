@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import jsPDF, { jsPDFOptions } from 'jspdf';
 //monetizationDetails
 
 const props = defineProps({
@@ -14,29 +13,6 @@ const props = defineProps({
 });
 
 const htmlContent = ref('');
-
-const download = () => {
-    const options: jsPDFOptions = {
-        orientation: 'p',
-        unit: 'pt',
-        format: 'letter',
-    };
-
-    const doc = new jsPDF(options);
-    doc.html(htmlContent.value, {
-        callback: (doc: jsPDF) => {
-            doc.save('Terms And Conditions.pdf');
-        },
-        margin: [20, 20, 20, 20], // Set appropriate margins
-        autoPaging: 'text', // Crucial for handling text flow across pages
-        html2canvas: {
-            allowTaint: true,
-            letterRendering: true,
-            logging: false,
-            scale: 0.5, // Adjust the scale to fit content
-        },
-    });
-};
 
 const termsItem = ref([
     {
@@ -355,7 +331,6 @@ const placeholders = computed(() => {
                             </p>
                         </div>
                     </div>
-                    <UButton class="mt-6" @click="download()">Download pdf</UButton>
                     <!-- End of Document -->
                 </div>
             </template>
