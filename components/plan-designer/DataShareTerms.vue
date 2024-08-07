@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import jsPDF, { jsPDFOptions } from 'jspdf';
 //monetizationDetails
 
 const props = defineProps({
@@ -11,6 +12,29 @@ const props = defineProps({
         required: true,
     },
 });
+
+const htmlContent = ref('');
+
+const download = () => {
+    console.log(htmlContent.value);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const options: jsPDFOptions = {
+        orientation: 'p',
+        unit: 'px',
+        format: 'a4',
+        precision: 2,
+        hotfixes: ['px_scaling'],
+        floatPrecision: 2,
+    };
+    const doc = new jsPDF(options);
+    doc.html(htmlContent.value, {
+        callback: function (doc) {
+            doc.save();
+        },
+        x: 1,
+        y: 1,
+    });
+};
 
 const termsItem = ref([
     {
@@ -60,7 +84,7 @@ const placeholders = computed(() => {
             </template>
             <!-- eslint-disable-next-line vue/no-unused-vars -->
             <template #terms-item="{ item }">
-                <div class="text-gray-800 px-8 h-[400px] overflow-y-scroll">
+                <div ref="htmlContent" class="text-gray-800 px-8">
                     <div class="flex flex-col gap-2 font-bold justify-center items-center py-4 text-lg">
                         <h1>EXPLANATORY NOTES</h1>
                         <h1>THE GENERIC TERMS OF DATA SHARING ON PISTIS DATA MARKETPLACE</h1>
@@ -315,7 +339,7 @@ const placeholders = computed(() => {
                             or conflict between these terms and the GA or CA, the GA and CA shall prevail.
                         </p>
                     </div>
-
+                    <UButton @click="download()">Download pdf</UButton>
                     <!-- End of Document -->
                 </div>
             </template>
