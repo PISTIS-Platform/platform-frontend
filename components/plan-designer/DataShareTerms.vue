@@ -355,7 +355,7 @@ const placeholders = computed(() => {
                             </p>
                         </div>
                     </div>
-                    <UButton class="ml-1 mt-6" @click="download()">Download pdf</UButton>
+                    <UButton class="mt-6" @click="download()">Download pdf</UButton>
                     <!-- End of Document -->
                 </div>
             </template>
