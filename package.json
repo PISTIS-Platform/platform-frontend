@@ -48,7 +48,6 @@
         "@nuxt/ui": "^2.10.0",
         "@pinia/nuxt": "^0.4.11",
         "chart.js": "^4.4.1",
-        "jspdf": "^2.5.1",
         "jwt-decode": "^4.0.0",
         "next-auth": "4.21.1",
         "pinia": "^2.1.6",
