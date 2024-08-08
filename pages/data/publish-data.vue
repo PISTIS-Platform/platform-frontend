@@ -136,10 +136,8 @@ const changeStep = async (stepNum: number) => {
                 organizationId: runtimeConfig.public?.orgId,
                 terms: contractTerms.value,
                 monetisationMethod: monetizationDetails.value.type,
-                price: parseFloat(monetizationDetails.value.price ? monetizationDetails.value.price.toString() : ''),
-                limitNumber: parseInt(
-                    monetizationDetails.value.limitNumber ? monetizationDetails.value.limitNumber.toString() : '',
-                ),
+                price: monetizationDetails.value.price,
+                limitNumber: monetizationDetails.value.limitNumber,
                 limitFrequency: monetizationDetails.value.limitFrequency,
                 subscriptionFrequency:
                     monetizationDetails.value.type === 'subscription'
