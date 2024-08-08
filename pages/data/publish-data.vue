@@ -6,6 +6,8 @@ import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
 import type { AssetOfferingDetails } from '../../interfaces/plan-designer';
 
+const runtimeConfig = useRuntimeConfig();
+
 const { t } = useI18n();
 
 //data for selected dataset
@@ -89,6 +91,8 @@ const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetiza
 // validation data
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
+const contractTerms = ref('');
+
 const submitAll = () => {
     let objToSend;
     //TODO: Figure out final form for each monetization method
@@ -120,6 +124,33 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
     assetOfferingDetails.value.title = selected.value.title;
     assetOfferingDetails.value.description = selected.value.description;
     selectedPage.value = 1;
+};
+
+const changeStep = async (stepNum: number) => {
+    if (stepNum === 3) {
+        //api call to contract template composer
+        const _data = await $fetch(`/api/datasets/get-composed-contract`, {
+            method: 'post',
+            body: {
+                assetId: 'fb6ccd7a-b3b4-4269-b101-d65958de24f8', //TODO:: replace with actual asset id once we have more info
+                organizationId: runtimeConfig.public?.orgId,
+                terms: contractTerms.value,
+                monetisationMethod: monetizationDetails.value.type,
+                price: parseFloat(monetizationDetails.value.price ? monetizationDetails.value.price.toString() : ''),
+                limitNumber: parseInt(
+                    monetizationDetails.value.limitNumber ? monetizationDetails.value.limitNumber.toString() : '',
+                ),
+                limitFrequency: monetizationDetails.value.limitFrequency,
+                subscriptionFrequency:
+                    monetizationDetails.value.type === 'subscription'
+                        ? monetizationDetails.value.subscriptionFrequency
+                        : null,
+            },
+        });
+
+        console.log(_data);
+        //TODO:: use returned compose contract for other pistis components
+    }
 };
 </script>
 
@@ -155,7 +186,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                     </span>
                     <span class="ml-4 text-sm font-medium text-indigo-600">{{ step.name }}</span>
                 </a>
-                <a v-else class="group flex items-center">
+                <a v-else class="group flex items-center" @click="changeStep(stepIdx)">
                     <span class="flex items-center px-6 py-4 text-sm font-medium">
                         <span
                             class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 group-hover:border-gray-400"
@@ -266,6 +297,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
             <DataShareTerms
                 :monetization-details="monetizationDetails"
                 :asset-offering-details="assetOfferingDetails"
+                @update:contract-terms="(value: string) => (contractTerms = value)"
             />
 
             <UCard>

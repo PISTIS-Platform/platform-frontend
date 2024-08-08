@@ -12,7 +12,7 @@ const props = defineProps({
     },
 });
 
-const htmlContent = ref('');
+const emit = defineEmits(['update:contract-terms']);
 
 const termsItem = ref([
     {
@@ -22,6 +22,14 @@ const termsItem = ref([
         defaultOpen: true,
     },
 ]);
+
+const htmlContent = ref<HTMLElement>();
+
+watch(htmlContent, () => {
+    const termsDocContent = htmlContent?.value?.innerHTML || '';
+
+    emit('update:contract-terms', btoa(encodeURIComponent(termsDocContent)));
+});
 
 //TODO:: replace dummy data once more info is available
 const placeholders = computed(() => {
