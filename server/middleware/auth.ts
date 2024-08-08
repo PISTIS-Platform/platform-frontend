@@ -8,7 +8,6 @@ export default eventHandler(async (event) => {
     if (!session && event.path.startsWith('/api')) {
         throw createError({ statusMessage: 'Unauthenticated', statusCode: 401 });
     }
-
     if (session && session.orgId !== orgId && event.path.startsWith('/api')) {
         throw createError({ statusMessage: 'Forbidden', statusCode: 403 });
     }
