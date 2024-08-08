@@ -23,6 +23,7 @@ const termsItem = ref([
     },
 ]);
 
+//TODO:: replace dummy data once more info is available
 const placeholders = computed(() => {
     return {
         dataDescription: 'Data',
@@ -64,20 +65,14 @@ const placeholders = computed(() => {
             <template #terms-item="{ item }">
                 <div class="text-gray-800 px-8 h-[400px] overflow-y-scroll">
                     <div ref="htmlContent">
-                        <div class="flex flex-col gap-2 font-bold justify-center items-center py-4 text-lg">
-                            <h1>EXPLANATORY NOTES</h1>
-                            <h1>THE GENERIC TERMS OF DATA SHARING ON PISTIS DATA MARKETPLACE</h1>
-                            <br />
-                        </div>
+                        <div class="prose lg:prose-sm prose-h2:text-center max-w-full">
+                            <h2>EXPLANATORY NOTES</h2>
+                            <h2>THE GENERIC TERMS OF DATA SHARING ON PISTIS DATA MARKETPLACE</h2>
 
-                        <div class="flex gap-4 font-bold">
-                            <span>1.</span>
-                            <h3>WHAT & WHY</h3>
-                        </div>
+                            <h3>1. WHAT & WHY</h3>
 
-                        <div class="flex gap-4 mt-4 ml-4">
-                            <span>a.</span>
                             <p>
+                                <span>a.</span>
                                 Where the Grant Agreement (‘GA’) and Consortium Agreement (‘CA’) of Project PISTIS
                                 (‘Project’) aims to brings forward a reference federated data sharing/trading and
                                 monetisation platform for secure, trusted and controlled exchange and usage of
@@ -87,25 +82,19 @@ const placeholders = computed(() => {
                                 non-exhaustive set of suggested, generic terms and options that the partners can tailor,
                                 amend, and negotiate out during the demonstrations.
                             </p>
-                        </div>
 
-                        <div class="flex gap-4 font-bold mt-6">
-                            <span>2.</span>
-                            <h3>FOR WHOM</h3>
-                        </div>
+                            <h3>2. FOR WHOM</h3>
 
-                        <div class="flex gap-4 mt-4 ml-4">
-                            <span>a.</span>
                             <p>
+                                <span>a.</span>
                                 The generic terms of data sharing are prepared for the PISTIS demonstrator partners
                                 solely to be used for the demonstration of business-to-business data transactions on the
                                 BETA version of the PISTIS Data Marketplace, which is still under development and
                                 testing.
                             </p>
-                        </div>
-                        <div class="flex gap-4 mt-4 ml-4">
-                            <span>b.</span>
+
                             <p>
+                                <span>b.</span>
                                 These terms of data sharing provide explanations and options only for informational
                                 purposes, and the Project demonstrator partners are free to change the terms as they
                                 deem appropriate for their use cases. Under no circumstance, the Project demonstrator
@@ -113,28 +102,23 @@ const placeholders = computed(() => {
                                 explanations and options aim to enable and facilitate concrete data-sharing arrangements
                                 and operations between the demonstrator partners in their various roles, such
                             </p>
-                        </div>
-                        <div class="flex gap-4 mt-4 ml-4">
-                            <span>c.</span>
-                            <p>as data provider, data recipient, or otherwise.</p>
-                        </div>
-                        <div class="flex gap-4 mt-4 ml-4">
-                            <span>d.</span>
+
                             <p>
+                                <span>c.</span>
+                                as data provider, data recipient, or otherwise.
+                            </p>
+
+                            <p>
+                                <span>d.</span>
                                 The users of these terms are advised to consult their legal advisors for further advice
                                 and assistance before executing a data-sharing transaction on the PISTIS Data
                                 Marketplace.
                             </p>
-                        </div>
 
-                        <div class="flex gap-4 font-bold mt-6">
-                            <span>3.</span>
-                            <h3>HOW</h3>
-                        </div>
+                            <h3>3. HOW</h3>
 
-                        <div class="flex gap-4 mt-4 ml-4">
-                            <span>a.</span>
                             <p>
+                                <span>a.</span>
                                 These terms are part of the seven (7) elements of the PISTIS data sharing contract
                                 framework, namely, matchmaking of users, data check-in and asset description, detailed
                                 overview of dataset, analysis of data usage and license, data valuation, determining
@@ -144,10 +128,9 @@ const placeholders = computed(() => {
                                 will be formed on the PISTIS Data Marketplace between Data Providers and Data
                                 Recipients.
                             </p>
-                        </div>
-                        <div class="flex gap-4 mt-4 ml-4">
-                            <span>b.</span>
+
                             <p>
+                                <span>b.</span>
                                 These terms are generic. This means that it is a set of non-exhaustive recommended terms
                                 to be used for data sharing transactions but does not include specific arrangements that
                                 may be relevant between certain Data Providers and Data Recipients. Given that the data
@@ -157,37 +140,32 @@ const placeholders = computed(() => {
                                 applicable to their use cases in the relevant national jurisdictions. Data Provider and
                                 Data Recipient are responsible for adding such arrangements to these terms.
                             </p>
-                        </div>
-                        <div class="flex gap-4 mt-4 ml-4">
-                            <span>c.</span>
+
                             <p>
+                                <span>c.</span>
                                 The PISTIS consortium will not be liable for any loss, whether direct, indirect,
                                 special, or consequential, suffered by any party due to the use of these generic terms.
                             </p>
-                        </div>
 
-                        <div class="flex flex-col font-bold justify-center items-center mt-6 text-base">
-                            <h1>PISTIS GENERIC TERMS OF DATA SHARING</h1>
-                        </div>
+                            <h2>PISTIS GENERIC TERMS OF DATA SHARING</h2>
 
-                        <div class="flex flex-col gap-4 mt-4">
                             <p>
-                                <span class="font-bold">Subject Matter.</span>The subject matter of this data sharing
-                                between the Data Provider and the Data Recipient concerns a particular dataset and the
-                                data that it contains, being {{ placeholders.dataDescription }} (hereinafter
-                                collectively: ‘Data Set’).
+                                <strong>Subject Matter.</strong>The subject matter of this data sharing between the Data
+                                Provider and the Data Recipient concerns a particular dataset and the data that it
+                                contains, being {{ placeholders.dataDescription }} (hereinafter collectively: ‘Data
+                                Set’).
                             </p>
                             <p>
-                                <span class="font-bold">Scope and Purpose(s) of Sharing of the Data Set.</span> The
-                                subject to the data-sharing arrangement formed on the PISTIS Data Marketplace between
-                                the Data Provider and the Data Recipient, the Data Provider hereby grants the Data
-                                Recipient an {{ placeholders.exclusiveness }} , {{ placeholders.region }} ,
-                                {{ placeholders.transferable }} , {{ placeholders.durationText }} license to access,
-                                copy and process the Data Set for the following purpose(s) (hereinafter ‘Permitted
+                                <strong>Scope and Purpose(s) of Sharing of the Data Set.</strong> The subject to the
+                                data-sharing arrangement formed on the PISTIS Data Marketplace between the Data Provider
+                                and the Data Recipient, the Data Provider hereby grants the Data Recipient an
+                                {{ placeholders.exclusiveness }}, {{ placeholders.region }},
+                                {{ placeholders.transferable }}, {{ placeholders.durationText }} license to access, copy
+                                and process the Data Set for the following purpose(s) (hereinafter ‘Permitted
                                 Purposes’):
                             </p>
 
-                            <ul class="flex flex-col gap-2 list-disc pl-6">
+                            <ul>
                                 <li>
                                     internally, including but not limited to, for conducting demos, research and
                                     development purposes;
@@ -218,15 +196,15 @@ const placeholders = computed(() => {
                             </p>
 
                             <p>
-                                <span class="font-bold">Derivative Works.</span>The Data Provider acknowledges and
-                                agrees that the Data Recipient shall retain ownership of all intellectual property right
-                                in the derivative works of the Data Set. For the avoidance of doubt, in case the Data
-                                Set is modified only in minor ways and used for substituting the original Data Set, it
-                                shall not be regarded as derived material or work, and remains under the restrictions
-                                set out for the Data Set.
+                                <strong>Derivative Works.</strong>
+                                The Data Provider acknowledges and agrees that the Data Recipient shall retain ownership
+                                of all intellectual property right in the derivative works of the Data Set. For the
+                                avoidance of doubt, in case the Data Set is modified only in minor ways and used for
+                                substituting the original Data Set, it shall not be regarded as derived material or
+                                work, and remains under the restrictions set out for the Data Set.
                             </p>
                             <p>
-                                <span class="font-bold">Representations and Warranties.</span>
+                                <strong>Representations and Warranties.</strong>
                                 The Data Set is provided as checked-in by the Data Provider on the PISTIS Data
                                 Marketplace, without any warranty of any type, either express or implied, including
                                 without limitation, any warranty of merchantability or fitness for a particular purpose
@@ -235,7 +213,7 @@ const placeholders = computed(() => {
                                 defects, if any, shall be corrected.
                             </p>
                             <p>
-                                <span class="font-bold">Effective Date.</span>
+                                <strong>Effective Date.</strong>
                                 The terms, including the license and right to use the Data Set granted under these
                                 terms, shall become effective and applicable to the data-sharing arrangement between the
                                 Data Provider and the Data Recipient upon the Data Recipient’s acceptance of these terms
@@ -245,12 +223,12 @@ const placeholders = computed(() => {
                                 ‘Effective Date’).
                             </p>
                             <p>
-                                <span class="font-bold">Delivery.</span>
+                                <strong>Delivery.</strong>
                                 The access to the Data Set will be granted to the Data Recipient upon the receipt of the
                                 payment of the Fee as agreed herein.
                             </p>
                             <p>
-                                <span class="font-bold">Term</span>
+                                <strong>Term</strong>
                                 These terms and the license granted herein, shall be valid and
                                 {{ placeholders.terms.text1 }} and shall be automatically renewed for additional term of
                                 {{ placeholders.terms.text2 }} unless either Party provides the other with written
@@ -258,7 +236,7 @@ const placeholders = computed(() => {
                                 date of the current term.
                             </p>
                             <p>
-                                <span class="font-bold">Termination.</span>
+                                <strong>Termination.</strong>
                                 Either Party may terminate their data-sharing arrangement immediate upon written notice
                                 if other Party is in material breach of these terms and if such breach is that is not
                                 cured within
@@ -270,7 +248,7 @@ const placeholders = computed(() => {
                                 provide a pro-rated refund to Data Recipient for the remainder of the then-current term.
                             </p>
                             <p>
-                                <span class="font-bold">Consequences of Termination.</span>
+                                <strong>Consequences of Termination.</strong>
                                 In case of termination, the access to, provision and availability of the Data Set on the
                                 PISTIS Data Marketplace will automatically terminate without further action by either
                                 party. Upon termination, the Data Recipient shall destroy all copies of the Data Set
@@ -280,13 +258,12 @@ const placeholders = computed(() => {
                                 liability for breach of these terms.
                             </p>
                             <p>
-                                <span class="font-bold">Fees and Payment Terms.</span>
-                                <span class="underline">OPTION 1:</span> The Parties agree on that the Data Recipient
-                                shall pay the Data Provider {{ placeholders.price }} (‘Fee’) for the license to access,
-                                copy and process the Data Set as defined herein on the Effective date. The Fee is
-                                exclusive of VAT or local sales tax or any other applicable taxes.
-                                <span class="underline">OPTION 2:</span> The Parties agree on that Data Recipient shall
-                                pay Data Provider {{ placeholders.price }}
+                                <strong>Fees and Payment Terms.</strong>
+                                &nbsp;<u>OPTION 1:</u> The Parties agree on that the Data Recipient shall pay the Data
+                                Provider {{ placeholders.price }} (‘Fee’) for the license to access, copy and process
+                                the Data Set as defined herein on the Effective date. The Fee is exclusive of VAT or
+                                local sales tax or any other applicable taxes. <u>OPTION 2:</u> The Parties agree on
+                                that Data Recipient shall pay Data Provider {{ placeholders.price }}
                                 (‘Subscription Fee’) on monthly basis, in advance, starting from the Effective Date and
                                 recurring on the same date of every following month, for the license to access, copy and
                                 process the Data Set as defined herein during the term of the data-sharing agreement. In
@@ -297,22 +274,21 @@ const placeholders = computed(() => {
                                 any other applicable taxes.
                             </p>
                             <p>
-                                <span class="font-bold">Protection of Personal Data.</span>
-                                <span class="underline">OPTION 1:</span>The Data Set does not include personal data.
-                                <span class="underline">OPTION 2:</span>
+                                <strong>Protection of Personal Data.</strong>
+                                &nbsp;<u>OPTION 1:</u> The Data Set does not include personal data.
+                                <u>OPTION 2:</u>
                                 The Data Set includes personal data, and the related data processing is subject to the
-                                following: {{ placeholders.personalDataText
-                                }}<span class="underline">OPTION 3: [*].</span>
+                                following: {{ placeholders.personalDataText }}&nbsp;<u>OPTION 3: [*].</u>
                             </p>
                             <p>
-                                <span class="font-bold">Miscellaneous.</span>
+                                <strong>Miscellaneous.</strong>
                                 For the avoidance of doubt and given that this data sharing transaction takes place
                                 between PISTIS project partners as part of the PISTIS project, each Party acknowledges
                                 that the PISTIS Grant Agreement (‘GA’) and the PISTIS Consortium Agreement (‘CA’) is
                                 applicable to this data-sharing arrangement in general, and the following rights and
                                 obligations therein in particular, without limitation:
                             </p>
-                            <ul class="flex flex-col gap-2 list-disc pl-6">
+                            <ul>
                                 <li>Proper implementation of the Action;</li>
                                 <li>
                                     Use restrictions, confidentiality, non-disclosure, data protection and security;
