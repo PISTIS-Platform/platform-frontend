@@ -127,7 +127,6 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
 
 const changeStep = async (stepNum: number) => {
     if (stepNum === 3) {
-        console.log({ terms: monetizationDetails.value.contractTerms });
         //api call to contract template composer
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
