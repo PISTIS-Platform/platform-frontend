@@ -81,7 +81,8 @@ const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
     price: undefined,
     license: '',
-    terms: '',
+    extraTerms: '',
+    contractTerms: '',
     limitNumber: undefined,
     limitFrequency: '',
 });
@@ -90,8 +91,6 @@ const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetiza
 
 // validation data
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
-
-const contractTerms = ref('');
 
 const submitAll = () => {
     let objToSend;
@@ -128,13 +127,14 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
 
 const changeStep = async (stepNum: number) => {
     if (stepNum === 3) {
+        console.log({ terms: monetizationDetails.value.contractTerms });
         //api call to contract template composer
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
             body: {
                 assetId: 'fb6ccd7a-b3b4-4269-b101-d65958de24f8', //TODO:: replace with actual asset id once we have more info
                 organizationId: runtimeConfig.public?.orgId,
-                terms: contractTerms.value,
+                terms: monetizationDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
                 price: monetizationDetails.value.price,
                 limitNumber: monetizationDetails.value.limitNumber,
@@ -288,13 +288,6 @@ const changeStep = async (stepNum: number) => {
                     </div>
                 </div>
             </UCard>
-
-            <!-- Terms Document -->
-            <DataShareTerms
-                :monetization-details="monetizationDetails"
-                :asset-offering-details="assetOfferingDetails"
-                @update:contract-terms="(value: string) => (contractTerms = value)"
-            />
 
             <UCard>
                 <template #header>

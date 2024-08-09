@@ -43,7 +43,8 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             type: 'one-off',
             price: undefined,
             license: '',
-            terms: '',
+            extraTerms: '',
+            contractTerms: '',
             limitNumber: undefined,
             limitFrequency: '',
         };
@@ -53,7 +54,8 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             subscriptionFrequency: '',
             price: undefined,
             license: '',
-            terms: '',
+            extraTerms: '',
+            contractTerms: '',
             limitNumber: undefined,
             limitFrequency: '',
         };
@@ -117,6 +119,10 @@ const updateFree = (value: boolean) => {
     } else {
         monetizationDetails.value.price = undefined;
     }
+};
+
+const updateContractTerms = (value: string) => {
+    monetizationDetails.value.contractTerms = value;
 };
 
 const handleMonetizationClick = (value: string) => {
@@ -270,9 +276,9 @@ async function onSubmit(): Promise<void> {
                                         >
                                     </UFormGroup>
                                 </div>
-                                <UFormGroup :label="$t('termsConditions')" required name="terms">
+                                <UFormGroup :label="$t('termsConditions')" required name="extraTerms">
                                     <UTextarea
-                                        v-model="monetizationDetails.terms"
+                                        v-model="monetizationDetails.extraTerms"
                                         :rows="4"
                                         :placeholder="$t('data.designer.typeTerms')"
                                         resize
@@ -393,9 +399,9 @@ async function onSubmit(): Promise<void> {
                                     </UFormGroup>
                                 </div>
 
-                                <UFormGroup :label="$t('termsConditions')" required name="terms">
+                                <UFormGroup :label="$t('termsConditions')" required name="extraTerms">
                                     <UTextarea
-                                        v-model="monetizationDetails.terms"
+                                        v-model="monetizationDetails.extraTerms"
                                         resize
                                         :rows="4"
                                         :placeholder="$t('data.designer.typeTerms')"
@@ -410,6 +416,13 @@ async function onSubmit(): Promise<void> {
 
                         <template v-if="monetizationDetails.type === 'nft'">
                         </template> -->
+
+                        <!-- Terms Document -->
+                        <DataShareTerms
+                            class="mt-5"
+                            :monetization-details="monetizationDetails"
+                            @update:contract-terms="(value: string) => updateContractTerms(value)"
+                        />
 
                         <div class="w-full flex items-center justify-between mt-4">
                             <UButton size="md" color="gray" variant="outline" @click="emit('changePage', 0)">
