@@ -45,7 +45,7 @@ export default defineNuxtConfig({
         marketInsightsUrl: process.env.NUXT_MARKET_INSIGHTS_URL,
         anonymizerApiUrl: process.env.ANONYMIZER_URL,
         intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
-        smartContractTemplateComposerUrl: process.env.NUXT_SMART_CONTRACT_TEMPLATE_COMPOSER_URL,
+        sctcUrl: process.env.NUXT_SCTC_URL,
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
