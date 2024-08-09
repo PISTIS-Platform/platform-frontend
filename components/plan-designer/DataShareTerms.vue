@@ -45,6 +45,7 @@ const placeholders = computed(() => {
         price: `${props.monetizationDetails?.price || ''} STC`,
         personalDataText:
             'In the event that the dataset contains personal data including pseudonymised personal data, the Data Provider is advised to consider defining the terms and conditions for the transfer and processing of personal data]',
+        extraTerms: props.monetizationDetails?.extraTerms || '',
     };
 });
 </script>
@@ -308,6 +309,10 @@ const placeholders = computed(() => {
                                 appropriate organisational, operational and technical measures. In case of any
                                 inconsistency or conflict between these terms and the GA or CA, the GA and CA shall
                                 prevail.
+                            </p>
+                            <p>
+                                <strong>Extra Terms.</strong>
+                                {{ placeholders.extraTerms }}
                             </p>
                         </div>
                     </div>
