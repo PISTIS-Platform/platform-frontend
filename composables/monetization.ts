@@ -35,7 +35,7 @@ export const useMonetizationSchema = () => {
     const subscriptionSchema = z
         .object({
             type: z.literal('subscription'),
-            frequency: z.string().min(1, t('val.required')),
+            subscriptionFrequency: z.string().min(1, t('val.required')),
             // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
             price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
                 (val) => {

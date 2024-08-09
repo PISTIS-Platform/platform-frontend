@@ -50,7 +50,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
             type: 'subscription',
-            frequency: '',
+            subscriptionFrequency: '',
             price: undefined,
             license: '',
             terms: '',
@@ -182,7 +182,7 @@ async function onSubmit(): Promise<void> {
                                             name="price"
                                         >
                                             <UInput
-                                                v-model="monetizationDetails.price"
+                                                v-model.number="monetizationDetails.price"
                                                 :class="isFree ? 'opacity-50' : ''"
                                                 :disabled="isFree"
                                                 :placeholder="$t('data.designer.oneOffPrice')"
@@ -245,7 +245,7 @@ async function onSubmit(): Promise<void> {
                                         class="flex-1"
                                     >
                                         <UInput
-                                            v-model="monetizationDetails.limitNumber"
+                                            v-model.number="monetizationDetails.limitNumber"
                                             :placeholder="$t('data.designer.downloadLimitPH')"
                                             type="numeric"
                                         >
@@ -289,16 +289,16 @@ async function onSubmit(): Promise<void> {
                                         <UFormGroup
                                             :label="$t('data.designer.subscriptionFrequency')"
                                             required
-                                            name="frequency"
+                                            name="subscriptionFrequency"
                                         >
                                             <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
                                                 <URadio
-                                                    v-model="monetizationDetails.frequency"
+                                                    v-model="monetizationDetails.subscriptionFrequency"
                                                     :label="$t('data.designer.monthly')"
                                                     :value="SubscriptionFrequency.MONTHLY"
                                                 />
                                                 <URadio
-                                                    v-model="monetizationDetails.frequency"
+                                                    v-model="monetizationDetails.subscriptionFrequency"
                                                     :label="$t('data.designer.annual')"
                                                     :value="SubscriptionFrequency.ANNUAL"
                                                 />
@@ -312,7 +312,7 @@ async function onSubmit(): Promise<void> {
                                                 name="price"
                                             >
                                                 <UInput
-                                                    v-model="monetizationDetails.price"
+                                                    v-model.number="monetizationDetails.price"
                                                     :class="isFree ? 'opacity-50' : ''"
                                                     :disabled="isFree"
                                                     :placeholder="$t('data.designer.subscriptionPricePH')"
@@ -367,7 +367,7 @@ async function onSubmit(): Promise<void> {
                                         name="limitNumber"
                                     >
                                         <UInput
-                                            v-model="monetizationDetails.limitNumber"
+                                            v-model.number="monetizationDetails.limitNumber"
                                             :placeholder="$t('data.designer.downloadLimitPH')"
                                             type="numeric"
                                         >
