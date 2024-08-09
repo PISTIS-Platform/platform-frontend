@@ -334,7 +334,7 @@ const changeStep = async (stepNum: number) => {
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ monetizationDetails.terms }}</span>
+                        <span>{{ monetizationDetails.extraTerms }}</span>
                     </div>
                 </div>
                 <div v-if="monetizationDetails.type === 'subscription'" class="flex flex-col gap-8">
@@ -386,7 +386,7 @@ const changeStep = async (stepNum: number) => {
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ monetizationDetails.terms }}</span>
+                        <span>{{ monetizationDetails.extraTerms }}</span>
                     </div>
                 </div>
                 <div class="w-full flex justify-between items-center mt-8">
