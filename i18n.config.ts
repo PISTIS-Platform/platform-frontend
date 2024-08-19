@@ -33,7 +33,7 @@ export default defineI18nConfig(() => ({
             percentage: 'Percentage',
             license: 'License',
             description: 'Description',
-            termsConditions: 'Terms and conditions',
+            termsConditions: 'Extra Terms',
             keywords: 'Keywords',
             times: 'times',
             perHour: 'per hour',

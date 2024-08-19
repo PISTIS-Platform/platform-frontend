@@ -81,7 +81,8 @@ const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
     price: undefined,
     license: '',
-    terms: '',
+    extraTerms: '',
+    contractTerms: '',
     limitNumber: undefined,
     limitFrequency: '',
 });
@@ -90,8 +91,6 @@ const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetiza
 
 // validation data
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
-
-const contractTerms = ref('');
 
 const submitAll = () => {
     let objToSend;
@@ -134,7 +133,7 @@ const changeStep = async (stepNum: number) => {
             body: {
                 assetId: 'fb6ccd7a-b3b4-4269-b101-d65958de24f8', //TODO:: replace with actual asset id once we have more info
                 organizationId: runtimeConfig.public?.orgId,
-                terms: contractTerms.value,
+                terms: monetizationDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
                 price: monetizationDetails.value.price,
                 limitNumber: monetizationDetails.value.limitNumber,
@@ -289,13 +288,6 @@ const changeStep = async (stepNum: number) => {
                 </div>
             </UCard>
 
-            <!-- Terms Document -->
-            <DataShareTerms
-                :monetization-details="monetizationDetails"
-                :asset-offering-details="assetOfferingDetails"
-                @update:contract-terms="(value: string) => (contractTerms = value)"
-            />
-
             <UCard>
                 <template #header>
                     <SubHeading
@@ -342,7 +334,7 @@ const changeStep = async (stepNum: number) => {
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ monetizationDetails.terms }}</span>
+                        <span>{{ monetizationDetails.extraTerms }}</span>
                     </div>
                 </div>
                 <div v-if="monetizationDetails.type === 'subscription'" class="flex flex-col gap-8">
@@ -394,7 +386,7 @@ const changeStep = async (stepNum: number) => {
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ monetizationDetails.terms }}</span>
+                        <span>{{ monetizationDetails.extraTerms }}</span>
                     </div>
                 </div>
                 <div class="w-full flex justify-between items-center mt-8">
