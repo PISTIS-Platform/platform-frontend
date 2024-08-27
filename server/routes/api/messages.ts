@@ -1,11 +1,24 @@
-import type { Message, Peer } from 'crossws';
+import { io } from 'socket.io-client';
 
-const room = 'ROOM';
+const WS_URL = 'http://localhost:3002';
+
+const socket = io(WS_URL);
+
 export default defineWebSocketHandler({
     open(peer) {
         console.log('opened WS', peer);
-        peer.subscribe(room);
-        peer.publish(room, 'Another user joined the chat');
+        socket.on('connect', () => {
+            console.log('Connected to NestJS WS');
+        });
+        socket.on('disconnect', () => {
+            console.log('Disconnected from NestJS WS');
+        });
+
+        //listens to messages, specifically 'onMessage'
+        socket.on('onMessage', (...args) => {
+            console.log('MESSAGE RECEIVED', new Date());
+            peer.send(JSON.stringify(args[0]));
+        });
     },
     close(peer) {
         console.log('closed WS', peer);
@@ -13,18 +26,12 @@ export default defineWebSocketHandler({
     error(peer, error) {
         console.log('error on WS', peer, error);
     },
+    //when user uses send('blah') from FE it goes through here
+    //sends message on 'newMessage' to BE which is listening for it
     message(peer, message) {
         console.log('message on WS', peer, message);
-        onCalc(peer, message);
-        peer.publish(room, message.text());
+        socket.emit('newMessage', {
+            hello: 'there',
+        });
     },
 });
-
-function onCalc(peer: Peer, message: Message) {
-    if (message.text().startsWith('calc ')) {
-        const equation = message.text().replace('calc ', '');
-        // TODO: UNSAFE - DO NOT DO IN PROD, CAN LEAD TO XSS/RCI
-        const result = eval(equation);
-        peer.send(`The result of "${equation}" is: ${result}`);
-    }
-}

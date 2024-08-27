@@ -34,45 +34,25 @@ const navigation = [
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
 
-//begin socket.io config
-import { io } from 'socket.io-client';
-
-const WS_URL = 'http://localhost:3002';
-
-const socket = io(WS_URL);
-
-socket.on('connect', () => {
-    console.log('Connected to NestJS WS');
-});
-
-socket.on('disconnect', () => {
-    console.log('Disconnected from NestJS WS');
-});
-
-socket.on('onMessage', (...args) => {
-    showInfoMessage(args[0].message);
-    console.log('MESSAGE RECEIVED');
-    messagesStore.addMessage(args[0]);
-});
-
-//end socket.io config
-
 //begin websockets config
-const { data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
+const { data: wsData } = useWebSocket(`ws://${location.host}/api/messages`);
 // const { status: wsStatus, data: wsData, send, open, close } = useWebSocket(`ws://${location.host}/api/messages`);
-//end websockets config
 
-const history = ref<string[]>([]);
+//watching the data value where new messages come
 watch(wsData, (newValue) => {
-    history.value.push(`server: ${newValue}`);
+    const message = JSON.parse(newValue);
+    showInfoMessage(message.message);
+    messagesStore.addMessage(message);
 });
 
-const message = ref('');
-function sendData() {
-    history.value.push(`client: ${message.value}`);
-    send(message.value);
-    message.value = '';
-}
+//to send messages back to WS through Nitro
+// const message = ref('');
+// function sendData() {
+//     send(message.value);
+//     message.value = '';
+// }
+
+//end websockets config
 
 //TODO: Api call to get notifications here
 
@@ -88,17 +68,6 @@ const notificationsNumberText = computed(() =>
 </script>
 
 <template>
-    <div>
-        <h1>WebSocket - let's go!</h1>
-        <form @submit.prevent="sendData">
-            <input v-model="message" />
-            <button type="submit">Send</button>
-        </form>
-        <div>
-            <p v-for="entry in history" :key="entry">{{ entry }}</p>
-        </div>
-    </div>
-    <!-- END WEBSOCKET TRIAL-->
     <div class="h-full flex flex-col">
         <Disclosure v-slot="{ open }" as="nav" class="bg-primary-700 sticky top-0 z-50">
             <div class="mx-auto px-8 max-w-7xl">
