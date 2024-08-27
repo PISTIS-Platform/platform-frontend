@@ -1,13 +1,12 @@
 import { io } from 'socket.io-client';
 
-const WS_URL = 'http://localhost:3002';
-
+const { wsUrl } = useRuntimeConfig();
 let socket;
 
 export default defineWebSocketHandler({
     open(peer) {
         console.log('opened WS', peer);
-        socket = io(WS_URL);
+        socket = io(wsUrl);
         socket.on('connect', () => {
             console.log('Connected to NestJS WS');
         });
