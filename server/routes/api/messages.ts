@@ -4,15 +4,16 @@ const WS_URL = 'http://localhost:3002';
 
 const socket = io(WS_URL);
 
+// socket.on('connect', () => {
+//     console.log('Connected to NestJS WS');
+// });
+// socket.on('disconnect', () => {
+//     console.log('Disconnected from NestJS WS');
+// });
+
 export default defineWebSocketHandler({
     open(peer) {
         console.log('opened WS', peer);
-        socket.on('connect', () => {
-            console.log('Connected to NestJS WS');
-        });
-        socket.on('disconnect', () => {
-            console.log('Disconnected from NestJS WS');
-        });
 
         //listens to messages, specifically 'onMessage'
         socket.on('onMessage', (...args) => {
