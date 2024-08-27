@@ -1,7 +1,7 @@
-import { io } from 'socket.io-client';
+import { io, type Socket } from 'socket.io-client';
 
 const { wsUrl } = useRuntimeConfig();
-let socket;
+let socket: Socket;
 
 export default defineWebSocketHandler({
     open(peer) {
