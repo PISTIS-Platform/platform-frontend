@@ -3,11 +3,16 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIt
 import {
     ArrowRightOnRectangleIcon,
     Bars3Icon,
-    BellIcon,
     ChevronDownIcon,
     UserCircleIcon,
     XMarkIcon,
 } from '@heroicons/vue/24/outline';
+
+const { showInfoMessage } = useAlertMessage();
+
+import { useMessagesStore } from '~/store/messages';
+
+const messagesStore = useMessagesStore();
 
 const route = useRoute();
 
@@ -28,6 +33,41 @@ const navigation = [
 ];
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
+
+//begin socket.io config
+import { io } from 'socket.io-client';
+
+const WS_URL = 'http://localhost:3002';
+
+const socket = io(WS_URL);
+
+socket.on('connect', () => {
+    console.log('Connected to NestJS WS');
+});
+
+socket.on('disconnect', () => {
+    console.log('Disconnected from NestJS WS');
+});
+
+socket.on('onMessage', (...args) => {
+    showInfoMessage(args[0].message);
+    console.log('MESSAGE RECEIVED');
+    messagesStore.addMessage(args[0]);
+});
+
+//end socket.io config
+
+//TODO: Api call to get notifications here
+
+const notifications = computed(() => messagesStore.getMessages);
+
+const unreadNotifications = computed(() =>
+    notifications.value.filter((notification) => !notification.readAt && !notification.isHidden),
+);
+
+const notificationsNumberText = computed(() =>
+    unreadNotifications.value.length > 9 ? '9+' : unreadNotifications.value.length,
+);
 </script>
 
 <template>
@@ -58,15 +98,21 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
                     </div>
                     <div class="hidden md:block">
                         <div class="ml-4 flex items-center md:ml-6">
-                            <button
+                            <UButton
                                 type="button"
-                                class="relative rounded-full bg-primary-700 p-1 text-primary-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                                class="flex gap-1 items-center relative rounded-full bg-primary-70 h-10 p-1.5 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600 mr-1"
                                 to="/notifications"
                             >
                                 <span class="absolute -inset-1.5" />
                                 <span class="sr-only">View notifications</span>
-                                <BellIcon v-if="status === 'authenticated'" class="h-6 w-6" aria-hidden="true" />
-                            </button>
+                                <div
+                                    v-if="unreadNotifications.length"
+                                    class="bg-red-500 rounded-full w-5 h-5 text-xs flex items-center justify-center absolute top-0 z-20 -right-2.5"
+                                >
+                                    {{ notificationsNumberText }}
+                                </div>
+                                <UIcon name="i-heroicons-bell" class="h-7 w-7" aria-hidden="true" />
+                            </UButton>
 
                             <!-- Profile dropdown -->
                             <Menu v-if="status === 'authenticated'" as="div" class="relative ml-3">
@@ -163,14 +209,21 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
                             <div class="text-base font-medium text-white">{{ session?.user?.name }}</div>
                             <div class="text-sm font-medium text-primary-300">{{ session?.user?.email }}</div>
                         </div>
-                        <button
+                        <UButton
                             type="button"
-                            class="relative ml-auto flex-shrink-0 rounded-full bg-primary-700 p-1 text-primary-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                            class="relative flex gap-1 items-center relative rounded-full bg-primary-70 h-10 p-1.5 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                            to="/notifications"
                         >
                             <span class="absolute -inset-1.5" />
                             <span class="sr-only">View notifications</span>
-                            <BellIcon v-if="status === 'authenticated'" class="h-6 w-6" aria-hidden="true" />
-                        </button>
+                            <div
+                                v-if="unreadNotifications.length"
+                                class="bg-red-500 rounded-full w-5 h-5 text-xs flex items-center justify-center absolute top-0 z-20 -right-2.5"
+                            >
+                                {{ notificationsNumberText }}
+                            </div>
+                            <UIcon name="i-heroicons-bell" class="h-7 w-7" aria-hidden="true" />
+                        </UButton>
                     </div>
                     <UButton v-else class="ml-5" @click="signIn('keycloak')">
                         <ArrowRightOnRectangleIcon class="h-4 w-4" />

@@ -75,6 +75,13 @@ export default defineI18nConfig(() => ({
                 dashboard: 'Dashboard',
                 analytics: 'Analytics',
             },
+            notifications: {
+                notifications: 'Notifications',
+                title: 'Notifications',
+                markRead: 'Mark as read',
+                hide: 'Hide',
+                noNotifications: 'No notifications available.',
+            },
             data: {
                 data: 'My Data',
                 designer: {
@@ -329,12 +336,12 @@ export default defineI18nConfig(() => ({
                 signOut: 'Sign out',
                 signIn: 'Sign in',
             },
-            notifications: {
-                title: 'Notifications',
-                read: 'Mark as read',
-                unread: 'Mark as unread',
-                delete: 'Remove notification',
-            },
+            // notifications: {
+            //     title: 'Notifications',
+            //     read: 'Mark as read',
+            //     unread: 'Mark as unread',
+            //     delete: 'Remove notification',
+            // },
             admin: {
                 services: {
                     title: 'Manage Services',
