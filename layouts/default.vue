@@ -57,6 +57,23 @@ socket.on('onMessage', (...args) => {
 
 //end socket.io config
 
+//begin websockets config
+const { data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
+// const { status: wsStatus, data: wsData, send, open, close } = useWebSocket(`ws://${location.host}/api/messages`);
+//end websockets config
+
+const history = ref<string[]>([]);
+watch(wsData, (newValue) => {
+    history.value.push(`server: ${newValue}`);
+});
+
+const message = ref('');
+function sendData() {
+    history.value.push(`client: ${message.value}`);
+    send(message.value);
+    message.value = '';
+}
+
 //TODO: Api call to get notifications here
 
 const notifications = computed(() => messagesStore.getMessages);
@@ -71,6 +88,17 @@ const notificationsNumberText = computed(() =>
 </script>
 
 <template>
+    <div>
+        <h1>WebSocket - let's go!</h1>
+        <form @submit.prevent="sendData">
+            <input v-model="message" />
+            <button type="submit">Send</button>
+        </form>
+        <div>
+            <p v-for="entry in history" :key="entry">{{ entry }}</p>
+        </div>
+    </div>
+    <!-- END WEBSOCKET TRIAL-->
     <div class="h-full flex flex-col">
         <Disclosure v-slot="{ open }" as="nav" class="bg-primary-700 sticky top-0 z-50">
             <div class="mx-auto px-8 max-w-7xl">
