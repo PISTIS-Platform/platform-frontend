@@ -1,26 +1,40 @@
 import { io, type Socket } from 'socket.io-client';
 
+import { getToken } from '#auth';
+
 const { wsUrl } = useRuntimeConfig();
-let socket: Socket;
+const sockets = new Map<string, Socket>();
 
 export default defineWebSocketHandler({
-    open(peer) {
-        console.log('opened WS', peer);
-        socket = io(wsUrl);
-        socket.on('connect', () => {
+    async open(peer) {
+        if (sockets.has(peer.id)) return;
+        // console.log('context', peer.ctx)
+        // console.log('headers', peer.headers)
+        // console.log('opened WS', peer);
+        const token = await getToken({ event: peer.ctx });
+        sockets.set(
+            peer.id,
+            io(wsUrl, {
+                extraHeaders: {
+                    Authorization: `Bearer ${token?.access_token}`,
+                },
+            }),
+        );
+        sockets.get(peer.id)?.on('connect', () => {
             console.log('Connected to NestJS WS');
         });
-        socket.on('disconnect', () => {
+        sockets.get(peer.id)?.on('disconnect', () => {
             console.log('Disconnected from NestJS WS');
         });
         //listens to messages, specifically 'onMessage'
-        socket.on('onMessage', (...args) => {
+        sockets.get(peer.id)?.on('onMessage', (...args) => {
             console.log('MESSAGE RECEIVED', new Date());
             peer.send(JSON.stringify(args[0]));
         });
     },
     close(peer) {
         console.log('closed WS', peer);
+        sockets.delete(peer.id);
     },
     error(peer, error) {
         console.log('error on WS', peer, error);
@@ -29,7 +43,7 @@ export default defineWebSocketHandler({
     //sends message on 'newMessage' to BE which is listening for it
     message(peer, message) {
         console.log('message on WS', peer, message);
-        socket.emit('newMessage', {
+        sockets.get(peer.id)?.emit('newMessage', {
             hello: 'there',
         });
     },
