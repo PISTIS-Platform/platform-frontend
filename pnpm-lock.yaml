@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@headlessui/vue':
-    specifier: 1.7.16
-    version: 1.7.16(vue@3.4.38)
+    specifier: 1.7.19
+    version: 1.7.19(vue@3.4.38)
   '@heroicons/vue':
     specifier: ^2.0.18
     version: 2.1.5(vue@3.4.38)
@@ -1147,12 +1147,13 @@ packages:
       tailwindcss: 3.4.10
     dev: false
 
-  /@headlessui/vue@1.7.16(vue@3.4.38):
-    resolution: {integrity: sha512-nKT+nf/q6x198SsyK54mSszaQl/z+QxtASmgMEJtpxSX2Q0OPJX0upS/9daDyiECpeAsvjkoOrm2O/6PyBQ+Qg==}
+  /@headlessui/vue@1.7.19(vue@3.4.38):
+    resolution: {integrity: sha512-VFjKPybogux/5/QYGSq4zgG/x3RcxId15W8uguAJAjPBxelI23dwjOjTx/mIiMkM/Hd3rzFxcf2aIp56eEWRcA==}
     engines: {node: '>=10'}
     peerDependencies:
       vue: ^3.2.0
     dependencies:
+      '@tanstack/vue-virtual': 3.10.4(vue@3.4.38)
       vue: 3.4.38(typescript@5.5.4)
     dev: false
 
