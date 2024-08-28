@@ -34,6 +34,7 @@ export default defineWebSocketHandler({
     },
     close(peer) {
         console.log('closed WS', peer);
+        sockets.get(peer.id)?.disconnect();
         sockets.delete(peer.id);
     },
     error(peer, error) {
