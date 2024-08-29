@@ -8,9 +8,7 @@ const sockets = new Map<string, Socket>();
 export default defineWebSocketHandler({
     async open(peer) {
         if (sockets.has(peer.id)) return;
-        // console.log('context', peer.ctx)
-        // console.log('headers', peer.headers)
-        // console.log('opened WS', peer);
+        console.log('opened WS', peer);
         const token = await getToken({ event: peer.ctx });
         sockets.set(
             peer.id,
