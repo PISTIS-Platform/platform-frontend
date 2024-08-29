@@ -30,7 +30,7 @@ export default defineNuxtConfig({
     },
 
     nitro: {
-        // preset: 'node-server',
+        preset: 'node-server',
         experimental: {
             websocket: true,
         },
