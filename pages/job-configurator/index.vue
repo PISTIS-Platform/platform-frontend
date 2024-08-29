@@ -39,7 +39,25 @@ const selectedOption = ref('datasetId');
         </div>
 
         <div class="p-4 bg-gray-100 rounded-lg shadow">
-            <label for="jsonContent" class="block text-sm font-medium text-gray-700">JSON Content:</label>
+            <label for="datasetName" class="block text-sm font-medium text-gray-700">Dataset Name:</label>
+            <input
+                id="datasetName"
+                type="text"
+                class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+            />
+        </div>
+
+        <div class="p-4 bg-gray-100 rounded-lg shadow">
+            <label for="datasetDescription" class="block text-sm font-medium text-gray-700">Dataset Description:</label>
+            <input
+                id="datasetDescription"
+                type="text"
+                class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+            />
+        </div>
+
+        <div class="p-4 bg-gray-100 rounded-lg shadow">
+            <label for="jsonContent" class="block text-sm font-medium text-gray-700">Workflow definition JSON:</label>
             <textarea
                 id="jsonContent"
                 rows="10"
