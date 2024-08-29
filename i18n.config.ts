@@ -336,12 +336,6 @@ export default defineI18nConfig(() => ({
                 signOut: 'Sign out',
                 signIn: 'Sign in',
             },
-            // notifications: {
-            //     title: 'Notifications',
-            //     read: 'Mark as read',
-            //     unread: 'Mark as unread',
-            //     delete: 'Remove notification',
-            // },
             admin: {
                 services: {
                     title: 'Manage Services',
