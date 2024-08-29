@@ -35,8 +35,8 @@ const navigation = [
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
 
 //begin websockets config
-const { data: wsData } = useWebSocket(`ws://${location.host}/api/messages`);
-// const { status: wsStatus, data: wsData, send, open, close } = useWebSocket(`ws://${location.host}/api/messages`);
+const { data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
+//const { status: wsStatus, data: wsData, send, open, close } = useWebSocket(`ws://${location.host}/api/messages`);
 
 //watching the data value where new messages come
 watch(wsData, (newValue) => {
@@ -47,11 +47,12 @@ watch(wsData, (newValue) => {
 });
 
 //to send messages back to WS through Nitro
-// const message = ref('');
-// function sendData() {
-//     send(message.value);
-//     message.value = '';
-// }
+const message = ref('Hello!');
+
+function sendData() {
+    send(message.value);
+    //message.value = '';
+}
 
 //end websockets config
 
@@ -72,6 +73,7 @@ const notificationsNumberText = computed(() =>
     <div class="h-full flex flex-col">
         <Disclosure v-slot="{ open }" as="nav" class="bg-primary-700 sticky top-0 z-50">
             <div class="mx-auto px-8 max-w-7xl">
+                <UButton label="Send Data" @click="sendData"></UButton>
                 <div class="flex h-16 items-center justify-between">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
