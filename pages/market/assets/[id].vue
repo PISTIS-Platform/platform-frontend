@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useRoute } from 'nuxt/app';
 
-import { BasicAsset } from '~/interfaces/market-insights';
-import type Selection from '~/interfaces/selection';
+import type { BasicAsset } from '~/interfaces/market-insights';
+import type { Selection } from '~/interfaces/selection';
 
 const { t } = useI18n();
 

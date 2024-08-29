@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { PropType } from 'nuxt/dist/app/compat/capi';
-
 import type { AssetPerformanceList } from '~/interfaces/market-insights';
-import Selection from '~/interfaces/selection';
+import type { Selection } from '~/interfaces/selection';
 
 const props = defineProps({
     assetData: {

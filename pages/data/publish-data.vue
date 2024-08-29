@@ -15,12 +15,12 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
-const { data: allDatasets, pending: datasetsPending } = useAsyncData(() => $fetch('/api/datasets/get-all'));
+const { data: allDatasets, status: datasetsStatus } = useAsyncData(() => $fetch('/api/datasets/get-all'));
 
 const datasetsTransformed = computed(() => {
     if (!allDatasets.value?.result?.results?.length) return [];
 
-    return allDatasets.value.result.results.map((result: Record<string, any>) => ({
+    return allDatasets.value.result.results.map((result: Record<string, unknown>) => ({
         id: result.id,
         title: result.title.en,
         description: result.description.en,
@@ -214,9 +214,9 @@ const changeStep = async (stepNum: number) => {
             </li>
         </ol>
     </nav>
-    <UProgress v-if="datasetsPending" animation="carousel" />
+    <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 0 && !datasetsPending" class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 0 && datasetsStatus !== 'pending'" class="w-full h-full text-gray-700 space-y-8">
         <UCard v-for="dataset in datasetsTransformed" :key="dataset.id">
             <template #header>
                 <div class="flex items-center w-full justify-between">

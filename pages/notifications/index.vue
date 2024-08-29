@@ -1,79 +1,60 @@
 <script setup lang="ts">
-import { DummyNotifications } from './notifications-dummy-data';
+//TODO: API call to get notifications here
+//TODO: Possibly read information from API call that will happen to get the notifications for the icon
+import dayjs from 'dayjs';
 
-let fakeData = DummyNotifications.sort((a, b) => (a.isUnread === b.isUnread ? 0 : b.isUnread ? -1 : 1));
+import { useMessagesStore } from '~/store/messages';
 
-function isUread(id) {
-    console.log(id, 'readed');
-}
+const messagesStore = useMessagesStore();
 
-function remove(id) {
-    console.log(id);
-}
+const notifications = computed(() => messagesStore.getMessages);
+
+const markAsRead = (id: string | number) => {
+    //TODO: Send API call to mark notification as Read if stored
+    //TODO: Refresh list upon doing so and set in store
+    messagesStore.markAsRead(id);
+};
+
+const hide = (id: string | number) => {
+    //TODO: Send API call to mark notification as hidden if stored
+    //TODO: Refresh list upon doing so and set in store
+    messagesStore.hideMessage(id);
+};
+
+const shownNotifications = computed(() => notifications.value.filter((not) => !not.isHidden));
 </script>
 
 <template>
-    <div class="w-full h-full text-gray-700">
-        <h1 class="text-2xl font-bold">
-            {{ $t('notifications.title') }}
-        </h1>
-
-        <!-- Notifications Info -->
-        <div
-            v-for="notification in fakeData"
-            :key="notification.id"
-            class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8"
-        >
-            <UCard
-                :class="
-                    notification.isUnread === false
-                        ? `relative border w-full ring-2 ring-primary-500`
-                        : `relative w-full rounded-md`
-                "
-            >
-                <div class="flex flex-row justify-between">
-                    <div class="flex gap-2 left-6 order-first">
-                        <h3 class="text-base xl:text-xl font-bold">
-                            {{ notification.title }}
-                        </h3>
-                        <UIcon
-                            :name="
-                                notification.type === 'personal'
-                                    ? 'i-heroicons-user-circle-20-solid'
-                                    : notification.type === 'dataset'
-                                    ? 'i-heroicons-document-arrow-down-20-solid'
-                                    : 'i-heroicons-currency-dollar-20-solid'
-                            "
-                            class="ml-2 h-6 w-6"
-                        />
+    <div class="justify-start h-full items-center px-8 max-w-7xl mx-auto w-full">
+        <PageContainer>
+            <SubHeading :title="$t('notifications.title')" />
+            <div class="flex flex-col gap-6 mt-6 w-full">
+                <UCard
+                    v-for="notification in shownNotifications"
+                    :key="notification.id"
+                    :class="['w-full relative pb-6 pt-4', notification.readAt ? 'opacity-60' : '']"
+                >
+                    {{ notification.message }}
+                    <div class="flex items-center justify-end w-full text-xs absolute top-2 right-2 text-gray-500">
+                        {{ dayjs(notification.createdAt).format('DD/MM/YYYY HH:mm') }}
                     </div>
-                    <div class="flex gap-2 right-2 order-last">
-                        <UTooltip
-                            :text="
-                                notification.isUnread === true ? $t('notifications.unread') : $t('notifications.read')
-                            "
-                        >
-                            <UIcon
-                                :name="
-                                    notification.isUnread === true
-                                        ? `i-heroicons-envelope-20-solid`
-                                        : `i-heroicons-check-20-solid`
-                                "
-                                class="h-6 w-6 cursor-pointer"
-                                @click="isUread(notification.id)"
-                            />
-                        </UTooltip>
-                        <UTooltip :text="$t('notifications.delete')">
-                            <UIcon
-                                name="i-heroicons-x-mark-20-solid"
-                                class="h-6 w-6 cursor-pointer"
-                                @click="remove(notification.id)"
-                            />
-                        </UTooltip>
+                    <div class="w-full flex justify-end gap-4 absolute bottom-2 right-2">
+                        <UButton color="red" variant="soft" @click="hide(notification.id)">{{
+                            $t('notifications.hide')
+                        }}</UButton>
+                        <UButton v-if="!notification.readAt" color="gray" @click="markAsRead(notification.id)">{{
+                            $t('notifications.markRead')
+                        }}</UButton>
                     </div>
-                </div>
-                <div class="w-full mt-6 pr-20 text-l truncate">{{ notification.description }}</div>
-            </UCard>
-        </div>
+                </UCard>
+                <UAlert
+                    v-if="!shownNotifications.length"
+                    icon="ic:outline-info"
+                    color="primary"
+                    variant="soft"
+                    :description="$t('notifications.noNotifications')"
+                />
+            </div>
+        </PageContainer>
     </div>
 </template>

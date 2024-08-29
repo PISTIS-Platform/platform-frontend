@@ -1,21 +1,29 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-    ssr: false, // Disable server-side rendering
-    telemetry: false, // Disable telemetry by Nuxt team
+    // Disable server-side rendering
+    ssr: false,
+
+    // Disable telemetry by Nuxt team
+    telemetry: false,
+
     components: [
         {
             path: '~/components',
             pathPrefix: false,
         },
     ],
+
     alias: {
         cookie: 'cookie',
     },
+
     plugins: ['~/plugins/vue3-tags.js', '~/plugins/vue3-chartjs'],
     devtools: { enabled: true },
+
     ui: {
         icons: ['heroicons', 'fa6-regular', 'formkit'],
     },
+
     typescript: {
         strict: true,
         typeCheck: false, // Enabling this makes development slower, but performs proper type checking
@@ -23,6 +31,9 @@ export default defineNuxtConfig({
 
     nitro: {
         preset: 'node-server',
+        experimental: {
+            websocket: true,
+        },
     },
 
     app: {
@@ -46,9 +57,11 @@ export default defineNuxtConfig({
         anonymizerApiUrl: process.env.ANONYMIZER_URL,
         intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
         sctcUrl: process.env.NUXT_SCTC_URL,
+        wsUrl: process.env.NUXT_WS_URL,
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
+
     // Modules Configuration
     i18n: {
         strategy: 'no_prefix',
@@ -69,7 +82,10 @@ export default defineNuxtConfig({
             isEnabled: true,
         },
     },
+
     colorMode: {
         preference: 'light',
     },
+
+    compatibilityDate: '2024-08-28',
 });

@@ -1,4 +1,4 @@
-export default interface Selection {
+export interface Selection {
     label: string;
     value: string;
     disabled?: boolean;
