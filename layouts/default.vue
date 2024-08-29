@@ -40,6 +40,7 @@ const { data: wsData } = useWebSocket(`ws://${location.host}/api/messages`);
 
 //watching the data value where new messages come
 watch(wsData, (newValue) => {
+    if (!newValue) return;
     const message = JSON.parse(newValue);
     showInfoMessage(message.message);
     messagesStore.addMessage(message);
