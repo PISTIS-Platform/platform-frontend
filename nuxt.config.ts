@@ -34,7 +34,6 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             orgId: process.env.NUXT_PUBLIC_ORG_ID, //NUXT_PUBLIC_ORG_ID
-            orgName: process.env.NUXT_PUBLIC_ORG_NAME,
             orgLogo: process.env.NUXT_PUBLIC_ORG_LOGO,
         },
         authSecret: process.env.NUXT_NEXTAUTH_SECRET,
