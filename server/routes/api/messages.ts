@@ -8,7 +8,7 @@ const sockets = new Map<string, Socket>();
 export default defineWebSocketHandler({
     async open(peer) {
         if (sockets.has(peer.id)) return;
-        console.log('opened WS', peer);
+        console.log('opened WS', peer.id);
         const token = await getToken({ event: peer.ctx });
         sockets.set(
             peer.id,
@@ -24,6 +24,7 @@ export default defineWebSocketHandler({
         sockets.get(peer.id)?.on('disconnect', () => {
             console.log('Disconnected from NestJS WS');
         });
+        sockets.get(peer.id)?.emit('join', 'test_room_' + peer.id);
         //listens to messages, specifically 'onMessage'
         sockets.get(peer.id)?.on('onMessage', (...args) => {
             console.log('MESSAGE RECEIVED', new Date());
