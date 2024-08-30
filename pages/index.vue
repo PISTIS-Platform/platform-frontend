@@ -54,7 +54,7 @@ const callbackUrl = '/home';
                 <!-- Sign In button -->
                 <div v-if="status !== 'authenticated'" class="flex">
                     <button
-                        class="inline-flex items-center px-4 py-2 text-base font-medium text-primary-800 bg-white border border-transparent rounded-md hover:primary-text-950 hover:bg-gray-100 cursor-pointer transition-all"
+                        class="inline-flex items-center px-4 py-2 text-lg font-medium text-primary-800 bg-white border border-transparent rounded-md hover:primary-text-950 hover:bg-gray-100 cursor-pointer transition-all"
                         @click="signIn('keycloak', { callbackUrl })"
                     >
                         Enter Factory
