@@ -8,8 +8,6 @@ import {
     XMarkIcon,
 } from '@heroicons/vue/24/outline';
 
-import type { NotificationAction } from '~/types';
-
 const { showInfoMessage } = useAlertMessage();
 
 import { useMessagesStore } from '~/store/messages';
@@ -39,6 +37,17 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
 //begin websockets config
 const { data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
 
+function getAllNotifications() {
+    send(
+        JSON.stringify({
+            action: 'getAllNotifications',
+            userId: 3,
+        }),
+    );
+}
+
+getAllNotifications();
+
 //watching the data value where new messages come
 watch(wsData, (newValue) => {
     if (!newValue) return;
@@ -48,22 +57,12 @@ watch(wsData, (newValue) => {
         return;
     }
     showInfoMessage(message.message);
-    messagesStore.addMessage(message);
+    //TODO: Keeping for now in comment but this won't be necessary if we get all notifications that have been created
+    // messagesStore.addMessage(message);
+    getAllNotifications();
 });
-
-//to send messages back to WS through Nitro
-const message = ref<NotificationAction>({
-    action: 'getAllNotifications',
-    userId: 3,
-});
-
-function sendData() {
-    send(JSON.stringify(message.value));
-}
 
 //end websockets config
-
-//TODO: Api call to get notifications here
 
 const notifications = computed(() => messagesStore.getMessages);
 
@@ -80,7 +79,7 @@ const notificationsNumberText = computed(() =>
     <div class="h-full flex flex-col">
         <Disclosure v-slot="{ open }" as="nav" class="bg-primary-700 sticky top-0 z-50">
             <div class="mx-auto px-8 max-w-7xl">
-                <UButton label="Send Data" @click="sendData"></UButton>
+                <UButton label="Get All Notifications" @click="getAllNotifications"></UButton>
                 <div class="flex h-16 items-center justify-between">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
