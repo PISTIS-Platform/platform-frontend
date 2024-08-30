@@ -30,6 +30,12 @@ export default defineWebSocketHandler({
             console.log('MESSAGE RECEIVED', new Date());
             peer.send(JSON.stringify(args[0]));
         });
+
+        sockets.get(peer.id)?.on('sendAllNotifications', (...args) => {
+            // console.log('Notifications gotten!');
+            // console.log(JSON.stringify(args[0]));
+            peer.send(JSON.stringify(args[0]));
+        });
     },
     close(peer) {
         console.log('closed WS', peer);
