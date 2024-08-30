@@ -12,7 +12,7 @@ const runDataTransformation = async () => {
     }
 
     try {
-        const response = await fetch('https://develop.pistis-market.eu/srv/data-transformation/transform', {
+        const response = await fetch('https://develop.pistis-market.eu/srv/data-transformation/transform/', {
             method: 'POST',
             body: formData,
         });
