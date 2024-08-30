@@ -8,6 +8,8 @@ import {
     XMarkIcon,
 } from '@heroicons/vue/24/outline';
 
+import type { NotificationAction } from '~/types';
+
 const { showInfoMessage } = useAlertMessage();
 
 import { useMessagesStore } from '~/store/messages';
@@ -36,7 +38,6 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
 
 //begin websockets config
 const { data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
-//const { status: wsStatus, data: wsData, send, open, close } = useWebSocket(`ws://${location.host}/api/messages`);
 
 //watching the data value where new messages come
 watch(wsData, (newValue) => {
@@ -47,11 +48,13 @@ watch(wsData, (newValue) => {
 });
 
 //to send messages back to WS through Nitro
-const message = ref('Hello!');
+const message = ref<NotificationAction>({
+    action: 'getAllNotifications',
+    userId: 3,
+});
 
 function sendData() {
-    send(message.value);
-    //message.value = '';
+    send(JSON.stringify(message.value));
 }
 
 //end websockets config

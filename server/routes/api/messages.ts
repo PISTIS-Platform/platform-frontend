@@ -24,7 +24,7 @@ export default defineWebSocketHandler({
         sockets.get(peer.id)?.on('disconnect', () => {
             console.log('Disconnected from NestJS WS');
         });
-        sockets.get(peer.id)?.emit('join', 'test_room_' + peer.id);
+        //sockets.get(peer.id)?.emit('join', 'test_room_' + peer.id);
         //listens to messages, specifically 'onMessage'
         sockets.get(peer.id)?.on('onMessage', (...args) => {
             console.log('MESSAGE RECEIVED', new Date());
@@ -42,7 +42,13 @@ export default defineWebSocketHandler({
     //when user uses send('blah') from FE it goes through here
     //sends message on 'newMessage' to BE which is listening for it
     message(peer, message) {
-        console.log('message on WS', peer, message.text());
-        sockets.get(peer.id)?.emit('sendUserNotifications', message.text());
+        console.log('message on WS', peer, message);
+
+        const messageObject = JSON.parse(message.text());
+
+        sockets.get(peer.id)?.emit(messageObject.action, {
+            userId: messageObject.userId,
+            notificationId: messageObject?.notificationId,
+        });
     },
 });
