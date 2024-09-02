@@ -1,6 +1,4 @@
 <script setup lang="ts">
-//TODO: API call to get notifications here
-//TODO: Possibly read information from API call that will happen to get the notifications for the icon
 import dayjs from 'dayjs';
 
 import { useMessagesStore } from '~/store/messages';
