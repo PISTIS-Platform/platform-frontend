@@ -7,18 +7,53 @@ import { useMessagesStore } from '~/store/messages';
 
 const messagesStore = useMessagesStore();
 
+// const { status, signIn, signOut, data: session } = useAuth();
+
+const { data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
+
 const notifications = computed(() => messagesStore.getMessages);
 
+const getAllNotifications = () => {
+    send(
+        JSON.stringify({
+            //TODO: Get user id
+            action: 'getAllNotifications',
+            // userId: session.value.user?.userId,
+        }),
+    );
+};
+
+watch(wsData, (newValue) => {
+    if (!newValue) return;
+    const message = JSON.parse(newValue);
+    if (Array.isArray(message)) {
+        messagesStore.setMessages(message);
+        return;
+    }
+});
+
 const markAsRead = (id: string | number) => {
-    //TODO: Send API call to mark notification as Read if stored
-    //TODO: Refresh list upon doing so and set in store
-    messagesStore.markAsRead(id);
+    send(
+        JSON.stringify({
+            action: 'markAsRead',
+            notificationId: id,
+            //TODO: Get user id
+            // userId: session.value.user?.userId,
+        }),
+    );
+    getAllNotifications();
 };
 
 const hide = (id: string | number) => {
-    //TODO: Send API call to mark notification as hidden if stored
-    //TODO: Refresh list upon doing so and set in store
-    messagesStore.hideMessage(id);
+    send(
+        JSON.stringify({
+            action: 'hide',
+            notificationId: id,
+            //TODO: Get user id
+            // userId: session.value.user?.userId,
+        }),
+    );
+    getAllNotifications();
 };
 
 const shownNotifications = computed(() => notifications.value.filter((not) => !not.isHidden));
