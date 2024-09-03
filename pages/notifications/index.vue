@@ -16,9 +16,7 @@ const notifications = computed(() => messagesStore.getMessages);
 const getAllNotifications = () => {
     send(
         JSON.stringify({
-            //TODO: Get user id
             action: 'getAllNotifications',
-            // userId: session.value.user?.userId,
         }),
     );
 };
@@ -37,8 +35,6 @@ const markAsRead = (id: string | number) => {
         JSON.stringify({
             action: 'markAsRead',
             notificationId: id,
-            //TODO: Get user id
-            // userId: session.value.user?.userId,
         }),
     );
     getAllNotifications();
@@ -49,8 +45,6 @@ const hide = (id: string | number) => {
         JSON.stringify({
             action: 'hide',
             notificationId: id,
-            //TODO: Get user id
-            // userId: session.value.user?.userId,
         }),
     );
     getAllNotifications();
