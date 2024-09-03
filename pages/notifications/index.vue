@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import * as R from 'ramda';
 
+import type { Message } from '~/interfaces/message';
 import { useMessagesStore } from '~/store/messages';
 
 const messagesStore = useMessagesStore();
@@ -55,6 +57,17 @@ const hide = (id: string | number) => {
 };
 
 const shownNotifications = computed(() => notifications.value.filter((not) => !not.isHidden));
+
+const transformedUnreadNotifications = computed(() =>
+    shownNotifications.value.map((notification: Message) => ({
+        ...notification,
+        createdAt: dayjs(notification.createdAt).format('YYYY/MM/DD HH:mm:ss'),
+    })),
+);
+
+const sortByCreatedAt = R.sortWith([R.descend(R.prop('createdAt'))]);
+
+const sortedNotifications = computed(() => sortByCreatedAt(transformedUnreadNotifications.value));
 </script>
 
 <template>
@@ -63,7 +76,7 @@ const shownNotifications = computed(() => notifications.value.filter((not) => !n
             <SubHeading :title="$t('notifications.title')" />
             <div class="flex flex-col gap-6 mt-6 w-full">
                 <UCard
-                    v-for="notification in shownNotifications"
+                    v-for="notification in sortedNotifications"
                     :key="notification.id"
                     :class="['w-full relative pb-6 pt-4', notification.readAt ? 'opacity-60' : '']"
                 >
