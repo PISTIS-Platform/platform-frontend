@@ -1,38 +1,68 @@
 <template>
-    <div class="p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md space-y-6">
-        <form @submit.prevent="handleSubmit">
+    <div class="container mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
+        <div class="form-container">
+            <form @submit.prevent="handleSubmit">
+                <div class="p-4 bg-gray-100 rounded-lg shadow">
+                    <label for="jsonContent" class="block text-sm font-medium text-gray-700"
+                        >Transformation Definition:</label
+                    >
+                    <textarea
+                        id="jsonContent"
+                        v-model="jsonContent"
+                        rows="10"
+                        cols="50"
+                        class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    ></textarea>
+                </div>
+
+                <div class="p-4 bg-gray-100 rounded-lg shadow">
+                    <label for="fileUpload" class="block text-sm font-medium text-gray-700">Upload Dataset:</label>
+                    <input
+                        id="fileUpload"
+                        type="file"
+                        class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        @change="handleFileChange"
+                    />
+                </div>
+
+                <div class="p-4 bg-gray-100 rounded-lg shadow">
+                    <label for="outputFormat" class="block text-sm font-medium text-gray-700">Output format:</label>
+                    <select
+                        id="outputFormat"
+                        v-model="outputFormat"
+                        class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    >
+                        <option value="text/plain">CSV</option>
+                        <option value="application/vnd.ms-excel">Excel</option>
+                        <option value="text/xml">XML</option>
+                        <option value="application/json">JSON</option>
+                    </select>
+                </div>
+
+                <div class="p-4 bg-gray-100 rounded-lg shadow text-right">
+                    <button
+                        type="submit"
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div v-if="responseContent" class="response-container">
             <div class="p-4 bg-gray-100 rounded-lg shadow">
-                <label for="jsonContent" class="block text-sm font-medium text-gray-700"
-                    >Transformation Definition:</label
-                >
+                <label for="responseContent" class="block text-sm font-medium text-gray-700">Response:</label>
                 <textarea
-                    id="jsonContent"
-                    v-model="jsonContent"
+                    id="responseContent"
+                    v-model="responseContent"
                     rows="10"
                     cols="50"
                     class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    readonly
                 ></textarea>
             </div>
-
-            <div class="p-4 bg-gray-100 rounded-lg shadow">
-                <label for="fileUpload" class="block text-sm font-medium text-gray-700">Upload Dataset:</label>
-                <input
-                    id="fileUpload"
-                    type="file"
-                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                    @change="handleFileChange"
-                />
-            </div>
-
-            <div class="p-4 bg-gray-100 rounded-lg shadow text-right">
-                <button
-                    type="submit"
-                    class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                    Submit
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -43,6 +73,8 @@ export default {
     setup() {
         const jsonContent = ref('');
         const fileUpload = ref<File | null>(null);
+        const responseContent = ref('');
+        const outputFormat = ref('application/json'); // Default value
 
         const handleFileChange = (event: Event) => {
             const target = event.target as HTMLInputElement;
@@ -68,6 +100,9 @@ export default {
                 const response = await fetch('https://develop.pistis-market.eu/srv/data-transformation/transform/', {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        Accept: outputFormat.value,
+                    },
                 });
 
                 if (!response.ok) {
@@ -75,8 +110,10 @@ export default {
                 }
 
                 const data = await response.json();
+                responseContent.value = JSON.stringify(data, null, 2); // Format JSON response
                 console.log('Success:', data);
             } catch (error) {
+                responseContent.value = `Error: ${error.message}`;
                 console.error('Error:', error);
             }
         };
@@ -84,6 +121,8 @@ export default {
         return {
             jsonContent,
             fileUpload,
+            responseContent,
+            outputFormat,
             handleFileChange,
             handleSubmit,
         };
@@ -92,5 +131,17 @@ export default {
 </script>
 
 <style scoped>
-/* Add any scoped styles here */
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.form-container {
+    flex: 1;
+}
+
+.response-container {
+    flex: 1;
+}
 </style>
