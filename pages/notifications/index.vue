@@ -13,14 +13,6 @@ const { data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`
 
 const notifications = computed(() => messagesStore.getMessages);
 
-const getAllNotifications = () => {
-    send(
-        JSON.stringify({
-            action: 'getAllNotifications',
-        }),
-    );
-};
-
 watch(wsData, (newValue) => {
     if (!newValue) return;
     const message = JSON.parse(newValue);
@@ -30,14 +22,13 @@ watch(wsData, (newValue) => {
     }
 });
 
-const markAsRead = (id: string | number) => {
+const markAsRead = async (id: string | number) => {
     send(
         JSON.stringify({
             action: 'markAsRead',
             notificationId: id,
         }),
     );
-    getAllNotifications();
 };
 
 const hide = (id: string | number) => {
@@ -47,7 +38,6 @@ const hide = (id: string | number) => {
             notificationId: id,
         }),
     );
-    getAllNotifications();
 };
 
 const shownNotifications = computed(() => notifications.value.filter((not) => !not.isHidden));
@@ -61,14 +51,13 @@ const transformedUnreadNotifications = computed(() =>
 
 const sortByCreatedAt = R.sortWith([R.descend(R.prop('createdAt'))]);
 
-const sortedNotifications = computed(() => sortByCreatedAt(transformedUnreadNotifications.value));
+const sortedNotifications = computed<Message[]>(() => sortByCreatedAt(transformedUnreadNotifications.value));
 </script>
 
 <template>
     <div class="justify-start h-full items-center px-8 max-w-7xl mx-auto w-full">
         <PageContainer>
-            <SubHeading :title="$t('notifications.title')" />
-            <div class="flex flex-col gap-6 mt-6 w-full">
+            <div class="flex flex-col gap-6 mt-2 w-full">
                 <UCard
                     v-for="notification in sortedNotifications"
                     :key="notification.id"
