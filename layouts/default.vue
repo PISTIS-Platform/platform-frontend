@@ -41,7 +41,6 @@ function getAllNotifications() {
     send(
         JSON.stringify({
             action: 'getAllNotifications',
-            userId: 3,
         }),
     );
 }
@@ -57,8 +56,7 @@ watch(wsData, (newValue) => {
         return;
     }
     showInfoMessage(message.message);
-    //TODO: Keeping for now in comment but this won't be necessary if we get all notifications that have been created
-    // messagesStore.addMessage(message);
+
     getAllNotifications();
 });
 
