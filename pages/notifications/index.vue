@@ -9,7 +9,7 @@ const messagesStore = useMessagesStore();
 
 // const { status, signIn, signOut, data: session } = useAuth();
 
-const { data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
+const { status, data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
 
 const notifications = computed(() => messagesStore.getMessages);
 
@@ -57,7 +57,7 @@ const sortedNotifications = computed<Message[]>(() => sortByCreatedAt(transforme
 <template>
     <div class="justify-start h-full items-center px-8 max-w-7xl mx-auto w-full">
         <PageContainer>
-            <div class="flex flex-col gap-6 mt-2 w-full">
+            <div v-if="status === 'OPEN' && messagesStore.getMessages.length" class="flex flex-col gap-6 mt-2 w-full">
                 <UCard
                     v-for="notification in sortedNotifications"
                     :key="notification.id"
@@ -83,6 +83,9 @@ const sortedNotifications = computed<Message[]>(() => sortByCreatedAt(transforme
                     variant="soft"
                     :description="$t('notifications.noNotifications')"
                 />
+            </div>
+            <div v-else class="w-full flex items-center justify-center">
+                <UIcon name="svg-spinners:180-ring-with-bg" class="w-12 h-12" />
             </div>
         </PageContainer>
     </div>
