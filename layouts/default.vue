@@ -38,6 +38,7 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
 const { data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
 
 function getAllNotifications() {
+    if (status.value !== 'authenticated') return;
     send(
         JSON.stringify({
             action: 'getAllNotifications',
