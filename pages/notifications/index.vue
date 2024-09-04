@@ -7,20 +7,9 @@ import { useMessagesStore } from '~/store/messages';
 
 const messagesStore = useMessagesStore();
 
-// const { status, signIn, signOut, data: session } = useAuth();
-
-const { status, data: wsData, send } = useWebSocket(`ws://${location.host}/api/messages`);
+const { status, send } = useWebSocket(`ws://${location.host}/api/messages`);
 
 const notifications = computed(() => messagesStore.getMessages);
-
-watch(wsData, (newValue) => {
-    if (!newValue) return;
-    const message = JSON.parse(newValue);
-    if (Array.isArray(message)) {
-        messagesStore.setMessages(message);
-        return;
-    }
-});
 
 const markAsRead = async (id: string | number) => {
     send(
