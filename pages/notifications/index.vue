@@ -29,6 +29,7 @@ const markAsRead = async (id: string | number) => {
             notificationId: id,
         }),
     );
+    messagesStore.markAsRead(id);
 };
 
 const hide = (id: string | number) => {
@@ -38,6 +39,7 @@ const hide = (id: string | number) => {
             notificationId: id,
         }),
     );
+    messagesStore.hideMessage(id);
 };
 
 const shownNotifications = computed(() => notifications.value.filter((not) => !not.isHidden));

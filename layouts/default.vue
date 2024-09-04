@@ -57,8 +57,7 @@ watch(wsData, (newValue) => {
         return;
     }
     showInfoMessage(message.message);
-
-    getAllNotifications();
+    messagesStore.addMessage(message);
 });
 
 //end websockets config
