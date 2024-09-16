@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
@@ -30,6 +31,7 @@ const datasetsTransformed = computed(() => {
 //data for selection whole dataset or query
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
+const newAssetId = uuidV4();
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
@@ -94,6 +96,15 @@ const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetiz
 
 const submitAll = () => {
     let objToSend;
+    objToSend = {
+        originalAssetId: selected.value?.id,
+        organizationId: runtimeConfig.public?.orgId,
+        ...assetOfferingDetails.value,
+        ...monetizationDetails.value,
+        assetId: newAssetId,
+        accessPolicies: {},
+    };
+
     //TODO: Figure out final form for each monetization method
 
     //TODO: Send final object / JSON to API (blockchain)
@@ -131,7 +142,7 @@ const changeStep = async (stepNum: number) => {
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
             body: {
-                assetId: 'fb6ccd7a-b3b4-4269-b101-d65958de24f8', //TODO:: replace with actual asset id once we have more info
+                assetId: newAssetId, //TODO:: replace with actual asset id once we have more info
                 organizationId: runtimeConfig.public?.orgId,
                 terms: monetizationDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
