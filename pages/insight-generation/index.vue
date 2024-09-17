@@ -3,8 +3,7 @@ import { ref } from 'vue';
 
 const fileUpload = ref<File | null>(null);
 const responseContent = ref('');
-const outputFormat = ref('application/json'); // Default value
-const isHtmlResponse = ref(false);
+const outputFormat = ref('application/json');
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -26,8 +25,7 @@ const handleSubmit = async () => {
     }
 
     try {
-        //const response = await fetch('https://develop.pistis-market.eu/srv/insights-generator/insights/', {
-        const response = await fetch('http://localhost:8298/insights/', {
+        const response = await fetch('https://develop.pistis-market.eu/srv/insights-generator/insights/', {
             method: 'POST',
             body: formData,
             headers: {
@@ -41,16 +39,21 @@ const handleSubmit = async () => {
 
         const contentType = response.headers.get('Content-Type');
         if (contentType?.includes('application/json')) {
-            const data = await response.json();
-            responseContent.value = JSON.stringify(data, null, 2); // Format JSON response
-            isHtmlResponse.value = false;
-        } else if (contentType?.includes('text/html')) {
             const data = await response.text();
             responseContent.value = data;
-            isHtmlResponse.value = true;
+        } else if (contentType?.includes('text/html')) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'response.html';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            responseContent.value = 'HTML file downloaded.';
         } else {
             responseContent.value = 'Unsupported response type';
-            isHtmlResponse.value = false;
         }
 
         console.log('Success:', responseContent.value);
