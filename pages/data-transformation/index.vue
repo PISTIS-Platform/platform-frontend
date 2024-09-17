@@ -21,11 +21,6 @@ const handleSubmit = async () => {
         formData.append('file', fileUpload.value);
     }
 
-    // Log FormData entries
-    for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-    }
-
     try {
         const response = await fetch('https://develop.pistis-market.eu/srv/data-transformation/transform/', {
             method: 'POST',
