@@ -15,7 +15,7 @@ const callbackUrl = '/home';
 </script>
 
 <template>
-    <div class="w-full h-screen bg-primary-950 bg-cover" :style="{ backgroundImage: `url('/img/cover-4.jpeg')` }">
+    <div class="w-full h-screen bg-primary-950 bg-cover" :style="{ backgroundImage: `url('/img/cover.jpeg')` }">
         <div class="bg-primary-950/80 h-screen">
             <div class="flex flex-col flex-1 max-w-7xl mx-auto">
                 <nav aria-label="Global" class="relative flex flex-row sm:items-center justify-between py-6">
@@ -23,21 +23,23 @@ const callbackUrl = '/home';
                     <div class="flex flex-row space-x-10 items-center gap-2">
                         <div class="sm:w-full md:w-auto">
                             <NuxtLink :to="'/'" class="flex-shrink-0">
-                                <img class="h-12 sm:h-14" :src="orgLogo" alt="Factory Logo" />
+                                <img v-if="orgLogo" class="h-12 sm:h-14" :src="`/img/${orgLogo}`" alt="Factory Logo" />
                             </NuxtLink>
                         </div>
                         <NuxtLink
                             v-if="status === 'authenticated'"
                             :to="'/home/'"
-                            class="flex-shrink-0 rounded-md mt-2 px-4 py-2 text-base font-medium text-white bg-primary-950 border border-white hover:primary-text-950 hover:bg-primary-900 cursor-pointer transition-all"
+                            class="flex-shrink-0 rounded-md px-4 py-2 text-lg font-medium text-white hover:primary-text-950 hover:border hover:border-white cursor-pointer transition-all"
                             >Home</NuxtLink
                         >
                     </div>
+                    <!-- Right Menu - Pistis logo -->
                     <div class="flex justify-center items-center">
                         <img class="h-12" src="/img/PISTIS_logo_white.png" alt="PISTIS Logo" />
                     </div>
                 </nav>
 
+                <!-- Central Section/Main Content -->
                 <div class="flex flex-col items-center justify-center w-full gap-12 mt-32">
                     <h2 class="text-white font-semibold text-center tracking-wide text-2xl xl:text-4xl">
                         Data Factory
