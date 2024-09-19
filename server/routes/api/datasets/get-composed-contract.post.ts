@@ -1,10 +1,14 @@
 import { getToken } from '#auth';
 
+const { sctcUrl } = useRuntimeConfig();
+
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
+    const body = await readBody(event);
 
-    return $fetch(`https://develop.pistis-market.eu/srv/search/search?filter=dataset`, {
-        method: 'GET',
+    return $fetch(`${sctcUrl}/sctc/compose`, {
+        method: 'POST',
+        body,
         headers: {
             Authorization: `Bearer ${token?.access_token}`,
         },

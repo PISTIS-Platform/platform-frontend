@@ -33,7 +33,7 @@ export default defineI18nConfig(() => ({
             percentage: 'Percentage',
             license: 'License',
             description: 'Description',
-            termsConditions: 'Terms and conditions',
+            termsConditions: 'Extra Terms',
             keywords: 'Keywords',
             times: 'times',
             perHour: 'per hour',
@@ -75,6 +75,13 @@ export default defineI18nConfig(() => ({
                 dashboard: 'Dashboard',
                 analytics: 'Analytics',
             },
+            notifications: {
+                notifications: 'Notifications',
+                title: 'Notifications',
+                markRead: 'Mark as read',
+                hide: 'Hide',
+                noNotifications: 'No notifications available.',
+            },
             data: {
                 data: 'My Data',
                 designer: {
@@ -110,7 +117,7 @@ export default defineI18nConfig(() => ({
                     descriptionOfAsset: 'Type a description for the asset here',
                     keywordsOfAsset: 'Type keywords separated by commas or use the Enter button',
                     fairTitle: 'FAIR Data Valuation',
-                    fairInfo: 'Find out more here',
+                    fairInfo: 'A valuation / grade of the asset based on its merits',
                     overallRating: 'Overall Rating',
                     dataQuality: 'Data Quality',
                     technical: 'Technical',
@@ -126,7 +133,7 @@ export default defineI18nConfig(() => ({
                     investmentPlan: 'Investment Plan',
                     investmentPlanInfo: 'Info here',
                     monetizationMethod: 'Monetization Method',
-                    monetizationMethodInfo: 'Info here',
+                    monetizationMethodInfo: 'Details about the way you wish to monetize this asset',
                     oneOffPrice: 'One-off Sale price',
                     oneOffKind: 'One-off Sale kind',
                     assetPrice: 'Price of the asset',
@@ -328,12 +335,6 @@ export default defineI18nConfig(() => ({
                 settings: 'Settings',
                 signOut: 'Sign out',
                 signIn: 'Sign in',
-            },
-            notifications: {
-                title: 'Notifications',
-                read: 'Mark as read',
-                unread: 'Mark as unread',
-                delete: 'Remove notification',
             },
             admin: {
                 services: {

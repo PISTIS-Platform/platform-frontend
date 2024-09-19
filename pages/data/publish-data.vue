@@ -6,6 +6,8 @@ import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
 import type { AssetOfferingDetails } from '../../interfaces/plan-designer';
 
+const runtimeConfig = useRuntimeConfig();
+
 const { t } = useI18n();
 
 //data for selected dataset
@@ -13,12 +15,12 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
-const { data: allDatasets, pending: datasetsPending } = useFetch<Record<string, any>>('/api/datasets/get-all');
+const { data: allDatasets, status: datasetsStatus } = useAsyncData(() => $fetch('/api/datasets/get-all'));
 
 const datasetsTransformed = computed(() => {
     if (!allDatasets.value?.result?.results?.length) return [];
 
-    return allDatasets.value.result.results.map((result: Record<string, any>) => ({
+    return allDatasets.value.result.results.map((result: Record<string, unknown>) => ({
         id: result.id,
         title: result.title.en,
         description: result.description.en,
@@ -79,7 +81,8 @@ const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
     price: undefined,
     license: '',
-    terms: '',
+    extraTerms: '',
+    contractTerms: '',
     limitNumber: undefined,
     limitFrequency: '',
 });
@@ -121,6 +124,29 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
     assetOfferingDetails.value.description = selected.value.description;
     selectedPage.value = 1;
 };
+
+const changeStep = async (stepNum: number) => {
+    if (stepNum === 3) {
+        //api call to contract template composer
+        const _data = await $fetch(`/api/datasets/get-composed-contract`, {
+            method: 'post',
+            body: {
+                assetId: 'fb6ccd7a-b3b4-4269-b101-d65958de24f8', //TODO:: replace with actual asset id once we have more info
+                organizationId: runtimeConfig.public?.orgId,
+                terms: monetizationDetails.value.contractTerms,
+                monetisationMethod: monetizationDetails.value.type,
+                price: monetizationDetails.value.price,
+                limitNumber: monetizationDetails.value.limitNumber,
+                limitFrequency: monetizationDetails.value.limitFrequency,
+                subscriptionFrequency:
+                    monetizationDetails.value.type === 'subscription'
+                        ? monetizationDetails.value.subscriptionFrequency
+                        : null,
+            },
+        });
+        //TODO:: use returned compose contract for other pistis components
+    }
+};
 </script>
 
 <template>
@@ -155,7 +181,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                     </span>
                     <span class="ml-4 text-sm font-medium text-indigo-600">{{ step.name }}</span>
                 </a>
-                <a v-else class="group flex items-center">
+                <a v-else class="group flex items-center" @click="changeStep(stepIdx)">
                     <span class="flex items-center px-6 py-4 text-sm font-medium">
                         <span
                             class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 group-hover:border-gray-400"
@@ -188,9 +214,9 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
             </li>
         </ol>
     </nav>
-    <UProgress v-if="datasetsPending" animation="carousel" />
+    <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 0 && !datasetsPending" class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 0 && datasetsStatus !== 'pending'" class="w-full h-full text-gray-700 space-y-8">
         <UCard v-for="dataset in datasetsTransformed" :key="dataset.id">
             <template #header>
                 <div class="flex items-center w-full justify-between">
@@ -261,6 +287,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                     </div>
                 </div>
             </UCard>
+
             <UCard>
                 <template #header>
                     <SubHeading
@@ -307,7 +334,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ monetizationDetails.terms }}</span>
+                        <span>{{ monetizationDetails.extraTerms }}</span>
                     </div>
                 </div>
                 <div v-if="monetizationDetails.type === 'subscription'" class="flex flex-col gap-8">
@@ -328,12 +355,12 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                                 monetizationDetails.price
                                     ? monetizationDetails.price +
                                       ' STC ' +
-                                      (monetizationDetails.frequency === 'annual'
+                                      (monetizationDetails.subscriptionFrequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))
                                     : $t('data.designer.free') +
                                       ' - ' +
-                                      (monetizationDetails.frequency === 'annual'
+                                      (monetizationDetails.subscriptionFrequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))
                             }}</span>
@@ -359,7 +386,7 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                        <span>{{ monetizationDetails.terms }}</span>
+                        <span>{{ monetizationDetails.extraTerms }}</span>
                     </div>
                 </div>
                 <div class="w-full flex justify-between items-center mt-8">

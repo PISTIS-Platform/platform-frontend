@@ -16,7 +16,8 @@ export const useMonetizationSchema = () => {
                 },
             ),
             license: z.string().min(1, t('val.required')),
-            terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+            extraTerms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+            contractTerms: z.string().min(1, t('val.required')),
             limitNumber: z.coerce
                 .number({ invalid_type_error: t('val.validNumber') })
                 .gte(0, t('val.zeroOrPositive'))
@@ -35,7 +36,7 @@ export const useMonetizationSchema = () => {
     const subscriptionSchema = z
         .object({
             type: z.literal('subscription'),
-            frequency: z.string().min(1, t('val.required')),
+            subscriptionFrequency: z.string().min(1, t('val.required')),
             // price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).gt(0, t('val.zeroOrPositive')),
             price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
                 (val) => {
@@ -46,7 +47,8 @@ export const useMonetizationSchema = () => {
                 },
             ),
             license: z.string().min(1, t('val.required')),
-            terms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+            extraTerms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+            contractTerms: z.string().min(1, t('val.required')),
             limitNumber: z.coerce
                 .number({ invalid_type_error: t('val.validNumber') })
                 .gte(0, t('val.zeroOrPositive'))

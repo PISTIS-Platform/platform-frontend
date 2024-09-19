@@ -7,8 +7,6 @@ const props = defineProps({
         required: true,
     },
 });
-
-import { PropType } from 'nuxt/dist/app/compat/capi';
 </script>
 
 <template>
