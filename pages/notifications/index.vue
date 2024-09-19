@@ -48,7 +48,7 @@ const sortedNotifications = computed<Message[]>(() => sortByCreatedAt(transforme
 <template>
     <div class="justify-start h-full items-center px-8 max-w-7xl mx-auto w-full">
         <PageContainer>
-            <div v-if="status === 'OPEN' && messagesStore.getMessages.length" class="flex flex-col gap-6 mt-2 w-full">
+            <div v-if="status === 'OPEN'" class="flex flex-col gap-6 mt-2 w-full">
                 <UCard
                     v-for="notification in sortedNotifications"
                     :key="notification.id"
