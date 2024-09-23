@@ -332,7 +332,7 @@ async function onSubmit(): Promise<void> {
                                         <UFormGroup :label="$t('data.designer.worldwide')">
                                             <UCheckbox
                                                 :model-value="isWorldwide"
-                                                class="mt-2.5 -ml-1 justify-center"
+                                                class="mt-2.5 justify-center"
                                                 @update:model-value="(value: boolean) => updateWorldwide(value)"
                                             />
                                         </UFormGroup>
@@ -595,7 +595,7 @@ async function onSubmit(): Promise<void> {
                                         <UFormGroup :label="$t('data.designer.worldwide')">
                                             <UCheckbox
                                                 :model-value="isWorldwide"
-                                                class="mt-2.5 -ml-1 justify-center"
+                                                class="mt-2.5 justify-center"
                                                 @update:model-value="(value: boolean) => updateWorldwide(value)"
                                             />
                                         </UFormGroup>
