@@ -41,6 +41,10 @@ const monetizationDetails = computed({
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
     isFree.value = false;
     emit('update:is-free', false);
+    isWorldwide.value = false;
+    emit('update:is-worldwide', false);
+    isPerpetual.value = false;
+    emit('update:is-perpetual', false);
 
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
