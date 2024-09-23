@@ -56,6 +56,28 @@ export const useMonetizationSchema = () => {
                 },
             ),
         additionalRenewalTerms: z.string().min(1, t('val.required')),
+        nonRenewalDays: z.coerce
+            .number({ invalid_type_error: t('val.validNumber') })
+            .gte(0, t('val.zeroOrPositive'))
+            .refine(
+                (val) => {
+                    return val > 0;
+                },
+                {
+                    message: t('val.zeroOrPositive'),
+                },
+            ),
+        contractBreachDays: z.coerce
+            .number({ invalid_type_error: t('val.validNumber') })
+            .gte(0, t('val.zeroOrPositive'))
+            .refine(
+                (val) => {
+                    return val > 0;
+                },
+                {
+                    message: t('val.zeroOrPositive'),
+                },
+            ),
     });
 
     const subscriptionSchema = z.object({
@@ -110,6 +132,28 @@ export const useMonetizationSchema = () => {
                 },
             ),
         additionalRenewalTerms: z.string().min(1, t('val.required')),
+        nonRenewalDays: z.coerce
+            .number({ invalid_type_error: t('val.validNumber') })
+            .gte(0, t('val.zeroOrPositive'))
+            .refine(
+                (val) => {
+                    return val > 0;
+                },
+                {
+                    message: t('val.zeroOrPositive'),
+                },
+            ),
+        contractBreachDays: z.coerce
+            .number({ invalid_type_error: t('val.validNumber') })
+            .gte(0, t('val.zeroOrPositive'))
+            .refine(
+                (val) => {
+                    return val > 0;
+                },
+                {
+                    message: t('val.zeroOrPositive'),
+                },
+            ),
     });
 
     const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema]);

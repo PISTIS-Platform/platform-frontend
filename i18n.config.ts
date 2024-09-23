@@ -49,6 +49,7 @@ export default defineI18nConfig(() => ({
             frequency: 'Frequency',
             or: 'or',
             sortBy: 'Sort By',
+            days: 'days',
             sectors: {
                 aviation: 'Aviation',
                 energy: 'Energy',
@@ -176,6 +177,8 @@ export default defineI18nConfig(() => ({
                     licenseIsPerpetual: 'License is perpetual',
                     pleaseSelectDate: 'Please select a date',
                     additionalRenewalTerms: 'Additional Terms for Contract Renewal',
+                    noticeForNonRenewal: 'Notice for non-renewal of contract (days)',
+                    maximumDaysContractBreach: 'Maximum days for curing contract breach',
                 },
                 log: 'Data Log',
                 wallet: {

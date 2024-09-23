@@ -259,19 +259,19 @@ const placeholders = computed(() => {
                                 }}
                                 and shall be automatically renewed for additional term of
                                 {{ monetizationDetails.additionalRenewalTerms }} unless either Party provides the other
-                                with written notice not to renew at least {{ placeholders.terms.text3 }} days prior to
-                                the expiration date of the current term.
+                                with written notice not to renew at least {{ monetizationDetails.nonRenewalDays }} days
+                                prior to the expiration date of the current term.
                             </p>
                             <p>
                                 <strong>Termination.</strong>
                                 Either Party may terminate their data-sharing arrangement immediate upon written notice
                                 if other Party is in material breach of these terms and if such breach is that is not
                                 cured within
-                                {{ placeholders.terminationTerm }} days after being notified of the breach. Furthermore,
-                                the Data Provider may terminate the data-sharing arrangement or provision of the Data
-                                Set on the PISTIS Data Marketplace upon reasonable prior written notice to the Data
-                                Recipient if the Data Provider’s rights to material portions of the Data Set or data
-                                involved in the Data Set becomes unavailable provided that the Data Provider shall
+                                {{ monetizationDetails.contractBreachDays }} days after being notified of the breach.
+                                Furthermore, the Data Provider may terminate the data-sharing arrangement or provision
+                                of the Data Set on the PISTIS Data Marketplace upon reasonable prior written notice to
+                                the Data Recipient if the Data Provider’s rights to material portions of the Data Set or
+                                data involved in the Data Set becomes unavailable provided that the Data Provider shall
                                 provide a pro-rated refund to Data Recipient for the remainder of the then-current term.
                             </p>
                             <p>
@@ -343,10 +343,6 @@ const placeholders = computed(() => {
                                 appropriate organisational, operational and technical measures. In case of any
                                 inconsistency or conflict between these terms and the GA or CA, the GA and CA shall
                                 prevail.
-                            </p>
-                            <p>
-                                <strong>Extra Terms.</strong>
-                                {{ placeholders.extraTerms }}
                             </p>
                         </div>
                         <!-- PISTIS License end-->

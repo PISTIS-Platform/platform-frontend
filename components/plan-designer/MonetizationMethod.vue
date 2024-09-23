@@ -421,6 +421,44 @@ async function onSubmit(): Promise<void> {
                                         >
                                     </UFormGroup>
                                 </div>
+                                <div class="flex flex-row gap-4">
+                                    <div class="flex-1 flex gap-4">
+                                        <UFormGroup
+                                            :label="$t('data.designer.noticeForNonRenewal')"
+                                            class="flex-1"
+                                            required
+                                            name="price"
+                                        >
+                                            <UInput
+                                                v-model.number="monetizationDetails.nonRenewalDays"
+                                                :placeholder="$t('data.designer.noticeForNonRenewal')"
+                                                type="numeric"
+                                            >
+                                                <template #trailing>
+                                                    <span class="text-gray-500 text-xs">{{ t('days') }}</span>
+                                                </template>
+                                            </UInput>
+                                        </UFormGroup>
+                                    </div>
+                                    <div class="flex-1 flex gap-4">
+                                        <UFormGroup
+                                            :label="$t('data.designer.maximumDaysContractBreach')"
+                                            class="flex-1"
+                                            required
+                                            name="price"
+                                        >
+                                            <UInput
+                                                v-model.number="monetizationDetails.contractBreachDays"
+                                                :placeholder="$t('data.designer.maximumDaysContractBreach')"
+                                                type="numeric"
+                                            >
+                                                <template #trailing>
+                                                    <span class="text-gray-500 text-xs">{{ t('days') }}</span>
+                                                </template>
+                                            </UInput>
+                                        </UFormGroup>
+                                    </div>
+                                </div>
                                 <UFormGroup :label="$t('termsConditions')" required name="extraTerms">
                                     <UTextarea
                                         v-model="monetizationDetails.extraTerms"
@@ -646,7 +684,44 @@ async function onSubmit(): Promise<void> {
                                         >
                                     </UFormGroup>
                                 </div>
-
+                                <div class="flex flex-row gap-4">
+                                    <div class="flex-1 flex gap-4">
+                                        <UFormGroup
+                                            :label="$t('data.designer.noticeForNonRenewal')"
+                                            class="flex-1"
+                                            required
+                                            name="price"
+                                        >
+                                            <UInput
+                                                v-model.number="monetizationDetails.nonRenewalDays"
+                                                :placeholder="$t('data.designer.noticeForNonRenewal')"
+                                                type="numeric"
+                                            >
+                                                <template #trailing>
+                                                    <span class="text-gray-500 text-xs">{{ t('days') }}</span>
+                                                </template>
+                                            </UInput>
+                                        </UFormGroup>
+                                    </div>
+                                    <div class="flex-1 flex gap-4">
+                                        <UFormGroup
+                                            :label="$t('data.designer.maximumDaysContractBreach')"
+                                            class="flex-1"
+                                            required
+                                            name="price"
+                                        >
+                                            <UInput
+                                                v-model.number="monetizationDetails.contractBreachDays"
+                                                :placeholder="$t('data.designer.maximumDaysContractBreach')"
+                                                type="numeric"
+                                            >
+                                                <template #trailing>
+                                                    <span class="text-gray-500 text-xs">{{ t('days') }}</span>
+                                                </template>
+                                            </UInput>
+                                        </UFormGroup>
+                                    </div>
+                                </div>
                                 <UFormGroup :label="$t('termsConditions')" required name="extraTerms">
                                     <UTextarea
                                         v-model="monetizationDetails.extraTerms"
@@ -657,8 +732,8 @@ async function onSubmit(): Promise<void> {
                                 </UFormGroup>
                                 <UFormGroup
                                     :label="$t('data.designer.additionalRenewalTerms')"
-                                    required
                                     name="additionalRenewalTerms"
+                                    required
                                 >
                                     <UTextarea
                                         v-model="monetizationDetails.additionalRenewalTerms"
