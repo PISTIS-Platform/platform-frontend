@@ -56,6 +56,8 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             transferable: '',
             termDate: '',
             additionalRenewalTerms: '',
+            nonRenewalDays: undefined,
+            contractBreachDays: undefined,
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
@@ -72,6 +74,8 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             transferable: '',
             termDate: '',
             additionalRenewalTerms: '',
+            nonRenewalDays: undefined,
+            contractBreachDays: undefined,
         };
     } else if (monetizationType === 'investment') {
         //TODO: Do once we know what goes here
