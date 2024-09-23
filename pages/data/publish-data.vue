@@ -75,7 +75,7 @@ const isAssetOfferingDetailsValid = computed(
 
 // data for monetization selections
 
-const { isFree, monetizationSchema } = useMonetizationSchema();
+const { isFree, isWorldwide, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
@@ -262,6 +262,7 @@ const changeStep = async (stepNum: number) => {
             :is-all-valid="isAllValid"
             @change-page="(value: number) => (selectedPage = value)"
             @update:is-free="(value: boolean) => (isFree = value)"
+            @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
         />
     </div>
 

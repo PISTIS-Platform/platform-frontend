@@ -165,6 +165,9 @@ export default defineI18nConfig(() => ({
                     monthly: 'Monthly',
                     annual: 'Annual',
                     pleaseCheck: 'Please check the form and fill in all required (*) fields',
+                    availability: 'Availability',
+                    regionCountry: 'Region / Country',
+                    worldwide: 'Worldwide',
                 },
                 log: 'Data Log',
                 wallet: {

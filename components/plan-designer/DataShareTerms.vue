@@ -172,9 +172,13 @@ const placeholders = computed(() => {
                                 data-sharing arrangement formed on the PISTIS Data Marketplace between the Data Provider
                                 and the Data Recipient, the Data Provider hereby grants the Data Recipient a(n)
                                 {{ monetizationDetails.isExclusive ? 'exclusive' : 'non-exclusive' }},
-                                {{ placeholders.region }}, {{ placeholders.transferable }},
-                                {{ placeholders.durationText }} license to access, copy and process the Data Set for the
-                                following purpose(s) (hereinafter ‘Permitted Purposes’):
+                                {{
+                                    monetizationDetails.region
+                                        ? `available in ${monetizationDetails.region}`
+                                        : 'available worldwide'
+                                }}, {{ placeholders.transferable }}, {{ placeholders.durationText }} license to access,
+                                copy and process the Data Set for the following purpose(s) (hereinafter ‘Permitted
+                                Purposes’):
                             </p>
 
                             <ul>

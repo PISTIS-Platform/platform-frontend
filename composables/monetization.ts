@@ -32,6 +32,17 @@ export const useMonetizationSchema = () => {
             ),
         limitFrequency: z.string().min(1, t('val.required')),
         isExclusive: z.boolean().optional(),
+        region: z
+            .string()
+            .optional()
+            .refine(
+                (val) => {
+                    return isWorldwide.value ? true : val && val.length;
+                },
+                {
+                    message: isWorldwide.value ? '' : t('val.required'),
+                },
+            ),
     });
 
     const subscriptionSchema = z.object({
@@ -62,6 +73,7 @@ export const useMonetizationSchema = () => {
             ),
         limitFrequency: z.string().min(1, t('val.required')),
         isExclusive: z.boolean().optional(),
+        region: isWorldwide.value ? z.string().optional() : z.string().min(1, t('val.required')),
     });
 
     const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema]);

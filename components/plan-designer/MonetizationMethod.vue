@@ -23,7 +23,7 @@ const props = defineProps({
     },
 });
 
-const { isFree, monetizationSchema } = useMonetizationSchema();
+const { isFree, isWorldwide, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
@@ -51,6 +51,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             limitNumber: undefined,
             limitFrequency: '',
             isExclusive: false,
+            region: '',
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
@@ -63,6 +64,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             limitNumber: undefined,
             limitFrequency: '',
             isExclusive: false,
+            region: '',
         };
     } else if (monetizationType === 'investment') {
         //TODO: Do once we know what goes here
@@ -113,7 +115,7 @@ const limitFrequencySelections = computed(() => [
     { title: t('perYear'), value: DownloadFrequency.YEAR },
 ]);
 
-const emit = defineEmits(['update:monetization-details-prop', 'update:is-free', 'changePage']);
+const emit = defineEmits(['update:monetization-details-prop', 'update:is-free', 'update:is-worldwide', 'changePage']);
 
 const formRef = ref();
 
@@ -125,6 +127,14 @@ const updateFree = (value: boolean) => {
         monetizationDetails.value.price = 0;
     } else {
         monetizationDetails.value.price = undefined;
+    }
+};
+
+const updateWorldwide = (value: boolean) => {
+    isWorldwide.value = value;
+    emit('update:is-worldwide', value);
+    if (isWorldwide.value) {
+        monetizationDetails.value.region = '';
     }
 };
 
@@ -256,6 +266,27 @@ async function onSubmit(): Promise<void> {
                                             v-model="monetizationDetails.isExclusive"
                                             name="isExclusive"
                                             class="mt-2.5 -ml-1 justify-center"
+                                        />
+                                    </UFormGroup>
+                                    <UFormGroup
+                                        :label="$t('data.designer.availability')"
+                                        name="region"
+                                        :required="!isWorldwide"
+                                    >
+                                        <UInput
+                                            v-model.number="monetizationDetails.region"
+                                            :class="isWorldwide ? 'opacity-50' : ''"
+                                            :disabled="isWorldwide"
+                                            :placeholder="$t('data.designer.regionCountry')"
+                                            type="numeric"
+                                        >
+                                        </UInput>
+                                    </UFormGroup>
+                                    <UFormGroup :label="$t('data.designer.worldwide')">
+                                        <UCheckbox
+                                            :model-value="isWorldwide"
+                                            class="mt-2.5 -ml-1 justify-center"
+                                            @update:model-value="(value: boolean) => updateWorldwide(value)"
                                         />
                                     </UFormGroup>
                                 </div>
