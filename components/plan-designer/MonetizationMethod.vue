@@ -24,7 +24,7 @@ const props = defineProps({
     },
 });
 
-const { isFree, isWorldwide, isPerpetual, monetizationSchema } = useMonetizationSchema();
+const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
@@ -45,6 +45,8 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     emit('update:is-worldwide', false);
     isPerpetual.value = false;
     emit('update:is-perpetual', false);
+    hasPersonalData.value = false;
+    emit('update:has-personal-data');
 
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
@@ -150,6 +152,7 @@ const emit = defineEmits([
     'update:is-free',
     'update:is-worldwide',
     'update:is-perpetual',
+    'update:has-personal-data',
     'changePage',
 ]);
 
@@ -179,6 +182,14 @@ const updatePerpetual = (value: boolean) => {
     emit('update:is-perpetual', value);
     if (isPerpetual.value) {
         monetizationDetails.value.termDate = '';
+    }
+};
+
+const updatePersonal = (value: boolean) => {
+    hasPersonalData.value = value;
+    emit('update:has-personal-data', value);
+    if (!hasPersonalData.value) {
+        monetizationDetails.value.personalDataTerms = '';
     }
 };
 
@@ -467,6 +478,31 @@ async function onSubmit(): Promise<void> {
                                         </UFormGroup>
                                     </div>
                                 </div>
+                                <div class="relative">
+                                    <div class="absolute right-0 top-0 text-sm flex gap-4 items-center font-semibold">
+                                        <span>
+                                            {{ t('data.designer.hasPersonalData') }}
+                                        </span>
+                                        <UCheckbox
+                                            :model-value="hasPersonalData"
+                                            class="justify-center"
+                                            @update:model-value="(value: boolean) => updatePersonal(value)"
+                                        />
+                                    </div>
+                                    <UFormGroup
+                                        :label="$t('data.designer.personalDataTerms')"
+                                        name="personalDataTerms"
+                                        :required="hasPersonalData"
+                                    >
+                                        <UTextarea
+                                            v-model="monetizationDetails.personalDataTerms"
+                                            :rows="4"
+                                            :placeholder="$t('data.designer.personalDataTerms')"
+                                            resize
+                                            :disabled="!hasPersonalData"
+                                        />
+                                    </UFormGroup>
+                                </div>
                                 <UFormGroup :label="$t('termsConditions')" required name="extraTerms">
                                     <UTextarea
                                         v-model="monetizationDetails.extraTerms"
@@ -729,6 +765,31 @@ async function onSubmit(): Promise<void> {
                                             </UInput>
                                         </UFormGroup>
                                     </div>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute right-0 top-0 text-sm flex gap-4 items-center font-semibold">
+                                        <span>
+                                            {{ t('data.designer.hasPersonalData') }}
+                                        </span>
+                                        <UCheckbox
+                                            :model-value="hasPersonalData"
+                                            class="justify-center"
+                                            @update:model-value="(value: boolean) => updatePersonal(value)"
+                                        />
+                                    </div>
+                                    <UFormGroup
+                                        :label="$t('data.designer.personalDataTerms')"
+                                        name="personalDataTerms"
+                                        :required="hasPersonalData"
+                                    >
+                                        <UTextarea
+                                            v-model="monetizationDetails.personalDataTerms"
+                                            :rows="4"
+                                            :placeholder="$t('data.designer.personalDataTerms')"
+                                            resize
+                                            :disabled="!hasPersonalData"
+                                        />
+                                    </UFormGroup>
                                 </div>
                                 <UFormGroup :label="$t('termsConditions')" required name="extraTerms">
                                     <UTextarea

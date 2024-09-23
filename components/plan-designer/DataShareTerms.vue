@@ -34,28 +34,6 @@ watch(htmlContent, () => {
 
     emit('update:contract-terms', btoa(encodeURIComponent(termsDocContent)));
 });
-
-//TODO:: replace dummy data once more info is available
-const placeholders = computed(() => {
-    return {
-        dataDescription: 'Data',
-        exclusiveness: 'exclusive',
-        region: 'Worldwide',
-        transferable: 'transferable',
-        durationText: 'perpetual',
-        otherPurposes: 'Other Purposes',
-        terms: {
-            text1: 'term 1',
-            text2: 'term 2',
-            text3: 'term 3',
-        },
-        terminationTerm: 'termination term',
-        price: `${props.monetizationDetails?.price || ''} STC`,
-        personalDataText:
-            'In the event that the dataset contains personal data including pseudonymised personal data, the Data Provider is advised to consider defining the terms and conditions for the transfer and processing of personal data]',
-        extraTerms: props.monetizationDetails?.extraTerms || '',
-    };
-});
 </script>
 
 <template>
@@ -314,10 +292,13 @@ const placeholders = computed(() => {
                             </p>
                             <p>
                                 <strong>Protection of Personal Data.</strong>
-                                &nbsp;<u>OPTION 1:</u> The Data Set does not include personal data.
-                                <u>OPTION 2:</u>
-                                The Data Set includes personal data, and the related data processing is subject to the
-                                following:: {{ placeholders.personalDataText }}&nbsp;<u>OPTION 3: [*].</u>
+                                <span v-if="!monetizationDetails.personalDataTerms">
+                                    The Data Set does not include personal data.
+                                </span>
+                                <span v-else>
+                                    The Data Set includes personal data, and the related data processing is subject to
+                                    the following: {{ monetizationDetails.personalDataTerms }}
+                                </span>
                             </p>
                             <p>
                                 <strong>Miscellaneous.</strong>

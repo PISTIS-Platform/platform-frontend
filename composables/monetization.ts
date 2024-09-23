@@ -5,6 +5,7 @@ export const useMonetizationSchema = () => {
     const isFree = ref(false);
     const isWorldwide = ref(false);
     const isPerpetual = ref(false);
+    const hasPersonalData = ref(false);
 
     const oneOffSaleSchema = z.object({
         type: z.literal('one-off'),
@@ -76,6 +77,17 @@ export const useMonetizationSchema = () => {
                 },
                 {
                     message: t('val.zeroOrPositive'),
+                },
+            ),
+        personalDataTerms: z
+            .string()
+            .optional()
+            .refine(
+                (val) => {
+                    return hasPersonalData.value ? val && val.length : true;
+                },
+                {
+                    message: hasPersonalData.value ? t('val.required') : '',
                 },
             ),
     });
@@ -154,6 +166,17 @@ export const useMonetizationSchema = () => {
                     message: t('val.zeroOrPositive'),
                 },
             ),
+        personalDataTerms: z
+            .string()
+            .optional()
+            .refine(
+                (val) => {
+                    return hasPersonalData.value ? val && val.length : true;
+                },
+                {
+                    message: hasPersonalData.value ? t('val.required') : '',
+                },
+            ),
     });
 
     const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema]);
@@ -162,6 +185,7 @@ export const useMonetizationSchema = () => {
         isFree,
         isWorldwide,
         isPerpetual,
+        hasPersonalData,
         monetizationSchema,
     };
 };

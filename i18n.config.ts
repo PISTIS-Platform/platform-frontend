@@ -179,6 +179,8 @@ export default defineI18nConfig(() => ({
                     additionalRenewalTerms: 'Additional Terms for Contract Renewal',
                     noticeForNonRenewal: 'Notice for non-renewal of contract (days)',
                     maximumDaysContractBreach: 'Maximum days for curing contract breach',
+                    personalDataTerms: 'Terms and Conditions for the Transfer and Processing of Personal Data',
+                    hasPersonalData: 'This dataset contains personal data',
                 },
                 log: 'Data Log',
                 wallet: {

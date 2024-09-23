@@ -75,7 +75,7 @@ const isAssetOfferingDetailsValid = computed(
 
 // data for monetization selections
 
-const { isFree, isWorldwide, isPerpetual, monetizationSchema } = useMonetizationSchema();
+const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
@@ -264,6 +264,7 @@ const changeStep = async (stepNum: number) => {
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
+            @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
 
