@@ -18,6 +18,9 @@ const props = defineProps({
         type: Object as PropType<Partial<monetizationType>>,
         required: true,
     },
+    assetOfferingDetails: {
+        type: Object,
+    },
 });
 
 const { isFree, monetizationSchema } = useMonetizationSchema();
@@ -423,6 +426,7 @@ async function onSubmit(): Promise<void> {
                         <div v-show="monetizationDetails.license">
                             <p class="font-semibold text-sm mt-5 mb-1.5">{{ $t('licenseDetails') }}</p>
                             <DataShareTerms
+                                :asset-offering-details="assetOfferingDetails"
                                 :monetization-details="monetizationDetails"
                                 @update:contract-terms="(value: string) => updateContractTerms(value)"
                             />

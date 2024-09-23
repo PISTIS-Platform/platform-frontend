@@ -6,6 +6,9 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    assetOfferingDetails: {
+        type: Object,
+    },
 });
 
 const emit = defineEmits(['update:contract-terms']);
@@ -70,7 +73,11 @@ const placeholders = computed(() => {
             <template #terms-item="{ item }">
                 <div class="text-gray-800 px-8 h-[400px] overflow-y-scroll">
                     <div ref="htmlContent">
-                        <div class="prose lg:prose-sm prose-h2:text-center max-w-full">
+                        <!-- PISTIS License start-->
+                        <div
+                            v-show="monetizationDetails.license === 'PISTIS License'"
+                            class="prose lg:prose-sm prose-h2:text-center max-w-full"
+                        >
                             <h2>EXPLANATORY NOTES</h2>
                             <h2>THE GENERIC TERMS OF DATA SHARING ON PISTIS DATA MARKETPLACE</h2>
 
@@ -153,8 +160,8 @@ const placeholders = computed(() => {
                             <p>
                                 <strong>Subject Matter.</strong>The subject matter of this data sharing between the Data
                                 Provider and the Data Recipient concerns a particular dataset and the data that it
-                                contains, being {{ placeholders.dataDescription }} (hereinafter collectively: ‘Data
-                                Set’).
+                                contains, being "<span class="italic">{{ assetOfferingDetails?.title }}</span
+                                >" (hereinafter collectively: ‘Data Set’).
                             </p>
                             <p>
                                 <strong>Scope and Purpose(s) of Sharing of the Data Set.</strong> The subject to the
@@ -229,7 +236,7 @@ const placeholders = computed(() => {
                                 payment of the Fee as agreed herein.
                             </p>
                             <p>
-                                <strong>Term</strong>
+                                <strong>Term.</strong>
                                 These terms and the license granted herein, shall be valid and
                                 {{ placeholders.terms.text1 }} and shall be automatically renewed for additional term of
                                 {{ placeholders.terms.text2 }} unless either Party provides the other with written
@@ -260,26 +267,35 @@ const placeholders = computed(() => {
                             </p>
                             <p>
                                 <strong>Fees and Payment Terms.</strong>
-                                &nbsp;<u>OPTION 1:</u> The Parties agree on that the Data Recipient shall pay the Data
-                                Provider {{ placeholders.price }} (‘Fee’) for the license to access, copy and process
-                                the Data Set as defined herein on the Effective date. The Fee is exclusive of VAT or
-                                local sales tax or any other applicable taxes. <u>OPTION 2:</u> The Parties agree on
-                                that Data Recipient shall pay Data Provider {{ placeholders.price }}
-                                (‘Subscription Fee’) on monthly basis, in advance, starting from the Effective Date and
-                                recurring on the same date of every following month, for the license to access, copy and
-                                process the Data Set as defined herein during the term of the data-sharing agreement. In
-                                case when the Effective Date corresponds 31st or 29th day of a month, the Subscription
-                                Fee becomes due and payable on the first day of every following month. The access to the
-                                Data Set will be granted to Data Recipient upon the receipt of the first payment on the
-                                PISTIS Data Marketplace. The Subscription Fee is exclusive of VAT or local sales tax or
-                                any other applicable taxes.
+                                <!--OPTION  1-->
+                                <span v-if="monetizationDetails.type === 'one-off'"
+                                    >The Parties agree on that the Data Recipient shall pay the Data Provider
+                                    {{ monetizationDetails.price }} STC (‘Fee’) for the license to access, copy and
+                                    process the Data Set as defined herein on the Effective date. The Fee is exclusive
+                                    of VAT or local sales tax or any other applicable taxes.</span
+                                >
+
+                                <!-- OPTION 2 -->
+                                <span v-if="monetizationDetails.type === 'subscription'">
+                                    The Parties agree on that Data Recipient shall pay Data Provider
+                                    {{ monetizationDetails.price }} STC (‘Subscription Fee’) on a(n)
+                                    {{ monetizationDetails.subscriptionFrequency }} basis, in advance, starting from the
+                                    Effective Date and recurring on the same date of every following month, for the
+                                    license to access, copy and process the Data Set as defined herein during the term
+                                    of the data-sharing agreement. In case when the Effective Date corresponds 31st or
+                                    29th day of a month, the Subscription Fee becomes due and payable on the first day
+                                    of every following month. The access to the Data Set will be granted to Data
+                                    Recipient upon the receipt of the first payment on the PISTIS Data Marketplace. The
+                                    Subscription Fee is exclusive of VAT or local sales tax or any other applicable
+                                    taxes.
+                                </span>
                             </p>
                             <p>
                                 <strong>Protection of Personal Data.</strong>
                                 &nbsp;<u>OPTION 1:</u> The Data Set does not include personal data.
                                 <u>OPTION 2:</u>
                                 The Data Set includes personal data, and the related data processing is subject to the
-                                following: {{ placeholders.personalDataText }}&nbsp;<u>OPTION 3: [*].</u>
+                                following:: {{ placeholders.personalDataText }}&nbsp;<u>OPTION 3: [*].</u>
                             </p>
                             <p>
                                 <strong>Miscellaneous.</strong>
@@ -311,6 +327,7 @@ const placeholders = computed(() => {
                                 {{ placeholders.extraTerms }}
                             </p>
                         </div>
+                        <!-- PISTIS License end-->
                     </div>
                     <!-- End of Document -->
                 </div>

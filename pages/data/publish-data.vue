@@ -258,6 +258,7 @@ const changeStep = async (stepNum: number) => {
 
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
+            :asset-offering-details="assetOfferingDetails"
             :is-all-valid="isAllValid"
             @change-page="(value: number) => (selectedPage = value)"
             @update:is-free="(value: boolean) => (isFree = value)"
