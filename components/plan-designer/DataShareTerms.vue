@@ -22,6 +22,10 @@ const termsItem = ref([
     },
 ]);
 
+const recurrentPaymentText = computed(() =>
+    props.monetizationDetails.subscriptionFrequency === 'annual' ? 'year' : 'month',
+);
+
 const htmlContent = ref<HTMLElement>();
 
 watch(htmlContent, () => {
@@ -280,14 +284,17 @@ const placeholders = computed(() => {
                                     The Parties agree on that Data Recipient shall pay Data Provider
                                     {{ monetizationDetails.price }} STC (‘Subscription Fee’) on a(n)
                                     {{ monetizationDetails.subscriptionFrequency }} basis, in advance, starting from the
-                                    Effective Date and recurring on the same date of every following month, for the
-                                    license to access, copy and process the Data Set as defined herein during the term
-                                    of the data-sharing agreement. In case when the Effective Date corresponds 31st or
-                                    29th day of a month, the Subscription Fee becomes due and payable on the first day
-                                    of every following month. The access to the Data Set will be granted to Data
-                                    Recipient upon the receipt of the first payment on the PISTIS Data Marketplace. The
-                                    Subscription Fee is exclusive of VAT or local sales tax or any other applicable
-                                    taxes.
+                                    Effective Date and recurring on the same date of every following
+                                    {{ recurrentPaymentText }}, for the license to access, copy and process the Data Set
+                                    as defined herein during the term of the data-sharing agreement.
+                                    <span v-if="monetizationDetails.subscriptionFrequency === 'monthly'"
+                                        >In case when the Effective Date corresponds 31st or 29th day of a month, the
+                                        Subscription Fee becomes due and payable on the first day of every following
+                                        month.</span
+                                    >
+                                    The access to the Data Set will be granted to Data Recipient upon the receipt of the
+                                    first payment on the PISTIS Data Marketplace. The Subscription Fee is exclusive of
+                                    VAT or local sales tax or any other applicable taxes.
                                 </span>
                             </p>
                             <p>
