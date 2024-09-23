@@ -82,7 +82,7 @@ const placeholders = computed(() => {
                                 (‘Project’) aims to brings forward a reference federated data sharing/trading and
                                 monetisation platform for secure, trusted and controlled exchange and usage of
                                 proprietary data assets and data-driven intelligence, there is a need to further detail
-                                and practically organize certain generic terms for such sharing and related
+                                and practically organise certain generic terms for such sharing and related
                                 collaboration between the project partners on the PISTIS Data Marketplace under a
                                 non-exhaustive set of suggested, generic terms and options that the partners can tailor,
                                 amend, and negotiate out during the demonstrations.
@@ -105,16 +105,12 @@ const placeholders = computed(() => {
                                 deem appropriate for their use cases. Under no circumstance, the Project demonstrator
                                 partners are obliged to use these terms for their data sharing arrangement. These
                                 explanations and options aim to enable and facilitate concrete data-sharing arrangements
-                                and operations between the demonstrator partners in their various roles, such
+                                and operations between the demonstrator partners in their various roles, such as data
+                                provider, data recipient, or otherwise.
                             </p>
 
                             <p>
                                 <span>c.</span>
-                                as data provider, data recipient, or otherwise.
-                            </p>
-
-                            <p>
-                                <span>d.</span>
                                 The users of these terms are advised to consult their legal advisors for further advice
                                 and assistance before executing a data-sharing transaction on the PISTIS Data
                                 Marketplace.
