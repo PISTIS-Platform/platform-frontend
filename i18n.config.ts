@@ -171,6 +171,10 @@ export default defineI18nConfig(() => ({
                     transferable: 'Transferable',
                     nonTransferable: 'Non-transferable',
                     subLicensable: 'Sub-licensable',
+                    termDate: 'Term date (end of contract)',
+                    perpetual: 'Perpetual',
+                    licenseIsPerpetual: 'License is perpetual',
+                    pleaseSelectDate: 'Please select a date',
                 },
                 log: 'Data Log',
                 wallet: {

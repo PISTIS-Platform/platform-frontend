@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
@@ -23,7 +24,7 @@ const props = defineProps({
     },
 });
 
-const { isFree, isWorldwide, monetizationSchema } = useMonetizationSchema();
+const { isFree, isWorldwide, isPerpetual, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
@@ -53,6 +54,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             isExclusive: false,
             region: '',
             transferable: '',
+            termDate: '',
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
@@ -67,6 +69,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             isExclusive: false,
             region: '',
             transferable: '',
+            termDate: '',
         };
     } else if (monetizationType === 'investment') {
         //TODO: Do once we know what goes here
@@ -132,7 +135,13 @@ const limitFrequencySelections = computed(() => [
     { title: t('perYear'), value: DownloadFrequency.YEAR },
 ]);
 
-const emit = defineEmits(['update:monetization-details-prop', 'update:is-free', 'update:is-worldwide', 'changePage']);
+const emit = defineEmits([
+    'update:monetization-details-prop',
+    'update:is-free',
+    'update:is-worldwide',
+    'update:is-perpetual',
+    'changePage',
+]);
 
 const formRef = ref();
 
@@ -152,6 +161,14 @@ const updateWorldwide = (value: boolean) => {
     emit('update:is-worldwide', value);
     if (isWorldwide.value) {
         monetizationDetails.value.region = '';
+    }
+};
+
+const updatePerpetual = (value: boolean) => {
+    isPerpetual.value = value;
+    emit('update:is-perpetual', value);
+    if (isPerpetual.value) {
+        monetizationDetails.value.termDate = '';
     }
 };
 
@@ -290,6 +307,7 @@ async function onSubmit(): Promise<void> {
                                             :label="$t('data.designer.availability')"
                                             name="region"
                                             :required="!isWorldwide"
+                                            class="w-full"
                                         >
                                             <UInput
                                                 v-model.number="monetizationDetails.region"
@@ -297,6 +315,7 @@ async function onSubmit(): Promise<void> {
                                                 :disabled="isWorldwide"
                                                 :placeholder="$t('data.designer.regionCountry')"
                                                 type="numeric"
+                                                class="w-full"
                                             >
                                             </UInput>
                                         </UFormGroup>
@@ -307,6 +326,8 @@ async function onSubmit(): Promise<void> {
                                                 @update:model-value="(value: boolean) => updateWorldwide(value)"
                                             />
                                         </UFormGroup>
+                                    </div>
+                                    <div class="flex flex-1 gap-4">
                                         <UFormGroup
                                             :label="$t('data.designer.transferable')"
                                             required
@@ -326,8 +347,43 @@ async function onSubmit(): Promise<void> {
                                                 option-attribute="label"
                                             ></USelectMenu>
                                         </UFormGroup>
+                                        <UFormGroup
+                                            :label="$t('data.designer.termDate')"
+                                            :required="!isPerpetual"
+                                            name="transferable"
+                                            class="text-gray-200"
+                                        >
+                                            <UPopover :popper="{ placement: 'bottom-start' }">
+                                                <UButton
+                                                    color="white"
+                                                    icon="i-heroicons-calendar-days-20-solid"
+                                                    :label="
+                                                        monetizationDetails.termDate
+                                                            ? dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')
+                                                            : isPerpetual
+                                                              ? t('data.designer.licenseIsPerpetual')
+                                                              : t('data.designer.pleaseSelectDate')
+                                                    "
+                                                    :disabled="isPerpetual"
+                                                />
+
+                                                <template #panel="{ close }">
+                                                    <DatePicker
+                                                        v-model="monetizationDetails.termDate"
+                                                        is-required
+                                                        @close="close"
+                                                    />
+                                                </template>
+                                            </UPopover>
+                                        </UFormGroup>
+                                        <UFormGroup :label="$t('data.designer.perpetual')">
+                                            <UCheckbox
+                                                :model-value="isPerpetual"
+                                                class="mt-2.5 justify-center"
+                                                @update:model-value="(value: boolean) => updatePerpetual(value)"
+                                            />
+                                        </UFormGroup>
                                     </div>
-                                    <div class="flex flex-1 gap-4"></div>
                                 </div>
                                 <div class="flex flex-row gap-4">
                                     <UFormGroup
@@ -450,6 +506,97 @@ async function onSubmit(): Promise<void> {
                                             </template></USelectMenu
                                         >
                                     </UFormGroup>
+                                </div>
+                                <div class="flex flex-row gap-4">
+                                    <div class="flex flex-1 gap-4">
+                                        <UFormGroup :label="$t('exclusive')" name="isExclusive">
+                                            <UCheckbox
+                                                v-model="monetizationDetails.isExclusive"
+                                                name="isExclusive"
+                                                class="mt-2.5 -ml-1 justify-center"
+                                            />
+                                        </UFormGroup>
+                                        <UFormGroup
+                                            :label="$t('data.designer.availability')"
+                                            name="region"
+                                            :required="!isWorldwide"
+                                            class="w-full"
+                                        >
+                                            <UInput
+                                                v-model.number="monetizationDetails.region"
+                                                :class="isWorldwide ? 'opacity-50' : ''"
+                                                :disabled="isWorldwide"
+                                                :placeholder="$t('data.designer.regionCountry')"
+                                                type="numeric"
+                                                class="w-full"
+                                            >
+                                            </UInput>
+                                        </UFormGroup>
+                                        <UFormGroup :label="$t('data.designer.worldwide')">
+                                            <UCheckbox
+                                                :model-value="isWorldwide"
+                                                class="mt-2.5 -ml-1 justify-center"
+                                                @update:model-value="(value: boolean) => updateWorldwide(value)"
+                                            />
+                                        </UFormGroup>
+                                    </div>
+                                    <div class="flex flex-1 gap-4">
+                                        <UFormGroup
+                                            :label="$t('data.designer.transferable')"
+                                            required
+                                            name="transferable"
+                                            class="flex-1 text-gray-200"
+                                        >
+                                            <USelectMenu
+                                                v-model="monetizationDetails.transferable"
+                                                :ui="{
+                                                    option: { active: 'text-gray-200' },
+                                                    input: 'placeholder:text-gray-200 text-gray-200',
+                                                    button: 'text-gray-200',
+                                                }"
+                                                :placeholder="$t('data.designer.transferable')"
+                                                :options="transferableSelections"
+                                                value-attribute="value"
+                                                option-attribute="label"
+                                            ></USelectMenu>
+                                        </UFormGroup>
+                                        <UFormGroup
+                                            :label="$t('data.designer.termDate')"
+                                            :required="!isPerpetual"
+                                            name="transferable"
+                                            class="text-gray-200"
+                                        >
+                                            <UPopover :popper="{ placement: 'bottom-start' }">
+                                                <UButton
+                                                    color="white"
+                                                    icon="i-heroicons-calendar-days-20-solid"
+                                                    :label="
+                                                        monetizationDetails.termDate
+                                                            ? dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')
+                                                            : isPerpetual
+                                                              ? t('data.designer.licenseIsPerpetual')
+                                                              : t('data.designer.pleaseSelectDate')
+                                                    "
+                                                    :disabled="isPerpetual"
+                                                />
+
+                                                <template #panel="{ close }">
+                                                    <DatePicker
+                                                        v-model="monetizationDetails.termDate"
+                                                        is-required
+                                                        @close="close"
+                                                    />
+                                                </template>
+                                            </UPopover>
+                                        </UFormGroup>
+                                        <UFormGroup :label="$t('data.designer.perpetual')">
+                                            <UCheckbox
+                                                :model-value="isPerpetual"
+                                                class="mt-2.5 justify-center"
+                                                @update:model-value="(value: boolean) => updatePerpetual(value)"
+                                            />
+                                        </UFormGroup>
+                                    </div>
                                 </div>
                                 <div class="flex flex-row gap-4">
                                     <UFormGroup

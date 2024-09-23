@@ -44,6 +44,17 @@ export const useMonetizationSchema = () => {
                 },
             ),
         transferable: z.string().min(1, t('val.required')),
+        termDate: z
+            .string()
+            .optional()
+            .refine(
+                (val) => {
+                    return isPerpetual.value ? true : val && val.length;
+                },
+                {
+                    message: isPerpetual.value ? '' : t('val.required'),
+                },
+            ),
     });
 
     const subscriptionSchema = z.object({
@@ -86,6 +97,17 @@ export const useMonetizationSchema = () => {
                 },
             ),
         transferable: z.string().min(1, t('val.required')),
+        termDate: z
+            .string()
+            .optional()
+            .refine(
+                (val) => {
+                    return isPerpetual.value ? true : val && val.length;
+                },
+                {
+                    message: isPerpetual.value ? '' : t('val.required'),
+                },
+            ),
     });
 
     const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema]);

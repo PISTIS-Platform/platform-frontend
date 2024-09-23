@@ -1,5 +1,6 @@
 <script setup lang="ts">
 //monetizationDetails
+import dayjs from 'dayjs';
 
 const props = defineProps({
     monetizationDetails: {
@@ -176,9 +177,14 @@ const placeholders = computed(() => {
                                     monetizationDetails.region
                                         ? `available in ${monetizationDetails.region}`
                                         : 'available worldwide'
-                                }}, {{ monetizationDetails.transferable }}, {{ placeholders.durationText }} license to
-                                access, copy and process the Data Set for the following purpose(s) (hereinafter
-                                ‘Permitted Purposes’):
+                                }}, {{ monetizationDetails.transferable }},
+                                {{
+                                    monetizationDetails.termDate
+                                        ? `valid until ${dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')}`
+                                        : 'perpetual'
+                                }}
+                                license to access, copy and process the Data Set for the following purpose(s)
+                                (hereinafter ‘Permitted Purposes’):
                             </p>
 
                             <ul>
@@ -246,7 +252,12 @@ const placeholders = computed(() => {
                             <p>
                                 <strong>Term.</strong>
                                 These terms and the license granted herein, shall be valid and
-                                {{ placeholders.terms.text1 }} and shall be automatically renewed for additional term of
+                                {{
+                                    monetizationDetails.termDate
+                                        ? `applicable until ${dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')}`
+                                        : 'perpetual'
+                                }}
+                                and shall be automatically renewed for additional term of
                                 {{ placeholders.terms.text2 }} unless either Party provides the other with written
                                 notice not to renew at least {{ placeholders.terms.text3 }} days prior to the expiration
                                 date of the current term.
