@@ -32,6 +32,7 @@ export default defineI18nConfig(() => ({
             price: 'Price',
             percentage: 'Percentage',
             license: 'License',
+            licenseDetails: 'License Details',
             description: 'Description',
             termsConditions: 'Extra Terms',
             keywords: 'Keywords',

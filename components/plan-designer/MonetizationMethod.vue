@@ -96,7 +96,9 @@ const monetizationSelections: CardSelection[] = [
     },
 ];
 
-const licenseSelections: string[] = ['CC-BY', 'MIT', 'CC0'];
+const licenseSelections = computed(() =>
+    isFree.value ? ['PISTIS License', 'CC-BY', 'MIT', 'CC0'] : ['PISTIS License'],
+);
 
 const limitFrequencySelections = computed(() => [
     { title: t('perHour'), value: DownloadFrequency.HOUR },
@@ -418,11 +420,13 @@ async function onSubmit(): Promise<void> {
                         </template> -->
 
                         <!-- Terms Document -->
-                        <DataShareTerms
-                            class="mt-5"
-                            :monetization-details="monetizationDetails"
-                            @update:contract-terms="(value: string) => updateContractTerms(value)"
-                        />
+                        <div v-show="monetizationDetails.license">
+                            <p class="font-semibold text-sm mt-5 mb-1.5">{{ $t('licenseDetails') }}</p>
+                            <DataShareTerms
+                                :monetization-details="monetizationDetails"
+                                @update:contract-terms="(value: string) => updateContractTerms(value)"
+                            />
+                        </div>
 
                         <div class="w-full flex items-center justify-between mt-4">
                             <UButton size="md" color="gray" variant="outline" @click="emit('changePage', 0)">
