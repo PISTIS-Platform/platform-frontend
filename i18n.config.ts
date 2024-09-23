@@ -22,6 +22,7 @@ export default defineI18nConfig(() => ({
             search: 'Search...',
             addNew: 'Add new',
             cancel: 'Cancel',
+            exclusive: 'Exclusive',
             yes: 'Yes',
             no: 'No',
             back: 'Back',

@@ -50,6 +50,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             contractTerms: '',
             limitNumber: undefined,
             limitFrequency: '',
+            isExclusive: false,
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
@@ -61,6 +62,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             contractTerms: '',
             limitNumber: undefined,
             limitFrequency: '',
+            isExclusive: false,
         };
     } else if (monetizationType === 'investment') {
         //TODO: Do once we know what goes here
@@ -246,6 +248,15 @@ async function onSubmit(): Promise<void> {
                                                 <span v-else class="text-gray-400">Select license</span>
                                             </template></USelectMenu
                                         >
+                                    </UFormGroup>
+                                </div>
+                                <div class="flex flex-row gap-4">
+                                    <UFormGroup :label="$t('exclusive')" name="isExclusive">
+                                        <UCheckbox
+                                            v-model="monetizationDetails.isExclusive"
+                                            name="isExclusive"
+                                            class="mt-2.5 -ml-1 justify-center"
+                                        />
                                     </UFormGroup>
                                 </div>
                                 <div class="flex flex-row gap-4">

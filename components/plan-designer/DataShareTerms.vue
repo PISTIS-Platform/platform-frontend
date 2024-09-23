@@ -170,11 +170,11 @@ const placeholders = computed(() => {
                             <p>
                                 <strong>Scope and Purpose(s) of Sharing of the Data Set.</strong> The subject to the
                                 data-sharing arrangement formed on the PISTIS Data Marketplace between the Data Provider
-                                and the Data Recipient, the Data Provider hereby grants the Data Recipient an
-                                {{ placeholders.exclusiveness }}, {{ placeholders.region }},
-                                {{ placeholders.transferable }}, {{ placeholders.durationText }} license to access, copy
-                                and process the Data Set for the following purpose(s) (hereinafter ‘Permitted
-                                Purposes’):
+                                and the Data Recipient, the Data Provider hereby grants the Data Recipient a(n)
+                                {{ monetizationDetails.isExclusive ? 'exclusive' : 'non-exclusive' }},
+                                {{ placeholders.region }}, {{ placeholders.transferable }},
+                                {{ placeholders.durationText }} license to access, copy and process the Data Set for the
+                                following purpose(s) (hereinafter ‘Permitted Purposes’):
                             </p>
 
                             <ul>

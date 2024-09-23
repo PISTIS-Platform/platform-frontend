@@ -3,6 +3,8 @@ import { z } from 'zod';
 export const useMonetizationSchema = () => {
     const { t } = useI18n();
     const isFree = ref(false);
+    const isWorldwide = ref(false);
+    const isPerpetual = ref(false);
 
     const oneOffSaleSchema = z
         .object({
@@ -68,6 +70,8 @@ export const useMonetizationSchema = () => {
 
     return {
         isFree,
+        isWorldwide,
+        isPerpetual,
         monetizationSchema,
     };
 };
