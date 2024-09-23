@@ -55,6 +55,7 @@ export const useMonetizationSchema = () => {
                     message: isPerpetual.value ? '' : t('val.required'),
                 },
             ),
+        additionalRenewalTerms: z.string().min(1, t('val.required')),
     });
 
     const subscriptionSchema = z.object({
@@ -108,6 +109,7 @@ export const useMonetizationSchema = () => {
                     message: isPerpetual.value ? '' : t('val.required'),
                 },
             ),
+        additionalRenewalTerms: z.string().min(1, t('val.required')),
     });
 
     const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema]);

@@ -175,6 +175,7 @@ export default defineI18nConfig(() => ({
                     perpetual: 'Perpetual',
                     licenseIsPerpetual: 'License is perpetual',
                     pleaseSelectDate: 'Please select a date',
+                    additionalRenewalTerms: 'Additional Terms for Contract Renewal',
                 },
                 log: 'Data Log',
                 wallet: {

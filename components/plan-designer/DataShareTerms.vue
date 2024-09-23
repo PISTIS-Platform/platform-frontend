@@ -251,16 +251,16 @@ const placeholders = computed(() => {
                             </p>
                             <p>
                                 <strong>Term.</strong>
-                                These terms and the license granted herein, shall be valid and
+                                These terms and the license granted herein, shall be valid
                                 {{
                                     monetizationDetails.termDate
-                                        ? `applicable until ${dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')}`
-                                        : 'perpetual'
+                                        ? `until ${dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')}`
+                                        : 'perpetually'
                                 }}
                                 and shall be automatically renewed for additional term of
-                                {{ placeholders.terms.text2 }} unless either Party provides the other with written
-                                notice not to renew at least {{ placeholders.terms.text3 }} days prior to the expiration
-                                date of the current term.
+                                {{ monetizationDetails.additionalRenewalTerms }} unless either Party provides the other
+                                with written notice not to renew at least {{ placeholders.terms.text3 }} days prior to
+                                the expiration date of the current term.
                             </p>
                             <p>
                                 <strong>Termination.</strong>
