@@ -169,6 +169,8 @@ export default defineI18nConfig(() => ({
                     regionCountry: 'Region / Country',
                     worldwide: 'Worldwide',
                     transferable: 'Transferable',
+                    nonTransferable: 'Non-transferable',
+                    subLicensable: 'Sub-licensable',
                 },
                 log: 'Data Log',
                 wallet: {

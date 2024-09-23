@@ -43,6 +43,7 @@ export const useMonetizationSchema = () => {
                     message: isWorldwide.value ? '' : t('val.required'),
                 },
             ),
+        transferable: z.string().min(1, t('val.required')),
     });
 
     const subscriptionSchema = z.object({
@@ -84,6 +85,7 @@ export const useMonetizationSchema = () => {
                     message: isWorldwide.value ? '' : t('val.required'),
                 },
             ),
+        transferable: z.string().min(1, t('val.required')),
     });
 
     const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema]);

@@ -176,9 +176,9 @@ const placeholders = computed(() => {
                                     monetizationDetails.region
                                         ? `available in ${monetizationDetails.region}`
                                         : 'available worldwide'
-                                }}, {{ placeholders.transferable }}, {{ placeholders.durationText }} license to access,
-                                copy and process the Data Set for the following purpose(s) (hereinafter ‘Permitted
-                                Purposes’):
+                                }}, {{ monetizationDetails.transferable }}, {{ placeholders.durationText }} license to
+                                access, copy and process the Data Set for the following purpose(s) (hereinafter
+                                ‘Permitted Purposes’):
                             </p>
 
                             <ul>

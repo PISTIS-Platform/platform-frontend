@@ -52,6 +52,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             limitFrequency: '',
             isExclusive: false,
             region: '',
+            transferable: '',
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
@@ -65,6 +66,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             limitFrequency: '',
             isExclusive: false,
             region: '',
+            transferable: '',
         };
     } else if (monetizationType === 'investment') {
         //TODO: Do once we know what goes here
@@ -106,6 +108,21 @@ const monetizationSelections: CardSelection[] = [
 const licenseSelections = computed(() =>
     isFree.value ? ['PISTIS License', 'CC-BY', 'MIT', 'CC0'] : ['PISTIS License'],
 );
+
+const transferableSelections = [
+    {
+        label: t('data.designer.transferable'),
+        value: 'transferable',
+    },
+    {
+        label: t('data.designer.nonTransferable'),
+        value: 'non-transferable',
+    },
+    {
+        label: t('data.designer.subLicensable'),
+        value: 'sub-licensable',
+    },
+];
 
 const limitFrequencySelections = computed(() => [
     { title: t('perHour'), value: DownloadFrequency.HOUR },
@@ -261,34 +278,56 @@ async function onSubmit(): Promise<void> {
                                     </UFormGroup>
                                 </div>
                                 <div class="flex flex-row gap-4">
-                                    <UFormGroup :label="$t('exclusive')" name="isExclusive">
-                                        <UCheckbox
-                                            v-model="monetizationDetails.isExclusive"
-                                            name="isExclusive"
-                                            class="mt-2.5 -ml-1 justify-center"
-                                        />
-                                    </UFormGroup>
-                                    <UFormGroup
-                                        :label="$t('data.designer.availability')"
-                                        name="region"
-                                        :required="!isWorldwide"
-                                    >
-                                        <UInput
-                                            v-model.number="monetizationDetails.region"
-                                            :class="isWorldwide ? 'opacity-50' : ''"
-                                            :disabled="isWorldwide"
-                                            :placeholder="$t('data.designer.regionCountry')"
-                                            type="numeric"
+                                    <div class="flex flex-1 gap-4">
+                                        <UFormGroup :label="$t('exclusive')" name="isExclusive">
+                                            <UCheckbox
+                                                v-model="monetizationDetails.isExclusive"
+                                                name="isExclusive"
+                                                class="mt-2.5 -ml-1 justify-center"
+                                            />
+                                        </UFormGroup>
+                                        <UFormGroup
+                                            :label="$t('data.designer.availability')"
+                                            name="region"
+                                            :required="!isWorldwide"
                                         >
-                                        </UInput>
-                                    </UFormGroup>
-                                    <UFormGroup :label="$t('data.designer.worldwide')">
-                                        <UCheckbox
-                                            :model-value="isWorldwide"
-                                            class="mt-2.5 -ml-1 justify-center"
-                                            @update:model-value="(value: boolean) => updateWorldwide(value)"
-                                        />
-                                    </UFormGroup>
+                                            <UInput
+                                                v-model.number="monetizationDetails.region"
+                                                :class="isWorldwide ? 'opacity-50' : ''"
+                                                :disabled="isWorldwide"
+                                                :placeholder="$t('data.designer.regionCountry')"
+                                                type="numeric"
+                                            >
+                                            </UInput>
+                                        </UFormGroup>
+                                        <UFormGroup :label="$t('data.designer.worldwide')">
+                                            <UCheckbox
+                                                :model-value="isWorldwide"
+                                                class="mt-2.5 -ml-1 justify-center"
+                                                @update:model-value="(value: boolean) => updateWorldwide(value)"
+                                            />
+                                        </UFormGroup>
+                                        <UFormGroup
+                                            :label="$t('data.designer.transferable')"
+                                            required
+                                            name="transferable"
+                                            class="flex-1 text-gray-200"
+                                        >
+                                            <USelectMenu
+                                                v-model="monetizationDetails.transferable"
+                                                :ui="{
+                                                    option: { active: 'text-gray-200' },
+                                                    input: 'placeholder:text-gray-200 text-gray-200',
+                                                    button: 'text-gray-200',
+                                                }"
+                                                :placeholder="$t('data.designer.transferable')"
+                                                :options="transferableSelections"
+                                                value-attribute="value"
+                                                option-attribute="label"
+                                            ></USelectMenu>
+                                        </UFormGroup>
+                                    </div>
+                                    <div class="flex flex-1 gap-4"></div>
                                 </div>
                                 <div class="flex flex-row gap-4">
                                     <UFormGroup
