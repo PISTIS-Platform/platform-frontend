@@ -168,6 +168,7 @@ export default defineI18nConfig(() => ({
                     availability: 'Availability',
                     regionCountry: 'Region / Country',
                     worldwide: 'Worldwide',
+                    transferable: 'Transferable',
                 },
                 log: 'Data Log',
                 wallet: {

@@ -202,7 +202,7 @@ const placeholders = computed(() => {
                                     to store the Data Set in databases hosted internally or on third party hosted
                                     platforms;
                                 </li>
-                                <li>{{ placeholders.otherPurposes }}</li>
+                                <li>{{ monetizationDetails.extraTerms }}</li>
                             </ul>
 
                             <p>
