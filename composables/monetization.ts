@@ -18,7 +18,7 @@ export const useMonetizationSchema = () => {
             },
         ),
         license: z.string().min(1, t('val.required')),
-        extraTerms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+        extraTerms: z.string().optional(),
         contractTerms: z.string().min(1, t('val.required')),
         limitNumber: z.coerce
             .number({ invalid_type_error: t('val.validNumber') })
@@ -56,7 +56,7 @@ export const useMonetizationSchema = () => {
                     message: isPerpetual.value ? '' : t('val.required'),
                 },
             ),
-        additionalRenewalTerms: z.string().min(1, t('val.required')),
+        additionalRenewalTerms: z.string().optional(),
         nonRenewalDays: z.coerce
             .number({ invalid_type_error: t('val.validNumber') })
             .gte(0, t('val.zeroOrPositive'))
@@ -105,7 +105,7 @@ export const useMonetizationSchema = () => {
             },
         ),
         license: z.string().min(1, t('val.required')),
-        extraTerms: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+        extraTerms: z.string().optional(),
         contractTerms: z.string().min(1, t('val.required')),
         limitNumber: z.coerce
             .number({ invalid_type_error: t('val.validNumber') })
@@ -143,7 +143,7 @@ export const useMonetizationSchema = () => {
                     message: isPerpetual.value ? '' : t('val.required'),
                 },
             ),
-        additionalRenewalTerms: z.string().min(1, t('val.required')),
+        additionalRenewalTerms: z.string().optional(),
         nonRenewalDays: z.coerce
             .number({ invalid_type_error: t('val.validNumber') })
             .gte(0, t('val.zeroOrPositive'))

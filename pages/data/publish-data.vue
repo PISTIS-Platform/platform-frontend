@@ -82,7 +82,7 @@ type monetizationType = z.infer<typeof monetizationSchema>;
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
     price: undefined,
-    license: '',
+    license: 'PISTIS License',
     extraTerms: '',
     contractTerms: '',
     limitNumber: undefined,

@@ -186,7 +186,7 @@ watch(htmlContent, () => {
                                     to store the Data Set in databases hosted internally or on third party hosted
                                     platforms;
                                 </li>
-                                <li>{{ monetizationDetails.extraTerms }}</li>
+                                <li v-if="monetizationDetails.extraTerms">{{ monetizationDetails.extraTerms }}</li>
                             </ul>
 
                             <p>
