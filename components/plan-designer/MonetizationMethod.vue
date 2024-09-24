@@ -249,6 +249,7 @@ async function onSubmit(): Promise<void> {
                         class="flex flex-col w-full"
                         :state="monetizationDetails"
                         :schema="monetizationSchema"
+                        @submit="onSubmit"
                     >
                         <template v-if="monetizationDetails.type === 'one-off'">
                             <div class="flex flex-col space-y-5">
@@ -619,7 +620,44 @@ async function onSubmit(): Promise<void> {
                                         >
                                     </UFormGroup>
                                 </div>
+
                                 <div class="flex flex-row gap-4">
+                                    <UFormGroup
+                                        :label="$t('data.designer.downloadLimit')"
+                                        class="flex-1"
+                                        required
+                                        name="limitNumber"
+                                    >
+                                        <UInput
+                                            v-model.number="monetizationDetails.limitNumber"
+                                            :placeholder="$t('data.designer.downloadLimitPH')"
+                                            type="numeric"
+                                        >
+                                            <template #trailing>
+                                                <span class="text-gray-500 text-xs">times</span>
+                                            </template>
+                                        </UInput>
+                                    </UFormGroup>
+                                    <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="flex-1">
+                                        <USelectMenu
+                                            v-model="monetizationDetails.limitFrequency"
+                                            :placeholder="$t('data.designer.selectFrequency')"
+                                            :options="limitFrequencySelections"
+                                            value-attribute="value"
+                                            option-attribute="title"
+                                            ><template #label>
+                                                <span v-if="monetizationDetails.limitFrequency" class="truncate">{{
+                                                    monetizationDetails.limitFrequency
+                                                }}</span>
+                                                <span v-else class="text-gray-400">Select a frequency</span>
+                                            </template></USelectMenu
+                                        >
+                                    </UFormGroup>
+                                </div>
+                                <div
+                                    v-if="monetizationDetails.license === 'PISTIS License'"
+                                    class="flex flex-row gap-4"
+                                >
                                     <div class="flex flex-1 gap-4">
                                         <UFormGroup :label="$t('exclusive')" name="isExclusive">
                                             <UCheckbox
@@ -690,7 +728,12 @@ async function onSubmit(): Promise<void> {
                                                               : t('data.designer.pleaseSelectDate')
                                                     "
                                                     :disabled="isPerpetual"
-                                                    :class="isPerpetual ? 'opacity-50' : ''"
+                                                    :class="[
+                                                        isPerpetual ? 'opacity-50' : '',
+                                                        monetizationDetails.termDate
+                                                            ? 'text-gray-700'
+                                                            : 'text-gray-400',
+                                                    ]"
                                                 />
 
                                                 <template #panel="{ close }">
@@ -711,40 +754,34 @@ async function onSubmit(): Promise<void> {
                                         </UFormGroup>
                                     </div>
                                 </div>
-                                <div class="flex flex-row gap-4">
-                                    <UFormGroup
-                                        :label="$t('data.designer.downloadLimit')"
-                                        class="flex-1"
-                                        required
-                                        name="limitNumber"
-                                    >
-                                        <UInput
-                                            v-model.number="monetizationDetails.limitNumber"
-                                            :placeholder="$t('data.designer.downloadLimitPH')"
-                                            type="numeric"
-                                        >
-                                            <template #trailing>
-                                                <span class="text-gray-500 text-xs">times</span>
-                                            </template>
-                                        </UInput>
-                                    </UFormGroup>
-                                    <UFormGroup :label="$t('frequency')" required name="limitFrequency" class="flex-1">
-                                        <USelectMenu
-                                            v-model="monetizationDetails.limitFrequency"
-                                            :placeholder="$t('data.designer.selectFrequency')"
-                                            :options="limitFrequencySelections"
-                                            value-attribute="value"
-                                            option-attribute="title"
-                                            ><template #label>
-                                                <span v-if="monetizationDetails.limitFrequency" class="truncate">{{
-                                                    monetizationDetails.limitFrequency
-                                                }}</span>
-                                                <span v-else class="text-gray-400">Select a frequency</span>
-                                            </template></USelectMenu
-                                        >
-                                    </UFormGroup>
-                                </div>
-                                <div class="flex flex-row gap-4">
+                                <UFormGroup
+                                    v-if="monetizationDetails.license === 'PISTIS License'"
+                                    :label="$t('termsConditions')"
+                                    name="extraTerms"
+                                >
+                                    <UTextarea
+                                        v-model="monetizationDetails.extraTerms"
+                                        :rows="4"
+                                        :placeholder="$t('data.designer.typeTerms')"
+                                        resize
+                                    />
+                                </UFormGroup>
+                                <UFormGroup
+                                    v-if="monetizationDetails.license === 'PISTIS License'"
+                                    :label="$t('data.designer.additionalRenewalTerms')"
+                                    name="additionalRenewalTerms"
+                                >
+                                    <UTextarea
+                                        v-model="monetizationDetails.additionalRenewalTerms"
+                                        :rows="4"
+                                        :placeholder="$t('data.designer.additionalRenewalTerms')"
+                                        resize
+                                    />
+                                </UFormGroup>
+                                <div
+                                    v-if="monetizationDetails.license === 'PISTIS License'"
+                                    class="flex flex-row gap-4"
+                                >
                                     <div class="flex-1 flex gap-4">
                                         <UFormGroup
                                             :label="$t('data.designer.noticeForNonRenewal')"
@@ -782,9 +819,9 @@ async function onSubmit(): Promise<void> {
                                         </UFormGroup>
                                     </div>
                                 </div>
-                                <div class="relative">
+                                <div v-if="monetizationDetails.license === 'PISTIS License'" class="relative">
                                     <div class="absolute right-0 top-0 text-sm flex gap-4 items-center font-semibold">
-                                        <span>
+                                        <span class="text-gray-700">
                                             {{ t('data.designer.hasPersonalData') }}
                                         </span>
                                         <UCheckbox
@@ -807,26 +844,6 @@ async function onSubmit(): Promise<void> {
                                         />
                                     </UFormGroup>
                                 </div>
-                                <UFormGroup :label="$t('termsConditions')" required name="extraTerms">
-                                    <UTextarea
-                                        v-model="monetizationDetails.extraTerms"
-                                        resize
-                                        :rows="4"
-                                        :placeholder="$t('data.designer.typeTerms')"
-                                    />
-                                </UFormGroup>
-                                <UFormGroup
-                                    :label="$t('data.designer.additionalRenewalTerms')"
-                                    name="additionalRenewalTerms"
-                                    required
-                                >
-                                    <UTextarea
-                                        v-model="monetizationDetails.additionalRenewalTerms"
-                                        :rows="4"
-                                        :placeholder="$t('data.designer.additionalRenewalTerms')"
-                                        resize
-                                    />
-                                </UFormGroup>
                             </div>
                         </template>
 
@@ -850,7 +867,7 @@ async function onSubmit(): Promise<void> {
                             <UButton size="md" color="gray" variant="outline" @click="emit('changePage', 0)">
                                 {{ $t('back') }}
                             </UButton>
-                            <UButton size="md" @click="onSubmit">{{ $t('next') }} </UButton>
+                            <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
                         </div>
                     </UForm>
                 </Transition>
