@@ -235,10 +235,13 @@ watch(htmlContent, () => {
                                         ? `until ${dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')}`
                                         : 'perpetually'
                                 }}
-                                and shall be automatically renewed for additional term of
-                                {{ monetizationDetails.additionalRenewalTerms }} unless either Party provides the other
-                                with written notice not to renew at least {{ monetizationDetails.nonRenewalDays }} days
-                                prior to the expiration date of the current term.
+                                and shall be automatically renewed
+                                <span v-if="monetizationDetails.additionalRenewalTerms"
+                                    >for an additional term of {{ monetizationDetails.additionalRenewalTerms }}</span
+                                >
+                                unless either Party provides the other with written notice not to renew at least
+                                {{ monetizationDetails.nonRenewalDays }} days prior to the expiration date of the
+                                current term.
                             </p>
                             <p>
                                 <strong>Termination.</strong>
