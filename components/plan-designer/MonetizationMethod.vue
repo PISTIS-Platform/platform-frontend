@@ -249,7 +249,6 @@ async function onSubmit(): Promise<void> {
                         class="flex flex-col w-full"
                         :state="monetizationDetails"
                         :schema="monetizationSchema"
-                        @submit="onSubmit"
                     >
                         <template v-if="monetizationDetails.type === 'one-off'">
                             <div class="flex flex-col space-y-5">
@@ -851,7 +850,7 @@ async function onSubmit(): Promise<void> {
                             <UButton size="md" color="gray" variant="outline" @click="emit('changePage', 0)">
                                 {{ $t('back') }}
                             </UButton>
-                            <UButton size="md" type="submit">{{ $t('next') }} </UButton>
+                            <UButton size="md" @click="onSubmit">{{ $t('next') }} </UButton>
                         </div>
                     </UForm>
                 </Transition>
