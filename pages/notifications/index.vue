@@ -7,7 +7,8 @@ import { useMessagesStore } from '~/store/messages';
 
 const messagesStore = useMessagesStore();
 
-const { status, send } = useWebSocket(`ws://${location.host}/api/messages`);
+const { host, protocol } = location;
+const { status, send } = useWebSocket(`${protocol.replace('http', 'ws')}//${host}/api/messages`);
 
 const notifications = computed(() => messagesStore.getMessages);
 
