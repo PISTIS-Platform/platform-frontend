@@ -8,7 +8,6 @@ const sockets = new Map<string, Socket>();
 export default defineWebSocketHandler({
     async open(peer) {
         if (sockets.has(peer.id)) return;
-        console.log('opened WS', peer);
         const token = await getToken({ event: peer.ctx });
         sockets.set(
             peer.id,
@@ -18,32 +17,22 @@ export default defineWebSocketHandler({
                 },
             }),
         );
-        sockets.get(peer.id)?.on('connect', () => {
-            console.log('Connected to NestJS WS');
-        });
-        sockets.get(peer.id)?.on('disconnect', () => {
-            console.log('Disconnected from NestJS WS');
-        });
-        //listens to messages, specifically 'onMessage'
+        //listens to messages from Websocket, specifically 'onMessage'
         sockets.get(peer.id)?.on('onMessage', (...args) => {
-            console.log('MESSAGE RECEIVED', new Date());
             peer.send(JSON.stringify(args[0]));
         });
     },
     close(peer) {
-        console.log('closed WS', peer);
         sockets.get(peer.id)?.disconnect();
         sockets.delete(peer.id);
     },
-    error(peer, error) {
-        console.log('error on WS', peer, error);
-    },
-    //when user uses send('blah') from FE it goes through here
-    //sends message on 'newMessage' to BE which is listening for it
+    //sends message to BE which is listening for it
     message(peer, message) {
-        console.log('message on WS', peer, message);
-        sockets.get(peer.id)?.emit('newMessage', {
-            hello: 'there',
+        const messageObject = JSON.parse(message.text());
+
+        sockets.get(peer.id)?.emit(messageObject.action, {
+            userId: messageObject.userId,
+            notificationId: messageObject?.notificationId,
         });
     },
 });

@@ -34,7 +34,6 @@ const navigation = [
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
 
-//begin websockets config
 const { host, protocol } = location;
 const { data: wsData } = useWebSocket(`${protocol.replace('http', 'ws')}//${host}/api/messages`);
 // const { status: wsStatus, data: wsData, send, open, close } = useWebSocket(`ws://${location.host}/api/messages`);
@@ -43,20 +42,15 @@ const { data: wsData } = useWebSocket(`${protocol.replace('http', 'ws')}//${host
 watch(wsData, (newValue) => {
     if (!newValue) return;
     const message = JSON.parse(newValue);
+    if (Array.isArray(message)) {
+        messagesStore.setMessages(message);
+        return;
+    }
     showInfoMessage(message.message);
     messagesStore.addMessage(message);
 });
 
-//to send messages back to WS through Nitro
-// const message = ref('');
-// function sendData() {
-//     send(message.value);
-//     message.value = '';
-// }
-
 //end websockets config
-
-//TODO: Api call to get notifications here
 
 const notifications = computed(() => messagesStore.getMessages);
 
