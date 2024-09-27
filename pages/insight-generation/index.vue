@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 const fileUpload = ref<File | null>(null);
 const responseContent = ref('');
 const outputFormat = ref('application/json'); // Default value
