@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 const fileUpload = ref<File | null>(null);
 const responseContent = ref('');
-const outputFormat = ref('application/json');
+const outputFormat = ref('application/json'); // Default value
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -19,16 +19,11 @@ const handleSubmit = async () => {
         formData.append('file', fileUpload.value);
     }
 
-    // Log FormData entries
-    for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-    }
-
     try {
-        const response = await fetch('https://develop.pistis-market.eu/srv/insights-generator/insights/', {
+        const response = await $fetch('/api/insights-generator/insights', {
             method: 'POST',
             body: formData,
-            headers: {
+            query: {
                 Accept: outputFormat.value,
             },
         });
@@ -39,9 +34,14 @@ const handleSubmit = async () => {
 
         const contentType = response.headers.get('Content-Type');
         if (contentType?.includes('application/json')) {
+            //const data = await response.json();
+            //responseContent.value = JSON.stringify(data, null, 2); // Format JSON response
             const data = await response.text();
             responseContent.value = data;
+            //responseContent.value = data;
         } else if (contentType?.includes('text/html')) {
+            //const data = await response.text();
+            //responseContent.value = data;
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -55,8 +55,6 @@ const handleSubmit = async () => {
         } else {
             responseContent.value = 'Unsupported response type';
         }
-
-        console.log('Success:', responseContent.value);
     } catch (error) {
         responseContent.value = `Error: ${error.message}`;
         console.error('Error:', error);

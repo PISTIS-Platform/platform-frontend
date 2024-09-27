@@ -46,6 +46,7 @@ export default defineNuxtConfig({
         anonymizerApiUrl: process.env.ANONYMIZER_URL,
         intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
         sctcUrl: process.env.NUXT_SCTC_URL,
+        insightsGenApiUrl: process.env.INSIGHTS_URL,
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
