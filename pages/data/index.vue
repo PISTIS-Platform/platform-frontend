@@ -65,7 +65,6 @@ const transactionsRows = computed(() => {
         ? transactionsData.value.slice((page.value - 1) * pageCount, page.value * pageCount)
         : [];
 });
-console.log(transactionsRows.value);
 </script>
 <template>
     <div class="w-full h-full">

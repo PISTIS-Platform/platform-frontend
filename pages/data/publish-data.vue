@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
@@ -15,12 +16,12 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
-const { data: allDatasets, pending: datasetsPending } = useAsyncData(() => $fetch('/api/datasets/get-all'));
+const { data: allDatasets, status: datasetsStatus } = useAsyncData(() => $fetch('/api/datasets/get-all'));
 
 const datasetsTransformed = computed(() => {
     if (!allDatasets.value?.result?.results?.length) return [];
 
-    return allDatasets.value.result.results.map((result: Record<string, any>) => ({
+    return allDatasets.value.result.results.map((result: Record<string, unknown>) => ({
         id: result.id,
         title: result.title.en,
         description: result.description.en,
@@ -30,6 +31,7 @@ const datasetsTransformed = computed(() => {
 //data for selection whole dataset or query
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
+const newAssetId = uuidV4();
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
@@ -94,6 +96,15 @@ const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetiz
 
 const submitAll = () => {
     let objToSend;
+    objToSend = {
+        originalAssetId: selected.value?.id,
+        organizationId: runtimeConfig.public?.orgId,
+        ...assetOfferingDetails.value,
+        ...monetizationDetails.value,
+        assetId: newAssetId,
+        accessPolicies: {},
+    };
+
     //TODO: Figure out final form for each monetization method
 
     //TODO: Send final object / JSON to API (blockchain)
@@ -131,7 +142,7 @@ const changeStep = async (stepNum: number) => {
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
             body: {
-                assetId: 'fb6ccd7a-b3b4-4269-b101-d65958de24f8', //TODO:: replace with actual asset id once we have more info
+                assetId: newAssetId, //TODO:: replace with actual asset id once we have more info
                 organizationId: runtimeConfig.public?.orgId,
                 terms: monetizationDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
@@ -214,9 +225,9 @@ const changeStep = async (stepNum: number) => {
             </li>
         </ol>
     </nav>
-    <UProgress v-if="datasetsPending" animation="carousel" />
+    <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 0 && !datasetsPending" class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 0 && datasetsStatus !== 'pending'" class="w-full h-full text-gray-700 space-y-8">
         <UCard v-for="dataset in datasetsTransformed" :key="dataset.id">
             <template #header>
                 <div class="flex items-center w-full justify-between">
