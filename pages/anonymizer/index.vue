@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { TableRow } from '~/interfaces/dataset-preview';
+import { type TableRow } from '~/interfaces/dataset-preview';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
 import Title from '../../components/anonymizer/Title.vue';

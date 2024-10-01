@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue';
-
 import {
-    ConfigEmit,
-    FakerSettings,
-    HashSettings,
-    LocationSettings,
-    MaskDetail,
-    RangeSettings,
+    type ConfigEmit,
+    type FakerSettings,
+    type HashSettings,
+    type LocationSettings,
+    type MaskDetail,
+    type RangeSettings,
 } from '~/interfaces/mask-settings';
 import { useAnonymizerStore } from '~/store/anonymizer';
+
+import Delete from './Delete.vue';
+import Faker from './Faker.vue';
+import Hash from './Hash.vue';
+import Location from './Location.vue';
+import None from './None.vue';
+import Range from './Range.vue';
 
 //get default and masks from anonymizerStore instead
 const props = defineProps({
@@ -52,15 +57,19 @@ anonymizerStore.$subscribe((mutation, state) => {
     }
 });
 
+const maskMap: { [key: string]: any } = {
+    delete: Delete,
+    faker: Faker,
+    hash: Hash,
+    location: Location,
+    none: None,
+    range: Range,
+};
+
 //Mask name maps to the component names found in mask-settings
 //Used to dynamically load mask components by name
 function loadMaskComponent(maskName: string) {
-    maskName = formatName(maskName);
-    return defineAsyncComponent(() => import(/* @vite-ignore */ `./${maskName}.vue`));
-}
-
-function formatName(maskName: string): string {
-    return maskName[0].toUpperCase() + maskName.slice(1);
+    return maskMap[maskName];
 }
 
 function updateConfig(settings: LocationSettings | RangeSettings | HashSettings | FakerSettings) {
