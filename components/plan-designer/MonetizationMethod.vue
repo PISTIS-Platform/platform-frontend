@@ -195,7 +195,7 @@ async function onSubmit(): Promise<void> {
                                                 type="numeric"
                                             >
                                                 <template #trailing>
-                                                    <span class="text-gray-500 text-xs">STC</span>
+                                                    <span class="text-gray-500 text-xs">PST</span>
                                                 </template>
                                             </UInput>
                                             <template #error="{ error }">
@@ -325,7 +325,7 @@ async function onSubmit(): Promise<void> {
                                                     type="numeric"
                                                 >
                                                     <template #trailing>
-                                                        <span class="text-gray-500 text-xs">STC</span>
+                                                        <span class="text-gray-500 text-xs">PST</span>
                                                     </template>
                                                 </UInput>
                                                 <template #error="{ error }">
