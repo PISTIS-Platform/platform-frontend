@@ -9,6 +9,7 @@ import {
 } from '@heroicons/vue/24/outline';
 
 const { showInfoMessage } = useAlertMessage();
+const config = useRuntimeConfig();
 
 import { useMessagesStore } from '~/store/messages';
 
@@ -25,12 +26,13 @@ useHead({
     bodyAttrs: { class: 'h-full' },
 });
 
-const navigation = [
+const navigation = ref([
     { name: 'home.home', to: '/home' },
     { name: 'data.data', to: '/data' },
+    { name: 'catalog.catalog', to: config.public.catalogUrl },
     { name: 'marketplace.marketplace', to: '/marketplace' },
     { name: 'market.market', to: '/market' },
-];
+]);
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
 

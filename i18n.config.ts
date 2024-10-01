@@ -319,6 +319,9 @@ export default defineI18nConfig(() => ({
                     assetsComparison: 'Compare individual assets',
                 },
             },
+            catalog: {
+                catalog: 'Catalog',
+            },
             marketplace: {
                 marketplace: 'Marketplace',
                 details: 'Details',
@@ -326,7 +329,7 @@ export default defineI18nConfig(() => ({
                 auditor: 'Auditor',
                 tableFields: {
                     id: 'ID',
-                    buyer: 'Byuer',
+                    buyer: 'Buyer',
                     date: 'Transaction Date',
                     seller: 'Seller',
                     transactionId: 'Transaction ID',
