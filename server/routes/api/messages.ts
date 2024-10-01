@@ -33,6 +33,9 @@ export default defineWebSocketHandler({
         sockets.get(peer.id)?.disconnect();
         sockets.delete(peer.id);
     },
+    error(peer, error) {
+        console.log('error on WS', peer, error);
+    },
     //sends message to BE which is listening for it
     message(peer, message) {
         const messageObject = JSON.parse(message.text());
