@@ -28,7 +28,7 @@ useHead({
 const navigation = [
     { name: 'home.home', to: '/home' },
     { name: 'data.data', to: '/data' },
-    { name: 'transactions.transactions', to: '/transactions' },
+    { name: 'marketplace.marketplace', to: '/marketplace' },
     { name: 'market.market', to: '/market' },
 ];
 

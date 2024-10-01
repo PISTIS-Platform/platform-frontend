@@ -168,7 +168,6 @@ export default defineI18nConfig(() => ({
                     annual: 'Annual',
                     pleaseCheck: 'Please check the form and fill in all required (*) fields',
                 },
-                log: 'Data Log',
                 wallet: {
                     title: 'Wallet',
                     balance: 'Balance',
@@ -320,8 +319,8 @@ export default defineI18nConfig(() => ({
                     assetsComparison: 'Compare individual assets',
                 },
             },
-            transactions: {
-                transactions: 'My Transactions',
+            marketplace: {
+                marketplace: 'Marketplace',
                 details: 'Details',
                 overview: 'Overview',
                 auditor: 'Auditor',
