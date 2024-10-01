@@ -7,7 +7,7 @@ const sockets = new Map<string, Socket>();
 
 export default defineWebSocketHandler({
     async open(peer) {
-        console.log('CONNECTED TO THINGY');
+        console.log('CONNECTED FROM FE TO NITRO');
         if (sockets.has(peer.id)) return;
         const token = await getToken({ event: peer.ctx });
         sockets.set(
