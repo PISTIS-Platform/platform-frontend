@@ -83,7 +83,11 @@ export default defineI18nConfig(() => ({
                 noNotifications: 'No notifications available.',
             },
             data: {
-                data: 'My Data',
+                data: 'Data Ingestion',
+                jobConfigurator: 'Job Configurator',
+                dataTransformation: 'Data Transformation',
+                insightGenerator: 'Insight Generator',
+                anonymizer: 'Anonymizer',
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',
