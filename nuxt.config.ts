@@ -44,6 +44,7 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         public: {
+            apiBase: process.env.NUXT_IAM_API,
             orgId: process.env.NUXT_PUBLIC_ORG_ID, //NUXT_PUBLIC_ORG_ID
             orgLogo: process.env.NUXT_PUBLIC_ORG_LOGO,
         },

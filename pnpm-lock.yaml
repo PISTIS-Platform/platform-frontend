@@ -23,6 +23,9 @@ dependencies:
   '@pinia/nuxt':
     specifier: ^0.4.11
     version: 0.4.11(typescript@5.5.4)(vue@3.4.38)
+  '@types/uuid':
+    specifier: ^10.0.0
+    version: 10.0.0
   chart.js:
     specifier: ^4.4.1
     version: 4.4.4
@@ -44,12 +47,18 @@ dependencies:
   socket.io-client:
     specifier: ^4.7.5
     version: 4.7.5
+  uuid:
+    specifier: ^10.0.0
+    version: 10.0.0
   vue-chartjs:
     specifier: ^5.2.0
     version: 5.3.1(chart.js@4.4.4)(vue@3.4.38)
   vue-fast-marquee:
     specifier: ^1.0.6
     version: 1.0.6(vue@3.4.38)
+  vue3-promise-dialog:
+    specifier: ^0.3.4
+    version: 0.3.4(vue@3.4.38)
   vue3-tags-input:
     specifier: ^1.0.12
     version: 1.0.12(vue@3.4.38)
@@ -1306,8 +1315,8 @@ packages:
       source-map-js: 1.2.0
     dev: true
 
-  /@intlify/shared@10.0.0-beta.5:
-    resolution: {integrity: sha512-g9bq5Y1bOcC9qxtNk4UWtF3sXm6Wh0fGISb7vD5aLyF7yQv7ZFjxQjJzBP2GqG/9+PAGYutqjP1GGadNqFtyAQ==}
+  /@intlify/shared@10.0.0:
+    resolution: {integrity: sha512-6ngLfI7DOTew2dcF9WMJx+NnMWghMBhIiHbGg+wRvngpzD5KZJZiJVuzMsUQE1a5YebEmtpTEfUrDp/NqVGdiw==}
     engines: {node: '>= 16'}
     dev: true
 
@@ -2607,6 +2616,10 @@ packages:
   /@types/semver@7.5.8:
     resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
     dev: true
+
+  /@types/uuid@10.0.0:
+    resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
+    dev: false
 
   /@types/web-bluetooth@0.0.16:
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
@@ -9047,6 +9060,11 @@ packages:
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  /uuid@10.0.0:
+    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    hasBin: true
+    dev: false
+
   /uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
@@ -9365,7 +9383,7 @@ packages:
       vue-router:
         optional: true
     dependencies:
-      '@intlify/shared': 10.0.0-beta.5
+      '@intlify/shared': 10.0.0
       '@intlify/vue-i18n-bridge': 0.8.0(vue-i18n@9.3.0-beta.27)
       '@intlify/vue-router-bridge': 0.8.0(vue@3.4.38)
       ufo: 1.5.4
@@ -9414,6 +9432,14 @@ packages:
       semver: 7.6.3
       typescript: 5.5.4
     dev: true
+
+  /vue3-promise-dialog@0.3.4(vue@3.4.38):
+    resolution: {integrity: sha512-JquYYE+1lxuGgncD8Q+8KTFAWUJsNWnhuYPSsOFRKzz3kz66Rjz5pdlEW6GLfUlV3cKak9T8b3mV49B4ouEgVg==}
+    peerDependencies:
+      vue: ^3.x
+    dependencies:
+      vue: 3.4.38(typescript@5.5.4)
+    dev: false
 
   /vue3-tags-input@1.0.12(vue@3.4.38):
     resolution: {integrity: sha512-s5rG+1W3M8+be0nd9H1nv/8WLjJOO6pShgVz8ALAqOiz3tDH5QhGrDH6fzD14ZjJNRWSa3bRBSXQwHEXffPQ6g==}

@@ -4,8 +4,7 @@ import { z } from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
-
-import type { AssetOfferingDetails } from '../../interfaces/plan-designer';
+import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
 
@@ -91,6 +90,26 @@ const monetizationDetails = ref<Partial<monetizationType>>({
 
 const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
+// access policies
+const policyData: Array<AccessPolicyDetails> = [];
+const defaultPolicy: AccessPolicyDetails = {
+    id: t('policies.publicationDefaults.id'),
+    title: t('policies.publicationDefaults.title'),
+    description: t('policies.publicationDefaults.description'),
+};
+policyData.push(defaultPolicy);
+// const accessPolicyDetails = ref<AccessPolicyDetails>({
+//     id: undefined,
+//     title: undefined,
+//     description: undefined,
+//     scopes: [],
+//     groups: [],
+//     countries: [],
+//     types: [],
+//     sizes: [],
+//     domains: [],
+// });
+
 // validation data
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
@@ -102,8 +121,9 @@ const submitAll = () => {
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         assetId: newAssetId,
-        accessPolicies: {},
+        accessPolicies: policyData,
     };
+    console.log(objToSend);
 
     //TODO: Figure out final form for each monetization method
 
@@ -264,7 +284,13 @@ const changeStep = async (stepNum: number) => {
         />
     </div>
 
-    <div v-show="selectedPage === 2">Access policies editor</div>
+    <div v-show="selectedPage === 2" class="w-full h-full text-gray-700 space-y-8">
+        <AccessPolicyList
+            v-model:policy-data="policyData"
+            :selected="selected"
+            @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
+        />
+    </div>
 
     <div v-if="isAllValid">
         <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">
