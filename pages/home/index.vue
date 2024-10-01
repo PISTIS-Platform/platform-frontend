@@ -5,12 +5,15 @@ const { t } = useI18n();
 
 const { data: transactionsData } = await useLazyFetch<Record<string, any>[]>('/api/wallet/transactions-data');
 
+const { data: currentBalance } = await useLazyFetch(`/api/wallet`, {
+    method: 'post',
+});
 //cards info data
 const cardInfoData = computed(() => [
     {
         title: t('data.wallet.balance'),
         iconName: 'i-heroicons-currency-dollar-20-solid',
-        amount: 3500,
+        amount: currentBalance.value?.dlt_amount || 'N/A',
     },
     {
         title: t('data.wallet.monthlyExpenses'),
@@ -66,6 +69,7 @@ const transactionsRows = computed(() => {
         : [];
 });
 </script>
+
 <template>
     <PageContainer>
         <div class="w-full h-full">
