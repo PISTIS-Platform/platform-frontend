@@ -19,11 +19,19 @@ const props = defineProps({
     },
 });
 
+const { data: allGroups } = useAsyncData(() => $fetch('/api/iam/get-groups'));
+const { data: allDomains } = useAsyncData(() => $fetch('/api/iam/get-domains'));
+const { data: allCountries } = useAsyncData(() => $fetch('/api/iam/get-countries'));
+const { data: allSizes } = useAsyncData(() => $fetch('/api/iam/get-sizes'));
+const { data: allTypes } = useAsyncData(() => $fetch('/api/iam/get-types'));
+const { data: groupOptions } = useAsyncData(() => $fetch('/api/iam/get-organizations'));
+
 const checkedScopes = ref<Array<string>>([]);
 const checkedGroups = ref<Array<string>>([]);
 const checkedCountries = ref<Array<string>>([]);
 const checkedSizes = ref<Array<string>>([]);
 const checkedDomains = ref<Array<string>>([]);
+const checkedTypes = ref<Array<string>>([]);
 
 const policiesCount = ref(props.policyData.length);
 const accessPolicyDetails = ref<AccessPolicyDetails>({
@@ -35,6 +43,7 @@ const accessPolicyDetails = ref<AccessPolicyDetails>({
     countries: [],
     sizes: [],
     domains: [],
+    types: [],
 });
 
 const emit = defineEmits(['changePage', 'update:policy-data']);
@@ -73,7 +82,7 @@ const actions = (row) => {
                 icon: 'i-heroicons-pencil-square-20-solid',
                 click: () => {
                     accessPolicyDetails.value = props.policyData[row.id - 1];
-                    console.log(accessPolicyDetails);
+
                     checkedScopes.value[0] = String(false);
                     checkedScopes.value[1] = String(false);
                     if (accessPolicyDetails.value.scopes.includes('READ')) {
@@ -83,13 +92,7 @@ const actions = (row) => {
                         checkedScopes.value[1] = String(true);
                     }
 
-                    for (let i = 0; i < allGroups.value.length; i++) {
-                        if (accessPolicyDetails.value.groups.includes(allGroups.value[i].name)) {
-                            checkedGroups.value[i] = String(true);
-                        } else {
-                            checkedGroups.value[i] = String(false);
-                        }
-                    }
+                    checkedGroups.value = accessPolicyDetails.value.groups;
 
                     for (let i = 0; i < allDomains.value.length; i++) {
                         if (accessPolicyDetails.value.domains.includes(allDomains.value[i].code)) {
@@ -112,6 +115,14 @@ const actions = (row) => {
                             checkedSizes.value[i] = String(true);
                         } else {
                             checkedSizes.value[i] = String(false);
+                        }
+                    }
+
+                    for (let i = 0; i < allTypes.value.length; i++) {
+                        if (accessPolicyDetails.value.types.includes(allTypes.value[i].code)) {
+                            checkedTypes.value[i] = String(true);
+                        } else {
+                            checkedTypes.value[i] = String(false);
                         }
                     }
 
@@ -141,11 +152,6 @@ const actions = (row) => {
 const page = ref<number>(1);
 const pageCount: number = 5;
 
-const { data: allGroups } = useAsyncData(() => $fetch('/api/iam/get-groups'));
-const { data: allDomains } = useAsyncData(() => $fetch('/api/iam/get-domains'));
-const { data: allCountries } = useAsyncData(() => $fetch('/api/iam/get-countries'));
-const { data: allSizes } = useAsyncData(() => $fetch('/api/iam/get-sizes'));
-
 const rows = computed(() => {
     return props.policyData.slice((page.value - 1) * pageCount, page.value * pageCount);
 });
@@ -157,6 +163,34 @@ watch(
     },
     { immediate: true },
 );
+
+const tabItems = [
+    {
+        key: 'domain',
+        label: t('policies.tabs.domain.label'),
+        icon: 'i-heroicons-tag',
+        content: t('policies.tabs.domain.content'),
+    },
+    {
+        key: 'country',
+        label: t('policies.tabs.country.label'),
+        icon: 'i-heroicons-flag',
+        content: t('policies.tabs.country.content'),
+    },
+    {
+        key: 'size',
+        label: t('policies.tabs.size.label'),
+        icon: 'i-heroicons-briefcase',
+        content: t('policies.tabs.size.content'),
+    },
+    {
+        key: 'type',
+        label: t('policies.tabs.type.label'),
+        icon: 'i-heroicons-eye-dropper',
+        content: t('policies.tabs.type.content'),
+    },
+];
+
 const switchPolicyForm = ref(false);
 const handleNewPolicyClick = () => {
     accessPolicyDetails.value = {
@@ -168,20 +202,22 @@ const handleNewPolicyClick = () => {
         countries: [],
         sizes: [],
         domains: [],
+        types: [],
     };
     checkedScopes.value[0] = String(false);
     checkedScopes.value[1] = String(false);
+    checkedGroups.value = [];
     for (let i = 0; i < allDomains.value.length; i++) {
         checkedDomains.value[i] = String(false);
-    }
-    for (let i = 0; i < allGroups.value.length; i++) {
-        checkedGroups.value[i] = String(false);
     }
     for (let i = 0; i < allCountries.value.length; i++) {
         checkedCountries.value[i] = String(false);
     }
     for (let i = 0; i < allSizes.value.length; i++) {
         checkedSizes.value[i] = String(false);
+    }
+    for (let i = 0; i < allTypes.value.length; i++) {
+        checkedTypes.value[i] = String(false);
     }
 
     switchPolicyForm.value = true;
@@ -197,10 +233,8 @@ const handlePolicyForm = () => {
     }
 
     let groups = [];
-    for (let i = 0; i < allGroups.value.length; i++) {
-        if (checkedGroups.value[i] === true || checkedGroups.value[i] === 'true') {
-            groups.push(allGroups.value[i].name);
-        }
+    for (let i = 0; i < checkedGroups.value.length; i++) {
+        groups.push(checkedGroups.value[i].toString());
     }
 
     let countries = [];
@@ -224,6 +258,13 @@ const handlePolicyForm = () => {
         }
     }
 
+    let types = [];
+    for (let i = 0; i < allTypes.value.length; i++) {
+        if (checkedTypes.value[i] === true || checkedTypes.value[i] === 'true') {
+            types.push(allTypes.value[i].code);
+        }
+    }
+
     //console.log(accessPolicyDetails.value);
     let isValid = true;
     let errorKeys = [];
@@ -239,7 +280,13 @@ const handlePolicyForm = () => {
         isValid = false;
         errorKeys.push('policies.errors.scopes');
     }
-    if (groups.length === 0 && countries.length === 0 && sizes.length === 0 && domains.length === 0) {
+    if (
+        groups.length === 0 &&
+        countries.length === 0 &&
+        sizes.length === 0 &&
+        domains.length === 0 &&
+        types.length === 0
+    ) {
         isValid = false;
         errorKeys.push('policies.errors.attributes');
     }
@@ -262,6 +309,7 @@ const handlePolicyForm = () => {
         p.countries = countries;
         p.sizes = sizes;
         p.domains = domains;
+        p.types = types;
         if (accessPolicyDetails.value.id === undefined || accessPolicyDetails.value.id === null) {
             props.policyData.push(p);
         } else {
@@ -274,7 +322,7 @@ const handlePolicyForm = () => {
         console.log(props.policyData);
         switchPolicyForm.value = false;
         console.log(policiesCount.value);
-        page.value = props.policyData.length / pageCount;
+        page.value = props.policyData.length / pageCount + 1;
         page.value = 1;
     }
 };
@@ -335,159 +383,154 @@ async function onSubmit(): Promise<void> {
     <!-- Modal -->
     <UModal v-model="switchPolicyForm" class="flex flex-grow">
         <UCard class="flex flex-col text-gray-700">
-            <div class="flex items-start gap-8">
-                <h2 class="text-lg font-medium">Asset details</h2>
-            </div>
+            <UAlert :title="t('policies.policyUI.title')" color="gray" />
+            <UInput v-model="props.selected.id" color="gray" variant="outline" disabled class="flex-grow">
+                <template #leading>
+                    <span class="text-gray-500 dark:text-gray-400 text-xs">{{ t('policies.policyUI.assetId') }}</span>
+                </template>
+            </UInput>
+            <UInput v-model="props.selected.title" color="gray" variant="outline" disabled class="flex-grow">
+                <template #leading>
+                    <span class="text-gray-500 dark:text-gray-400 text-xs">{{
+                        t('policies.policyUI.assetTitle')
+                    }}</span>
+                </template>
+            </UInput>
 
-            <div class="flex items-start gap-8">
-                <div class="flex gap-2 flex-col w-1/4">ID</div>
-                <div class="flex gap-2 flex-col w-3/4 font-light font-mono">
-                    {{ props.selected.id }}
-                </div>
-            </div>
-
-            <div class="flex items-start gap-8">
-                <div class="flex gap-2 flex-col w-1/4">Title</div>
-                <div class="flex gap-2 flex-col w-3/4 font-bold">
-                    {{ props.selected.title }}
-                </div>
-            </div>
-
-            <div class="flex items-start gap-8 mt-6">
-                <h2 class="text-lg font-medium">Policy definition details</h2>
-            </div>
+            <UAlert :title="t('policies.policyUI.defText')" class="mt-5" color="primary" />
 
             <input v-model="accessPolicyDetails.id" type="hidden" />
             <div class="flex items-start gap-8">
                 <div class="flex flex-col w-full">
-                    <label class="block text-sm font-medium text-gray-700">Name</label>
-                    <input
-                        v-model="accessPolicyDetails.title"
-                        type="text"
-                        class="mt-1 block border-gray-300 rounded-md shadow-sm"
-                    />
+                    <UFormGroup :label="$t('policies.policyUI.defName')">
+                        <UInput v-model="accessPolicyDetails.title" placeholder="" />
+                    </UFormGroup>
                 </div>
             </div>
             <div class="flex items-start gap-8">
                 <div class="flex flex-col w-full">
-                    <label class="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea
-                        v-model="accessPolicyDetails.description"
-                        type="textarea"
-                        class="mt-1 block border-gray-300 rounded-md shadow-sm"
-                    />
+                    <UFormGroup :label="$t('policies.policyUI.defDesc')">
+                        <UTextarea v-model="accessPolicyDetails.description" placeholder="" />
+                    </UFormGroup>
                 </div>
             </div>
 
             <div class="flex items-start gap-8 mt-6">
                 <div class="flex flex-col w-full">
-                    <label class="block text-sm font-medium text-gray-700">Scopes</label>
-                </div>
-                <div class="flex flex-row w-full">
-                    <div class="flex gap-2 flex-col w-1/3">
-                        <label class="inline-flex items-center">
-                            <input v-model="checkedScopes[0]" type="checkbox" name="scopes[]" class="form-checkbox" />
-                            <span class="ml-2">READ</span>
-                        </label>
-                    </div>
-                    <div class="flex gap-2 flex-col w-1/3">
-                        <label class="inline-flex items-center">
-                            <input v-model="checkedScopes[1]" type="checkbox" name="scopes[]" class="form-checkbox" />
-                            <span class="ml-2">TRADE</span>
-                        </label>
+                    <label class="block text-sm font-medium text-gray-700">{{ t('policies.policyUI.defScope') }}</label>
+                    <small class="mb-2">{{ t('policies.policyUI.defScopeHelp') }}</small>
+                    <div class="flex flex-row w-full">
+                        <div class="flex gap-2 flex-col w-1/5">
+                            <UCheckbox v-model="checkedScopes[0]" name="scopes[]" label="READ" />
+                        </div>
+                        <div class="flex gap-2 flex-col w-1/5">
+                            <UCheckbox v-model="checkedScopes[1]" name="scopes[]" label="TRADE" />
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-start gap-8 mt-6">
                 <div class="flex flex-col w-full">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Organizations</label>
-                    <small class="mb-2">Select organization(s) to exclude for the selected scope(s)</small>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{
+                        t('policies.policyUI.defOrg')
+                    }}</label>
+                    <small class="mb-2">{{ t('policies.policyUI.defOrgHelp') }}</small>
                     <div class="flex flex-row flex-wrap mb-2 gap-4">
-                        <label
-                            v-for="(group, index) in allGroups"
-                            :key="group.id"
-                            class="inline-flex items-center w-1/6"
+                        <USelectMenu
+                            v-model="checkedGroups"
+                            searchable
+                            :searchable-placeholder="$t('policies.policyUI.defOrgPrompt')"
+                            :options="groupOptions"
+                            multiple
+                            :placeholder="$t('policies.policyUI.defOrgPrompt')"
+                            class="w-full"
                         >
-                            <input
-                                v-model="checkedGroups[index]"
-                                type="checkbox"
-                                name="groups[]"
-                                class="form-checkbox"
-                            />
-                            <span class="ml-2">{{ group.name }}</span>
-                        </label>
+                            <template #label>
+                                <span v-if="checkedGroups.length" class="truncate">{{ checkedGroups.join(', ') }}</span>
+                                <span v-else>{{ t('policies.policyUI.defOrgPrompt') }}</span>
+                            </template>
+                        </USelectMenu>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-start gap-8 mt-6">
                 <div class="flex flex-col w-full">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Domains</label>
-                    <small class="mb-2">Select domain(s) of organizations to exclude for the selected scope(s)</small>
-                    <div class="flex flex-row flex-wrap mb-2 gap-4">
-                        <label
-                            v-for="(attr, index) in allDomains"
-                            :key="attr.code"
-                            class="inline-flex items-center w-1/6"
-                        >
-                            <input
-                                v-model="checkedDomains[index]"
-                                type="checkbox"
-                                name="domains[]"
-                                class="form-checkbox"
-                            />
-                            <span class="ml-2">{{ attr.title }}</span>
-                        </label>
-                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{
+                        t('policies.policyUI.defAttr')
+                    }}</label>
+                    <small class="mb-2">{{ t('policies.policyUI.defAttrHelp') }}</small>
                 </div>
             </div>
 
-            <div class="flex items-start gap-8 mt-6">
-                <div class="flex flex-col w-full">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Countries</label>
-                    <small class="mb-2"
-                        >Select country(ies) of organizations to exclude for the selected scope(s)</small
-                    >
-                    <div class="flex flex-row flex-wrap mb-2 gap-4">
-                        <label
-                            v-for="(attr, index) in allCountries"
-                            :key="attr.code"
-                            class="inline-flex items-center w-1/6"
-                        >
-                            <input
-                                v-model="checkedCountries[index]"
-                                type="checkbox"
-                                name="countries[]"
-                                class="form-checkbox"
-                            />
-                            <span class="ml-2">{{ attr.title }}</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
+            <UTabs :items="tabItems" class="w-full">
+                <template #item="{ item }">
+                    <UCard>
+                        <template #header>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                {{ item.content }}
+                            </p>
+                        </template>
 
-            <div class="flex items-start gap-8 mt-6">
-                <div class="flex flex-col w-full">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Size</label>
-                    <small class="mb-2">Select size(s) of organizations to exclude for the selected scope(s)</small>
-                    <div class="flex flex-row flex-wrap mb-2 gap-4">
-                        <label
-                            v-for="(attr, index) in allSizes"
-                            :key="attr.code"
-                            class="inline-flex items-center w-1/6"
-                        >
-                            <input
-                                v-model="checkedSizes[index]"
-                                type="checkbox"
-                                name="sizes[]"
-                                class="form-checkbox"
-                            />
-                            <span class="ml-2">{{ attr.title }}</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
+                        <div v-if="item.key === 'domain'" class="space-y-3">
+                            <div class="flex flex-col w-full">
+                                <div class="flex flex-row flex-wrap mb-2 gap-4">
+                                    <UCheckbox
+                                        v-for="(attr, index) in allDomains"
+                                        :key="attr.code"
+                                        v-model="checkedDomains[index]"
+                                        name="domains[]"
+                                        :label="attr.title"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else-if="item.key === 'country'" class="space-y-3">
+                            <div class="flex flex-col w-full">
+                                <div class="flex flex-row flex-wrap mb-2 gap-4">
+                                    <UCheckbox
+                                        v-for="(attr, index) in allCountries"
+                                        :key="attr.code"
+                                        v-model="checkedCountries[index]"
+                                        name="countries[]"
+                                        :label="attr.title"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else-if="item.key === 'size'" class="space-y-3">
+                            <div class="flex flex-col w-full">
+                                <div class="flex flex-row flex-wrap mb-2 gap-4">
+                                    <UCheckbox
+                                        v-for="(attr, index) in allSizes"
+                                        :key="attr.code"
+                                        v-model="checkedSizes[index]"
+                                        name="sizes[]"
+                                        :label="attr.title"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else-if="item.key === 'type'" class="space-y-3">
+                            <div class="flex flex-col w-full">
+                                <div class="flex flex-row flex-wrap mb-2 gap-4">
+                                    <UCheckbox
+                                        v-for="(attr, index) in allTypes"
+                                        :key="attr.code"
+                                        v-model="checkedTypes[index]"
+                                        name="types[]"
+                                        :label="attr.title"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </UCard>
+                </template>
+            </UTabs>
 
             <div class="flex gap-8 w-full justify-center mt-6">
                 <UButton color="white" class="w-20 flex justify-center" @click="switchPolicyForm = false">{{

@@ -13,4 +13,5 @@ export interface AccessPolicyDetails {
     countries: string[];
     sizes: string[];
     domains: string[];
+    types: string[];
 }
