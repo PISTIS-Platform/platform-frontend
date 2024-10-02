@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
     const body = JSON.stringify({ wallet_alias: walletAlias });
 
-    return await $fetch<any>(`${walletUrl}`, {
+    return $fetch<any>(`${walletUrl}`, {
         method: 'POST',
         body,
         headers: {
