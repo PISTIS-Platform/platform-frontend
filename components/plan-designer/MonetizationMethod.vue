@@ -352,193 +352,190 @@ async function onSubmit(): Promise<void> {
                                 </div>
                                 <div
                                     v-if="monetizationDetails.license === 'PISTIS License'"
-                                    class="flex flex-row gap-4"
+                                    class="flex flex-col gap-4"
                                 >
-                                    <div class="flex flex-1 gap-4">
-                                        <UFormGroup :label="$t('exclusive')" name="isExclusive">
-                                            <UCheckbox
-                                                v-model="monetizationDetails.isExclusive"
-                                                name="isExclusive"
-                                                class="mt-2.5 -ml-1 justify-center"
-                                            />
-                                        </UFormGroup>
-                                        <UFormGroup
-                                            :label="$t('data.designer.availability')"
-                                            name="region"
-                                            :required="!isWorldwide"
-                                            class="w-full"
-                                        >
-                                            <UInput
-                                                v-model.number="monetizationDetails.region"
-                                                :class="isWorldwide ? 'opacity-50' : ''"
-                                                :disabled="isWorldwide"
-                                                :placeholder="$t('data.designer.regionCountry')"
-                                                type="numeric"
+                                    <div class="flex flex-row gap-4">
+                                        <div class="flex flex-1 gap-4">
+                                            <UFormGroup :label="$t('exclusive')" name="isExclusive">
+                                                <UCheckbox
+                                                    v-model="monetizationDetails.isExclusive"
+                                                    name="isExclusive"
+                                                    class="mt-2.5 -ml-1 justify-center"
+                                                />
+                                            </UFormGroup>
+                                            <UFormGroup
+                                                :label="$t('data.designer.availability')"
+                                                name="region"
+                                                :required="!isWorldwide"
                                                 class="w-full"
                                             >
-                                            </UInput>
-                                        </UFormGroup>
-                                        <UFormGroup :label="$t('data.designer.worldwide')">
-                                            <UCheckbox
-                                                :model-value="isWorldwide"
-                                                class="mt-2.5 justify-center"
-                                                @update:model-value="(value: boolean) => updateWorldwide(value)"
-                                            />
-                                        </UFormGroup>
-                                    </div>
-                                    <div class="flex flex-1 gap-4">
-                                        <UFormGroup
-                                            :label="$t('data.designer.transferable')"
-                                            required
-                                            name="transferable"
-                                            class="flex-1 text-gray-200"
-                                        >
-                                            <USelectMenu
-                                                v-model="monetizationDetails.transferable"
-                                                :ui="{
-                                                    option: { active: 'text-gray-200' },
-                                                    input: 'placeholder:text-gray-200 text-gray-200',
-                                                    button: 'text-gray-200',
-                                                }"
-                                                :placeholder="$t('data.designer.transferable')"
-                                                :options="transferableSelections"
-                                                value-attribute="value"
-                                                option-attribute="label"
-                                            ></USelectMenu>
-                                        </UFormGroup>
-                                        <UFormGroup
-                                            :label="$t('data.designer.termDate')"
-                                            :required="!isPerpetual"
-                                            name="transferable"
-                                            class="text-gray-200"
-                                        >
-                                            <UPopover :popper="{ placement: 'bottom-start' }">
-                                                <UButton
-                                                    color="white"
-                                                    icon="i-heroicons-calendar-days-20-solid"
-                                                    :label="
-                                                        monetizationDetails.termDate
-                                                            ? dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')
-                                                            : isPerpetual
-                                                              ? t('data.designer.licenseIsPerpetual')
-                                                              : t('data.designer.pleaseSelectDate')
-                                                    "
-                                                    :disabled="isPerpetual"
-                                                    :class="[
-                                                        isPerpetual ? 'opacity-50' : '',
-                                                        monetizationDetails.termDate
-                                                            ? 'text-gray-700'
-                                                            : 'text-gray-400',
-                                                    ]"
+                                                <UInput
+                                                    v-model.number="monetizationDetails.region"
+                                                    :class="isWorldwide ? 'opacity-50' : ''"
+                                                    :disabled="isWorldwide"
+                                                    :placeholder="$t('data.designer.regionCountry')"
+                                                    type="numeric"
+                                                    class="w-full"
+                                                >
+                                                </UInput>
+                                            </UFormGroup>
+                                            <UFormGroup :label="$t('data.designer.worldwide')">
+                                                <UCheckbox
+                                                    :model-value="isWorldwide"
+                                                    class="mt-2.5 justify-center"
+                                                    @update:model-value="(value: boolean) => updateWorldwide(value)"
                                                 />
-
-                                                <template #panel="{ close }">
-                                                    <DatePicker
-                                                        v-model="monetizationDetails.termDate"
-                                                        is-required
-                                                        @close="close"
+                                            </UFormGroup>
+                                        </div>
+                                        <div class="flex flex-1 gap-4">
+                                            <UFormGroup
+                                                :label="$t('data.designer.transferable')"
+                                                required
+                                                name="transferable"
+                                                class="flex-1 text-gray-200"
+                                            >
+                                                <USelectMenu
+                                                    v-model="monetizationDetails.transferable"
+                                                    :ui="{
+                                                        option: { active: 'text-gray-200' },
+                                                        input: 'placeholder:text-gray-200 text-gray-200',
+                                                        button: 'text-gray-200',
+                                                    }"
+                                                    :placeholder="$t('data.designer.transferable')"
+                                                    :options="transferableSelections"
+                                                    value-attribute="value"
+                                                    option-attribute="label"
+                                                ></USelectMenu>
+                                            </UFormGroup>
+                                            <UFormGroup
+                                                :label="$t('data.designer.termDate')"
+                                                :required="!isPerpetual"
+                                                name="transferable"
+                                                class="text-gray-200"
+                                            >
+                                                <UPopover :popper="{ placement: 'bottom-start' }">
+                                                    <UButton
+                                                        color="white"
+                                                        icon="i-heroicons-calendar-days-20-solid"
+                                                        :label="
+                                                            monetizationDetails.termDate
+                                                                ? dayjs(monetizationDetails.termDate).format(
+                                                                      'DD MMMM YYYY',
+                                                                  )
+                                                                : isPerpetual
+                                                                  ? t('data.designer.licenseIsPerpetual')
+                                                                  : t('data.designer.pleaseSelectDate')
+                                                        "
+                                                        :disabled="isPerpetual"
+                                                        :class="[
+                                                            isPerpetual ? 'opacity-50' : '',
+                                                            monetizationDetails.termDate
+                                                                ? 'text-gray-700'
+                                                                : 'text-gray-400',
+                                                        ]"
                                                     />
-                                                </template>
-                                            </UPopover>
-                                        </UFormGroup>
-                                        <UFormGroup :label="$t('data.designer.perpetual')">
-                                            <UCheckbox
-                                                :model-value="isPerpetual"
-                                                class="mt-2.5 justify-center"
-                                                @update:model-value="(value: boolean) => updatePerpetual(value)"
-                                            />
-                                        </UFormGroup>
+                                                    <template #panel="{ close }">
+                                                        <DatePicker
+                                                            v-model="monetizationDetails.termDate"
+                                                            is-required
+                                                            @close="close"
+                                                        />
+                                                    </template>
+                                                </UPopover>
+                                            </UFormGroup>
+                                            <UFormGroup :label="$t('data.designer.perpetual')">
+                                                <UCheckbox
+                                                    :model-value="isPerpetual"
+                                                    class="mt-2.5 justify-center"
+                                                    @update:model-value="(value: boolean) => updatePerpetual(value)"
+                                                />
+                                            </UFormGroup>
+                                        </div>
                                     </div>
-                                </div>
-                                <UFormGroup
-                                    v-if="monetizationDetails.license === 'PISTIS License'"
-                                    :label="$t('termsConditions')"
-                                    name="extraTerms"
-                                >
-                                    <UTextarea
-                                        v-model="monetizationDetails.extraTerms"
-                                        :rows="4"
-                                        :placeholder="$t('data.designer.typeTerms')"
-                                        resize
-                                    />
-                                </UFormGroup>
-                                <UFormGroup
-                                    v-if="monetizationDetails.license === 'PISTIS License'"
-                                    :label="$t('data.designer.additionalRenewalTerms')"
-                                    name="additionalRenewalTerms"
-                                >
-                                    <UTextarea
-                                        v-model="monetizationDetails.additionalRenewalTerms"
-                                        :rows="4"
-                                        :placeholder="$t('data.designer.additionalRenewalTerms')"
-                                        resize
-                                    />
-                                </UFormGroup>
-                                <div
-                                    v-if="monetizationDetails.license === 'PISTIS License'"
-                                    class="flex flex-row gap-4"
-                                >
-                                    <div class="flex-1 flex gap-4">
-                                        <UFormGroup
-                                            :label="$t('data.designer.noticeForNonRenewal')"
-                                            class="flex-1"
-                                            required
-                                            name="price"
-                                        >
-                                            <UInput
-                                                v-model.number="monetizationDetails.nonRenewalDays"
-                                                :placeholder="$t('data.designer.noticeForNonRenewal')"
-                                                type="numeric"
-                                            >
-                                                <template #trailing>
-                                                    <span class="text-gray-500 text-xs">{{ t('days') }}</span>
-                                                </template>
-                                            </UInput>
-                                        </UFormGroup>
-                                    </div>
-                                    <div class="flex-1 flex gap-4">
-                                        <UFormGroup
-                                            :label="$t('data.designer.maximumDaysContractBreach')"
-                                            class="flex-1"
-                                            required
-                                            name="price"
-                                        >
-                                            <UInput
-                                                v-model.number="monetizationDetails.contractBreachDays"
-                                                :placeholder="$t('data.designer.maximumDaysContractBreach')"
-                                                type="numeric"
-                                            >
-                                                <template #trailing>
-                                                    <span class="text-gray-500 text-xs">{{ t('days') }}</span>
-                                                </template>
-                                            </UInput>
-                                        </UFormGroup>
-                                    </div>
-                                </div>
-                                <div v-if="monetizationDetails.license === 'PISTIS License'" class="relative">
-                                    <div class="absolute right-0 top-0 text-sm flex gap-4 items-center font-semibold">
-                                        <span class="text-gray-700">
-                                            {{ t('data.designer.hasPersonalData') }}
-                                        </span>
-                                        <UCheckbox
-                                            :model-value="hasPersonalData"
-                                            class="justify-center"
-                                            @update:model-value="(value: boolean) => updatePersonal(value)"
-                                        />
-                                    </div>
-                                    <UFormGroup
-                                        :label="$t('data.designer.personalDataTerms')"
-                                        name="personalDataTerms"
-                                        :required="hasPersonalData"
-                                    >
+                                    <UFormGroup :label="$t('termsConditions')" name="extraTerms">
                                         <UTextarea
-                                            v-model="monetizationDetails.personalDataTerms"
+                                            v-model="monetizationDetails.extraTerms"
                                             :rows="4"
-                                            :placeholder="$t('data.designer.personalDataTerms')"
+                                            :placeholder="$t('data.designer.typeTerms')"
                                             resize
-                                            :disabled="!hasPersonalData"
                                         />
                                     </UFormGroup>
+                                    <UFormGroup
+                                        :label="$t('data.designer.additionalRenewalTerms')"
+                                        name="additionalRenewalTerms"
+                                    >
+                                        <UTextarea
+                                            v-model="monetizationDetails.additionalRenewalTerms"
+                                            :rows="4"
+                                            :placeholder="$t('data.designer.additionalRenewalTerms')"
+                                            resize
+                                        />
+                                    </UFormGroup>
+                                    <div class="flex flex-row gap-4">
+                                        <div class="flex-1 flex gap-4">
+                                            <UFormGroup
+                                                :label="$t('data.designer.noticeForNonRenewal')"
+                                                class="flex-1"
+                                                required
+                                                name="price"
+                                            >
+                                                <UInput
+                                                    v-model.number="monetizationDetails.nonRenewalDays"
+                                                    :placeholder="$t('data.designer.noticeForNonRenewal')"
+                                                    type="numeric"
+                                                >
+                                                    <template #trailing>
+                                                        <span class="text-gray-500 text-xs">{{ t('days') }}</span>
+                                                    </template>
+                                                </UInput>
+                                            </UFormGroup>
+                                        </div>
+                                        <div class="flex-1 flex gap-4">
+                                            <UFormGroup
+                                                :label="$t('data.designer.maximumDaysContractBreach')"
+                                                class="flex-1"
+                                                required
+                                                name="price"
+                                            >
+                                                <UInput
+                                                    v-model.number="monetizationDetails.contractBreachDays"
+                                                    :placeholder="$t('data.designer.maximumDaysContractBreach')"
+                                                    type="numeric"
+                                                >
+                                                    <template #trailing>
+                                                        <span class="text-gray-500 text-xs">{{ t('days') }}</span>
+                                                    </template>
+                                                </UInput>
+                                            </UFormGroup>
+                                        </div>
+                                    </div>
+                                    <div class="relative">
+                                        <div
+                                            class="absolute right-0 top-0 text-sm flex gap-4 items-center font-semibold"
+                                        >
+                                            <span class="text-gray-700">
+                                                {{ t('data.designer.hasPersonalData') }}
+                                            </span>
+                                            <UCheckbox
+                                                :model-value="hasPersonalData"
+                                                class="justify-center"
+                                                @update:model-value="(value: boolean) => updatePersonal(value)"
+                                            />
+                                        </div>
+                                        <UFormGroup
+                                            :label="$t('data.designer.personalDataTerms')"
+                                            name="personalDataTerms"
+                                            :required="hasPersonalData"
+                                        >
+                                            <UTextarea
+                                                v-model="monetizationDetails.personalDataTerms"
+                                                :rows="4"
+                                                :placeholder="$t('data.designer.personalDataTerms')"
+                                                resize
+                                                :disabled="!hasPersonalData"
+                                            />
+                                        </UFormGroup>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -656,193 +653,190 @@ async function onSubmit(): Promise<void> {
                                 </div>
                                 <div
                                     v-if="monetizationDetails.license === 'PISTIS License'"
-                                    class="flex flex-row gap-4"
+                                    class="flex flex-col gap-4"
                                 >
-                                    <div class="flex flex-1 gap-4">
-                                        <UFormGroup :label="$t('exclusive')" name="isExclusive">
-                                            <UCheckbox
-                                                v-model="monetizationDetails.isExclusive"
-                                                name="isExclusive"
-                                                class="mt-2.5 -ml-1 justify-center"
-                                            />
-                                        </UFormGroup>
-                                        <UFormGroup
-                                            :label="$t('data.designer.availability')"
-                                            name="region"
-                                            :required="!isWorldwide"
-                                            class="w-full"
-                                        >
-                                            <UInput
-                                                v-model.number="monetizationDetails.region"
-                                                :class="isWorldwide ? 'opacity-50' : ''"
-                                                :disabled="isWorldwide"
-                                                :placeholder="$t('data.designer.regionCountry')"
-                                                type="numeric"
+                                    <div class="flex flex-row gap-4">
+                                        <div class="flex flex-1 gap-4">
+                                            <UFormGroup :label="$t('exclusive')" name="isExclusive">
+                                                <UCheckbox
+                                                    v-model="monetizationDetails.isExclusive"
+                                                    name="isExclusive"
+                                                    class="mt-2.5 -ml-1 justify-center"
+                                                />
+                                            </UFormGroup>
+                                            <UFormGroup
+                                                :label="$t('data.designer.availability')"
+                                                name="region"
+                                                :required="!isWorldwide"
                                                 class="w-full"
                                             >
-                                            </UInput>
-                                        </UFormGroup>
-                                        <UFormGroup :label="$t('data.designer.worldwide')">
-                                            <UCheckbox
-                                                :model-value="isWorldwide"
-                                                class="mt-2.5 justify-center"
-                                                @update:model-value="(value: boolean) => updateWorldwide(value)"
-                                            />
-                                        </UFormGroup>
-                                    </div>
-                                    <div class="flex flex-1 gap-4">
-                                        <UFormGroup
-                                            :label="$t('data.designer.transferable')"
-                                            required
-                                            name="transferable"
-                                            class="flex-1 text-gray-200"
-                                        >
-                                            <USelectMenu
-                                                v-model="monetizationDetails.transferable"
-                                                :ui="{
-                                                    option: { active: 'text-gray-200' },
-                                                    input: 'placeholder:text-gray-200 text-gray-200',
-                                                    button: 'text-gray-200',
-                                                }"
-                                                :placeholder="$t('data.designer.transferable')"
-                                                :options="transferableSelections"
-                                                value-attribute="value"
-                                                option-attribute="label"
-                                            ></USelectMenu>
-                                        </UFormGroup>
-                                        <UFormGroup
-                                            :label="$t('data.designer.termDate')"
-                                            :required="!isPerpetual"
-                                            name="transferable"
-                                            class="text-gray-200"
-                                        >
-                                            <UPopover :popper="{ placement: 'bottom-start' }">
-                                                <UButton
-                                                    color="white"
-                                                    icon="i-heroicons-calendar-days-20-solid"
-                                                    :label="
-                                                        monetizationDetails.termDate
-                                                            ? dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')
-                                                            : isPerpetual
-                                                              ? t('data.designer.licenseIsPerpetual')
-                                                              : t('data.designer.pleaseSelectDate')
-                                                    "
-                                                    :disabled="isPerpetual"
-                                                    :class="[
-                                                        isPerpetual ? 'opacity-50' : '',
-                                                        monetizationDetails.termDate
-                                                            ? 'text-gray-700'
-                                                            : 'text-gray-400',
-                                                    ]"
+                                                <UInput
+                                                    v-model.number="monetizationDetails.region"
+                                                    :class="isWorldwide ? 'opacity-50' : ''"
+                                                    :disabled="isWorldwide"
+                                                    :placeholder="$t('data.designer.regionCountry')"
+                                                    type="numeric"
+                                                    class="w-full"
+                                                >
+                                                </UInput>
+                                            </UFormGroup>
+                                            <UFormGroup :label="$t('data.designer.worldwide')">
+                                                <UCheckbox
+                                                    :model-value="isWorldwide"
+                                                    class="mt-2.5 justify-center"
+                                                    @update:model-value="(value: boolean) => updateWorldwide(value)"
                                                 />
-
-                                                <template #panel="{ close }">
-                                                    <DatePicker
-                                                        v-model="monetizationDetails.termDate"
-                                                        is-required
-                                                        @close="close"
+                                            </UFormGroup>
+                                        </div>
+                                        <div class="flex flex-1 gap-4">
+                                            <UFormGroup
+                                                :label="$t('data.designer.transferable')"
+                                                required
+                                                name="transferable"
+                                                class="flex-1 text-gray-200"
+                                            >
+                                                <USelectMenu
+                                                    v-model="monetizationDetails.transferable"
+                                                    :ui="{
+                                                        option: { active: 'text-gray-200' },
+                                                        input: 'placeholder:text-gray-200 text-gray-200',
+                                                        button: 'text-gray-200',
+                                                    }"
+                                                    :placeholder="$t('data.designer.transferable')"
+                                                    :options="transferableSelections"
+                                                    value-attribute="value"
+                                                    option-attribute="label"
+                                                ></USelectMenu>
+                                            </UFormGroup>
+                                            <UFormGroup
+                                                :label="$t('data.designer.termDate')"
+                                                :required="!isPerpetual"
+                                                name="transferable"
+                                                class="text-gray-200"
+                                            >
+                                                <UPopover :popper="{ placement: 'bottom-start' }">
+                                                    <UButton
+                                                        color="white"
+                                                        icon="i-heroicons-calendar-days-20-solid"
+                                                        :label="
+                                                            monetizationDetails.termDate
+                                                                ? dayjs(monetizationDetails.termDate).format(
+                                                                      'DD MMMM YYYY',
+                                                                  )
+                                                                : isPerpetual
+                                                                  ? t('data.designer.licenseIsPerpetual')
+                                                                  : t('data.designer.pleaseSelectDate')
+                                                        "
+                                                        :disabled="isPerpetual"
+                                                        :class="[
+                                                            isPerpetual ? 'opacity-50' : '',
+                                                            monetizationDetails.termDate
+                                                                ? 'text-gray-700'
+                                                                : 'text-gray-400',
+                                                        ]"
                                                     />
-                                                </template>
-                                            </UPopover>
-                                        </UFormGroup>
-                                        <UFormGroup :label="$t('data.designer.perpetual')">
-                                            <UCheckbox
-                                                :model-value="isPerpetual"
-                                                class="mt-2.5 justify-center"
-                                                @update:model-value="(value: boolean) => updatePerpetual(value)"
-                                            />
-                                        </UFormGroup>
+                                                    <template #panel="{ close }">
+                                                        <DatePicker
+                                                            v-model="monetizationDetails.termDate"
+                                                            is-required
+                                                            @close="close"
+                                                        />
+                                                    </template>
+                                                </UPopover>
+                                            </UFormGroup>
+                                            <UFormGroup :label="$t('data.designer.perpetual')">
+                                                <UCheckbox
+                                                    :model-value="isPerpetual"
+                                                    class="mt-2.5 justify-center"
+                                                    @update:model-value="(value: boolean) => updatePerpetual(value)"
+                                                />
+                                            </UFormGroup>
+                                        </div>
                                     </div>
-                                </div>
-                                <UFormGroup
-                                    v-if="monetizationDetails.license === 'PISTIS License'"
-                                    :label="$t('termsConditions')"
-                                    name="extraTerms"
-                                >
-                                    <UTextarea
-                                        v-model="monetizationDetails.extraTerms"
-                                        :rows="4"
-                                        :placeholder="$t('data.designer.typeTerms')"
-                                        resize
-                                    />
-                                </UFormGroup>
-                                <UFormGroup
-                                    v-if="monetizationDetails.license === 'PISTIS License'"
-                                    :label="$t('data.designer.additionalRenewalTerms')"
-                                    name="additionalRenewalTerms"
-                                >
-                                    <UTextarea
-                                        v-model="monetizationDetails.additionalRenewalTerms"
-                                        :rows="4"
-                                        :placeholder="$t('data.designer.additionalRenewalTerms')"
-                                        resize
-                                    />
-                                </UFormGroup>
-                                <div
-                                    v-if="monetizationDetails.license === 'PISTIS License'"
-                                    class="flex flex-row gap-4"
-                                >
-                                    <div class="flex-1 flex gap-4">
-                                        <UFormGroup
-                                            :label="$t('data.designer.noticeForNonRenewal')"
-                                            class="flex-1"
-                                            required
-                                            name="price"
-                                        >
-                                            <UInput
-                                                v-model.number="monetizationDetails.nonRenewalDays"
-                                                :placeholder="$t('data.designer.noticeForNonRenewal')"
-                                                type="numeric"
-                                            >
-                                                <template #trailing>
-                                                    <span class="text-gray-500 text-xs">{{ t('days') }}</span>
-                                                </template>
-                                            </UInput>
-                                        </UFormGroup>
-                                    </div>
-                                    <div class="flex-1 flex gap-4">
-                                        <UFormGroup
-                                            :label="$t('data.designer.maximumDaysContractBreach')"
-                                            class="flex-1"
-                                            required
-                                            name="price"
-                                        >
-                                            <UInput
-                                                v-model.number="monetizationDetails.contractBreachDays"
-                                                :placeholder="$t('data.designer.maximumDaysContractBreach')"
-                                                type="numeric"
-                                            >
-                                                <template #trailing>
-                                                    <span class="text-gray-500 text-xs">{{ t('days') }}</span>
-                                                </template>
-                                            </UInput>
-                                        </UFormGroup>
-                                    </div>
-                                </div>
-                                <div v-if="monetizationDetails.license === 'PISTIS License'" class="relative">
-                                    <div class="absolute right-0 top-0 text-sm flex gap-4 items-center font-semibold">
-                                        <span class="text-gray-700">
-                                            {{ t('data.designer.hasPersonalData') }}
-                                        </span>
-                                        <UCheckbox
-                                            :model-value="hasPersonalData"
-                                            class="justify-center"
-                                            @update:model-value="(value: boolean) => updatePersonal(value)"
-                                        />
-                                    </div>
-                                    <UFormGroup
-                                        :label="$t('data.designer.personalDataTerms')"
-                                        name="personalDataTerms"
-                                        :required="hasPersonalData"
-                                    >
+                                    <UFormGroup :label="$t('termsConditions')" name="extraTerms">
                                         <UTextarea
-                                            v-model="monetizationDetails.personalDataTerms"
+                                            v-model="monetizationDetails.extraTerms"
                                             :rows="4"
-                                            :placeholder="$t('data.designer.personalDataTerms')"
+                                            :placeholder="$t('data.designer.typeTerms')"
                                             resize
-                                            :disabled="!hasPersonalData"
                                         />
                                     </UFormGroup>
+                                    <UFormGroup
+                                        :label="$t('data.designer.additionalRenewalTerms')"
+                                        name="additionalRenewalTerms"
+                                    >
+                                        <UTextarea
+                                            v-model="monetizationDetails.additionalRenewalTerms"
+                                            :rows="4"
+                                            :placeholder="$t('data.designer.additionalRenewalTerms')"
+                                            resize
+                                        />
+                                    </UFormGroup>
+                                    <div class="flex flex-row gap-4">
+                                        <div class="flex-1 flex gap-4">
+                                            <UFormGroup
+                                                :label="$t('data.designer.noticeForNonRenewal')"
+                                                class="flex-1"
+                                                required
+                                                name="price"
+                                            >
+                                                <UInput
+                                                    v-model.number="monetizationDetails.nonRenewalDays"
+                                                    :placeholder="$t('data.designer.noticeForNonRenewal')"
+                                                    type="numeric"
+                                                >
+                                                    <template #trailing>
+                                                        <span class="text-gray-500 text-xs">{{ t('days') }}</span>
+                                                    </template>
+                                                </UInput>
+                                            </UFormGroup>
+                                        </div>
+                                        <div class="flex-1 flex gap-4">
+                                            <UFormGroup
+                                                :label="$t('data.designer.maximumDaysContractBreach')"
+                                                class="flex-1"
+                                                required
+                                                name="price"
+                                            >
+                                                <UInput
+                                                    v-model.number="monetizationDetails.contractBreachDays"
+                                                    :placeholder="$t('data.designer.maximumDaysContractBreach')"
+                                                    type="numeric"
+                                                >
+                                                    <template #trailing>
+                                                        <span class="text-gray-500 text-xs">{{ t('days') }}</span>
+                                                    </template>
+                                                </UInput>
+                                            </UFormGroup>
+                                        </div>
+                                    </div>
+                                    <div class="relative">
+                                        <div
+                                            class="absolute right-0 top-0 text-sm flex gap-4 items-center font-semibold"
+                                        >
+                                            <span class="text-gray-700">
+                                                {{ t('data.designer.hasPersonalData') }}
+                                            </span>
+                                            <UCheckbox
+                                                :model-value="hasPersonalData"
+                                                class="justify-center"
+                                                @update:model-value="(value: boolean) => updatePersonal(value)"
+                                            />
+                                        </div>
+                                        <UFormGroup
+                                            :label="$t('data.designer.personalDataTerms')"
+                                            name="personalDataTerms"
+                                            :required="hasPersonalData"
+                                        >
+                                            <UTextarea
+                                                v-model="monetizationDetails.personalDataTerms"
+                                                :rows="4"
+                                                :placeholder="$t('data.designer.personalDataTerms')"
+                                                resize
+                                                :disabled="!hasPersonalData"
+                                            />
+                                        </UFormGroup>
+                                    </div>
                                 </div>
                             </div>
                         </template>
