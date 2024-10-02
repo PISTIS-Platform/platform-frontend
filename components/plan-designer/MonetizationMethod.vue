@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
+import { licenses } from '~/constants/licenses';
 import type CardSelection from '~/interfaces/card-selection';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 import { SubscriptionFrequency } from '~/interfaces/subscription-frequency.enum';
@@ -52,7 +53,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
         monetizationDetails.value = {
             type: 'one-off',
             price: undefined,
-            license: 'PISTIS License',
+            license: licenses.pistis,
             extraTerms: '',
             contractTerms: '',
             limitNumber: undefined,
@@ -71,7 +72,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             type: 'subscription',
             subscriptionFrequency: '',
             price: undefined,
-            license: 'PISTIS License',
+            license: licenses.pistis,
             extraTerms: '',
             contractTerms: '',
             limitNumber: undefined,
@@ -122,9 +123,7 @@ const monetizationSelections: CardSelection[] = [
     },
 ];
 
-const licenseSelections = computed(() =>
-    isFree.value ? ['PISTIS License', 'CC-BY', 'MIT', 'CC0'] : ['PISTIS License'],
-);
+const licenseSelections = computed(() => (isFree.value ? Object.values(licenses) : [licenses.pistis]));
 
 const transferableSelections = [
     {
@@ -350,10 +349,7 @@ async function onSubmit(): Promise<void> {
                                         >
                                     </UFormGroup>
                                 </div>
-                                <div
-                                    v-if="monetizationDetails.license === 'PISTIS License'"
-                                    class="flex flex-col gap-4"
-                                >
+                                <div v-if="monetizationDetails.license === licenses.pistis" class="flex flex-col gap-4">
                                     <div class="flex flex-row gap-4">
                                         <div class="flex flex-1 gap-4">
                                             <UFormGroup :label="$t('exclusive')" name="isExclusive">
@@ -651,10 +647,7 @@ async function onSubmit(): Promise<void> {
                                         >
                                     </UFormGroup>
                                 </div>
-                                <div
-                                    v-if="monetizationDetails.license === 'PISTIS License'"
-                                    class="flex flex-col gap-4"
-                                >
+                                <div v-if="monetizationDetails.license === licenses.pistis" class="flex flex-col gap-4">
                                     <div class="flex flex-row gap-4">
                                         <div class="flex flex-1 gap-4">
                                             <UFormGroup :label="$t('exclusive')" name="isExclusive">
