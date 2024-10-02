@@ -8,12 +8,7 @@ import {
     XMarkIcon,
 } from '@heroicons/vue/24/outline';
 
-const { showInfoMessage } = useAlertMessage();
 const config = useRuntimeConfig();
-
-import { useMessagesStore } from '~/store/messages';
-
-const messagesStore = useMessagesStore();
 
 const route = useRoute();
 
@@ -36,41 +31,15 @@ const navigation = ref([
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
 
-const { host, protocol } = location;
-const { data: wsData, send } = useWebSocket(`${protocol.replace('http', 'ws')}//${host}/api/messages`);
-// const { status: wsStatus, data: wsData, send, open, close } = useWebSocket(`ws://${location.host}/api/messages`);
+const notificationCount = ref(0);
 
-//call to bring all notifications
-send(
-    JSON.stringify({
-        action: 'getAllNotifications',
-        userId: session.value?.user.sub,
-    }),
-);
-
-//watching the data value where new messages come
-watch(wsData, (newValue) => {
-    if (!newValue) return;
-    const message = JSON.parse(newValue);
-    if (Array.isArray(message)) {
-        messagesStore.setMessages(message);
-        return;
-    }
-    showInfoMessage(message.message);
-    messagesStore.addMessage(message);
+useFetch('/api/notifications/count', {
+    onResponse({ response }) {
+        notificationCount.value = response._data;
+    },
 });
 
-//end websockets config
-
-const notifications = computed(() => messagesStore.getMessages);
-
-const unreadNotifications = computed(() =>
-    notifications.value.filter((notification) => !notification.readAt && !notification.isHidden),
-);
-
-const notificationsNumberText = computed(() =>
-    unreadNotifications.value.length > 9 ? '9+' : unreadNotifications.value.length,
-);
+const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9+' : notificationCount.value));
 </script>
 
 <template>
@@ -109,7 +78,7 @@ const notificationsNumberText = computed(() =>
                                 <span class="absolute -inset-1.5" />
                                 <span class="sr-only">View notifications</span>
                                 <div
-                                    v-if="unreadNotifications.length"
+                                    v-if="notificationCount"
                                     class="bg-red-500 rounded-full w-5 h-5 text-xs flex items-center justify-center absolute top-0 z-20 -right-0.5"
                                 >
                                     {{ notificationsNumberText }}
@@ -220,7 +189,7 @@ const notificationsNumberText = computed(() =>
                             <span class="absolute -inset-1.5" />
                             <span class="sr-only">View notifications</span>
                             <div
-                                v-if="unreadNotifications.length"
+                                v-if="notificationCount"
                                 class="bg-red-500 rounded-full w-5 h-5 text-xs flex items-center justify-center absolute top-0 z-20 -right-0.5"
                             >
                                 {{ notificationsNumberText }}
