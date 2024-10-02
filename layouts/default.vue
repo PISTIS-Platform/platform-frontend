@@ -8,6 +8,10 @@ import {
     XMarkIcon,
 } from '@heroicons/vue/24/outline';
 
+import { useMessagesStore } from '~/store/messages';
+
+const messagesStore = useMessagesStore();
+
 const config = useRuntimeConfig();
 
 const route = useRoute();
@@ -33,12 +37,21 @@ const userNavigation: { name: 'string'; href: 'string' }[] = [];
 
 const notificationCount = ref(0);
 
-useFetch('/api/notifications/count', {
+const { refresh } = useFetch('/api/notifications/count', {
     onResponse({ response }) {
         notificationCount.value = response._data;
     },
 });
 
+const computedNotifications = computed(() => messagesStore.getMessages);
+
+watch(
+    computedNotifications,
+    () => {
+        refresh();
+    },
+    { deep: true },
+);
 const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9+' : notificationCount.value));
 </script>
 
