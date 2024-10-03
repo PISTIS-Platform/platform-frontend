@@ -74,14 +74,14 @@ const isAssetOfferingDetailsValid = computed(
 
 // data for monetization selections
 
-const { isFree, monetizationSchema } = useMonetizationSchema();
+const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
     price: undefined,
-    license: '',
+    license: 'PISTIS License',
     extraTerms: '',
     contractTerms: '',
     limitNumber: undefined,
@@ -273,9 +273,13 @@ const changeStep = async (stepNum: number) => {
 
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
+            :asset-offering-details="assetOfferingDetails"
             :is-all-valid="isAllValid"
             @change-page="(value: number) => (selectedPage = value)"
             @update:is-free="(value: boolean) => (isFree = value)"
+            @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
+            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
+            @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
 
@@ -342,7 +346,7 @@ const changeStep = async (stepNum: number) => {
                             }}</span>
                             <span>{{
                                 monetizationDetails.price
-                                    ? monetizationDetails.price + ' STC'
+                                    ? monetizationDetails.price + ' PST'
                                     : $t('data.designer.free')
                             }}</span>
                         </div>
@@ -387,7 +391,7 @@ const changeStep = async (stepNum: number) => {
                             <span>{{
                                 monetizationDetails.price
                                     ? monetizationDetails.price +
-                                      ' STC ' +
+                                      ' PST ' +
                                       (monetizationDetails.subscriptionFrequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))

@@ -7,30 +7,13 @@ import { useMessagesStore } from '~/store/messages';
 
 const messagesStore = useMessagesStore();
 
-const { host, protocol } = location;
-const { status, send } = useWebSocket(`${protocol.replace('http', 'ws')}//${host}/api/messages`);
+const { status } = useFetch('/api/notifications', {
+    onResponse({ response }) {
+        messagesStore.setMessages(response._data[0]);
+    },
+});
 
 const notifications = computed(() => messagesStore.getMessages);
-
-const markAsRead = async (id: string | number) => {
-    send(
-        JSON.stringify({
-            action: 'markAsRead',
-            notificationId: id,
-        }),
-    );
-    messagesStore.markAsRead(id);
-};
-
-const hide = (id: string | number) => {
-    send(
-        JSON.stringify({
-            action: 'hide',
-            notificationId: id,
-        }),
-    );
-    messagesStore.hideMessage(id);
-};
 
 const shownNotifications = computed(() => notifications.value.filter((not) => !not.isHidden));
 
@@ -44,12 +27,32 @@ const transformedUnreadNotifications = computed(() =>
 const sortByCreatedAt = R.sortWith([R.descend(R.prop('createdAt'))]);
 
 const sortedNotifications = computed<Message[]>(() => sortByCreatedAt(transformedUnreadNotifications.value));
+
+const markAsRead = async (id: string | number) => {
+    await $fetch(`/api/notifications/markAsRead`, {
+        method: 'POST',
+        body: {
+            notificationId: id,
+        },
+    });
+    messagesStore.markAsRead(id);
+};
+
+const hide = async (id: string | number) => {
+    await $fetch(`/api/notifications/hide`, {
+        method: 'POST',
+        body: {
+            notificationId: id,
+        },
+    });
+    messagesStore.hideMessage(id);
+};
 </script>
 
 <template>
     <div class="justify-start h-full items-center px-8 max-w-7xl mx-auto w-full">
         <PageContainer>
-            <div v-if="status === 'OPEN'" class="flex flex-col gap-6 mt-2 w-full">
+            <div v-if="status === 'success'" class="flex flex-col gap-6 mt-2 w-full">
                 <UCard
                     v-for="notification in sortedNotifications"
                     :key="notification.id"

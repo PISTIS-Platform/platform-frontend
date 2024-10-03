@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FakerSettings } from '~/interfaces/mask-settings';
+import { type FakerSettings } from '~/interfaces/mask-settings';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
 const settings = reactive<FakerSettings>({

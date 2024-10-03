@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LocationSettings } from '~/interfaces/mask-settings';
+import { type LocationSettings } from '~/interfaces/mask-settings';
 
 const settings = reactive<LocationSettings>({
     isLat: false,

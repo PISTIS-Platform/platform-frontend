@@ -8,11 +8,11 @@ import {
     XMarkIcon,
 } from '@heroicons/vue/24/outline';
 
-const { showInfoMessage } = useAlertMessage();
-
 import { useMessagesStore } from '~/store/messages';
 
 const messagesStore = useMessagesStore();
+
+const config = useRuntimeConfig();
 
 const route = useRoute();
 
@@ -25,50 +25,34 @@ useHead({
     bodyAttrs: { class: 'h-full' },
 });
 
-const navigation = [
+const navigation = ref([
     { name: 'home.home', to: '/home' },
     { name: 'data.data', to: '/data' },
-    { name: 'transactions.transactions', to: '/transactions' },
+    { name: 'catalog.catalog', to: config.public.catalogUrl },
+    { name: 'marketplace.marketplace', to: '/marketplace' },
     { name: 'market.market', to: '/market' },
-];
+]);
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
 
-const { host, protocol } = location;
-const { data: wsData, send } = useWebSocket(`${protocol.replace('http', 'ws')}//${host}/api/messages`);
-// const { status: wsStatus, data: wsData, send, open, close } = useWebSocket(`ws://${location.host}/api/messages`);
+const notificationCount = ref(0);
 
-//call to bring all notifications
-send(
-    JSON.stringify({
-        action: 'getAllNotifications',
-        userId: session.value?.user.sub,
-    }),
-);
-
-//watching the data value where new messages come
-watch(wsData, (newValue) => {
-    if (!newValue) return;
-    const message = JSON.parse(newValue);
-    if (Array.isArray(message)) {
-        messagesStore.setMessages(message);
-        return;
-    }
-    showInfoMessage(message.message);
-    messagesStore.addMessage(message);
+const { refresh } = useFetch('/api/notifications/count', {
+    onResponse({ response }) {
+        notificationCount.value = response._data;
+    },
 });
 
-//end websockets config
+const computedNotifications = computed(() => messagesStore.getMessages);
 
-const notifications = computed(() => messagesStore.getMessages);
-
-const unreadNotifications = computed(() =>
-    notifications.value.filter((notification) => !notification.readAt && !notification.isHidden),
+watch(
+    computedNotifications,
+    () => {
+        refresh();
+    },
+    { deep: true },
 );
-
-const notificationsNumberText = computed(() =>
-    unreadNotifications.value.length > 9 ? '9+' : unreadNotifications.value.length,
-);
+const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9+' : notificationCount.value));
 </script>
 
 <template>
@@ -107,7 +91,7 @@ const notificationsNumberText = computed(() =>
                                 <span class="absolute -inset-1.5" />
                                 <span class="sr-only">View notifications</span>
                                 <div
-                                    v-if="unreadNotifications.length"
+                                    v-if="notificationCount >= 1"
                                     class="bg-red-500 rounded-full w-5 h-5 text-xs flex items-center justify-center absolute top-0 z-20 -right-0.5"
                                 >
                                     {{ notificationsNumberText }}
@@ -212,13 +196,13 @@ const notificationsNumberText = computed(() =>
                         </div>
                         <UButton
                             type="button"
-                            class="relative flex gap-1 items-center relative rounded-full bg-primary-70 h-10 p-1.5 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                            class="flex gap-1 items-center relative rounded-full bg-primary-70 h-10 p-1.5 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
                             to="/notifications"
                         >
                             <span class="absolute -inset-1.5" />
                             <span class="sr-only">View notifications</span>
                             <div
-                                v-if="unreadNotifications.length"
+                                v-if="notificationCount >= 1"
                                 class="bg-red-500 rounded-full w-5 h-5 text-xs flex items-center justify-center absolute top-0 z-20 -right-0.5"
                             >
                                 {{ notificationsNumberText }}
@@ -247,7 +231,17 @@ const notificationsNumberText = computed(() =>
         <main class="flex flex-col flex-1 overflow-y-auto text-gray-700">
             <slot />
         </main>
-        <footer class="bg-primary-900 h-12"></footer>
+        <footer class="bg-primary-900 flex p-4 text-xs justify-center align-center">
+            <div class="flex w-full max-w-[1210px] gap-4">
+                <img class="w-12 h-8" src="/img/eu_flag.jpeg" alt="PISTIS logo" />
+                <p class="text-white">
+                    This project has received funding from the European Union under Grant Agreement n° 101093016. Views
+                    and opinions expressed are however those of the author(s) only and do not necessarily reflect those
+                    of the European Union or the European Commission. Neither the European Union nor the granting
+                    authority can be held responsible for them.
+                </p>
+            </div>
+        </footer>
     </div>
 </template>
 

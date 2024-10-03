@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RangeSettings } from '~/interfaces/mask-settings';
+import { type RangeSettings } from '~/interfaces/mask-settings';
 
 const settings = reactive<RangeSettings>({
     interval: 1,
