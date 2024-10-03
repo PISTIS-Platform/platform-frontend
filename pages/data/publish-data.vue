@@ -93,22 +93,17 @@ const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetiza
 // access policies
 const policyData: Array<AccessPolicyDetails> = [];
 const defaultPolicy: AccessPolicyDetails = {
+    countries: [],
+    domains: [],
+    groups: [],
+    scopes: [],
+    sizes: [],
+    types: [],
     id: t('policies.publicationDefaults.id'),
     title: t('policies.publicationDefaults.title'),
     description: t('policies.publicationDefaults.description'),
 };
 policyData.push(defaultPolicy);
-// const accessPolicyDetails = ref<AccessPolicyDetails>({
-//     id: undefined,
-//     title: undefined,
-//     description: undefined,
-//     scopes: [],
-//     groups: [],
-//     countries: [],
-//     types: [],
-//     sizes: [],
-//     domains: [],
-// });
 
 // validation data
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
@@ -288,6 +283,7 @@ const changeStep = async (stepNum: number) => {
         <AccessPolicyList
             v-model:policy-data="policyData"
             :selected="selected"
+            @change-page="(value: number) => (selectedPage = value)"
             @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
         />
     </div>
