@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Preview } from '~/interfaces/dataset-preview';
+import { type Preview } from '~/interfaces/dataset-preview';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
 const routes = ref([
