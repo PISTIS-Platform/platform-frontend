@@ -86,7 +86,11 @@ export default defineI18nConfig(() => ({
                 noNotifications: 'No notifications available.',
             },
             data: {
-                data: 'My Data',
+                data: 'Data Ingestion',
+                jobConfigurator: 'Job Configurator',
+                dataTransformation: 'Data Transformation',
+                insightGenerator: 'Insight Generator',
+                anonymizer: 'Anonymizer',
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',
@@ -182,7 +186,6 @@ export default defineI18nConfig(() => ({
                     personalDataTerms: 'Terms and Conditions for the Transfer and Processing of Personal Data',
                     hasPersonalData: 'This dataset contains personal data',
                 },
-                log: 'Data Log',
                 wallet: {
                     title: 'Wallet',
                     balance: 'Balance',
@@ -252,7 +255,7 @@ export default defineI18nConfig(() => ({
                         assetName: 'Asset Name',
                         price: 'Price',
                         totalSales: 'Total Sales',
-                        marketCap: 'Market Cap (STC)',
+                        marketCap: 'Market Cap (PST)',
                         change: 'Change (1M)',
                     },
                     transactionsTable: {
@@ -334,14 +337,17 @@ export default defineI18nConfig(() => ({
                     assetsComparison: 'Compare individual assets',
                 },
             },
-            transactions: {
-                transactions: 'My Transactions',
+            catalog: {
+                catalog: 'Catalog',
+            },
+            marketplace: {
+                marketplace: 'Marketplace',
                 details: 'Details',
                 overview: 'Overview',
                 auditor: 'Auditor',
                 tableFields: {
                     id: 'ID',
-                    buyer: 'Byuer',
+                    buyer: 'Buyer',
                     date: 'Transaction Date',
                     seller: 'Seller',
                     transactionId: 'Transaction ID',

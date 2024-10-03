@@ -10,37 +10,37 @@ const connectorsData = computed(() => transactionData);
 const columns = [
     {
         key: 'id',
-        label: t('transactions.tableFields.id'),
+        label: t('marketplace.tableFields.id'),
         direction: 'asc',
         class: 'w-1/12',
     },
     {
         key: 'buyer',
-        label: t('transactions.tableFields.buyer'),
+        label: t('marketplace.tableFields.buyer'),
         sortable: true,
         direction: 'asc',
         class: 'w-1/3',
     },
     {
         key: 'seller',
-        label: t('transactions.tableFields.seller'),
+        label: t('marketplace.tableFields.seller'),
         sortable: true,
         direction: 'asc',
         class: 'w-1/3',
     },
     {
         key: 'transactionId',
-        label: `${t('transactions.tableFields.transactionId')}`,
+        label: `${t('marketplace.tableFields.transactionId')}`,
         class: 'w-1/6 text-slate-600 text-center',
     },
     {
         key: 'price',
-        label: `${t('transactions.tableFields.price')}`,
+        label: `${t('marketplace.tableFields.price')}`,
         class: 'w-1/6 text-slate-600 text-center',
     },
     {
         key: 'date',
-        label: `${t('transactions.tableFields.date')}`,
+        label: `${t('marketplace.tableFields.date')}`,
         sortable: true,
         class: 'w-1/3 text-slate-600 text-center',
     },
@@ -59,7 +59,7 @@ const rows = computed(() => {
         <div class="flex flex-col w-full">
             <UCard>
                 <template #header>
-                    <SubHeading :title="$t('transactions.auditor')" />
+                    <SubHeading :title="$t('marketplace.auditor')" />
                 </template>
 
                 <UTable :columns="columns" :rows="rows" />

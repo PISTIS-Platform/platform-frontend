@@ -46,6 +46,7 @@ export default defineNuxtConfig({
         public: {
             orgId: process.env.NUXT_PUBLIC_ORG_ID, //NUXT_PUBLIC_ORG_ID
             orgLogo: process.env.NUXT_PUBLIC_ORG_LOGO,
+            catalogUrl: process.env.NUXT_CATALOG_URL,
         },
         authSecret: process.env.NUXT_NEXTAUTH_SECRET,
         keycloak: {
@@ -58,8 +59,10 @@ export default defineNuxtConfig({
         anonymizerApiUrl: process.env.ANONYMIZER_URL,
         intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
         sctcUrl: process.env.NUXT_SCTC_URL,
-        wsUrl: process.env.NUXT_WS_URL,
+        notificationsUrl: process.env.NUXT_NOTIFICATIONS_URL,
         assetsUrl: process.env.NUXT_ASSETS_URL,
+        walletUrl: process.env.NUXT_WALLET_URL,
+        walletAlias: process.env.NUXT_WALLET_ALIAS,
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
