@@ -26,11 +26,16 @@ useHead({
 });
 
 const navigation = ref([
-    { name: 'home.home', to: '/home' },
-    { name: 'data.data', to: '/data' },
-    { name: 'catalog.catalog', to: config.public.catalogUrl },
-    { name: 'marketplace.marketplace', to: '/marketplace' },
-    { name: 'market.market', to: '/market' },
+    { name: 'home.home', to: '/home', target: '_self', icon: '' },
+    { name: 'data.data', to: '/data', target: '_self', icon: '' },
+    { name: 'catalog.catalog', to: config.public.catalogUrl, target: '_blank', icon: '' },
+    {
+        name: 'marketplace.marketplace',
+        to: config.public.marketPlaceUrl,
+        target: '_blank',
+        icon: 'heroicons:arrow-top-right-on-square-16-solid',
+    },
+    { name: 'market.market', to: '/market', target: '_self', icon: '' },
 ]);
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
@@ -70,10 +75,13 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                     v-for="item in navigation"
                                     :key="item.name"
                                     :to="item.to"
+                                    :target="item.target"
                                     class="text-white hover:bg-primary-600 hover:bg-opacity-75 rounded-md px-3 py-2 text-sm font-medium"
                                     active-class="bg-primary-800"
-                                    >{{ $t(item.name) }}</NuxtLink
                                 >
+                                    {{ $t(item.name) }}
+                                    <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
+                                </NuxtLink>
                             </div>
                         </div>
                         <div class="mt-1 md:hidden flex gap-4 justify-center items-center ml-4 text-white">
