@@ -26,18 +26,17 @@ useHead({
 });
 
 const navigation = ref([
-    { name: 'home.home', to: '/home', target: '_self', icon: '', external: false, noRel: false },
-    { name: 'data.data', to: '/data', target: '_self', icon: '', external: false, noRel: false },
-    { name: 'catalog.catalog', to: config.public.catalogUrl, target: '_blank', icon: '', external: true, noRel: true },
+    { name: 'home.home', to: '/home', target: '_self', icon: '', external: false },
+    { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
+    { name: 'catalog.catalog', to: config.public.catalogUrl, target: '_blank', icon: '', external: true },
     {
         name: 'marketplace.marketplace',
         to: config.public.marketPlaceUrl,
         target: '_blank',
         icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
-        noRel: true,
     },
-    { name: 'market.market', to: '/market', target: '_self', icon: '', external: false, noRel: false },
+    { name: 'market.market', to: '/market', target: '_self', icon: '', external: false },
 ]);
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
@@ -73,19 +72,24 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                         </div>
                         <div class="hidden md:block">
                             <div v-if="status === 'authenticated'" class="ml-10 flex items-baseline space-x-4">
-                                <NuxtLink
+                                <div
                                     v-for="item in navigation"
                                     :key="item.name"
-                                    :to="item.to"
-                                    :target="item.target"
-                                    :external="item.external"
-                                    :no-rel="item.noRel"
-                                    class="text-white hover:bg-primary-600 hover:bg-opacity-75 rounded-md px-3 py-2 text-sm font-medium"
-                                    active-class="bg-primary-800"
+                                    class="text-white hover:bg-primary-600 hover:bg-opacity-50 rounded-md px-3 py-2 text-sm font-medium active:bg-primary-800 focus-within:bg-primary-800"
                                 >
-                                    {{ $t(item.name) }}
-                                    <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
-                                </NuxtLink>
+                                    <NuxtLink
+                                        v-if="!item.external"
+                                        :to="item.to"
+                                        :target="item.target"
+                                        :external="item.external"
+                                    >
+                                        {{ $t(item.name) }}
+                                    </NuxtLink>
+                                    <a v-else :href="item.to" :target="item.target">
+                                        {{ $t(item.name) }}
+                                        <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <div class="mt-1 md:hidden flex gap-4 justify-center items-center ml-4 text-white">
