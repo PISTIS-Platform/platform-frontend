@@ -77,12 +77,7 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                     :key="item.name"
                                     class="text-white hover:bg-primary-600 hover:bg-opacity-50 rounded-md px-3 py-2 text-sm font-medium active:bg-primary-800 focus-within:bg-primary-800"
                                 >
-                                    <NuxtLink
-                                        v-if="!item.external"
-                                        :to="item.to"
-                                        :target="item.target"
-                                        :external="item.external"
-                                    >
+                                    <NuxtLink v-if="!item.external" :to="item.to" :target="item.target">
                                         {{ $t(item.name) }}
                                     </NuxtLink>
                                     <a v-else :href="item.to" :target="item.target">
