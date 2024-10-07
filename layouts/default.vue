@@ -72,19 +72,18 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                         </div>
                         <div class="hidden md:block">
                             <div v-if="status === 'authenticated'" class="ml-10 flex items-baseline space-x-4">
-                                <div
+                                <NuxtLink
                                     v-for="item in navigation"
                                     :key="item.name"
-                                    class="text-white hover:bg-primary-600 hover:bg-opacity-50 rounded-md px-3 py-2 text-sm font-medium active:bg-primary-800 focus-within:bg-primary-800"
+                                    :to="item.to"
+                                    :target="item.target"
+                                    :external="item.external"
+                                    class="text-white hover:bg-primary-600 hover:bg-opacity-75 rounded-md px-3 py-2 text-sm font-medium"
+                                    active-class="bg-primary-800"
                                 >
-                                    <NuxtLink v-if="!item.external" :to="item.to" :target="item.target">
-                                        {{ $t(item.name) }}
-                                    </NuxtLink>
-                                    <a v-else :href="item.to" :target="item.target">
-                                        {{ $t(item.name) }}
-                                        <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
-                                    </a>
-                                </div>
+                                    {{ $t(item.name) }}
+                                    <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
+                                </NuxtLink>
                             </div>
                         </div>
                         <div class="mt-1 md:hidden flex gap-4 justify-center items-center ml-4 text-white">
