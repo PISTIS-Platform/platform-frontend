@@ -26,17 +26,18 @@ useHead({
 });
 
 const navigation = ref([
-    { name: 'home.home', to: '/home', target: '_self', icon: '', external: false },
-    { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
-    { name: 'catalog.catalog', to: config.public.catalogUrl, target: '_blank', icon: '', external: true },
+    { name: 'home.home', to: '/home', target: '_self', icon: '', external: false, noRel: false },
+    { name: 'data.data', to: '/data', target: '_self', icon: '', external: false, noRel: false },
+    { name: 'catalog.catalog', to: config.public.catalogUrl, target: '_blank', icon: '', external: true, noRel: true },
     {
         name: 'marketplace.marketplace',
         to: config.public.marketPlaceUrl,
         target: '_blank',
         icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
+        noRel: true,
     },
-    { name: 'market.market', to: '/market', target: '_self', icon: '', external: false },
+    { name: 'market.market', to: '/market', target: '_self', icon: '', external: false, noRel: false },
 ]);
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
@@ -78,6 +79,7 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                     :to="item.to"
                                     :target="item.target"
                                     :external="item.external"
+                                    :no-rel="item.noRel"
                                     class="text-white hover:bg-primary-600 hover:bg-opacity-75 rounded-md px-3 py-2 text-sm font-medium"
                                     active-class="bg-primary-800"
                                 >
