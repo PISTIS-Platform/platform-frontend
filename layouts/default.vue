@@ -31,7 +31,7 @@ const navigation = ref([
     { name: 'catalog.catalog', to: config.public.catalogUrl, target: '_blank', icon: '', external: true },
     {
         name: 'marketplace.marketplace',
-        to: config.public.marketPlaceUrl,
+        to: config.public.marketplaceUrl,
         target: '_blank',
         icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
