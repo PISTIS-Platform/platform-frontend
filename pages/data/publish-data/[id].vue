@@ -237,6 +237,8 @@ const goToCatalog = async () => {
         variant="subtle"
         :title="$t('data.designer.datasetIdNotFound')"
         :description="$t('data.designer.pleaseGoBackCatalog')"
+        class="cursor-pointer"
+        @click="goToCatalog()"
     />
     <div v-show="selectedPage === 1 && selected" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
