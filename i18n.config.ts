@@ -98,6 +98,8 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    datasetIdNotFound: 'Dataset ID Not Found',
+                    pleaseGoBackCatalog: 'Please go back to the catalog and select a valid dataset.',
                     pleaseSelectDataset: 'Please select a dataset',
                     free: 'Free',
                     paid: 'Paid',

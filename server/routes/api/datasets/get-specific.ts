@@ -13,12 +13,8 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const id = query.id;
-    console.log(id);
+    const assetId = query.id;
 
-    // const asset = result.result.results.find((item) => item.id === assetId);
-    // console.log(asset);
-    // return asset;
-
-    return result;
+    const asset = result.result.results.find((item) => item.id === assetId);
+    return asset;
 });

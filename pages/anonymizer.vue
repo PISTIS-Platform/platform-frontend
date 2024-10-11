@@ -20,8 +20,6 @@ onMounted(async () => {
     const distribution = queryParams['distribution'];
     const language = queryParams['language'];
 
-    console.log(catalogueId, distribution, language);
-
     if (catalogueId && distribution && language) {
         const metadataResponse: AnonymiserResponse<UserMetadata> = (await useFetch('/api/anonymizer/dataset/metadata'))
             .data.value as AnonymiserResponse<UserMetadata>;
@@ -37,7 +35,6 @@ onMounted(async () => {
             ).data.value as AnonymiserResponse<undefined>;
 
             if (loadDatasetResponse.code != 200) {
-                console.log(loadDatasetResponse);
                 window.alert('Failed to fetch dataset from data catalogue! Please try again.');
             }
         }

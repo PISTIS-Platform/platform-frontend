@@ -19,10 +19,15 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
-const { data: dataset, status: datasetsStatus } = useAsyncData(() => $fetch('/api/datasets/get-specific'));
+const { data: dataset, status: datasetsStatus } = useAsyncData(() =>
+    $fetch('/api/datasets/get-specific', { query: { id: assetId } }),
+);
 
 watch(dataset, () => {
-    selected.value = { id: dataset.id, title: dataset.title.en, description: dataset.description.en };
+    if (!dataset.value) return;
+    selected.value = { id: dataset.value.id, title: dataset.value.title.en, description: dataset.value.description.en };
+    assetOfferingDetails.value.title = selected.value.title;
+    assetOfferingDetails.value.description = selected.value.description;
 });
 
 //data for selection whole dataset or query
@@ -126,13 +131,6 @@ const steps = computed(() => [
 
 const selectedPage = ref(1);
 
-// const handleDatasetSelection = (dataset: { id: string | number; title: string; description: string }) => {
-//     selected.value = dataset;
-//     assetOfferingDetails.value.title = selected.value.title;
-//     assetOfferingDetails.value.description = selected.value.description;
-//     selectedPage.value = 1;
-// };
-
 const changeStep = async (stepNum: number) => {
     if (stepNum === 3) {
         //api call to contract template composer
@@ -155,10 +153,16 @@ const changeStep = async (stepNum: number) => {
         //TODO:: use returned compose contract for other pistis components
     }
 };
+
+const goToCatalog = async () => {
+    //TODO: Check if link should be different
+    await navigateTo('https://pistis-market.eu/srv/catalog/datasets?locale=en', {
+        external: true,
+    });
+};
 </script>
 
 <template>
-    {{ assetId }}
     <nav aria-label="Progress">
         <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0 mb-8">
             <li
@@ -166,7 +170,7 @@ const changeStep = async (stepNum: number) => {
                 :key="step.name"
                 class="relative md:flex md:flex-1 cursor-pointer"
                 :class="step.isActive ? '' : 'pointer-events-none'"
-                @click="selectedPage = stepIdx"
+                @click="stepIdx === 0 ? goToCatalog() : (selectedPage = stepIdx)"
             >
                 <a v-if="selectedPage > stepIdx" class="group flex w-full items-center">
                     <span class="flex items-center px-6 py-4 text-sm font-medium">
@@ -223,9 +227,18 @@ const changeStep = async (stepNum: number) => {
             </li>
         </ol>
     </nav>
+
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
+    <UAlert
+        v-if="!selected && datasetsStatus !== 'pending'"
+        icon="mingcute:alert-line"
+        color="red"
+        variant="subtle"
+        :title="$t('data.designer.datasetIdNotFound')"
+        :description="$t('data.designer.pleaseGoBackCatalog')"
+    />
+    <div v-show="selectedPage === 1 && selected" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             v-if="selected"
             :selected="selected"
@@ -252,10 +265,10 @@ const changeStep = async (stepNum: number) => {
         />
     </div>
 
-    <div v-show="selectedPage === 2">Access policies editor</div>
+    <div v-show="selectedPage === 2 && selected">Access policies editor</div>
 
     <div v-if="isAllValid">
-        <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">
+        <div v-show="selectedPage === 3 && selected" class="w-full h-full text-gray-700 space-y-8">
             <UCard v-if="completeOrQuery && selected?.title">
                 <template #header>
                     <SubHeading
