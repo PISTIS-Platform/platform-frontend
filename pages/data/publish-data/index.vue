@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
-import type { AssetOfferingDetails } from '../../interfaces/plan-designer';
+import type { AssetOfferingDetails } from '../../../interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
 
