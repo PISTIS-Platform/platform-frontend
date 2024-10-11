@@ -12,6 +12,8 @@ const route = useRoute();
 
 const assetId = route.params.id;
 
+const { data: session } = useAuth();
+
 const { t } = useI18n();
 
 //data for selected dataset
@@ -25,6 +27,7 @@ const { data: dataset, status: datasetsStatus } = useAsyncData(() =>
 );
 
 watch(dataset, () => {
+    console.log(session.value);
     if (!dataset.value) return;
     selected.value = { id: dataset.value.id, title: dataset.value.title.en, description: dataset.value.description.en };
     distributions.value = dataset.value.distributions;
@@ -103,12 +106,14 @@ const submitAll = () => {
     objToSend = {
         originalAssetId: selected.value?.id,
         organizationId: runtimeConfig.public?.orgId,
+        organizationName: session.value.orgName,
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         assetId: newAssetId,
         accessPolicies: {},
     };
 
+    console.log({ objToSend });
     //TODO: Figure out final form for each monetization method
 
     //TODO: Send final object / JSON to API (blockchain)

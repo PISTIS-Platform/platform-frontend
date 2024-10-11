@@ -33,6 +33,10 @@ const getUserOrgId = (profile: any) => {
     return profile.pistis?.group?.id || '';
 };
 
+const getUserOrgName = (profile: any) => {
+    return profile.group[0];
+};
+
 async function refreshAccessToken(token: JWT) {
     try {
         if (!token.refresh_token) return token;
@@ -88,6 +92,7 @@ export const authOptions = {
                 const decodedJWT = jwtDecode(account.access_token);
                 token.roles = getPistisRoles(decodedJWT);
                 token.orgId = getUserOrgId(decodedJWT);
+                token.orgName = getUserOrgName(decodedJWT);
                 if (account.expires_at) {
                     token.expires_at = (account.expires_at - 15) * 1000;
                 }
@@ -106,6 +111,7 @@ export const authOptions = {
 
             session.roles = token.roles;
             session.orgId = token.orgId;
+            session.orgName = token.orgName;
             session.user = {
                 ...session.user,
                 ...token,
