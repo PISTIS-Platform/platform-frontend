@@ -16,8 +16,9 @@ const { t } = useI18n();
 
 //data for selected dataset
 
-//TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
+//TODO: Decide what to do UI-wise with distributions
+const distributions = ref([]);
 
 const { data: dataset, status: datasetsStatus } = useAsyncData(() =>
     $fetch('/api/datasets/get-specific', { query: { id: assetId } }),
@@ -26,6 +27,7 @@ const { data: dataset, status: datasetsStatus } = useAsyncData(() =>
 watch(dataset, () => {
     if (!dataset.value) return;
     selected.value = { id: dataset.value.id, title: dataset.value.title.en, description: dataset.value.description.en };
+    distributions.value = dataset.value.distributions;
     assetOfferingDetails.value.title = selected.value.title;
     assetOfferingDetails.value.description = selected.value.description;
 });
