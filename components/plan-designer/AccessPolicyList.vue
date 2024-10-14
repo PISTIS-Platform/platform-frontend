@@ -38,6 +38,7 @@ const accessPolicyDetails = ref<AccessPolicyDetails>({
     id: undefined,
     title: undefined,
     description: undefined,
+    default: false,
     scopes: [],
     groups: [],
     countries: [],
@@ -197,6 +198,7 @@ const handleNewPolicyClick = () => {
         id: undefined,
         title: undefined,
         description: undefined,
+        default: false,
         scopes: [],
         groups: [],
         countries: [],
@@ -304,6 +306,7 @@ const handlePolicyForm = () => {
 
         p.title = accessPolicyDetails.value.title;
         p.description = accessPolicyDetails.value.description;
+        p.default = false;
         p.scopes = scopes;
         p.groups = groups;
         p.countries = countries;
@@ -319,9 +322,9 @@ const handlePolicyForm = () => {
         //const updatedPolicyData = [...props.policyData, p];
         //props.policyData = updatedPolicyData;
         emit('update:policy-data', props.policyData);
-        console.log(props.policyData);
+        //console.log(props.policyData);
         switchPolicyForm.value = false;
-        console.log(policiesCount.value);
+        //console.log(policiesCount.value);
         page.value = props.policyData.length / pageCount + 1;
         page.value = 1;
     }

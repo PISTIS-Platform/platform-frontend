@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
-import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
+import type { AccessPolicies, AccessPolicyDetails, AssetOfferingDetails } from "~/interfaces/plan-designer";
 
 const runtimeConfig = useRuntimeConfig();
 
@@ -102,8 +102,10 @@ const defaultPolicy: AccessPolicyDetails = {
     id: t('policies.publicationDefaults.id'),
     title: t('policies.publicationDefaults.title'),
     description: t('policies.publicationDefaults.description'),
+    default: true,
 };
 policyData.push(defaultPolicy);
+
 
 // validation data
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
@@ -116,7 +118,12 @@ const submitAll = () => {
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         assetId: newAssetId,
-        accessPolicies: policyData,
+        accessPolicies: <AccessPolicies> {
+          assetId: newAssetId,
+          assetTitle: assetOfferingDetails.value.title,
+          assetDescription: assetOfferingDetails.value.description,
+          policyData: policyData,
+        },
     };
     console.log(objToSend);
 
