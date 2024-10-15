@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
-import type { AccessPolicies, AccessPolicyDetails, AssetOfferingDetails } from "~/interfaces/plan-designer";
+import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
 
@@ -15,12 +15,14 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
-const { data: allDatasets, status: datasetsStatus } = useAsyncData(() => $fetch('/api/datasets/get-all'));
+const { data: allDatasets, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
+    $fetch('/api/datasets/get-all'),
+);
 
 const datasetsTransformed = computed(() => {
     if (!allDatasets.value?.result?.results?.length) return [];
 
-    return allDatasets.value.result.results.map((result: Record<string, unknown>) => ({
+    return allDatasets.value.result.results.map((result: Record<string, any>) => ({
         id: result.id,
         title: result.title.en,
         description: result.description.en,
@@ -106,7 +108,6 @@ const defaultPolicy: AccessPolicyDetails = {
 };
 policyData.push(defaultPolicy);
 
-
 // validation data
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
@@ -118,11 +119,11 @@ const submitAll = () => {
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         assetId: newAssetId,
-        accessPolicies: <AccessPolicies> {
-          assetId: newAssetId,
-          assetTitle: assetOfferingDetails.value.title,
-          assetDescription: assetOfferingDetails.value.description,
-          policyData: policyData,
+        accessPolicies: {
+            assetId: newAssetId,
+            assetTitle: assetOfferingDetails.value.title,
+            assetDescription: assetOfferingDetails.value.description,
+            policyData: policyData,
         },
     };
     console.log(objToSend);
@@ -290,14 +291,16 @@ const changeStep = async (stepNum: number) => {
         />
     </div>
 
-    <div v-show="selectedPage === 2" class="w-full h-full text-gray-700 space-y-8">
-        <AccessPolicyList
-            v-model:policy-data="policyData"
-            :selected="selected"
-            @change-page="(value: number) => (selectedPage = value)"
-            @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
-        />
-    </div>
+    <template v-if="selected">
+        <div v-show="selectedPage === 2" class="w-full h-full text-gray-700 space-y-8">
+            <AccessPolicyList
+                v-model:policy-data="policyData"
+                :selected="selected"
+                @change-page="(value: number) => (selectedPage = value)"
+                @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
+            />
+        </div>
+    </template>
 
     <div v-if="isAllValid">
         <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">

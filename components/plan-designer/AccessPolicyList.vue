@@ -1,4 +1,6 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
+import { clone } from 'ramda';
 import { useI18n } from 'vue-i18n';
 import { DialogWrapper } from 'vue3-promise-dialog';
 
@@ -19,12 +21,12 @@ const props = defineProps({
     },
 });
 
-const allGroups = await useFetch('/api/iam/get-groups');
-const allDomains = await useFetch('/api/iam/get-domains');
-const allCountries = await useFetch('/api/iam/get-countries');
-const allSizes = await useFetch('/api/iam/get-sizes');
-const allTypes = await useFetch('/api/iam/get-types');
-const groupOptions = await useFetch('/api/iam/get-organizations');
+// const allGroups = await useFetch('/api/iam/get-groups');
+const allDomains = await useFetch<any>('/api/iam/get-domains');
+const allCountries = await useFetch<any>('/api/iam/get-countries');
+const allSizes = await useFetch<any>('/api/iam/get-sizes');
+const allTypes = await useFetch<any>('/api/iam/get-types');
+const groupOptions = await useFetch<any>('/api/iam/get-organizations');
 
 const checkedScopes = ref<Array<string>>([]);
 const checkedGroups = ref<Array<string>>([]);
@@ -49,7 +51,7 @@ const accessPolicyDetails = ref<AccessPolicyDetails>({
 
 const emit = defineEmits(['changePage', 'update:policy-data']);
 
-const handleEditPolicyClick = (row) => {
+const handleEditPolicyClick = (row: any) => {
     accessPolicyDetails.value = props.policyData[row.id - 1];
 
     checkedScopes.value[0] = String(false);
@@ -124,7 +126,7 @@ const columns = [
         class: 'w-1/12',
     },
 ];
-const actions = (row) => {
+const actions = (row: any) => {
     return [
         [
             {
@@ -140,13 +142,14 @@ const actions = (row) => {
                 click: async () => {
                     if (await confirmation(t('policies.delete.title'), t('policies.delete.text'))) {
                         console.log('User wanted to delete this resource');
-                        props.policyData.splice(
-                            props.policyData.findIndex((item) => item.id === row.id),
+                        const policyData = clone(props.policyData);
+                        policyData.splice(
+                            policyData.findIndex((item) => item.id === row.id),
                             1,
                         );
-                        policiesCount.value = props.policyData.length;
-                        emit('update:policy-data', props.policyData);
-                        page.value = props.policyData.length / pageCount;
+                        policiesCount.value = policyData.length;
+                        emit('update:policy-data', policyData);
+                        page.value = policyData.length / pageCount;
                         page.value = 1;
                     }
                 },
@@ -301,7 +304,7 @@ const handlePolicyForm = () => {
             showErrorMessage(t(errorKeys[i]));
         }
     } else {
-        let p = {};
+        let p: Record<string, any> = {};
         if (accessPolicyDetails.value.id === undefined || accessPolicyDetails.value.id === null) {
             p.id = (props.policyData?.length + 1).toString();
         } else {
@@ -317,10 +320,13 @@ const handlePolicyForm = () => {
         p.sizes = sizes;
         p.domains = domains;
         p.types = types;
+
+        const policyData = clone(props.policyData);
+
         if (accessPolicyDetails.value.id === undefined || accessPolicyDetails.value.id === null) {
-            props.policyData.push(p);
+            policyData.push(p as unknown as AccessPolicyDetails);
         } else {
-            props.policyData[p.id - 1] = p;
+            policyData[p.id - 1] = p as unknown as AccessPolicyDetails;
         }
 
         //const updatedPolicyData = [...props.policyData, p];
@@ -391,12 +397,12 @@ async function onSubmit(): Promise<void> {
     <UModal v-model="switchPolicyForm" class="flex flex-grow">
         <UCard class="flex flex-col text-gray-700">
             <UAlert :title="t('policies.policyUI.title')" color="gray" />
-            <UInput v-model="props.selected.id" color="gray" variant="outline" disabled class="flex-grow">
+            <UInput :value="props.selected.id" color="gray" variant="outline" disabled class="flex-grow">
                 <template #leading>
                     <span class="text-gray-500 dark:text-gray-400 text-xs">{{ t('policies.policyUI.assetId') }}</span>
                 </template>
             </UInput>
-            <UInput v-model="props.selected.title" color="gray" variant="outline" disabled class="flex-grow">
+            <UInput :value="props.selected.title" color="gray" variant="outline" disabled class="flex-grow">
                 <template #leading>
                     <span class="text-gray-500 dark:text-gray-400 text-xs">{{
                         t('policies.policyUI.assetTitle')
