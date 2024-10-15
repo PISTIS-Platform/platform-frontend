@@ -44,6 +44,7 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         public: {
+            iamUrl: process.env.NUXT_PUBLIC_IAM_URL,
             orgId: process.env.NUXT_PUBLIC_ORG_ID, //NUXT_PUBLIC_ORG_ID
             orgLogo: process.env.NUXT_PUBLIC_ORG_LOGO,
             catalogUrl: process.env.NUXT_PUBLIC_CATALOG_URL,

@@ -354,6 +354,70 @@ export default defineI18nConfig(() => ({
                     price: 'Price',
                 },
             },
+            policies: {
+                title: 'Access Policies',
+                info: 'Manage access policies for the selected asset',
+                tableFields: {
+                    id: 'ID',
+                    title: 'Title',
+                    desc: 'Description',
+                },
+                publicationDefaults: {
+                    id: '1',
+                    title: 'Default policy for asset publication',
+                    description: 'Everyone can Read/Trade this asset',
+                },
+                actions: {
+                    edit: 'Edit',
+                    delete: 'Delete',
+                    save: 'Save',
+                    add: 'Add',
+                },
+                delete: {
+                    title: 'Delete policy?',
+                    text: 'Are you sure you want to delete this policy?',
+                },
+                policyUI: {
+                    title: 'Asset details',
+                    assetId: 'ID',
+                    assetTitle: 'T',
+                    defText: 'Policy definition details',
+                    defName: 'Name',
+                    defDesc: 'Description',
+                    defScope: 'Scopes',
+                    defScopeHelp: 'Select scope(s) to be excluded in this policy',
+                    defOrg: 'Organizations',
+                    defOrgHelp: 'Select organization(s) to exclude for the selected scope(s)',
+                    defOrgPrompt: 'Search organizations',
+                    defAttr: 'Organization attributes',
+                    defAttrHelp: 'Select organizations by attributes to exclude for the selected scope(s)',
+                },
+                errors: {
+                    title: 'Title field is required and must be more than 5-characters!',
+                    description: 'Description field is required and must be more than 15-characters!',
+                    scopes: 'You have to select at least 1-scope!',
+                    attributes:
+                        'You have to select at least 1-Organization or organization attribute (Domain, Size, Country, Type)!',
+                },
+                tabs: {
+                    domain: {
+                        label: 'Domain',
+                        content: 'Domains reflecting standard sectors of the economy which generate data',
+                    },
+                    country: {
+                        label: 'Country',
+                        content: 'Countries of the participating organizations',
+                    },
+                    size: {
+                        label: 'Size',
+                        content: 'Size characterization of the participating organizations',
+                    },
+                    type: {
+                        label: 'Type',
+                        content: 'Type characterization of the participating organizations',
+                    },
+                },
+            },
             user: {
                 profile: 'Your Profile',
                 settings: 'Settings',

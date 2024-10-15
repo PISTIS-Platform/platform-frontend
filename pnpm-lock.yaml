@@ -62,6 +62,9 @@ dependencies:
   vue-fast-marquee:
     specifier: ^1.0.6
     version: 1.0.6(vue@3.4.38)
+  vue3-promise-dialog:
+    specifier: ^0.3.4
+    version: 0.3.4(vue@3.4.38)
   vue3-tags-input:
     specifier: ^1.0.12
     version: 1.0.12(vue@3.4.38)
@@ -9486,6 +9489,14 @@ packages:
       semver: 7.6.3
       typescript: 5.5.4
     dev: true
+
+  /vue3-promise-dialog@0.3.4(vue@3.4.38):
+    resolution: {integrity: sha512-JquYYE+1lxuGgncD8Q+8KTFAWUJsNWnhuYPSsOFRKzz3kz66Rjz5pdlEW6GLfUlV3cKak9T8b3mV49B4ouEgVg==}
+    peerDependencies:
+      vue: ^3.x
+    dependencies:
+      vue: 3.4.38(typescript@5.5.4)
+    dev: false
 
   /vue3-tags-input@1.0.12(vue@3.4.38):
     resolution: {integrity: sha512-s5rG+1W3M8+be0nd9H1nv/8WLjJOO6pShgVz8ALAqOiz3tDH5QhGrDH6fzD14ZjJNRWSa3bRBSXQwHEXffPQ6g==}
