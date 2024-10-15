@@ -19,12 +19,12 @@ const props = defineProps({
     },
 });
 
-const { data: allGroups } = useAsyncData(() => $fetch('/api/iam/get-groups'));
-const { data: allDomains } = useAsyncData(() => $fetch('/api/iam/get-domains'));
-const { data: allCountries } = useAsyncData(() => $fetch('/api/iam/get-countries'));
-const { data: allSizes } = useAsyncData(() => $fetch('/api/iam/get-sizes'));
-const { data: allTypes } = useAsyncData(() => $fetch('/api/iam/get-types'));
-const { data: groupOptions } = useAsyncData(() => $fetch('/api/iam/get-organizations'));
+const allGroups = await useFetch('/api/iam/get-groups');
+const allDomains = await useFetch('/api/iam/get-domains');
+const allCountries = await useFetch('/api/iam/get-countries');
+const allSizes = await useFetch('/api/iam/get-sizes');
+const allTypes = await useFetch('/api/iam/get-types');
+const groupOptions = await useFetch('/api/iam/get-organizations');
 
 const checkedScopes = ref<Array<string>>([]);
 const checkedGroups = ref<Array<string>>([]);
@@ -48,6 +48,55 @@ const accessPolicyDetails = ref<AccessPolicyDetails>({
 });
 
 const emit = defineEmits(['changePage', 'update:policy-data']);
+
+const handleEditPolicyClick = (row) => {
+    accessPolicyDetails.value = props.policyData[row.id - 1];
+
+    checkedScopes.value[0] = String(false);
+    checkedScopes.value[1] = String(false);
+    if (accessPolicyDetails.value.scopes.includes('READ')) {
+        checkedScopes.value[0] = String(true);
+    }
+    if (accessPolicyDetails.value.scopes.includes('TRADE')) {
+        checkedScopes.value[1] = String(true);
+    }
+
+    checkedGroups.value = accessPolicyDetails.value.groups;
+
+    for (let i = 0; i < allDomains.data.value.length; i++) {
+        if (accessPolicyDetails.value.domains.includes(allDomains.data.value[i].code)) {
+            checkedDomains.value[i] = String(true);
+        } else {
+            checkedDomains.value[i] = String(false);
+        }
+    }
+
+    for (let i = 0; i < allCountries.data.value.length; i++) {
+        if (accessPolicyDetails.value.countries.includes(allCountries.data.value[i].code)) {
+            checkedCountries.value[i] = String(true);
+        } else {
+            checkedCountries.value[i] = String(false);
+        }
+    }
+
+    for (let i = 0; i < allSizes.data.value.length; i++) {
+        if (accessPolicyDetails.value.sizes.includes(allSizes.data.value[i].code)) {
+            checkedSizes.value[i] = String(true);
+        } else {
+            checkedSizes.value[i] = String(false);
+        }
+    }
+
+    for (let i = 0; i < allTypes.data.value.length; i++) {
+        if (accessPolicyDetails.value.types.includes(allTypes.data.value[i].code)) {
+            checkedTypes.value[i] = String(true);
+        } else {
+            checkedTypes.value[i] = String(false);
+        }
+    }
+
+    switchPolicyForm.value = true;
+};
 
 const columns = [
     {
@@ -82,52 +131,7 @@ const actions = (row) => {
                 label: t('policies.actions.edit'),
                 icon: 'i-heroicons-pencil-square-20-solid',
                 click: () => {
-                    accessPolicyDetails.value = props.policyData[row.id - 1];
-
-                    checkedScopes.value[0] = String(false);
-                    checkedScopes.value[1] = String(false);
-                    if (accessPolicyDetails.value.scopes.includes('READ')) {
-                        checkedScopes.value[0] = String(true);
-                    }
-                    if (accessPolicyDetails.value.scopes.includes('TRADE')) {
-                        checkedScopes.value[1] = String(true);
-                    }
-
-                    checkedGroups.value = accessPolicyDetails.value.groups;
-
-                    for (let i = 0; i < allDomains.value.length; i++) {
-                        if (accessPolicyDetails.value.domains.includes(allDomains.value[i].code)) {
-                            checkedDomains.value[i] = String(true);
-                        } else {
-                            checkedDomains.value[i] = String(false);
-                        }
-                    }
-
-                    for (let i = 0; i < allCountries.value.length; i++) {
-                        if (accessPolicyDetails.value.countries.includes(allCountries.value[i].code)) {
-                            checkedCountries.value[i] = String(true);
-                        } else {
-                            checkedCountries.value[i] = String(false);
-                        }
-                    }
-
-                    for (let i = 0; i < allSizes.value.length; i++) {
-                        if (accessPolicyDetails.value.sizes.includes(allSizes.value[i].code)) {
-                            checkedSizes.value[i] = String(true);
-                        } else {
-                            checkedSizes.value[i] = String(false);
-                        }
-                    }
-
-                    for (let i = 0; i < allTypes.value.length; i++) {
-                        if (accessPolicyDetails.value.types.includes(allTypes.value[i].code)) {
-                            checkedTypes.value[i] = String(true);
-                        } else {
-                            checkedTypes.value[i] = String(false);
-                        }
-                    }
-
-                    switchPolicyForm.value = true;
+                    handleEditPolicyClick(row);
                 },
             },
             {
@@ -209,16 +213,16 @@ const handleNewPolicyClick = () => {
     checkedScopes.value[0] = String(false);
     checkedScopes.value[1] = String(false);
     checkedGroups.value = [];
-    for (let i = 0; i < allDomains.value.length; i++) {
+    for (let i = 0; i < allDomains.data.value.length; i++) {
         checkedDomains.value[i] = String(false);
     }
-    for (let i = 0; i < allCountries.value.length; i++) {
+    for (let i = 0; i < allCountries.data.value.length; i++) {
         checkedCountries.value[i] = String(false);
     }
-    for (let i = 0; i < allSizes.value.length; i++) {
+    for (let i = 0; i < allSizes.data.value.length; i++) {
         checkedSizes.value[i] = String(false);
     }
-    for (let i = 0; i < allTypes.value.length; i++) {
+    for (let i = 0; i < allTypes.data.value.length; i++) {
         checkedTypes.value[i] = String(false);
     }
 
@@ -240,30 +244,30 @@ const handlePolicyForm = () => {
     }
 
     let countries = [];
-    for (let i = 0; i < allCountries.value.length; i++) {
+    for (let i = 0; i < allCountries.data.value.length; i++) {
         if (checkedCountries.value[i] === true || checkedCountries.value[i] === 'true') {
-            countries.push(allCountries.value[i].code);
+            countries.push(allCountries.data.value[i].code);
         }
     }
 
     let sizes = [];
-    for (let i = 0; i < allSizes.value.length; i++) {
+    for (let i = 0; i < allSizes.data.value.length; i++) {
         if (checkedSizes.value[i] === true || checkedSizes.value[i] === 'true') {
-            sizes.push(allSizes.value[i].code);
+            sizes.push(allSizes.data.value[i].code);
         }
     }
 
     let domains = [];
-    for (let i = 0; i < allDomains.value.length; i++) {
+    for (let i = 0; i < allDomains.data.value.length; i++) {
         if (checkedDomains.value[i] === true || checkedDomains.value[i] === 'true') {
-            domains.push(allDomains.value[i].code);
+            domains.push(allDomains.data.value[i].code);
         }
     }
 
     let types = [];
-    for (let i = 0; i < allTypes.value.length; i++) {
+    for (let i = 0; i < allTypes.data.value.length; i++) {
         if (checkedTypes.value[i] === true || checkedTypes.value[i] === 'true') {
-            types.push(allTypes.value[i].code);
+            types.push(allTypes.data.value[i].code);
         }
     }
 
@@ -444,7 +448,7 @@ async function onSubmit(): Promise<void> {
                             v-model="checkedGroups"
                             searchable
                             :searchable-placeholder="$t('policies.policyUI.defOrgPrompt')"
-                            :options="groupOptions"
+                            :options="groupOptions.data.value"
                             multiple
                             :placeholder="$t('policies.policyUI.defOrgPrompt')"
                             class="w-full"
@@ -480,7 +484,7 @@ async function onSubmit(): Promise<void> {
                             <div class="flex flex-col w-full">
                                 <div class="flex flex-row flex-wrap mb-2 gap-4">
                                     <UCheckbox
-                                        v-for="(attr, index) in allDomains"
+                                        v-for="(attr, index) in allDomains.data.value"
                                         :key="attr.code"
                                         v-model="checkedDomains[index]"
                                         name="domains[]"
@@ -494,7 +498,7 @@ async function onSubmit(): Promise<void> {
                             <div class="flex flex-col w-full">
                                 <div class="flex flex-row flex-wrap mb-2 gap-4">
                                     <UCheckbox
-                                        v-for="(attr, index) in allCountries"
+                                        v-for="(attr, index) in allCountries.data.value"
                                         :key="attr.code"
                                         v-model="checkedCountries[index]"
                                         name="countries[]"
@@ -508,7 +512,7 @@ async function onSubmit(): Promise<void> {
                             <div class="flex flex-col w-full">
                                 <div class="flex flex-row flex-wrap mb-2 gap-4">
                                     <UCheckbox
-                                        v-for="(attr, index) in allSizes"
+                                        v-for="(attr, index) in allSizes.data.value"
                                         :key="attr.code"
                                         v-model="checkedSizes[index]"
                                         name="sizes[]"
@@ -522,7 +526,7 @@ async function onSubmit(): Promise<void> {
                             <div class="flex flex-col w-full">
                                 <div class="flex flex-row flex-wrap mb-2 gap-4">
                                     <UCheckbox
-                                        v-for="(attr, index) in allTypes"
+                                        v-for="(attr, index) in allTypes.data.value"
                                         :key="attr.code"
                                         v-model="checkedTypes[index]"
                                         name="types[]"
