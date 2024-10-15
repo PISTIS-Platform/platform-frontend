@@ -89,7 +89,7 @@ export default defineI18nConfig(() => ({
                 data: 'Data Ingestion',
                 jobConfigurator: 'Job Configurator',
                 dataTransformation: 'Data Transformation',
-                insightGenerator: 'Insight Generator',
+                insightGenerator: 'Insights Generator',
                 anonymizer: 'Anonymizer',
                 designer: {
                     nav: {

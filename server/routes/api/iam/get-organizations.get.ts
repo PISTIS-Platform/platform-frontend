@@ -11,5 +11,6 @@ export default defineEventHandler(async (event) => {
             Authorization: `Bearer ${token?.access_token}`,
         },
     });
+
     return data.map(({ name }) => name);
 });
