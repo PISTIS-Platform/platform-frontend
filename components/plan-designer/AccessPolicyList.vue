@@ -234,10 +234,10 @@ const handleNewPolicyClick = () => {
 
 const handlePolicyForm = () => {
     let scopes = [];
-    if (checkedScopes.value[0] === true || checkedScopes.value[0] === 'true') {
+    if (checkedScopes.value[0]) {
         scopes.push('READ');
     }
-    if (checkedScopes.value[1] === true || checkedScopes.value[1] === 'true') {
+    if (checkedScopes.value[1]) {
         scopes.push('TRADE');
     }
 
@@ -248,28 +248,28 @@ const handlePolicyForm = () => {
 
     let countries = [];
     for (let i = 0; i < allCountries.data.value.length; i++) {
-        if (checkedCountries.value[i] === true || checkedCountries.value[i] === 'true') {
+        if (checkedCountries.value[i] === true) {
             countries.push(allCountries.data.value[i].code);
         }
     }
 
     let sizes = [];
     for (let i = 0; i < allSizes.data.value.length; i++) {
-        if (checkedSizes.value[i] === true || checkedSizes.value[i] === 'true') {
+        if (checkedSizes.value[i] === true) {
             sizes.push(allSizes.data.value[i].code);
         }
     }
 
     let domains = [];
     for (let i = 0; i < allDomains.data.value.length; i++) {
-        if (checkedDomains.value[i] === true || checkedDomains.value[i] === 'true') {
+        if (checkedDomains.value[i] === true) {
             domains.push(allDomains.data.value[i].code);
         }
     }
 
     let types = [];
     for (let i = 0; i < allTypes.data.value.length; i++) {
-        if (checkedTypes.value[i] === true || checkedTypes.value[i] === 'true') {
+        if (checkedTypes.value[i] === true) {
             types.push(allTypes.data.value[i].code);
         }
     }
@@ -396,7 +396,7 @@ async function onSubmit(): Promise<void> {
     <!-- Modal -->
     <UModal v-model="switchPolicyForm" class="flex flex-grow">
         <UCard class="flex flex-col text-gray-700">
-            <UAlert :title="t('policies.policyUI.title')" color="gray" />
+            <UAlert :title="t('policies.policyUI.title')" color="primary" />
             <UInput :value="props.selected.id" color="gray" variant="outline" disabled class="flex-grow">
                 <template #leading>
                     <span class="text-gray-500 dark:text-gray-400 text-xs">{{ t('policies.policyUI.assetId') }}</span>
