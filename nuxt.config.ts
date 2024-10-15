@@ -61,6 +61,8 @@ export default defineNuxtConfig({
         anonymizerApiUrl: process.env.ANONYMIZER_URL,
         intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
         sctcUrl: process.env.NUXT_SCTC_URL,
+        insightsGenApiUrl: process.env.NUXT_INSIGHTS_GEN_API_URL,
+        wsUrl: process.env.NUXT_WS_URL,
         notificationsUrl: process.env.NUXT_NOTIFICATIONS_URL,
         assetsUrl: process.env.NUXT_ASSETS_URL,
         walletUrl: process.env.NUXT_WALLET_URL,
