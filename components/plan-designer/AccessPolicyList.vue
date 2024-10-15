@@ -28,12 +28,12 @@ const allSizes = await useFetch<any>('/api/iam/get-sizes');
 const allTypes = await useFetch<any>('/api/iam/get-types');
 const groupOptions = await useFetch<any>('/api/iam/get-organizations');
 
-const checkedScopes = ref<Array<string>>([]);
-const checkedGroups = ref<Array<string>>([]);
-const checkedCountries = ref<Array<string>>([]);
-const checkedSizes = ref<Array<string>>([]);
-const checkedDomains = ref<Array<string>>([]);
-const checkedTypes = ref<Array<string>>([]);
+const checkedScopes = ref<Array<boolean>>([]);
+const checkedGroups = ref<Array<boolean>>([]);
+const checkedCountries = ref<Array<boolean>>([]);
+const checkedSizes = ref<Array<boolean>>([]);
+const checkedDomains = ref<Array<boolean>>([]);
+const checkedTypes = ref<Array<boolean>>([]);
 
 const policiesCount = ref(props.policyData.length);
 const accessPolicyDetails = ref<AccessPolicyDetails>({
@@ -54,46 +54,46 @@ const emit = defineEmits(['changePage', 'update:policy-data']);
 const handleEditPolicyClick = (row: any) => {
     accessPolicyDetails.value = props.policyData[row.id - 1];
 
-    checkedScopes.value[0] = String(false);
-    checkedScopes.value[1] = String(false);
+    checkedScopes.value[0] = false;
+    checkedScopes.value[1] = false;
     if (accessPolicyDetails.value.scopes.includes('READ')) {
-        checkedScopes.value[0] = String(true);
+        checkedScopes.value[0] = true;
     }
     if (accessPolicyDetails.value.scopes.includes('TRADE')) {
-        checkedScopes.value[1] = String(true);
+        checkedScopes.value[1] = true;
     }
 
     checkedGroups.value = accessPolicyDetails.value.groups;
 
     for (let i = 0; i < allDomains.data.value.length; i++) {
         if (accessPolicyDetails.value.domains.includes(allDomains.data.value[i].code)) {
-            checkedDomains.value[i] = String(true);
+            checkedDomains.value[i] = true;
         } else {
-            checkedDomains.value[i] = String(false);
+            checkedDomains.value[i] = false;
         }
     }
 
     for (let i = 0; i < allCountries.data.value.length; i++) {
         if (accessPolicyDetails.value.countries.includes(allCountries.data.value[i].code)) {
-            checkedCountries.value[i] = String(true);
+            checkedCountries.value[i] = true;
         } else {
-            checkedCountries.value[i] = String(false);
+            checkedCountries.value[i] = false;
         }
     }
 
     for (let i = 0; i < allSizes.data.value.length; i++) {
         if (accessPolicyDetails.value.sizes.includes(allSizes.data.value[i].code)) {
-            checkedSizes.value[i] = String(true);
+            checkedSizes.value[i] = true;
         } else {
-            checkedSizes.value[i] = String(false);
+            checkedSizes.value[i] = false;
         }
     }
 
     for (let i = 0; i < allTypes.data.value.length; i++) {
         if (accessPolicyDetails.value.types.includes(allTypes.data.value[i].code)) {
-            checkedTypes.value[i] = String(true);
+            checkedTypes.value[i] = true;
         } else {
-            checkedTypes.value[i] = String(false);
+            checkedTypes.value[i] = false;
         }
     }
 
@@ -213,20 +213,20 @@ const handleNewPolicyClick = () => {
         domains: [],
         types: [],
     };
-    checkedScopes.value[0] = String(false);
-    checkedScopes.value[1] = String(false);
+    checkedScopes.value[0] = false;
+    checkedScopes.value[1] = false;
     checkedGroups.value = [];
     for (let i = 0; i < allDomains.data.value.length; i++) {
-        checkedDomains.value[i] = String(false);
+        checkedDomains.value[i] = false;
     }
     for (let i = 0; i < allCountries.data.value.length; i++) {
-        checkedCountries.value[i] = String(false);
+        checkedCountries.value[i] = false;
     }
     for (let i = 0; i < allSizes.data.value.length; i++) {
-        checkedSizes.value[i] = String(false);
+        checkedSizes.value[i] = false;
     }
     for (let i = 0; i < allTypes.data.value.length; i++) {
-        checkedTypes.value[i] = String(false);
+        checkedTypes.value[i] = false;
     }
 
     switchPolicyForm.value = true;
