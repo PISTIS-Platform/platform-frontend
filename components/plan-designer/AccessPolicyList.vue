@@ -331,11 +331,11 @@ const handlePolicyForm = () => {
 
         //const updatedPolicyData = [...props.policyData, p];
         //props.policyData = updatedPolicyData;
-        emit('update:policy-data', props.policyData);
+        emit('update:policy-data', policyData);
         //console.log(props.policyData);
         switchPolicyForm.value = false;
         //console.log(policiesCount.value);
-        page.value = props.policyData.length / pageCount + 1;
+        page.value = Math.floor(policyData.length / pageCount) + 1;
         page.value = 1;
     }
 };
