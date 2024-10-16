@@ -35,6 +35,7 @@ const checkedSizes = ref<Array<boolean>>([]);
 const checkedDomains = ref<Array<boolean>>([]);
 const checkedTypes = ref<Array<boolean>>([]);
 
+const policyData = clone(props.policyData);
 const policiesCount = ref(props.policyData.length);
 const accessPolicyDetails = ref<AccessPolicyDetails>({
     id: undefined,
@@ -52,7 +53,7 @@ const accessPolicyDetails = ref<AccessPolicyDetails>({
 const emit = defineEmits(['changePage', 'update:policy-data']);
 
 const handleEditPolicyClick = (row: any) => {
-    accessPolicyDetails.value = props.policyData[row.id - 1];
+    accessPolicyDetails.value = policyData[row.id - 1];
 
     checkedScopes.value[0] = false;
     checkedScopes.value[1] = false;
@@ -141,8 +142,6 @@ const actions = (row: any) => {
                 icon: 'i-heroicons-trash-20-solid',
                 click: async () => {
                     if (await confirmation(t('policies.delete.title'), t('policies.delete.text'))) {
-                        console.log('User wanted to delete this resource');
-                        const policyData = clone(props.policyData);
                         policyData.splice(
                             policyData.findIndex((item) => item.id === row.id),
                             1,
@@ -161,13 +160,13 @@ const page = ref<number>(1);
 const pageCount: number = 5;
 
 const rows = computed(() => {
-    return props.policyData.slice((page.value - 1) * pageCount, page.value * pageCount);
+    return policyData.slice((page.value - 1) * pageCount, page.value * pageCount);
 });
 watch(
     rows,
     () => {
-        policiesCount.value = props.policyData.length;
-        emit('update:policy-data', props.policyData);
+        policiesCount.value = policyData.length;
+        emit('update:policy-data', policyData);
     },
     { immediate: true },
 );
@@ -306,7 +305,7 @@ const handlePolicyForm = () => {
     } else {
         let p: Record<string, any> = {};
         if (accessPolicyDetails.value.id === undefined || accessPolicyDetails.value.id === null) {
-            p.id = (props.policyData?.length + 1).toString();
+            p.id = (policyData?.length + 1).toString();
         } else {
             p.id = accessPolicyDetails.value.id;
         }
@@ -321,8 +320,6 @@ const handlePolicyForm = () => {
         p.domains = domains;
         p.types = types;
 
-        const policyData = clone(props.policyData);
-
         if (accessPolicyDetails.value.id === undefined || accessPolicyDetails.value.id === null) {
             policyData.push(p as unknown as AccessPolicyDetails);
         } else {
@@ -332,10 +329,10 @@ const handlePolicyForm = () => {
         //const updatedPolicyData = [...props.policyData, p];
         //props.policyData = updatedPolicyData;
         emit('update:policy-data', policyData);
-        //console.log(props.policyData);
+        //console.log(JSON.stringify(policyData));
         switchPolicyForm.value = false;
         //console.log(policiesCount.value);
-        page.value = Math.floor(policyData.length / pageCount) + 1;
+        page.value = Math.floor(policyData.length / pageCount) + 2;
         page.value = 1;
     }
 };
@@ -379,8 +376,8 @@ async function onSubmit(): Promise<void> {
                 </UTable>
 
                 <!-- Display the pagination only if the total number of transactions is larger than the page count -->
-                <div v-if="props.policyData.length > pageCount" class="flex justify-end mt-2">
-                    <UPagination v-model="page" :page-count="pageCount" :total="props.policyData.length" />
+                <div v-if="policyData.length > pageCount" class="flex justify-end mt-2">
+                    <UPagination v-model="page" :page-count="pageCount" :total="policyData.length" />
                 </div>
 
                 <UButton @click="handleNewPolicyClick()">{{ $t('policies.actions.add') }}</UButton>
