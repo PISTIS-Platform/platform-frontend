@@ -18,8 +18,10 @@ const handleSubmit = async () => {
     }
 
     try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const response: any = await $fetch('/api/insights-generator/insights', {
+        // Keeping the selected output format the moment of the query to use it below
+        const contentType = outputFormat.value;
+
+        const response = await $fetch.raw('/api/insights-generator/insights', {
             method: 'POST',
             body: formData,
             query: {
@@ -27,21 +29,17 @@ const handleSubmit = async () => {
             },
         });
 
+        // console.log(response);
+
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
 
-        const contentType = response.headers.get('Content-Type');
-        if (contentType?.includes('application/json')) {
-            //const data = await response.json();
-            //responseContent.value = JSON.stringify(data, null, 2); // Format JSON response
-            const data = await response.text();
-            responseContent.value = data;
-            //responseContent.value = data;
-        } else if (contentType?.includes('text/html')) {
-            //const data = await response.text();
-            //responseContent.value = data;
-            const blob = await response.blob();
+        if (contentType === 'application/json') {
+            const data = response._data;
+            responseContent.value = data as string;
+        } else if (contentType === 'text/html') {
+            const blob = new Blob([response._data as string]);
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
