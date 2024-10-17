@@ -1,9 +1,11 @@
 import { getToken } from '#auth';
 
+const { assetsUrl } = useRuntimeConfig();
+
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
 
-    return $fetch(`https://develop.pistis-market.eu/srv/search/search?filter=dataset`, {
+    return $fetch(assetsUrl, {
         method: 'GET',
         headers: {
             Authorization: `Bearer ${token?.access_token}`,

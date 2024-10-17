@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { Dataset, Preview, TableRow } from '~/interfaces/dataset-preview';
-import { ConfigEmit, ObfuscationBody, SortedMasks } from '~/interfaces/mask-settings';
+import { type Dataset, type Preview, type TableRow } from '~/interfaces/dataset-preview';
+import { type ConfigEmit, type ObfuscationBody, type SortedMasks } from '~/interfaces/mask-settings';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
 import Title from '../../components/anonymizer/Title.vue';

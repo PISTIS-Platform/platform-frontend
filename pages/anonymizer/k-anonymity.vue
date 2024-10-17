@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { Preview, Report, Solution, TableRow } from '~/interfaces/dataset-preview';
+import { type Preview, type Report, type Solution, type TableRow } from '~/interfaces/dataset-preview';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
 import Title from '../../components/anonymizer/Title.vue';
@@ -231,8 +231,11 @@ onMounted(async () => {
 
             <h2 class="text-2xl">Sensitivity Settings</h2>
             <div class="w-full flex overflow-x-scroll gap-2 pb-5">
-                <div v-for="(columnReport, column) in rawPreview.columnSensitivity" :key="column"
-                    class="flex flex-col gap-1 min-w-[17rem] border p-2 rounded-md shadow-md bg-pistis-50">
+                <div
+                    v-for="(columnReport, column) in rawPreview.columnSensitivity"
+                    :key="column"
+                    class="flex flex-col gap-1 min-w-[17rem] border p-2 rounded-md shadow-md bg-pistis-50"
+                >
                     <h3 class="text-md font-bold">{{ column }}</h3>
                     <h4 class="text-sm font-bold">Predicted Sensitivity:</h4>
                     <p>{{ rawPreview.report[column].sensitivity }}</p>
@@ -242,7 +245,8 @@ onMounted(async () => {
                     -->
                 </div>
             </div>
-            <UButton class="w-36 text-center" :loading="loadingSolutions" @click="generateSolutions()">See Solutions
+            <UButton class="w-36 text-center" :loading="loadingSolutions" @click="generateSolutions()"
+                >See Solutions
             </UButton>
 
             <div :hidden="solutions.length === 0" class="mt-3">

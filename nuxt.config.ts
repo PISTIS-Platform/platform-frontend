@@ -1,21 +1,29 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-    ssr: false, // Disable server-side rendering
-    telemetry: false, // Disable telemetry by Nuxt team
+    // Disable server-side rendering
+    ssr: false,
+
+    // Disable telemetry by Nuxt team
+    telemetry: false,
+
     components: [
         {
             path: '~/components',
             pathPrefix: false,
         },
     ],
+
     alias: {
         cookie: 'cookie',
     },
+
     plugins: ['~/plugins/vue3-tags.js', '~/plugins/vue3-chartjs'],
     devtools: { enabled: true },
+
     ui: {
         icons: ['heroicons', 'fa6-regular', 'formkit'],
     },
+
     typescript: {
         strict: true,
         typeCheck: false, // Enabling this makes development slower, but performs proper type checking
@@ -23,6 +31,9 @@ export default defineNuxtConfig({
 
     nitro: {
         preset: 'node-server',
+        experimental: {
+            websocket: true,
+        },
     },
 
     app: {
@@ -33,7 +44,11 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         public: {
+            iamUrl: process.env.NUXT_PUBLIC_IAM_URL,
             orgId: process.env.NUXT_PUBLIC_ORG_ID, //NUXT_PUBLIC_ORG_ID
+            orgLogo: process.env.NUXT_PUBLIC_ORG_LOGO,
+            catalogUrl: process.env.NUXT_PUBLIC_CATALOG_URL,
+            marketplaceUrl: process.env.NUXT_PUBLIC_MARKETPLACE_URL,
         },
         authSecret: process.env.NUXT_NEXTAUTH_SECRET,
         keycloak: {
@@ -46,9 +61,16 @@ export default defineNuxtConfig({
         anonymizerApiUrl: process.env.ANONYMIZER_URL,
         intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
         sctcUrl: process.env.NUXT_SCTC_URL,
+        insightsGenApiUrl: process.env.NUXT_INSIGHTS_GEN_API_URL,
+        wsUrl: process.env.NUXT_WS_URL,
+        notificationsUrl: process.env.NUXT_NOTIFICATIONS_URL,
+        assetsUrl: process.env.NUXT_ASSETS_URL,
+        walletUrl: process.env.NUXT_WALLET_URL,
+        walletAlias: process.env.NUXT_WALLET_ALIAS,
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
+
     // Modules Configuration
     i18n: {
         strategy: 'no_prefix',
@@ -69,7 +91,10 @@ export default defineNuxtConfig({
             isEnabled: true,
         },
     },
+
     colorMode: {
         preference: 'light',
     },
+
+    compatibilityDate: '2024-08-28',
 });

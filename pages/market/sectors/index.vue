@@ -23,7 +23,7 @@ import type {
     SectorSalesByTimeframe,
     SectorsComparisonData,
 } from '~/interfaces/market-insights';
-import Selection from '~/interfaces/selection';
+import type { Selection } from '~/interfaces/selection';
 
 ChartJS.register(
     Title,

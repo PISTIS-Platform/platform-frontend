@@ -1,4 +1,4 @@
-import { Dataset, Report, TableRow } from '~/interfaces/dataset-preview';
+import { type Dataset, type Report, type TableRow } from '~/interfaces/dataset-preview';
 
 //Format preview rows to be compatible with Nuxt UI row attribute
 export function formatPreview(dataset: Dataset): TableRow[] {

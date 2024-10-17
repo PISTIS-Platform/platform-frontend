@@ -9,8 +9,13 @@ export const useAlertMessage = () => {
         toast.add({ title: message, color: 'red' });
     };
 
+    const showInfoMessage = (message: string) => {
+        toast.add({ title: message, color: 'blue' });
+    };
+
     return {
         showSuccessMessage,
         showErrorMessage,
+        showInfoMessage,
     };
 };
