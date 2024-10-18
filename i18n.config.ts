@@ -22,6 +22,7 @@ export default defineI18nConfig(() => ({
             search: 'Search...',
             addNew: 'Add new',
             cancel: 'Cancel',
+            exclusive: 'Exclusive',
             yes: 'Yes',
             no: 'No',
             back: 'Back',
@@ -32,6 +33,7 @@ export default defineI18nConfig(() => ({
             price: 'Price',
             percentage: 'Percentage',
             license: 'License',
+            licenseDetails: 'License Details',
             description: 'Description',
             termsConditions: 'Extra Terms',
             keywords: 'Keywords',
@@ -47,6 +49,7 @@ export default defineI18nConfig(() => ({
             frequency: 'Frequency',
             or: 'or',
             sortBy: 'Sort By',
+            days: 'days',
             sectors: {
                 aviation: 'Aviation',
                 energy: 'Energy',
@@ -75,8 +78,19 @@ export default defineI18nConfig(() => ({
                 dashboard: 'Dashboard',
                 analytics: 'Analytics',
             },
+            notifications: {
+                notifications: 'Notifications',
+                title: 'Notifications',
+                markRead: 'Mark as read',
+                hide: 'Hide',
+                noNotifications: 'No notifications available.',
+            },
             data: {
-                data: 'My Data',
+                data: 'Data Ingestion',
+                jobConfigurator: 'Job Configurator',
+                dataTransformation: 'Data Transformation',
+                insightGenerator: 'Insights Generator',
+                anonymizer: 'Anonymizer',
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',
@@ -156,8 +170,22 @@ export default defineI18nConfig(() => ({
                     monthly: 'Monthly',
                     annual: 'Annual',
                     pleaseCheck: 'Please check the form and fill in all required (*) fields',
+                    availability: 'Availability',
+                    regionCountry: 'Region / Country',
+                    worldwide: 'Worldwide',
+                    transferable: 'Transferable',
+                    nonTransferable: 'Non-transferable',
+                    subLicensable: 'Sub-licensable',
+                    termDate: 'Term date (end of contract)',
+                    perpetual: 'Perpetual',
+                    licenseIsPerpetual: 'License is perpetual',
+                    pleaseSelectDate: 'Please select a date',
+                    additionalRenewalTerms: 'Additional Terms for Contract Renewal',
+                    noticeForNonRenewal: 'Notice for non-renewal of contract (days)',
+                    maximumDaysContractBreach: 'Maximum days for curing contract breach',
+                    personalDataTerms: 'Terms and Conditions for the Transfer and Processing of Personal Data',
+                    hasPersonalData: 'This dataset contains personal data',
                 },
-                log: 'Data Log',
                 wallet: {
                     title: 'Wallet',
                     balance: 'Balance',
@@ -227,7 +255,7 @@ export default defineI18nConfig(() => ({
                         assetName: 'Asset Name',
                         price: 'Price',
                         totalSales: 'Total Sales',
-                        marketCap: 'Market Cap (STC)',
+                        marketCap: 'Market Cap (PST)',
                         change: 'Change (1M)',
                     },
                     transactionsTable: {
@@ -309,18 +337,85 @@ export default defineI18nConfig(() => ({
                     assetsComparison: 'Compare individual assets',
                 },
             },
-            transactions: {
-                transactions: 'My Transactions',
+            catalog: {
+                catalog: 'My Data',
+            },
+            marketplace: {
+                marketplace: 'Marketplace',
                 details: 'Details',
                 overview: 'Overview',
                 auditor: 'Auditor',
                 tableFields: {
                     id: 'ID',
-                    buyer: 'Byuer',
+                    buyer: 'Buyer',
                     date: 'Transaction Date',
                     seller: 'Seller',
                     transactionId: 'Transaction ID',
                     price: 'Price',
+                },
+            },
+            policies: {
+                title: 'Access Policies',
+                info: 'Manage access policies for the selected asset',
+                tableFields: {
+                    id: 'ID',
+                    title: 'Title',
+                    desc: 'Description',
+                },
+                publicationDefaults: {
+                    id: '1',
+                    title: 'Default policy for asset publication',
+                    description: 'Everyone can Read/Trade this asset',
+                },
+                actions: {
+                    edit: 'Edit',
+                    delete: 'Delete',
+                    save: 'Save',
+                    add: 'Add',
+                },
+                delete: {
+                    title: 'Delete policy?',
+                    text: 'Are you sure you want to delete this policy?',
+                },
+                policyUI: {
+                    title: 'Asset details',
+                    assetId: 'ID',
+                    assetTitle: 'T',
+                    defText: 'Policy definition details',
+                    defName: 'Name',
+                    defDesc: 'Description',
+                    defScope: 'Scopes',
+                    defScopeHelp: 'Select scope(s) to be excluded in this policy',
+                    defOrg: 'Organizations',
+                    defOrgHelp: 'Select organization(s) to exclude for the selected scope(s)',
+                    defOrgPrompt: 'Search organizations',
+                    defAttr: 'Organization attributes',
+                    defAttrHelp: 'Select organizations by attributes to exclude for the selected scope(s)',
+                },
+                errors: {
+                    title: 'Title field is required and must be more than 5-characters!',
+                    description: 'Description field is required and must be more than 15-characters!',
+                    scopes: 'You have to select at least 1-scope!',
+                    attributes:
+                        'You have to select at least 1-Organization or organization attribute (Domain, Size, Country, Type)!',
+                },
+                tabs: {
+                    domain: {
+                        label: 'Domain',
+                        content: 'Domains reflecting standard sectors of the economy which generate data',
+                    },
+                    country: {
+                        label: 'Country',
+                        content: 'Countries of the participating organizations',
+                    },
+                    size: {
+                        label: 'Size',
+                        content: 'Size characterization of the participating organizations',
+                    },
+                    type: {
+                        label: 'Type',
+                        content: 'Type characterization of the participating organizations',
+                    },
                 },
             },
             user: {
@@ -328,12 +423,6 @@ export default defineI18nConfig(() => ({
                 settings: 'Settings',
                 signOut: 'Sign out',
                 signIn: 'Sign in',
-            },
-            notifications: {
-                title: 'Notifications',
-                read: 'Mark as read',
-                unread: 'Mark as unread',
-                delete: 'Remove notification',
             },
             admin: {
                 services: {

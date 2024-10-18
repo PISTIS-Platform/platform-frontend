@@ -18,7 +18,7 @@ const props = defineProps({
                     <SimpleLineChart :data="asset.data" :change-value="asset.change" />
                 </div>
                 <div class="flex justify-between text-xl font-bold">
-                    <span>{{ asset.price }} STC</span>
+                    <span>{{ asset.price }} PST</span>
                     <span>{{ asset.salesNum || 0 }} <span class="text-gray-400 text-sm">Sales</span></span>
                 </div>
             </div>

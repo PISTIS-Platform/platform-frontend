@@ -34,7 +34,7 @@ const sectorCardItems = computed(() => {
         return {
             ...item,
             icon: iconsMapping[item.label],
-            value: item.label === t('market.revenue') ? `${item.value} STC` : item.value,
+            value: item.label === t('market.revenue') ? `${item.value} PST` : item.value,
         };
     });
 });

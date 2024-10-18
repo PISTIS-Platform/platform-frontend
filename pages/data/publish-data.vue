@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
-
-import type { AssetOfferingDetails } from '../../interfaces/plan-designer';
+import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
 
@@ -15,7 +15,9 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
-const { data: allDatasets, pending: datasetsPending } = useAsyncData(() => $fetch('/api/datasets/get-all'));
+const { data: allDatasets, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
+    $fetch('/api/datasets/get-all'),
+);
 
 const datasetsTransformed = computed(() => {
     if (!allDatasets.value?.result?.results?.length) return [];
@@ -30,6 +32,7 @@ const datasetsTransformed = computed(() => {
 //data for selection whole dataset or query
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
+const newAssetId = uuidV4();
 
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
@@ -73,14 +76,14 @@ const isAssetOfferingDetailsValid = computed(
 
 // data for monetization selections
 
-const { isFree, monetizationSchema } = useMonetizationSchema();
+const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
     price: undefined,
-    license: '',
+    license: 'PISTIS License',
     extraTerms: '',
     contractTerms: '',
     limitNumber: undefined,
@@ -89,11 +92,42 @@ const monetizationDetails = ref<Partial<monetizationType>>({
 
 const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
+// access policies
+const policyData: Array<AccessPolicyDetails> = [];
+const defaultPolicy: AccessPolicyDetails = {
+    countries: [],
+    domains: [],
+    groups: [],
+    scopes: [],
+    sizes: [],
+    types: [],
+    id: t('policies.publicationDefaults.id'),
+    title: t('policies.publicationDefaults.title'),
+    description: t('policies.publicationDefaults.description'),
+    default: true,
+};
+policyData.push(defaultPolicy);
+
 // validation data
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
 const submitAll = () => {
     let objToSend;
+    objToSend = {
+        originalAssetId: selected.value?.id,
+        organizationId: runtimeConfig.public?.orgId,
+        ...assetOfferingDetails.value,
+        ...monetizationDetails.value,
+        assetId: newAssetId,
+        accessPolicies: {
+            assetId: newAssetId,
+            assetTitle: assetOfferingDetails.value.title,
+            assetDescription: assetOfferingDetails.value.description,
+            policyData: policyData,
+        },
+    };
+    console.log(objToSend);
+
     //TODO: Figure out final form for each monetization method
 
     //TODO: Send final object / JSON to API (blockchain)
@@ -131,7 +165,7 @@ const changeStep = async (stepNum: number) => {
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
             body: {
-                assetId: 'fb6ccd7a-b3b4-4269-b101-d65958de24f8', //TODO:: replace with actual asset id once we have more info
+                assetId: newAssetId, //TODO:: replace with actual asset id once we have more info
                 organizationId: runtimeConfig.public?.orgId,
                 terms: monetizationDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
@@ -214,9 +248,9 @@ const changeStep = async (stepNum: number) => {
             </li>
         </ol>
     </nav>
-    <UProgress v-if="datasetsPending" animation="carousel" />
+    <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 0 && !datasetsPending" class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 0 && datasetsStatus !== 'pending'" class="w-full h-full text-gray-700 space-y-8">
         <UCard v-for="dataset in datasetsTransformed" :key="dataset.id">
             <template #header>
                 <div class="flex items-center w-full justify-between">
@@ -247,13 +281,26 @@ const changeStep = async (stepNum: number) => {
 
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
+            :asset-offering-details="assetOfferingDetails"
             :is-all-valid="isAllValid"
             @change-page="(value: number) => (selectedPage = value)"
             @update:is-free="(value: boolean) => (isFree = value)"
+            @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
+            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
+            @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
 
-    <div v-show="selectedPage === 2">Access policies editor</div>
+    <template v-if="selected">
+        <div v-show="selectedPage === 2" class="w-full h-full text-gray-700 space-y-8">
+            <AccessPolicyList
+                v-model:policy-data="policyData"
+                :selected="selected"
+                @change-page="(value: number) => (selectedPage = value)"
+                @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
+            />
+        </div>
+    </template>
 
     <div v-if="isAllValid">
         <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">
@@ -309,7 +356,7 @@ const changeStep = async (stepNum: number) => {
                             }}</span>
                             <span>{{
                                 monetizationDetails.price
-                                    ? monetizationDetails.price + ' STC'
+                                    ? monetizationDetails.price + ' PST'
                                     : $t('data.designer.free')
                             }}</span>
                         </div>
@@ -354,7 +401,7 @@ const changeStep = async (stepNum: number) => {
                             <span>{{
                                 monetizationDetails.price
                                     ? monetizationDetails.price +
-                                      ' STC ' +
+                                      ' PST ' +
                                       (monetizationDetails.subscriptionFrequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))
