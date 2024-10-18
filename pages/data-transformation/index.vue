@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 const jsonContent = ref('');
 const fileUpload = ref<File | null>(null);
 const responseContent = ref('');
@@ -22,7 +20,9 @@ const handleSubmit = async () => {
     }
 
     try {
-        const response = await fetch('https://develop.pistis-market.eu/srv/data-transformation/transform/', {
+        const contentType = outputFormat.value;
+
+        const response = await $fetch.raw('/api/insights-generator/transformation', {
             method: 'POST',
             body: formData,
             headers: {
@@ -34,18 +34,18 @@ const handleSubmit = async () => {
             throw new Error('Network response was not ok');
         }
 
-        const contentType = response.headers.get('Content-Type');
-        if (contentType?.includes('application/json')) {
-            const data = await response.json();
-            responseContent.value = JSON.stringify(data, null, 2); // Format JSON response
+        // constcontentType = response.headers.get('Content-Type');
+        if (contentType === 'application/json') {
+            const data = response._data;
+            responseContent.value = data as string;
         } else if (contentType?.includes('text/plain')) {
-            const data = await response.text();
-            responseContent.value = data;
+            const data = response._data;
+            responseContent.value = data as string;
         } else if (contentType?.includes('text/xml')) {
-            const data = await response.text();
-            responseContent.value = data;
+            const data = response._data;
+            responseContent.value = data as string;
         } else if (contentType?.includes('application/vnd.ms-excel')) {
-            const blob = await response.blob();
+            const blob = new Blob([response._data as string]);
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -59,7 +59,7 @@ const handleSubmit = async () => {
             responseContent.value = 'Unsupported response type';
         }
 
-        console.log('Success:', responseContent.value);
+        //console.log('Success:', responseContent.value);
     } catch (error) {
         responseContent.value = `Error: ${error.message}`;
         console.error('Error:', error);

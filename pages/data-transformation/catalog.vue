@@ -5,7 +5,7 @@ const transformations = ref([]);
 
 const getDataTransformationCatalog = async () => {
     try {
-        const response = await fetch('https://develop.pistis-market.eu/srv/data-transformation/transform/', {
+        const response = await $fetch.raw('/api/insights-generator/transformation', {
             method: 'GET',
         });
 
@@ -13,7 +13,7 @@ const getDataTransformationCatalog = async () => {
             throw new Error('Network response was not ok');
         }
 
-        const data = await response.json();
+        const data = response._data;
         transformations.value = data;
     } catch (error) {
         console.error('Error:', error);
