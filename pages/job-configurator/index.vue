@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 const datasetName = ref('');
 const datasetDescription = ref('');
 const jsonContent = ref('');
@@ -24,7 +22,7 @@ const runJobConfigurator = async () => {
     }
 
     try {
-        const response = await fetch('https://develop.pistis-market.eu/srv/job-configurator/workflow/run', {
+        const response = await $fetch.raw('/api/job-configurator/jobconfig', {
             method: 'POST',
             body: formData,
         });
@@ -34,7 +32,7 @@ const runJobConfigurator = async () => {
         }
 
         const data = await response.json();
-        console.log('Success:', data);
+        //console.log('Success:', data);
         responseContent.value = JSON.stringify(data, null, 2);
     } catch (error) {
         console.error('Error:', error);

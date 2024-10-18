@@ -1,27 +1,24 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 const workflowStatus = ref({});
 const runId = ref('');
-
 const getWorkflowRun = async () => {
     workflowStatus.value = {};
     const formData = new FormData();
     formData.append('runId', runId.value); // Add Run ID to the form data
-    console.log('runId:', runId.value);
+    //console.log('runId:', runId.value);
     try {
-        const response = await fetch('https://develop.pistis-market.eu/srv/job-configurator/workflow/fetchWorkflowRun', {
-                method: 'POST',
-                body: formData,
+        const response = await $fetch.raw('/api/job-configurator/fetch', {
+            method: 'POST',
+            body: formData,
         });
-        console.log('response:', response);
+        //console.log('response:', response);
         if (!response.ok) {
             const data = await response.json();
             workflowStatus.value = data;
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        console.log('Data:', data);
+        //console.log('Data:', data);
         workflowStatus.value = data;
     } catch (error) {
         console.error('Error:', error);
@@ -55,17 +52,26 @@ const getWorkflowRun = async () => {
             <div v-for="(value, key) in workflowStatus" :key="key" class="mt-2">
                 <div class="flex items-center">
                     <span class="font-medium text-gray-700">{{ key }}:</span>
-                    <span v-if="typeof value !== 'object' && value !== null" class="ml-2 text-gray-500" :class="{
-                                'text-red-500': key === 'status' && value === 'error',
-                                'text-green-500': key === 'status' && value === 'finished',
-                                'text-orange-500': key === 'status' && value === 'executing'
-                            }">{{ value }}</span>
+                    <span
+                        v-if="typeof value !== 'object' && value !== null"
+                        class="ml-2 text-gray-500"
+                        :class="{
+                            'text-red-500': key === 'status' && value === 'error',
+                            'text-green-500': key === 'status' && value === 'finished',
+                            'text-orange-500': key === 'status' && value === 'executing',
+                        }"
+                        >{{ value }}</span
+                    >
                 </div>
                 <div v-if="typeof value === 'object' && value !== null" class="ml-4">
                     <div v-for="(subValue, subKey) in value" :key="subKey" class="flex items-center mt-1">
                         <span class="font-medium text-gray-700">{{ subKey }}:</span>
                         <span v-if="key === 'catalogue_dataset_endpoint' && subKey === 'id'" class="ml-2 text-gray-500">
-                            <a :href="`https://develop.pistis-market.eu/srv/catalog/datasets/${subValue}`" class="text-blue-500 underline">{{ subValue }}</a>
+                            <a
+                                :href="`https://develop.pistis-market.eu/srv/catalog/datasets/${subValue}`"
+                                class="text-blue-500 underline"
+                                >{{ subValue }}</a
+                            >
                         </span>
                         <span v-else class="ml-2 text-gray-500">{{ subValue }}</span>
                     </div>
