@@ -5,7 +5,7 @@ const transformations = ref([]);
 
 const getDataTransformationCatalog = async () => {
     try {
-        const response = await $fetch.raw('/api/insights-generator/transformation', {
+        const response = await $fetch.raw('/api/data-transformation/transformation', {
             method: 'GET',
         });
 
