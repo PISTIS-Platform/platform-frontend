@@ -22,7 +22,7 @@ const handleSubmit = async () => {
     try {
         const contentType = outputFormat.value;
 
-        const response = await $fetch.raw('/api/insights-generator/transformation', {
+        const response = await $fetch.raw('/api/data-transformation/transformation', {
             method: 'POST',
             body: formData,
             headers: {
