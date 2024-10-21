@@ -9,6 +9,7 @@ import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/pla
 const runtimeConfig = useRuntimeConfig();
 
 const { data: session } = useAuth();
+const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
 const { t } = useI18n();
 
@@ -115,9 +116,8 @@ policyData.push(defaultPolicy);
 // validation data
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
-const submitAll = () => {
-    let objToSend;
-    objToSend = {
+const submitAll = async () => {
+    let body = {
         originalAssetId: selected.value?.id,
         organizationId: runtimeConfig.public?.orgId,
         ...assetOfferingDetails.value,
@@ -131,12 +131,19 @@ const submitAll = () => {
         },
         sellerId: session.value?.user?.sub,
     };
-    console.log(objToSend);
 
-    //TODO: Figure out final form for each monetization method
+    try {
+        await $fetch(`/api/datasets/publish-data`, {
+            method: 'post',
+            body,
+        });
 
-    //TODO: Send final object / JSON to API (blockchain)
-    return objToSend;
+        showSuccessMessage(t('data.designer.assetSubmitted'));
+    } catch (error) {
+        showErrorMessage(t('data.designer.errorInSubmitAsset'));
+    }
+
+    return body;
 };
 
 const limitFrequencySelections = computed(() => [
@@ -170,7 +177,7 @@ const changeStep = async (stepNum: number) => {
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
             body: {
-                assetId: newAssetId, //TODO:: replace with actual asset id once we have more info
+                assetId: newAssetId,
                 organizationId: runtimeConfig.public?.orgId,
                 terms: monetizationDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,

@@ -67,6 +67,7 @@ export default defineNuxtConfig({
         assetsUrl: process.env.NUXT_ASSETS_URL,
         walletUrl: process.env.NUXT_WALLET_URL,
         walletAlias: process.env.NUXT_WALLET_ALIAS,
+        adbUrl: process.env.NUXT_ADB_URL,
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
