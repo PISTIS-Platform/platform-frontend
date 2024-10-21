@@ -58,7 +58,7 @@ const getWorkflowRun = async () => {
                         :class="{
                             'text-red-500': key === 'status' && value === 'error',
                             'text-green-500': key === 'status' && value === 'finished',
-                            'text-orange-500': key === 'status' && value === 'executing',
+                            'text-orange-500': key === 'status' && value === 'executing'
                         }"
                         >{{ value }}</span
                     >

@@ -31,8 +31,10 @@ const runJobConfigurator = async () => {
             throw new Error('Network response was not ok');
         }
 
-        const data = await response.json();
+        //const data = await response.json();
         //console.log('Success:', data);
+        //responseContent.value = JSON.stringify(data, null, 2);
+        const data = response._data;
         responseContent.value = JSON.stringify(data, null, 2);
     } catch (error) {
         console.error('Error:', error);
