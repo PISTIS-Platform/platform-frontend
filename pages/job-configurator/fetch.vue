@@ -17,9 +17,12 @@ const getWorkflowRun = async () => {
             workflowStatus.value = data;
             throw new Error('Network response was not ok');
         }
-        const data = await response.json();
+        //const data = await response.json();
+        const data = response._data;
         //console.log('Data:', data);
-        workflowStatus.value = data;
+        //workflowStatus.value = data;
+        workflowStatus = JSON.stringify(data);
+        workflowStatus = JSON.parse(workflowStatus);
     } catch (error) {
         console.error('Error:', error);
     }
@@ -30,18 +33,13 @@ const getWorkflowRun = async () => {
     <div class="p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md space-y-6">
         <div class="p-4 bg-gray-100 rounded-lg shadow">
             <label for="runId" class="block text-sm font-medium text-gray-700">Run ID:</label>
-            <input
-                id="runId"
-                v-model="runId"
-                type="text"
-                class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-            />
+            <input id="runId" v-model="runId" type="text"
+                class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
         </div>
         <div class="p-4 bg-gray-100 rounded-lg shadow text-right">
             <button
                 class="px-4 py-2 bg-green-600 text-white rounded-md shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                @click="getWorkflowRun"
-            >
+                @click="getWorkflowRun">
                 Get workflow run status
             </button>
         </div>
@@ -52,26 +50,18 @@ const getWorkflowRun = async () => {
             <div v-for="(value, key) in workflowStatus" :key="key" class="mt-2">
                 <div class="flex items-center">
                     <span class="font-medium text-gray-700">{{ key }}:</span>
-                    <span
-                        v-if="typeof value !== 'object' && value !== null"
-                        class="ml-2 text-gray-500"
-                        :class="{
-                            'text-red-500': key === 'status' && value === 'error',
-                            'text-green-500': key === 'status' && value === 'finished',
-                            'text-orange-500': key === 'status' && value === 'executing'
-                        }"
-                        >{{ value }}</span
-                    >
+                    <span v-if="typeof value !== 'object' && value !== null" class="ml-2 text-gray-500" :class="{
+                        'text-red-500': key === 'status' && value === 'error',
+                        'text-green-500': key === 'status' && value === 'finished',
+                        'text-orange-500': key === 'status' && value === 'executing'
+                    }">{{ value }}</span>
                 </div>
                 <div v-if="typeof value === 'object' && value !== null" class="ml-4">
                     <div v-for="(subValue, subKey) in value" :key="subKey" class="flex items-center mt-1">
                         <span class="font-medium text-gray-700">{{ subKey }}:</span>
                         <span v-if="key === 'catalogue_dataset_endpoint' && subKey === 'id'" class="ml-2 text-gray-500">
-                            <a
-                                :href="`https://develop.pistis-market.eu/srv/catalog/datasets/${subValue}`"
-                                class="text-blue-500 underline"
-                                >{{ subValue }}</a
-                            >
+                            <a :href="`https: develop.pistis-market.eu/srv/catalog/datasets/${subValue}`"
+                                class="text-blue-500 underline">{{ subValue }}</a>
                         </span>
                         <span v-else class="ml-2 text-gray-500">{{ subValue }}</span>
                     </div>
