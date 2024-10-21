@@ -25,7 +25,7 @@ const handleSubmit = async () => {
         const response = await $fetch.raw('/api/data-transformation/transformation', {
             method: 'POST',
             body: formData,
-            headers: {
+            query: {
                 Accept: outputFormat.value,
             },
         });
@@ -37,7 +37,7 @@ const handleSubmit = async () => {
         // constcontentType = response.headers.get('Content-Type');
         if (contentType === 'application/json') {
             const data = response._data;
-            responseContent.value = data as string;
+            responseContent.value = JSON.stringify(data, null, 2);
         } else if (contentType?.includes('text/plain')) {
             const data = response._data;
             responseContent.value = data as string;
