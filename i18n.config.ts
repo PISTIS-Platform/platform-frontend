@@ -256,7 +256,7 @@ export default defineI18nConfig(() => ({
                         assetName: 'Asset Name',
                         price: 'Price',
                         totalSales: 'Total Sales',
-                        marketCap: 'Market Cap (PST)',
+                        marketCap: 'Market Cap (EUR)',
                         change: 'Change (1M)',
                     },
                     transactionsTable: {

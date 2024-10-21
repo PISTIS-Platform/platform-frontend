@@ -361,7 +361,7 @@ const changeStep = async (stepNum: number) => {
                             }}</span>
                             <span>{{
                                 monetizationDetails.price
-                                    ? monetizationDetails.price + ' PST'
+                                    ? monetizationDetails.price + ' EUR'
                                     : $t('data.designer.free')
                             }}</span>
                         </div>
@@ -406,7 +406,7 @@ const changeStep = async (stepNum: number) => {
                             <span>{{
                                 monetizationDetails.price
                                     ? monetizationDetails.price +
-                                      ' PST ' +
+                                      ' EUR ' +
                                       (monetizationDetails.subscriptionFrequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))
