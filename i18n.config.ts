@@ -89,6 +89,7 @@ export default defineI18nConfig(() => ({
                 data: 'Data Ingestion',
                 jobConfigurator: 'Job Configurator',
                 dataTransformation: 'Data Transformation',
+                transformationCatalogue: 'Transformations Catalogue',
                 insightGenerator: 'Insights Generator',
                 anonymizer: 'Anonymizer',
                 designer: {
