@@ -1,7 +1,8 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-const transformations = ref([]);
+const transformations = ref<any>([]);
 
 const getDataTransformationCatalog = async () => {
     try {
@@ -13,7 +14,7 @@ const getDataTransformationCatalog = async () => {
             throw new Error('Network response was not ok');
         }
 
-        const data = response._data;
+        const data = response._data as any;
         transformations.value = data;
     } catch (error) {
         console.error('Error:', error);

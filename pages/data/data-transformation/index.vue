@@ -60,7 +60,8 @@ const handleSubmit = async () => {
         }
 
         //console.log('Success:', responseContent.value);
-    } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
         responseContent.value = `Error: ${error.message}`;
         console.error('Error:', error);
     }
@@ -68,11 +69,11 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-    <div class="container mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
-        <div class="form-container">
+    <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md space-y-6">
+        <div class="form-container bg-neutral-100 border rounded-md border-neutral-200">
             <form @submit.prevent="handleSubmit">
-                <div class="p-4 bg-gray-100 rounded-lg shadow">
-                    <label for="jsonContent" class="block text-sm font-medium text-gray-700"
+                <div class="p-4">
+                    <label for="jsonContent" class="block text-sm font-medium text-neutral-700"
                         >Transformation Definition:</label
                     >
                     <textarea
@@ -80,26 +81,26 @@ const handleSubmit = async () => {
                         v-model="jsonContent"
                         rows="10"
                         cols="50"
-                        class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        class="mt-1 block w-full sm:text-sm border-neutral-200 rounded-md"
                     ></textarea>
                 </div>
 
-                <div class="p-4 bg-gray-100 rounded-lg shadow">
-                    <label for="fileUpload" class="block text-sm font-medium text-gray-700">Upload Dataset:</label>
+                <div class="p-4 bg-neutral-100">
+                    <label for="fileUpload" class="block text-sm font-medium text-neutral-700">Upload Dataset:</label>
                     <input
                         id="fileUpload"
                         type="file"
-                        class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        class="mt-1 block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
                         @change="handleFileChange"
                     />
                 </div>
 
-                <div class="p-4 bg-gray-100 rounded-lg shadow">
-                    <label for="outputFormat" class="block text-sm font-medium text-gray-700">Output format:</label>
+                <div class="p-4 bg-neutral-100">
+                    <label for="outputFormat" class="block text-sm font-medium text-neutral-700">Output format:</label>
                     <select
                         id="outputFormat"
                         v-model="outputFormat"
-                        class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        class="mt-1 block w-full shadow-sm sm:text-sm border-neutral-300 rounded-md"
                     >
                         <option value="text/plain">CSV</option>
                         <option value="application/vnd.ms-excel">Excel</option>
@@ -108,10 +109,10 @@ const handleSubmit = async () => {
                     </select>
                 </div>
 
-                <div class="p-4 bg-gray-100 rounded-lg shadow text-right">
+                <div class="p-4 text-right">
                     <button
                         type="submit"
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        class="px-4 py-1.5 bg-primary-600 text-white rounded-md shadow hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                     >
                         Submit
                     </button>
@@ -119,18 +120,16 @@ const handleSubmit = async () => {
             </form>
         </div>
 
-        <div class="response-container">
-            <div class="p-4 bg-gray-100 rounded-lg shadow">
-                <label for="responseContent" class="block text-sm font-medium text-gray-700">Response:</label>
-                <textarea
-                    id="responseContent"
-                    v-model="responseContent"
-                    rows="10"
-                    cols="50"
-                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                    readonly
-                ></textarea>
-            </div>
+        <div class="response-container !mt-0 p-4 border rounded-md border-neutral-200 bg-neutral-100">
+            <label for="responseContent" class="block text-sm font-medium text-neutral-700">Response:</label>
+            <textarea
+                id="responseContent"
+                v-model="responseContent"
+                rows="23"
+                cols="50"
+                class="mt-1 block w-full sm:text-sm border-neutral-200 rounded-md"
+                readonly
+            ></textarea>
         </div>
     </div>
 </template>
