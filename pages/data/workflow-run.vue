@@ -51,8 +51,7 @@ const getWorkflowRun = async () => {
             </div>
         </div>
         <!-- New card to show the response content -->
-        <!-- <div v-if="Object.keys(workflowStatus).length" class="p-4 bg-neutral-100 rounded-lg "> -->
-        <div class="p-4 bg-neutral-100 rounded-lg border w-full">
+        <div v-if="Object.keys(workflowStatus).length" class="p-4 bg-neutral-100 rounded-lg border w-full">
             <h3 class="text-lg font-medium text-neutral-700">Workflow status:</h3>
             <div v-for="(value, key) in workflowStatus" :key="key" class="mt-2">
                 <div class="flex items-center">
