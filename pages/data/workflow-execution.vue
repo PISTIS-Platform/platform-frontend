@@ -54,11 +54,14 @@ const getWorkflowRun = async () => {
         </div>
     </div>
 
-    <SubHeading :title="$t('data.workflowStatus')" class="mt-4" />
-    <hr class="mt-1" />
-    <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md items-start mt-4">
+    <SubHeading v-if="Object.keys(workflowStatus).length" :title="$t('data.workflowStatus')" class="mt-4" />
+    <hr v-if="Object.keys(workflowStatus).length" class="mt-1" />
+    <div
+        v-if="Object.keys(workflowStatus).length"
+        class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md items-start mt-4"
+    >
         <!-- New card to show the response content -->
-        <div v-if="Object.keys(workflowStatus).length" class="mx-auto rounded-md items-start w-full">
+        <div class="mx-auto rounded-md items-start w-full">
             <div v-for="(value, key) in workflowStatus" :key="key" class="mt-2">
                 <div class="flex items-center">
                     <span class="font-medium text-neutral-700">{{ key }}:</span>
