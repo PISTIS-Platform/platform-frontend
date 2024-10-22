@@ -8,6 +8,8 @@ import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/pla
 
 const runtimeConfig = useRuntimeConfig();
 
+const { data: session } = useAuth();
+
 const { t } = useI18n();
 
 //data for selected dataset
@@ -15,6 +17,7 @@ const { t } = useI18n();
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const { data: allDatasets, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
     $fetch('/api/datasets/get-all'),
 );
@@ -22,6 +25,7 @@ const { data: allDatasets, status: datasetsStatus } = useAsyncData<Record<string
 const datasetsTransformed = computed(() => {
     if (!allDatasets.value?.result?.results?.length) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return allDatasets.value.result.results.map((result: Record<string, any>) => ({
         id: result.id,
         title: result.title.en,
@@ -125,6 +129,7 @@ const submitAll = () => {
             assetDescription: assetOfferingDetails.value.description,
             policyData: policyData,
         },
+        sellerId: session.value?.user?.sub,
     };
     console.log(objToSend);
 
@@ -356,7 +361,7 @@ const changeStep = async (stepNum: number) => {
                             }}</span>
                             <span>{{
                                 monetizationDetails.price
-                                    ? monetizationDetails.price + ' PST'
+                                    ? monetizationDetails.price + ' EUR'
                                     : $t('data.designer.free')
                             }}</span>
                         </div>
@@ -401,7 +406,7 @@ const changeStep = async (stepNum: number) => {
                             <span>{{
                                 monetizationDetails.price
                                     ? monetizationDetails.price +
-                                      ' PST ' +
+                                      ' EUR ' +
                                       (monetizationDetails.subscriptionFrequency === 'annual'
                                           ? $t('data.designer.annual')
                                           : $t('data.designer.monthly'))
