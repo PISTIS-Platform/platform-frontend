@@ -138,7 +138,7 @@ const handleSubmit = async () => {
 .container {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 1rem;
 }
 
 .form-container {
