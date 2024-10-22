@@ -21,8 +21,8 @@ const getWorkflowRun = async () => {
         const data = response._data;
         //console.log('Data:', data);
         //workflowStatus.value = data;
-        workflowStatus = JSON.stringify(data);
-        workflowStatus = JSON.parse(workflowStatus);
+        workflowStatus.value = JSON.stringify(data);
+        workflowStatus.value = JSON.parse(workflowStatus.value);
     } catch (error) {
         console.error('Error:', error);
     }
