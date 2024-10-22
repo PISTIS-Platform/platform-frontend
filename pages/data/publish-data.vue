@@ -306,9 +306,9 @@ const changeStep = async (stepNum: number) => {
     <div class="w-full mb-6">
         <UAlert
             v-if="submitError"
-            icon="ic:outline-info"
-            color="primary"
-            variant="soft"
+            icon="mingcute:alert-line"
+            color="red"
+            variant="subtle"
             :description="$t('data.designer.errorInSubmitAsset')"
         />
     </div>
