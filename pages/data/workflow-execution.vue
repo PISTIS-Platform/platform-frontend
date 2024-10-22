@@ -30,10 +30,12 @@ const getWorkflowRun = async () => {
 </script>
 
 <template>
-    <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md space-y-1 items-center">
+    <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md space-y-1 items-start">
         <div class="flex w-full gap-4">
             <div class="p-4 bg-neutral-100 rounded-lg border w-full">
-                <label for="runId" class="block text-sm font-medium text-neutral-700">Run ID:</label>
+                <label for="runId" class="block text-sm font-medium text-neutral-700">{{
+                    $t('data.workflowID') + ` :`
+                }}</label>
                 <div class="flex items-end gap-4">
                     <input
                         id="runId"
@@ -45,14 +47,14 @@ const getWorkflowRun = async () => {
                         class="px-4 h-10 py-0.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
                         @click="getWorkflowRun"
                     >
-                        Get workflow run status
+                        {{ $t('data.checkStatus') }}
                     </button>
                 </div>
             </div>
         </div>
+        <SubHeading :title="$t('data.workflowStatus')" />
         <!-- New card to show the response content -->
         <div v-if="Object.keys(workflowStatus).length" class="p-4 bg-neutral-100 rounded-lg border w-full">
-            <h3 class="text-lg font-medium text-neutral-700">Workflow status:</h3>
             <div v-for="(value, key) in workflowStatus" :key="key" class="mt-2">
                 <div class="flex items-center">
                     <span class="font-medium text-neutral-700">{{ key }}:</span>

@@ -47,7 +47,9 @@ const runJobConfigurator = async () => {
     <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md space-y-6">
         <div class="form-container rounded-md bg-neutral-100 border space-y-4 p-4">
             <div class="rounded-lg">
-                <label for="fileUpload" class="block text-sm font-medium text-neutral-700">Upload Dataset:</label>
+                <label for="fileUpload" class="block text-sm font-medium text-neutral-700">{{
+                    $t('data.uploadDataset')
+                }}</label>
                 <input
                     id="fileUpload"
                     type="file"
@@ -56,7 +58,9 @@ const runJobConfigurator = async () => {
                 />
             </div>
             <div class="rounded-lg">
-                <label for="datasetName" class="block text-sm font-medium text-neutral-700">Dataset Name:</label>
+                <label for="datasetName" class="block text-sm font-medium text-neutral-700">{{
+                    $t('data.datasetName')
+                }}</label>
                 <input
                     id="datasetName"
                     v-model="datasetName"
@@ -65,9 +69,9 @@ const runJobConfigurator = async () => {
                 />
             </div>
             <div class="rounded-lg">
-                <label for="datasetDescription" class="block text-sm font-medium text-neutral-700"
-                    >Dataset Description:</label
-                >
+                <label for="datasetDescription" class="block text-sm font-medium text-neutral-700">{{
+                    $t('data.datasetDescription')
+                }}</label>
                 <input
                     id="datasetDescription"
                     v-model="datasetDescription"
@@ -76,7 +80,9 @@ const runJobConfigurator = async () => {
                 />
             </div>
             <div class="rounded-lg">
-                <label for="jsonContent" class="block text-sm font-medium text-neutral-700">JSON Content:</label>
+                <label for="jsonContent" class="block text-sm font-medium text-neutral-700">{{
+                    $t('data.jsonContent')
+                }}</label>
                 <textarea
                     id="jsonContent"
                     v-model="jsonContent"
@@ -95,7 +101,9 @@ const runJobConfigurator = async () => {
             </div>
         </div>
         <div class="response-container !mt-0 px-4 pt-4 pb-4 border rounded-md border-neutral-200 bg-neutral-100">
-            <label for="responseContent" class="block text-sm font-medium text-neutral-700">Response:</label>
+            <label for="responseContent" class="block text-sm font-medium text-neutral-700">{{
+                $t('data.response')
+            }}</label>
             <textarea
                 id="responseContent"
                 v-model="responseContent"
