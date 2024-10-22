@@ -134,15 +134,16 @@ const submitAll = async () => {
         numOfResell: 0,
         numOfShare: 0,
     };
-    console.log(body);
+
     try {
-        await $fetch(`/api/datasets/publish-data`, {
+        const response = await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
             body,
         });
+
         showSuccessMessage(t('data.designer.assetSubmitted'));
         router.push({ name: 'home' });
-        await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}/${newAssetId}?locale=en`, {
+        await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}${response.data.id}?locale=en`, {
             open: {
                 target: '_blank',
             },
