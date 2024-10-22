@@ -147,6 +147,7 @@ const submitAll = async () => {
     let body = {
         originalAssetId: selected.value?.id,
         organizationId: runtimeConfig.public?.orgId,
+        organizationName: session.value?.orgName,
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         assetId: newAssetId,
