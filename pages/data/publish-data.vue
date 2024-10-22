@@ -17,7 +17,9 @@ const submitError = ref(false);
 //data for selected dataset
 
 //TODO: Get ID and data to pass down to DatasetSelector from API call
-const selected = ref<{ id: string | number; title: string; description: string } | undefined>(undefined);
+const selected = ref<
+    { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
+>(undefined);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const { data: allDatasets, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
@@ -25,13 +27,14 @@ const { data: allDatasets, status: datasetsStatus } = useAsyncData<Record<string
 );
 
 const datasetsTransformed = computed(() => {
-    if (!allDatasets.value?.result?.results?.length) return [];
+    if (!allDatasets.value?.length) return [];
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return allDatasets.value.result.results.map((result: Record<string, any>) => ({
+    return allDatasets.value.map((result: Record<string, any>) => ({
         id: result.id,
         title: result.title.en,
         description: result.description.en,
+        distributions: result.distributions,
     }));
 });
 
@@ -66,12 +69,26 @@ const loadingValuation = ref(false);
 const assetOfferingDetails = ref<AssetOfferingDetails>({
     title: undefined,
     description: undefined,
+    distributions: undefined,
+    selectedDistribution: undefined,
     keywords: [],
 });
 
 const assetOfferingDetailsSchema = z.object({
     title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
     description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+    selectedDistribution: z.object({
+        id: z.string(),
+        format: z.object({
+            id: z.string(),
+            label: z.string(),
+            resource: z.string(),
+        }),
+        access_url: z.array(z.string()),
+        title: z.object({
+            en: z.string(),
+        }),
+    }),
 });
 
 const isAssetOfferingDetailsValid = computed(
@@ -174,10 +191,20 @@ const steps = computed(() => [
 
 const selectedPage = ref(0);
 
-const handleDatasetSelection = (dataset: { id: string | number; title: string; description: string }) => {
+const handleDatasetSelection = (dataset: {
+    id: string | number;
+    title: string;
+    description: string;
+    distributions: Record<string, any>[];
+}) => {
     selected.value = dataset;
-    assetOfferingDetails.value.title = selected.value.title;
-    assetOfferingDetails.value.description = selected.value.description;
+    assetOfferingDetails.value.title = selected?.value.title;
+    assetOfferingDetails.value.description = selected?.value.description;
+    assetOfferingDetails.value.distributions = selected?.value.distributions.map((item) => ({
+        ...item,
+        label: `${item.format.label} - ${item.title.en}`,
+    }));
+    assetOfferingDetails.value.selectedDistribution = assetOfferingDetails.value.distributions[0];
     selectedPage.value = 1;
 };
 
@@ -280,9 +307,9 @@ const changeStep = async (stepNum: number) => {
     <div class="w-full mb-6">
         <UAlert
             v-if="submitError"
-            icon="ic:outline-info"
-            color="primary"
-            variant="soft"
+            icon="mingcute:alert-line"
+            color="red"
+            variant="subtle"
             :description="$t('data.designer.errorInSubmitAsset')"
         />
     </div>

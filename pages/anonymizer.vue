@@ -20,8 +20,6 @@ onMounted(async () => {
     const distribution = queryParams['distribution'];
     const language = queryParams['language'];
 
-    console.log(catalogueId, distribution, language);
-
     if (catalogueId && distribution && language) {
         const metadataResponse: AnonymiserResponse<UserMetadata> = (await useFetch('/api/anonymizer/dataset/metadata'))
             .data.value as AnonymiserResponse<UserMetadata>;

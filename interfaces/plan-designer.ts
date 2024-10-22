@@ -1,6 +1,8 @@
 export interface AssetOfferingDetails {
     title: string | undefined;
     description: string | undefined;
+    distributions: Record<string, any>[] | undefined;
+    selectedDistribution: Record<string, any> | undefined;
     keywords: string[];
 }
 

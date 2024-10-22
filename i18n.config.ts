@@ -91,6 +91,7 @@ export default defineI18nConfig(() => ({
                 dataTransformation: 'Data Transformation',
                 insightGenerator: 'Insights Generator',
                 anonymizer: 'Anonymizer',
+                selectedDistribution: 'Selected Distribution',
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',
