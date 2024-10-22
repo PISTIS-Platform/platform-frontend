@@ -9,9 +9,10 @@ import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/pla
 const runtimeConfig = useRuntimeConfig();
 
 const { data: session } = useAuth();
-const { showSuccessMessage, showErrorMessage } = useAlertMessage();
-
+const { showSuccessMessage } = useAlertMessage();
+const router = useRouter();
 const { t } = useI18n();
+const submitError = ref(false);
 
 //data for selected dataset
 
@@ -130,17 +131,25 @@ const submitAll = async () => {
             policyData: policyData,
         },
         sellerId: session.value?.user?.sub,
+        numOfResell: 0,
+        numOfShare: 0,
     };
-
+    console.log(body);
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
             body,
         });
-
         showSuccessMessage(t('data.designer.assetSubmitted'));
+        router.push({ name: 'home' });
+        await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}/${newAssetId}?locale=en`, {
+            open: {
+                target: '_blank',
+            },
+            external: true,
+        });
     } catch (error) {
-        showErrorMessage(t('data.designer.errorInSubmitAsset'));
+        submitError.value = true;
     }
 
     return body;
@@ -169,6 +178,11 @@ const handleDatasetSelection = (dataset: { id: string | number; title: string; d
     assetOfferingDetails.value.title = selected.value.title;
     assetOfferingDetails.value.description = selected.value.description;
     selectedPage.value = 1;
+};
+
+const handlePageSelectionBackwards = (value: number) => {
+    selectedPage.value = value;
+    submitError.value = false;
 };
 
 const changeStep = async (stepNum: number) => {
@@ -261,6 +275,16 @@ const changeStep = async (stepNum: number) => {
         </ol>
     </nav>
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
+
+    <div class="w-full mb-6">
+        <UAlert
+            v-if="submitError"
+            icon="ic:outline-info"
+            color="primary"
+            variant="soft"
+            :description="$t('data.designer.errorInSubmitAsset')"
+        />
+    </div>
 
     <div v-show="selectedPage === 0 && datasetsStatus !== 'pending'" class="w-full h-full text-gray-700 space-y-8">
         <UCard v-for="dataset in datasetsTransformed" :key="dataset.id">
@@ -449,7 +473,7 @@ const changeStep = async (stepNum: number) => {
                     </div>
                 </div>
                 <div class="w-full flex justify-between items-center mt-8">
-                    <UButton size="md" color="gray" variant="outline" @click="selectedPage = 2">
+                    <UButton size="md" color="gray" variant="outline" @click="handlePageSelectionBackwards(2)">
                         {{ $t('back') }}
                     </UButton>
                     <UButton class="px-4 py-2" @click="submitAll">

@@ -185,8 +185,8 @@ export default defineI18nConfig(() => ({
                     maximumDaysContractBreach: 'Maximum days for curing contract breach',
                     personalDataTerms: 'Terms and Conditions for the Transfer and Processing of Personal Data',
                     hasPersonalData: 'This dataset contains personal data',
-                    assetSubmitted: 'Your asset have been published successfully',
-                    errorInSubmitAsset: 'Error occurred while publishing asset',
+                    assetSubmitted: 'Your dataset have been published successfully',
+                    errorInSubmitAsset: 'Error occurred while publishing dataset',
                 },
                 wallet: {
                     title: 'Wallet',

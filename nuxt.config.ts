@@ -49,6 +49,7 @@ export default defineNuxtConfig({
             orgLogo: process.env.NUXT_PUBLIC_ORG_LOGO,
             catalogUrl: process.env.NUXT_PUBLIC_CATALOG_URL,
             marketplaceUrl: process.env.NUXT_PUBLIC_MARKETPLACE_URL,
+            marketplaceDatasetUrl: process.env.NUXT_PUBLIC_MARKETPLACE_DATASET,
         },
         authSecret: process.env.NUXT_NEXTAUTH_SECRET,
         keycloak: {
