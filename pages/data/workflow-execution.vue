@@ -32,9 +32,9 @@ const getWorkflowRun = async () => {
 <template>
     <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md space-y-1 items-start">
         <div class="flex w-full gap-4">
-            <div class="p-4 bg-neutral-100 rounded-lg border w-full">
+            <div class="pb-4 px-4 pt-3 bg-neutral-100 rounded-lg border w-full">
                 <label for="runId" class="block text-sm font-medium text-neutral-700">{{
-                    $t('data.workflowID') + ` :`
+                    $t('data.runID') + ` :`
                 }}</label>
                 <div class="flex items-end gap-4">
                     <input
@@ -44,7 +44,7 @@ const getWorkflowRun = async () => {
                         class="mt-1 w-full sm:text-sm border-neutral-300 rounded-md h-10"
                     />
                     <button
-                        class="px-4 h-10 py-0.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                        class="px-4 h-10 py-0.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs text-nowrap"
                         @click="getWorkflowRun"
                     >
                         {{ $t('data.checkStatus') }}
@@ -52,9 +52,13 @@ const getWorkflowRun = async () => {
                 </div>
             </div>
         </div>
-        <SubHeading :title="$t('data.workflowStatus')" />
+    </div>
+
+    <SubHeading :title="$t('data.workflowStatus')" class="mt-4" />
+    <hr class="mt-1" />
+    <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md items-start mt-4">
         <!-- New card to show the response content -->
-        <div v-if="Object.keys(workflowStatus).length" class="p-4 bg-neutral-100 rounded-lg border w-full">
+        <div v-if="Object.keys(workflowStatus).length" class="mx-auto rounded-md items-start w-full">
             <div v-for="(value, key) in workflowStatus" :key="key" class="mt-2">
                 <div class="flex items-center">
                     <span class="font-medium text-neutral-700">{{ key }}:</span>
@@ -72,14 +76,12 @@ const getWorkflowRun = async () => {
                 <div v-if="typeof value === 'object' && value !== null" class="ml-4">
                     <div v-for="(subValue, subKey) in value" :key="subKey" class="flex items-center mt-1">
                         <span class="font-medium text-neutral-700">{{ subKey }}:</span>
-                        <span
-                            v-if="key === 'catalogue_dataset_endpoint' && subKey === 'id'"
-                            class="ml-2 text-neutral-500"
-                        >
-                            <a
-                                :href="`https://develop.pistis-market.eu/srv/catalog/datasets/${subValue}`"
+                        <span v-if="subKey === 'catalogue_dataset_endpoint'" class="ml-2 text-neutral-500">
+                            <NuxtLink
+                                :to="`https://develop.pistis-market.eu/srv/catalog/datasets/${subValue}`"
+                                target="_blank"
                                 class="text-blue-500 underline"
-                                >{{ subValue }}</a
+                                >{{ subValue }}</NuxtLink
                             >
                         </span>
                         <span v-else class="ml-2 text-neutral-500">{{ subValue }}</span>

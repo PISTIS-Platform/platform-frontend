@@ -93,7 +93,7 @@ export default defineI18nConfig(() => ({
                 insightGenerator: 'Insights Generator',
                 anonymizer: 'Anonymizer',
                 workflowExecution: 'Workflow Execution',
-                workflowID: 'Workflow ID',
+                runID: 'Run ID',
                 workflowStatus: 'Workflow Status',
                 checkStatus: 'Check Status',
                 uploadDataset: 'Upload Dataset',
