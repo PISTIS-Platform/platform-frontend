@@ -45,8 +45,8 @@ const runJobConfigurator = async () => {
 
 <template>
     <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md space-y-6">
-        <div class="form-container rounded-md border-neutral-200 space-y-4">
-            <div class="p-4 bg-neutral-100 rounded-lg border">
+        <div class="form-container rounded-md bg-neutral-100 border space-y-4 p-4">
+            <div class="rounded-lg">
                 <label for="fileUpload" class="block text-sm font-medium text-neutral-700">Upload Dataset:</label>
                 <input
                     id="fileUpload"
@@ -55,7 +55,7 @@ const runJobConfigurator = async () => {
                     @change="handleFileChange"
                 />
             </div>
-            <div class="p-4 bg-neutral-100 rounded-lg border">
+            <div class="rounded-lg">
                 <label for="datasetName" class="block text-sm font-medium text-neutral-700">Dataset Name:</label>
                 <input
                     id="datasetName"
@@ -64,7 +64,7 @@ const runJobConfigurator = async () => {
                     class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md"
                 />
             </div>
-            <div class="p-4 bg-neutral-100 rounded-lg border">
+            <div class="rounded-lg">
                 <label for="datasetDescription" class="block text-sm font-medium text-neutral-700"
                     >Dataset Description:</label
                 >
@@ -75,7 +75,7 @@ const runJobConfigurator = async () => {
                     class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md"
                 />
             </div>
-            <div class="p-4 bg-neutral-100 rounded-lg border">
+            <div class="rounded-lg">
                 <label for="jsonContent" class="block text-sm font-medium text-neutral-700">JSON Content:</label>
                 <textarea
                     id="jsonContent"
@@ -87,19 +87,19 @@ const runJobConfigurator = async () => {
             </div>
             <div class="rounded-lg text-right">
                 <button
-                    class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    class="px-4 py-2 bg-primary-600 text-white text-sm rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                     @click="runJobConfigurator"
                 >
                     Run
                 </button>
             </div>
         </div>
-        <div class="response-container !mt-0 px-4 pt-4 pb-1 border rounded-md border-neutral-200 bg-neutral-100">
+        <div class="response-container !mt-0 px-4 pt-4 pb-4 border rounded-md border-neutral-200 bg-neutral-100">
             <label for="responseContent" class="block text-sm font-medium text-neutral-700">Response:</label>
             <textarea
                 id="responseContent"
                 v-model="responseContent"
-                rows="29"
+                rows="24"
                 cols="50"
                 class="mt-1 block w-full sm:text-sm border-neutral-200 rounded-md"
                 readonly
