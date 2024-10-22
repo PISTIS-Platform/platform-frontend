@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
 const datasetName = ref('');
 const datasetDescription = ref('');
@@ -31,12 +32,9 @@ const runJobConfigurator = async () => {
             throw new Error('Network response was not ok');
         }
 
-        //const data = await response.json();
-        //console.log('Success:', data);
-        //responseContent.value = JSON.stringify(data, null, 2);
         const data = response._data;
         responseContent.value = JSON.stringify(data, null, 2);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error:', error);
         responseContent.value = `Error: ${error.message}`;
     }
@@ -46,7 +44,7 @@ const runJobConfigurator = async () => {
 <template>
     <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md space-y-6">
         <div class="form-container rounded-md bg-neutral-100 border space-y-4 p-4">
-            <div class="rounded-lg">
+            <div class="rounded-md">
                 <label for="fileUpload" class="block text-sm font-medium text-neutral-700">{{
                     $t('data.uploadDataset')
                 }}</label>
@@ -57,7 +55,7 @@ const runJobConfigurator = async () => {
                     @change="handleFileChange"
                 />
             </div>
-            <div class="rounded-lg">
+            <div class="rounded-md">
                 <label for="datasetName" class="block text-sm font-medium text-neutral-700">{{
                     $t('data.datasetName')
                 }}</label>
@@ -68,7 +66,7 @@ const runJobConfigurator = async () => {
                     class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md"
                 />
             </div>
-            <div class="rounded-lg">
+            <div class="rounded-md">
                 <label for="datasetDescription" class="block text-sm font-medium text-neutral-700">{{
                     $t('data.datasetDescription')
                 }}</label>
@@ -79,7 +77,7 @@ const runJobConfigurator = async () => {
                     class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md"
                 />
             </div>
-            <div class="rounded-lg">
+            <div class="rounded-md">
                 <label for="jsonContent" class="block text-sm font-medium text-neutral-700">{{
                     $t('data.jsonContent')
                 }}</label>
@@ -91,7 +89,7 @@ const runJobConfigurator = async () => {
                     class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md"
                 ></textarea>
             </div>
-            <div class="rounded-lg text-right">
+            <div class="rounded-md text-right">
                 <button
                     class="px-4 py-2 bg-primary-600 text-white text-sm rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                     @click="runJobConfigurator"

@@ -97,9 +97,9 @@ export default defineI18nConfig(() => ({
                 workflowStatus: 'Workflow Status',
                 checkStatus: 'Check Status',
                 uploadDataset: 'Upload Dataset',
-                datasetName: 'Dataset Name',
-                datasetDescription: 'Dataset Description',
-                jsonContent: 'JSON COntent',
+                datasetName: 'Name',
+                datasetDescription: 'Description',
+                jsonContent: 'Configration (JSON)',
                 response: 'Response',
                 designer: {
                     nav: {

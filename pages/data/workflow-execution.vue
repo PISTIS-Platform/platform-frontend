@@ -64,10 +64,10 @@ const getWorkflowRun = async () => {
         <div class="mx-auto rounded-md items-start w-full">
             <div v-for="(value, key) in workflowStatus" :key="key" class="mt-2">
                 <div class="flex items-center">
-                    <span class="font-medium text-neutral-700">{{ key }}:</span>
+                    <span class="font-medium text-neutral-700 capitalize">{{ key.replace(/_/g, ' ') }}:</span>
                     <span
                         v-if="typeof value !== 'object' && value !== null"
-                        class="ml-2 text-neutral-500"
+                        class="ml-2 text-neutral-500 capitalize"
                         :class="{
                             'text-red-500': key === 'status' && value === 'error',
                             'text-primary-500': key === 'status' && value === 'finished',
@@ -75,19 +75,16 @@ const getWorkflowRun = async () => {
                         }"
                         >{{ value }}</span
                     >
-                </div>
-                <div v-if="typeof value === 'object' && value !== null" class="ml-4">
-                    <div v-for="(subValue, subKey) in value" :key="subKey" class="flex items-center mt-1">
-                        <span class="font-medium text-neutral-700">{{ subKey }}:</span>
-                        <span v-if="subKey === 'catalogue_dataset_endpoint'" class="ml-2 text-neutral-500">
+                    <div v-else-if="typeof value === 'object' && value !== null" class="ml-4">
+                        <div v-for="(subValue, subKey) in value" :key="subKey" class="flex items-center mt-1">
                             <NuxtLink
                                 :to="`https://develop.pistis-market.eu/srv/catalog/datasets/${subValue}`"
                                 target="_blank"
                                 class="text-blue-500 underline"
-                                >{{ subValue }}</NuxtLink
+                                external
+                                >{{ `https://develop.pistis-market.eu/srv/catalog/datasets/${subValue}` }}</NuxtLink
                             >
-                        </span>
-                        <span v-else class="ml-2 text-neutral-500">{{ subValue }}</span>
+                        </div>
                     </div>
                 </div>
             </div>

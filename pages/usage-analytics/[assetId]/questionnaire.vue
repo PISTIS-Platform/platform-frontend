@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { Question, QuestionAnswer, Questionnaire, QuestionOption, SelectedOption } from '~/interfaces/usage-analytics';
+import type {
+    Question,
+    QuestionAnswer,
+    Questionnaire,
+    QuestionOption,
+    SelectedOption,
+} from '~/interfaces/usage-analytics';
 
 const { t } = useI18n();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
