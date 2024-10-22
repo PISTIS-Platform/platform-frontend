@@ -160,16 +160,15 @@ const submitAll = async () => {
         numOfResell: 0,
         numOfShare: 0,
     };
-
+    console.log(body);
     try {
-        const response = await $fetch(`/api/datasets/publish-data`, {
+        await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
             body,
         });
-
         showSuccessMessage(t('data.designer.assetSubmitted'));
         router.push({ name: 'home' });
-        await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}${response.data.id}?locale=en`, {
+        await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}/${newAssetId}?locale=en`, {
             open: {
                 target: '_blank',
             },
@@ -482,11 +481,11 @@ const changeStep = async (stepNum: number) => {
                             }}</span>
                         </div>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-if="monetizationDetails.extraTerms" class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
                         <span>{{ monetizationDetails.extraTerms }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-if="monetizationDetails.additionalRenewalTerms" class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.additionalRenewalTerms')
                         }}</span>
@@ -584,11 +583,11 @@ const changeStep = async (stepNum: number) => {
                             }}</span>
                         </div>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-if="monetizationDetails.extraTerms" class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
                         <span>{{ monetizationDetails.extraTerms }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-if="monetizationDetails.additionalRenewalTerms" class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.additionalRenewalTerms')
                         }}</span>
