@@ -44,7 +44,7 @@ const runJobConfigurator = async () => {
 </script>
 
 <template>
-    <div class="p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md space-y-6">
+    <div class="form-container p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md space-y-6">
         <div class="p-4 bg-gray-100 rounded-lg shadow">
             <label for="fileUpload" class="block text-sm font-medium text-gray-700">Upload Dataset:</label>
             <input
@@ -108,3 +108,19 @@ const runJobConfigurator = async () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.form-container {
+    flex: 1;
+}
+
+.response-container {
+    flex: 1;
+}
+</style>
