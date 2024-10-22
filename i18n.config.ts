@@ -92,6 +92,7 @@ export default defineI18nConfig(() => ({
                 transformationCatalogue: 'Transformations Catalogue',
                 insightGenerator: 'Insights Generator',
                 anonymizer: 'Anonymizer',
+                workflowRun: 'Workflow Run',
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',

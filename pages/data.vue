@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const routes = ref([
     { name: 'data.jobConfigurator', to: '/data' },
+    { name: 'data.workflowRun', to: '/data/workflow-run' },
     { name: 'data.dataTransformation', to: '/data/data-transformation' },
     { name: 'data.transformationCatalogue', to: '/data/transformation-catalogue' },
     { name: 'data.insightGenerator', to: '/data/insight-generator' },
