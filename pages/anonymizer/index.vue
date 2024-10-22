@@ -38,10 +38,8 @@ async function applyChanges(): Promise<void> {
     ).data.value as AnonymiserResponse<undefined>;
 
     if (response.code != 201) {
-        console.log(response);
         window.alert('Something went wrong! Please try again.');
     } else {
-        console.log(response);
         window.alert('Successfully applied changes!');
         router.push({ name: 'home' });
     }
@@ -61,10 +59,8 @@ async function discardChanges(): Promise<void> {
     ).data.value as AnonymiserResponse<undefined>;
 
     if (response.code != 200) {
-        console.log(response);
         window.alert('Something went wrong! Please try again.');
     } else {
-        console.log(response);
         window.alert('Successfully discarded changes!');
         router.push({ name: 'home' });
     }
