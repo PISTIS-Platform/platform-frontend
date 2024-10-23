@@ -196,7 +196,7 @@ const limitFrequencySelections = computed(() => [
 ]);
 
 const steps = computed(() => [
-    { name: t('data.designer.nav.selectDataset'), isActive: true },
+    { name: t('data.designer.nav.selectDataset'), isActive: false },
     { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value },
     { name: t('data.designer.nav.accessPoliciesEditor'), isActive: selected.value && isAllValid.value },
     //TODO: Add extra check for completed access policies info
