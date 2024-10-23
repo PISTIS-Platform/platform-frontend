@@ -28,7 +28,6 @@ const { data: dataset, status: datasetsStatus } = useAsyncData<Record<string, an
 );
 watch(dataset, () => {
     if (!dataset.value) return;
-    console.log(dataset.value);
     selected.value = {
         id: dataset.value.id,
         title: dataset.value.title.en,
