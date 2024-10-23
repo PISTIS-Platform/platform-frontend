@@ -21,8 +21,8 @@ onMounted(async () => {
     const language = queryParams['language'];
 
     if (catalogueId && distribution && language) {
-        const metadataResponse: AnonymiserResponse<UserMetadata> = (await useFetch('/api/anonymizer/dataset/metadata'))
-            .data.value as AnonymiserResponse<UserMetadata>;
+        const metadataResponse: AnonymiserResponse<UserMetadata> = (await useFetch('/api/anonymizer/metadata')).data
+            .value as AnonymiserResponse<UserMetadata>;
 
         if (
             metadataResponse.code == 404 ||

@@ -90,9 +90,19 @@ export default defineI18nConfig(() => ({
                 data: 'Data Ingestion',
                 jobConfigurator: 'Job Configurator',
                 dataTransformation: 'Data Transformation',
+                transformationCatalogue: 'Transformations Catalogue',
                 insightGenerator: 'Insights Generator',
                 anonymizer: 'Anonymizer',
                 selectedDistribution: 'Selected Distribution',
+                workflowExecution: 'Workflow Execution',
+                runID: 'Run ID',
+                workflowStatus: 'Workflow Status',
+                checkStatus: 'Check Status',
+                uploadDataset: 'Upload Dataset',
+                datasetName: 'Name',
+                datasetDescription: 'Description',
+                jsonContent: 'Configration (JSON)',
+                response: 'Response',
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',
@@ -259,7 +269,7 @@ export default defineI18nConfig(() => ({
                         assetName: 'Asset Name',
                         price: 'Price',
                         totalSales: 'Total Sales',
-                        marketCap: 'Market Cap (PST)',
+                        marketCap: 'Market Cap (EUR)',
                         change: 'Change (1M)',
                     },
                     transactionsTable: {

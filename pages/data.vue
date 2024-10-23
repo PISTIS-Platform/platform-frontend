@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 const routes = ref([
     { name: 'data.jobConfigurator', to: '/data' },
+    { name: 'data.workflowExecution', to: '/data/workflow-execution' },
     { name: 'data.dataTransformation', to: '/data/data-transformation' },
+    { name: 'data.transformationCatalogue', to: '/data/transformation-catalogue' },
     { name: 'data.insightGenerator', to: '/data/insight-generator' },
-    { name: 'data.anonymizer', to: '/data/anonymizer' },
+    // { name: 'data.anonymizer', to: '/data/anonymizer' },
     { name: 'data.designer.title', to: '/data/publish-data' },
 ]);
 </script>
