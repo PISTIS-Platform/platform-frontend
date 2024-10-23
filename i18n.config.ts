@@ -103,6 +103,8 @@ export default defineI18nConfig(() => ({
                 datasetDescription: 'Description',
                 jsonContent: 'Configuration (JSON)',
                 response: 'Response',
+                datasetIdNotFound: 'Dataset ID Not Found',
+                pleaseGoBackCatalog: 'Please go back to the catalog and select a valid dataset.',
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',
