@@ -250,6 +250,13 @@ const changeStep = async (stepNum: number) => {
     <NavigationSteps :steps="steps" :selected-page="selectedPage" @select-page="changeStep" />
 
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
+    <UAlert
+        v-if="!datasetsTransformed.length && selectedPage === 0 && datasetsStatus !== 'pending'"
+        icon="ic:outline-info"
+        color="primary"
+        variant="soft"
+        :description="$t('data.designer.noDatasets')"
+    />
 
     <div class="w-full mb-6">
         <UAlert

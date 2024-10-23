@@ -14,7 +14,11 @@ export default defineEventHandler(async (event) => {
 
     //TODO: Currently having to make multiple calls to each ID since there is not a simpler way to get direct results
 
-    const results = [];
+    const results: Record<string, any>[] = [];
+
+    if (!catalogResults.length) {
+        return results;
+    }
 
     for (const catalogResult of catalogResults) {
         const assetResult: Record<string, any> = await $fetch(`${assetsUrl}/datasets/${catalogResult}`, {
