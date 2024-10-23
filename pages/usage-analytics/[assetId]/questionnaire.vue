@@ -118,7 +118,7 @@ const saveAnswers = async () => {
 
         showSuccessMessage(t('usageAnalytics.answersSubmitted'));
         await delay(3);
-        router.back();
+        router.push({ name: 'home' });
 
         //TODO:: add any navigation after success (?)
     } catch (error) {
