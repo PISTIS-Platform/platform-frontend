@@ -209,7 +209,7 @@ const handleDatasetSelection = (dataset: {
     selected.value = dataset;
     assetOfferingDetails.value.title = selected?.value.title;
     assetOfferingDetails.value.description = selected?.value.description;
-    assetOfferingDetails.value.distributions = selected?.value.distributions.map((item) => ({
+    assetOfferingDetails.value.distributions = selected?.value.distributions?.map((item) => ({
         ...item,
         label: `${item.title.en} (${item.format.label})`,
     }));
@@ -223,7 +223,10 @@ const handlePageSelectionBackwards = (value: number) => {
 };
 
 const changeStep = async (stepNum: number) => {
+    console.log('CHANGING STEP');
+    selectedPage.value = stepNum;
     if (stepNum === 3) {
+        ('NOW MAKING API CALL');
         //api call to contract template composer
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
@@ -247,70 +250,8 @@ const changeStep = async (stepNum: number) => {
 </script>
 
 <template>
-    <nav aria-label="Progress">
-        <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0 mb-8">
-            <li
-                v-for="(step, stepIdx) in steps"
-                :key="step.name"
-                class="relative md:flex md:flex-1 cursor-pointer"
-                :class="step.isActive ? '' : 'pointer-events-none'"
-                @click="selectedPage = stepIdx"
-            >
-                <a v-if="selectedPage > stepIdx" class="group flex w-full items-center">
-                    <span class="flex items-center px-6 py-4 text-sm font-medium">
-                        <span
-                            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white group-hover:bg-indigo-800"
-                        >
-                            <UIcon name="i-fa6-regular-circle-check" class="text-white h-5 w-5" />
-                        </span>
-                        <span class="ml-4 text-sm font-medium text-gray-900">{{ step.name }}</span>
-                    </span>
-                </a>
-                <a
-                    v-else-if="selectedPage === stepIdx"
-                    class="flex items-center px-6 py-4 text-sm font-medium"
-                    aria-current="step"
-                >
-                    <span
-                        class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-indigo-600"
-                    >
-                        <span class="text-indigo-600">{{ stepIdx + 1 }}</span>
-                    </span>
-                    <span class="ml-4 text-sm font-medium text-indigo-600">{{ step.name }}</span>
-                </a>
-                <a v-else class="group flex items-center" @click="changeStep(stepIdx)">
-                    <span class="flex items-center px-6 py-4 text-sm font-medium">
-                        <span
-                            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 group-hover:border-gray-400"
-                        >
-                            <span class="text-gray-500 group-hover:text-gray-900">{{ stepIdx + 1 }}</span>
-                        </span>
-                        <span class="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">{{
-                            step.name
-                        }}</span>
-                    </span>
-                </a>
-                <template v-if="stepIdx !== steps.length - 1">
-                    <!-- Arrow separator for lg screens and up -->
-                    <div class="absolute right-0 top-0 hidden h-full w-5 md:block" aria-hidden="true">
-                        <svg
-                            class="h-full w-full text-gray-300"
-                            viewBox="0 0 22 80"
-                            fill="none"
-                            preserveAspectRatio="none"
-                        >
-                            <path
-                                d="M0 -2L20 40L0 82"
-                                vector-effect="non-scaling-stroke"
-                                stroke="currentcolor"
-                                stroke-linejoin="round"
-                            />
-                        </svg>
-                    </div>
-                </template>
-            </li>
-        </ol>
-    </nav>
+    <NavigationSteps :steps="steps" :selected-page="selectedPage" @select-page="changeStep" />
+
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
     <div class="w-full mb-6">
@@ -323,19 +264,11 @@ const changeStep = async (stepNum: number) => {
         />
     </div>
 
-    <div v-show="selectedPage === 0 && datasetsStatus !== 'pending'" class="w-full h-full text-gray-700 space-y-8">
-        <UCard v-for="dataset in datasetsTransformed" :key="dataset.id">
-            <template #header>
-                <div class="flex items-center w-full justify-between">
-                    <span class="font-bold">{{ dataset.title }}</span>
-                    <UButton @click="handleDatasetSelection(dataset)">{{ $t('select') }}</UButton>
-                </div>
-            </template>
-            <p>
-                {{ dataset.description }}
-            </p>
-        </UCard>
-    </div>
+    <DatasetList
+        v-show="selectedPage === 0 && datasetsStatus !== 'pending'"
+        :datasets-transformed="datasetsTransformed"
+        @select-dataset="handleDatasetSelection"
+    />
 
     <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
@@ -356,7 +289,7 @@ const changeStep = async (stepNum: number) => {
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
             :is-all-valid="isAllValid"
-            @change-page="(value: number) => (selectedPage = value)"
+            @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
@@ -369,7 +302,7 @@ const changeStep = async (stepNum: number) => {
             <AccessPolicyList
                 v-model:policy-data="policyData"
                 :selected="selected"
-                @change-page="(value: number) => (selectedPage = value)"
+                @change-page="changeStep"
                 @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
             />
         </div>
