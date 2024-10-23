@@ -162,7 +162,6 @@ const submitAll = async () => {
         numOfResell: 0,
         numOfShare: 0,
     };
-    console.log(body);
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
