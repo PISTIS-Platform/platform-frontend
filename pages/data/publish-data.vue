@@ -211,7 +211,7 @@ const handleDatasetSelection = (dataset: {
     assetOfferingDetails.value.description = selected?.value.description;
     assetOfferingDetails.value.distributions = selected?.value.distributions.map((item) => ({
         ...item,
-        label: `${item.format.label} - ${item.title.en}`,
+        label: `${item.title.en} (${item.format.label})`,
     }));
     assetOfferingDetails.value.selectedDistribution = assetOfferingDetails.value.distributions[0];
     selectedPage.value = 1;
