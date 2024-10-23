@@ -103,8 +103,7 @@ export default defineI18nConfig(() => ({
                 datasetDescription: 'Description',
                 jsonContent: 'Configuration (JSON)',
                 response: 'Response',
-                datasetIdNotFound: 'Dataset ID Not Found',
-                pleaseGoBackCatalog: 'Please go back to the catalog and select a valid dataset.',
+
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',
@@ -112,6 +111,8 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    datasetIdNotFound: 'Dataset ID Not Found',
+                    pleaseGoBackCatalog: 'Please go back to the catalog and select a valid dataset.',
                     pleaseSelectDataset: 'Please select a dataset',
                     free: 'Free',
                     paid: 'Paid',
