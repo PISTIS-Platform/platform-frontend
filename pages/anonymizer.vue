@@ -35,7 +35,6 @@ onMounted(async () => {
             ).data.value as AnonymiserResponse<undefined>;
 
             if (loadDatasetResponse.code != 200) {
-                console.log(loadDatasetResponse);
                 window.alert('Failed to fetch dataset from data catalogue! Please try again.');
             }
         }
