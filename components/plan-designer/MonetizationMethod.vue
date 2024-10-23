@@ -182,7 +182,7 @@ const updatePerpetual = (value: boolean) => {
     isPerpetual.value = value;
     emit('update:is-perpetual', value);
     if (isPerpetual.value) {
-        monetizationDetails.value.termDate = '';
+        monetizationDetails.value.termDate = undefined;
     }
 };
 

@@ -16,6 +16,19 @@ const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 
 const schema = z.object({
     title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
     description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+    selectedDistribution: z.object({
+        label: z.string(),
+        id: z.string(),
+        format: z.object({
+            id: z.string(),
+            label: z.string(),
+            resource: z.string(),
+        }),
+        access_url: z.array(z.string()),
+        title: z.object({
+            en: z.string(),
+        }),
+    }),
 });
 
 //use computed getter and setter to avoid prop mutation
@@ -55,6 +68,13 @@ const assetOfferingDetails = computed({
                         :placeholder="$t('data.designer.descriptionOfAsset')"
                         icon="i-heroicons-envelope"
                     />
+                </UFormGroup>
+                <UFormGroup :label="$t('data.selectedDistribution')" required name="selectedDistribution">
+                    <USelectMenu
+                        v-model="assetOfferingDetails.selectedDistribution"
+                        :options="assetOfferingDetails.distributions"
+                    >
+                    </USelectMenu>
                 </UFormGroup>
                 <UFormGroup :label="$t('keywords')" required>
                     <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->

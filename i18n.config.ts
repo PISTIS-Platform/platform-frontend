@@ -18,6 +18,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            worldwide: 'Worldwide',
             select: 'Select',
             search: 'Search...',
             addNew: 'Add new',
@@ -92,6 +93,7 @@ export default defineI18nConfig(() => ({
                 transformationCatalogue: 'Transformations Catalogue',
                 insightGenerator: 'Insights Generator',
                 anonymizer: 'Anonymizer',
+                selectedDistribution: 'Selected Distribution',
                 workflowExecution: 'Workflow Execution',
                 runID: 'Run ID',
                 workflowStatus: 'Workflow Status',
@@ -99,7 +101,7 @@ export default defineI18nConfig(() => ({
                 uploadDataset: 'Upload Dataset',
                 datasetName: 'Name',
                 datasetDescription: 'Description',
-                jsonContent: 'Configration (JSON)',
+                jsonContent: 'Configuration (JSON)',
                 response: 'Response',
                 designer: {
                     nav: {
@@ -195,6 +197,8 @@ export default defineI18nConfig(() => ({
                     maximumDaysContractBreach: 'Maximum days for curing contract breach',
                     personalDataTerms: 'Terms and Conditions for the Transfer and Processing of Personal Data',
                     hasPersonalData: 'This dataset contains personal data',
+                    assetSubmitted: 'Your dataset have been published successfully',
+                    errorInSubmitAsset: 'Error occurred while publishing dataset',
                 },
                 wallet: {
                     title: 'Wallet',

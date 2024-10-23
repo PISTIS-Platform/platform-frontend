@@ -49,6 +49,7 @@ export default defineNuxtConfig({
             orgLogo: process.env.NUXT_PUBLIC_ORG_LOGO,
             catalogUrl: process.env.NUXT_PUBLIC_CATALOG_URL,
             marketplaceUrl: process.env.NUXT_PUBLIC_MARKETPLACE_URL,
+            marketplaceDatasetUrl: process.env.NUXT_PUBLIC_MARKETPLACE_DATASET,
         },
         authSecret: process.env.NUXT_NEXTAUTH_SECRET,
         keycloak: {
@@ -69,6 +70,9 @@ export default defineNuxtConfig({
         assetsUrl: process.env.NUXT_ASSETS_URL,
         walletUrl: process.env.NUXT_WALLET_URL,
         walletAlias: process.env.NUXT_WALLET_ALIAS,
+        adbUrl: process.env.NUXT_ADB_URL,
+        //TODO: Replace this with whatever catalog we want the assets from
+        catalogAssetsUrl: process.env.NUXT_CATALOG_URL,
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
