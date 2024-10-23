@@ -150,6 +150,7 @@ const submitAll = async () => {
         organizationName: session.value?.orgName,
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
+        termDate: monetizationDetails.value.termDate ?? new Date(86400000000000),
         assetId: newAssetId,
         accessPolicies: {
             assetId: newAssetId,
