@@ -101,7 +101,7 @@ export default defineI18nConfig(() => ({
                 uploadDataset: 'Upload Dataset',
                 datasetName: 'Name',
                 datasetDescription: 'Description',
-                jsonContent: 'Configration (JSON)',
+                jsonContent: 'Configuration (JSON)',
                 response: 'Response',
                 designer: {
                     nav: {
