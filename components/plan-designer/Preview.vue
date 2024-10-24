@@ -32,6 +32,9 @@ defineProps({
     submitSuccess: {
         type: Boolean,
     },
+    submitting: {
+        type: Boolean,
+    },
 });
 
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
@@ -276,8 +279,16 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                         :description="$t('data.designer.assetSubmitted')"
                         class="w-full max-w-xl"
                     />
-                    <UButton class="px-4 py-2" @click="emit('submitAll')">
-                        {{ $t('submit') }}
+                    <UButton
+                        :disabled="submitting && !submitSuccess && !submitError"
+                        class="px-4 py-2 w-32 block"
+                        @click="emit('submitAll')"
+                    >
+                        <UIcon
+                            v-if="submitting && !submitSuccess && !submitError"
+                            name="svg-spinners:270-ring-with-bg"
+                        />
+                        <span v-else> {{ $t('submit') }}</span>
                     </UButton>
                 </div>
             </div>
