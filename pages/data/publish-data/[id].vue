@@ -118,7 +118,10 @@ const defaultPolicy: AccessPolicyDetails = {
 };
 policyData.push(defaultPolicy);
 
+const submitting = ref(false);
+
 const submitAll = async () => {
+    submitting.value = true;
     submitSuccess.value = false;
     submitError.value = false;
     let body = {
@@ -142,6 +145,7 @@ const submitAll = async () => {
     };
     delete body.distributions;
     delete body.selectedDistribution;
+
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
@@ -158,6 +162,8 @@ const submitAll = async () => {
         router.push({ name: 'home' });
     } catch (error) {
         submitError.value = true;
+    } finally {
+        submitting.value = false;
     }
 
     return body;
@@ -267,6 +273,7 @@ const changeStep = async (stepNum: number) => {
         :has-personal-data="hasPersonalData"
         :submit-error="submitError"
         :submit-success="submitSuccess"
+        :submitting="submitting"
         @handle-page-selection-backwards="handlePageSelectionBackwards"
         @submit-all="submitAll"
     />
