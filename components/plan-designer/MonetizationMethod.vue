@@ -56,6 +56,14 @@ const monetizationDetails = computed({
     },
 });
 
+watch(
+    monetizationDetails,
+    () => {
+        console.log(monetizationDetails.value);
+    },
+    { deep: true },
+);
+
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
     isFree.value = false;
     emit('update:is-free', false);
@@ -233,24 +241,26 @@ const customValidate = () => {
         }
     }
     //TODO: Somehow get to AssetOfferingDetails component
-    const monetizationTotalErrors = monetizationSchema.safeParse(props.assetOfferingDetails).error?.issues[0]
-        .unionErrors;
-    console.log(monetizationSchema.safeParse(props.assetOfferingDetails).error?.issues);
-    const oneOffErrors = monetizationTotalErrors[0].issues;
-    const subscriptionErrors = monetizationTotalErrors[1].issues;
-    const monetizationUnionErrorsToShow =
-        monetizationDetails.value.type === 'one-off' ? oneOffErrors : subscriptionErrors;
-    for (const error of monetizationUnionErrorsToShow) {
-        if (error.path[0] === 'contractTerms' || error.path[0] === 'license') continue;
-        console.log({ error });
-        errors.push({ path: error.path[0], message: error.message });
+    const monetizationTotalErrors = monetizationSchema.safeParse(monetizationDetails.value).error?.issues;
+    console.log(monetizationTotalErrors);
+    if (monetizationTotalErrors?.length) {
+        for (const error of monetizationTotalErrors) {
+            if (error.path[0] === 'contractTerms') continue;
+            console.log({ error });
+            errors.push({ path: error.path[0], message: error.message });
+        }
     }
     if (!isWorldwide.value && !monetizationDetails.value.region)
         errors.push({ path: 'region', message: t('val.required') });
+    else formRef.value.clear('region');
     if (!isPerpetual.value && !monetizationDetails.value.termDate)
         errors.push({ path: 'termDate', message: t('val.required') });
     else errors.push({ path: 'termDate', message: '' });
     if (!monetizationDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
+    if (!monetizationDetails.value.nonRenewalDays) errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
+    if (!monetizationDetails.value.contractBreachDays)
+        errors.push({ path: 'contractBreachDays', message: t('val.positive') });
+
     return errors;
 };
 
@@ -429,6 +439,17 @@ async function onSubmit(): Promise<void> {
                                                     class="w-full"
                                                 >
                                                 </UInput>
+                                                <template #error="{ error }">
+                                                    <span
+                                                        :class="[
+                                                            error
+                                                                ? 'text-red-500 dark:text-red-400'
+                                                                : 'text-primary-500 dark:text-primary-400',
+                                                        ]"
+                                                    >
+                                                        {{ isWorldwide ? '' : error }}
+                                                    </span>
+                                                </template>
                                             </UFormGroup>
                                             <UFormGroup :label="$t('data.designer.worldwide')">
                                                 <UCheckbox
@@ -539,7 +560,7 @@ async function onSubmit(): Promise<void> {
                                                 :label="$t('data.designer.noticeForNonRenewal')"
                                                 class="flex-1"
                                                 required
-                                                name="price"
+                                                name="nonRenewalDays"
                                             >
                                                 <UInput
                                                     v-model.number="monetizationDetails.nonRenewalDays"
@@ -557,7 +578,7 @@ async function onSubmit(): Promise<void> {
                                                 :label="$t('data.designer.maximumDaysContractBreach')"
                                                 class="flex-1"
                                                 required
-                                                name="price"
+                                                name="contractBreachDays"
                                             >
                                                 <UInput
                                                     v-model.number="monetizationDetails.contractBreachDays"
@@ -848,7 +869,7 @@ async function onSubmit(): Promise<void> {
                                                 :label="$t('data.designer.noticeForNonRenewal')"
                                                 class="flex-1"
                                                 required
-                                                name="price"
+                                                name="nonRenewalDays"
                                             >
                                                 <UInput
                                                     v-model.number="monetizationDetails.nonRenewalDays"
@@ -866,7 +887,7 @@ async function onSubmit(): Promise<void> {
                                                 :label="$t('data.designer.maximumDaysContractBreach')"
                                                 class="flex-1"
                                                 required
-                                                name="price"
+                                                name="contractBreachDays"
                                             >
                                                 <UInput
                                                     v-model.number="monetizationDetails.contractBreachDays"
