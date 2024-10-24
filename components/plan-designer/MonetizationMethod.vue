@@ -235,7 +235,6 @@ const handleMonetizationClick = (value: string) => {
 const customValidate = () => {
     const errors = [];
     emit('update:isAllValid', isAllValid.value);
-    formRef.value.clear();
     //TODO: Somehow get to AssetOfferingDetails component
     const monetizationTotalErrors = monetizationSchema.safeParse(monetizationDetails.value).error?.issues;
     if (monetizationTotalErrors?.length) {
