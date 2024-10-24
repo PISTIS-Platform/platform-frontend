@@ -12,10 +12,6 @@ const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
 const props = defineProps({
-    isAllValid: {
-        type: Boolean,
-        required: true,
-    },
     monetizationDetailsProp: {
         type: Object as PropType<Partial<monetizationType>>,
         required: true,
@@ -24,6 +20,31 @@ const props = defineProps({
         type: Object,
     },
 });
+
+//use computed getter and setter to avoid prop mutation
+const monetizationDetails = computed({
+    get() {
+        return props.monetizationDetailsProp;
+    },
+    set(newValue: Partial<monetizationType>) {
+        emit('update:monetization-details-prop', newValue);
+    },
+});
+
+const isAssetOfferingDetailsValid = computed(() => {
+    // console.log({ assetOfferingDetailsSchema: assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value) });
+    return (
+        assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success &&
+        props.assetOfferingDetails?.keywords.length > 0
+    );
+});
+
+const isMonetizationValid = computed(() => {
+    // console.log({ monetizationSchema: monetizationSchema.safeParse(monetizationDetails.value) });
+    return monetizationSchema.safeParse(monetizationDetails.value).success;
+});
+
+const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
 const assetOfferingDetailsSchema = z.object({
     title: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
@@ -45,24 +66,6 @@ const assetOfferingDetailsSchema = z.object({
 const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
-
-//use computed getter and setter to avoid prop mutation
-const monetizationDetails = computed({
-    get() {
-        return props.monetizationDetailsProp;
-    },
-    set(newValue: Partial<monetizationType>) {
-        emit('update:monetization-details-prop', newValue);
-    },
-});
-
-watch(
-    monetizationDetails,
-    () => {
-        console.log(monetizationDetails.value);
-    },
-    { deep: true },
-);
 
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
     isFree.value = false;
@@ -180,6 +183,7 @@ const emit = defineEmits([
     'update:is-perpetual',
     'update:has-personal-data',
     'changePage',
+    'update:isAllValid',
 ]);
 
 const formRef = ref();
@@ -229,24 +233,21 @@ const handleMonetizationClick = (value: string) => {
 };
 
 const customValidate = () => {
+    emit('update:isAllValid', isAllValid.value);
     formRef.value.clear();
     const errors = [];
     const assetErrors = [];
     const assetTotalErrors = assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).error?.issues;
-    // console.log(assetErrors)
     if (assetTotalErrors?.length) {
         for (const error of assetTotalErrors) {
-            // console.log({ error });
             assetErrors.push({ path: error.path[0], message: error.message });
         }
     }
     //TODO: Somehow get to AssetOfferingDetails component
     const monetizationTotalErrors = monetizationSchema.safeParse(monetizationDetails.value).error?.issues;
-    console.log(monetizationTotalErrors);
     if (monetizationTotalErrors?.length) {
         for (const error of monetizationTotalErrors) {
             if (error.path[0] === 'contractTerms') continue;
-            console.log({ error });
             errors.push({ path: error.path[0], message: error.message });
         }
     }
@@ -265,12 +266,9 @@ const customValidate = () => {
 };
 
 async function onSubmit(): Promise<void> {
-    if (props.isAllValid) {
+    if (isAllValid.value) {
         emit('changePage', 2);
     } else {
-        // console.log(assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).error?.issues);
-
-        // console.log(monetizationSchema.safeParse(monetizationDetails.value).error?.issues);
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }

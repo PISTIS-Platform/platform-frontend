@@ -75,31 +75,6 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
     keywords: [],
 });
 
-const assetOfferingDetailsSchema = z.object({
-    title: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
-    description: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
-    selectedDistribution: z.object({
-        id: z.string(),
-        format: z.object({
-            id: z.string(),
-            label: z.string(),
-            resource: z.string(),
-        }),
-        access_url: z.array(z.string()),
-        title: z.object({
-            en: z.string(),
-        }),
-    }),
-});
-
-const isAssetOfferingDetailsValid = computed(() => {
-    // console.log({ assetOfferingDetailsSchema: assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value) });
-    return (
-        assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
-        assetOfferingDetails.value.keywords.length > 0
-    );
-});
-
 // data for monetization selections
 
 const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
@@ -108,25 +83,20 @@ type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
-    price: 0,
+    price: '',
     license: 'PISTIS License',
     extraTerms: '',
     contractTerms: '',
-    limitNumber: 0,
+    limitNumber: '',
     limitFrequency: '',
     isExclusive: false,
     region: '',
     transferable: '',
     termDate: '',
     additionalRenewalTerms: '',
-    nonRenewalDays: 0,
-    contractBreachDays: 0,
+    nonRenewalDays: '',
+    contractBreachDays: '',
     personalDataTerms: '',
-});
-
-const isMonetizationValid = computed(() => {
-    // console.log({ monetizationSchema: monetizationSchema.safeParse(monetizationDetails.value) });
-    return monetizationSchema.safeParse(monetizationDetails.value).success;
 });
 
 // access policies
@@ -144,9 +114,6 @@ const defaultPolicy: AccessPolicyDetails = {
     default: true,
 };
 policyData.push(defaultPolicy);
-
-// validation data
-const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
 const submitAll = async () => {
     submitSuccess.value = false;
@@ -206,6 +173,8 @@ const steps = computed(() => [
     //TODO: Add extra check for completed access policies info
     { name: t('data.designer.nav.preview'), isActive: selected.value && isAllValid.value },
 ]);
+
+const isAllValid = ref(false);
 
 const selectedPage = ref(0);
 
@@ -293,12 +262,12 @@ const changeStep = async (stepNum: number) => {
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
-            :is-all-valid="isAllValid"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
+            @update:is-all-valid="(value: boolean) => (isAllValid = value)"
         />
     </div>
 
