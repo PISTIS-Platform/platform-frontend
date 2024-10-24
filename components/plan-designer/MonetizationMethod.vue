@@ -98,7 +98,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
             type: 'subscription',
-            subscriptionFrequency: '',
+            subscriptionFrequency: 'monthly',
             price: 0,
             license: licenses.pistis,
             extraTerms: '',
@@ -635,6 +635,7 @@ async function onSubmit(): Promise<void> {
                                                     v-model="monetizationDetails.subscriptionFrequency"
                                                     :label="$t('data.designer.monthly')"
                                                     :value="SubscriptionFrequency.MONTHLY"
+                                                    selected
                                                 />
                                                 <URadio
                                                     v-model="monetizationDetails.subscriptionFrequency"
@@ -642,6 +643,17 @@ async function onSubmit(): Promise<void> {
                                                     :value="SubscriptionFrequency.ANNUAL"
                                                 />
                                             </div>
+                                            <template #error="{ error }">
+                                                <span
+                                                    :class="[
+                                                        error
+                                                            ? 'text-red-500 dark:text-red-400'
+                                                            : 'text-primary-500 dark:text-primary-400',
+                                                    ]"
+                                                >
+                                                    {{ monetizationDetails.subscriptionFrequency ? '' : error }}
+                                                </span>
+                                            </template>
                                         </UFormGroup>
                                         <div class="flex-1 flex gap-4">
                                             <UFormGroup
