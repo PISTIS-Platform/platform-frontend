@@ -93,11 +93,8 @@ const assetOfferingDetailsSchema = z.object({
 });
 
 const isAssetOfferingDetailsValid = computed(() => {
-    console.log(assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value));
-    return (
-        assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
-        assetOfferingDetails.value.keywords.length > 0
-    );
+    assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
+        assetOfferingDetails.value.keywords.length > 0;
 });
 
 // data for monetization selections
