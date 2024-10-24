@@ -25,6 +25,23 @@ const props = defineProps({
     },
 });
 
+const assetOfferingDetailsSchema = z.object({
+    title: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
+    description: z.string().min(50, t('val.atLeastNumberChars', { count: 50 })),
+    selectedDistribution: z.object({
+        id: z.string(),
+        format: z.object({
+            id: z.string(),
+            label: z.string(),
+            resource: z.string(),
+        }),
+        access_url: z.array(z.string()),
+        title: z.object({
+            en: z.string(),
+        }),
+    }),
+});
+
 const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
@@ -203,10 +220,45 @@ const handleMonetizationClick = (value: string) => {
     monetizationToSend.value = value;
 };
 
+const customValidate = () => {
+    const errors = [];
+    const assetErrors = [];
+    const assetTotalErrors = assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).error?.issues;
+    // console.log(assetErrors)
+    if (assetTotalErrors?.length) {
+        for (const error of assetTotalErrors) {
+            // console.log({ error });
+            assetErrors.push({ path: error.path[0], message: error.message });
+        }
+    }
+    //TODO: Somehow get to AssetOfferingDetails component
+    const monetizationTotalErrors = monetizationSchema.safeParse(props.assetOfferingDetails).error?.issues[0]
+        .unionErrors;
+    console.log(monetizationSchema.safeParse(props.assetOfferingDetails).error?.issues);
+    const oneOffErrors = monetizationTotalErrors[0].issues;
+    const subscriptionErrors = monetizationTotalErrors[1].issues;
+    const monetizationUnionErrorsToShow =
+        monetizationDetails.value.type === 'one-off' ? oneOffErrors : subscriptionErrors;
+    for (const error of monetizationUnionErrorsToShow) {
+        if (error.path[0] === 'contractTerms' || error.path[0] === 'license') continue;
+        errors.push({ path: error.path[0], message: error.message });
+    }
+    if (!isWorldwide.value && !monetizationDetails.value.region)
+        errors.push({ path: 'region', message: t('val.required') });
+    if (!isPerpetual.value && !monetizationDetails.value.termDate)
+        errors.push({ path: 'termDate', message: t('val.required') });
+    else errors.push({ path: 'termDate', message: '' });
+    if (!monetizationDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
+    return errors;
+};
+
 async function onSubmit(): Promise<void> {
     if (props.isAllValid) {
         emit('changePage', 2);
     } else {
+        // console.log(assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).error?.issues);
+
+        // console.log(monetizationSchema.safeParse(monetizationDetails.value).error?.issues);
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
@@ -247,7 +299,7 @@ async function onSubmit(): Promise<void> {
                         :key="monetizationDetails.type"
                         class="flex flex-col w-full"
                         :state="monetizationDetails"
-                        :schema="monetizationSchema"
+                        :validate="customValidate"
                         @submit="onSubmit"
                     >
                         <template v-if="monetizationDetails.type === 'one-off'">
