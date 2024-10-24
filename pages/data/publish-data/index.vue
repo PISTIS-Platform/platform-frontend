@@ -93,8 +93,11 @@ const assetOfferingDetailsSchema = z.object({
 });
 
 const isAssetOfferingDetailsValid = computed(() => {
-    assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
-        assetOfferingDetails.value.keywords.length > 0;
+    console.log({ assetOfferingDetailsSchema: assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value) });
+    return (
+        assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
+        assetOfferingDetails.value.keywords.length > 0
+    );
 });
 
 // data for monetization selections
@@ -121,7 +124,10 @@ const monetizationDetails = ref<Partial<monetizationType>>({
     personalDataTerms: '',
 });
 
-const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
+const isMonetizationValid = computed(() => {
+    console.log({ monetizationSchema: monetizationSchema.safeParse(monetizationDetails.value) });
+    return monetizationSchema.safeParse(monetizationDetails.value).success;
+});
 
 // access policies
 const policyData: Array<AccessPolicyDetails> = [];
@@ -170,6 +176,7 @@ const submitAll = async () => {
         });
         submitSuccess.value = true;
         // showSuccessMessage(t('data.designer.assetSubmitted'));
+        await delay(3);
         router.push({ name: 'home' });
         await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}/${newAssetId}?locale=en`, {
             open: {

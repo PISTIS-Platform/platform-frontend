@@ -176,6 +176,7 @@ const submitAll = async () => {
         });
         submitSuccess.value = true;
         // showSuccessMessage(t('data.designer.assetSubmitted'));
+        await delay(3);
         router.push({ name: 'home' });
         await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}/${newAssetId}?locale=en`, {
             open: {
