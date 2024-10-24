@@ -68,10 +68,10 @@ const loadingValuation = ref(false);
 // data for asset offering details
 
 const assetOfferingDetails = ref<AssetOfferingDetails>({
-    title: undefined,
-    description: undefined,
-    distributions: undefined,
-    selectedDistribution: undefined,
+    title: '',
+    description: '',
+    distributions: [{}],
+    selectedDistribution: {},
     keywords: [],
 });
 
@@ -108,19 +108,19 @@ type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
-    price: undefined,
+    price: 0,
     license: 'PISTIS License',
     extraTerms: '',
     contractTerms: '',
-    limitNumber: undefined,
+    limitNumber: 0,
     limitFrequency: '',
     isExclusive: false,
     region: '',
     transferable: '',
     termDate: '',
     additionalRenewalTerms: '',
-    nonRenewalDays: undefined,
-    contractBreachDays: undefined,
+    nonRenewalDays: 0,
+    contractBreachDays: 0,
     personalDataTerms: '',
 });
 

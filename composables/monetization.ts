@@ -10,7 +10,7 @@ export const useMonetizationSchema = () => {
     const oneOffSaleSchema = z
         .object({
             type: z.literal('one-off'),
-            price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
+            price: z.number({ invalid_type_error: t('val.validNumber') }).refine(
                 (val) => {
                     return isFree.value ? val === 0 : val > 0;
                 },
@@ -49,13 +49,6 @@ export const useMonetizationSchema = () => {
             personalDataTerms: z.string().optional(),
         })
         .superRefine((data, ctx) => {
-            // if (!data.limitFrequency) {
-            //     ctx.addIssue({
-            //         code: z.ZodIssueCode.custom,
-            //         message: t('val.required'),
-            //     });
-            // }
-
             if (data.license === 'PISTIS License') {
                 if (!data.region && !isWorldwide.value) {
                     ctx.addIssue({
@@ -63,6 +56,7 @@ export const useMonetizationSchema = () => {
                         message: t('val.required'),
                     });
                 }
+
                 if (!data.transferable) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,

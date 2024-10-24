@@ -69,38 +69,38 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
             type: 'one-off',
-            price: undefined,
+            price: 0,
             license: licenses.pistis,
             extraTerms: '',
             contractTerms: '',
-            limitNumber: undefined,
+            limitNumber: 0,
             limitFrequency: '',
             isExclusive: false,
             region: '',
             transferable: '',
             termDate: '',
             additionalRenewalTerms: '',
-            nonRenewalDays: undefined,
-            contractBreachDays: undefined,
+            nonRenewalDays: 0,
+            contractBreachDays: 0,
             personalDataTerms: '',
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
             type: 'subscription',
             subscriptionFrequency: '',
-            price: undefined,
+            price: 0,
             license: licenses.pistis,
             extraTerms: '',
             contractTerms: '',
-            limitNumber: undefined,
+            limitNumber: 0,
             limitFrequency: '',
             isExclusive: false,
             region: '',
             transferable: '',
             termDate: '',
             additionalRenewalTerms: '',
-            nonRenewalDays: undefined,
-            contractBreachDays: undefined,
+            nonRenewalDays: 0,
+            contractBreachDays: 0,
             personalDataTerms: '',
         };
     } else if (monetizationType === 'investment') {
@@ -242,6 +242,7 @@ const customValidate = () => {
         monetizationDetails.value.type === 'one-off' ? oneOffErrors : subscriptionErrors;
     for (const error of monetizationUnionErrorsToShow) {
         if (error.path[0] === 'contractTerms' || error.path[0] === 'license') continue;
+        console.log({ error });
         errors.push({ path: error.path[0], message: error.message });
     }
     if (!isWorldwide.value && !monetizationDetails.value.region)
