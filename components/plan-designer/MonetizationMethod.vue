@@ -31,6 +31,23 @@ const monetizationDetails = computed({
     },
 });
 
+const assetOfferingDetailsSchema = z.object({
+    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    selectedDistribution: z.object({
+        id: z.string(),
+        format: z.object({
+            id: z.string(),
+            label: z.string(),
+            resource: z.string(),
+        }),
+        access_url: z.array(z.string()),
+        title: z.object({
+            en: z.string(),
+        }),
+    }),
+});
+
 const isAssetOfferingDetailsValid = computed(() => {
     // console.log({ assetOfferingDetailsSchema: assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value) });
     return (
@@ -45,23 +62,6 @@ const isMonetizationValid = computed(() => {
 });
 
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
-
-const assetOfferingDetailsSchema = z.object({
-    title: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
-    description: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
-    selectedDistribution: z.object({
-        id: z.string(),
-        format: z.object({
-            id: z.string(),
-            label: z.string(),
-            resource: z.string(),
-        }),
-        access_url: z.array(z.string()),
-        title: z.object({
-            en: z.string(),
-        }),
-    }),
-});
 
 const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 
@@ -233,16 +233,9 @@ const handleMonetizationClick = (value: string) => {
 };
 
 const customValidate = () => {
+    const errors = [];
     emit('update:isAllValid', isAllValid.value);
     formRef.value.clear();
-    const errors = [];
-    const assetErrors = [];
-    const assetTotalErrors = assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).error?.issues;
-    if (assetTotalErrors?.length) {
-        for (const error of assetTotalErrors) {
-            assetErrors.push({ path: error.path[0], message: error.message });
-        }
-    }
     //TODO: Somehow get to AssetOfferingDetails component
     const monetizationTotalErrors = monetizationSchema.safeParse(monetizationDetails.value).error?.issues;
     if (monetizationTotalErrors?.length) {
@@ -269,6 +262,9 @@ async function onSubmit(): Promise<void> {
     if (isAllValid.value) {
         emit('changePage', 2);
     } else {
+        if (!props.assetOfferingDetails?.keywords?.length) {
+            showErrorMessage(t('data.designer.pleaseEnterAtLeastOneKeyword'));
+        }
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
@@ -310,7 +306,7 @@ async function onSubmit(): Promise<void> {
                         class="flex flex-col w-full"
                         :state="monetizationDetails"
                         :validate="customValidate"
-                        :validate-on="['input', 'submit', 'blur']"
+                        :validate-on="['input', 'submit', 'blur', 'change']"
                         @submit="onSubmit"
                     >
                         <template v-if="monetizationDetails.type === 'one-off'">

@@ -14,8 +14,8 @@ const props = defineProps({
 const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid']);
 
 const schema = z.object({
-    title: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
-    description: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
+    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
     selectedDistribution: z.object({
         label: z.string(),
         id: z.string(),
@@ -40,6 +40,19 @@ const assetOfferingDetails = computed({
         emit('update:asset-details-prop', newValue);
     },
 });
+
+const customValidate = () => {
+    const assetErrors = [];
+    const assetTotalErrors = schema.safeParse(assetOfferingDetails.value).error?.issues;
+    if (assetTotalErrors?.length) {
+        for (const error of assetTotalErrors) {
+            assetErrors.push({ path: error.path[0], message: error.message });
+        }
+    }
+    if (!assetOfferingDetails.value.keywords?.length)
+        assetErrors.push({ path: 'keywords', message: t('val.required') });
+    return assetErrors;
+};
 </script>
 
 <template>
@@ -58,7 +71,13 @@ const assetOfferingDetails = computed({
                     :info="$t('data.designer.assetOfferingDetailsInfo')"
                 />
             </template>
-            <UForm class="flex flex-col space-y-5 w-full" :state="assetOfferingDetails" :schema="schema">
+            <UForm
+                class="flex flex-col space-y-5 w-full"
+                :state="assetOfferingDetails"
+                :schema="schema"
+                :validate="customValidate"
+                :validate-on="['input', 'submit', 'blur', 'change']"
+            >
                 <UFormGroup :label="$t('title')" required name="title">
                     <UInput v-model="assetOfferingDetails.title" :placeholder="$t('data.designer.titleOfAsset')" />
                 </UFormGroup>
@@ -76,7 +95,7 @@ const assetOfferingDetails = computed({
                     >
                     </USelectMenu>
                 </UFormGroup>
-                <UFormGroup :label="$t('keywords')" required>
+                <UFormGroup :label="$t('keywords')" required name="keywords">
                     <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->
                     <vue3-tags-input
                         :tags="assetOfferingDetails.keywords"
