@@ -168,11 +168,11 @@ const submitAll = async () => {
         });
         showSuccessMessage(t('data.designer.assetSubmitted'));
         router.push({ name: 'home' });
-        await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}/${newAssetId}?locale=en`, {
+        await navigateTo(`https://pistis-market.eu/srv/catalog/datasets/${newAssetId}`, {
             open: {
                 target: '_blank',
             },
-            external: true,
+            // external: true,
         });
     } catch (error) {
         submitError.value = true;
