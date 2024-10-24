@@ -32,7 +32,7 @@ export const useMonetizationSchema = () => {
                         message: t('val.zeroOrPositive'),
                     },
                 ),
-            limitFrequency: z.string().min(1, t('val.required')),
+            limitFrequency: z.string(),
             isExclusive: z.boolean().optional(),
             region: z.string().optional(),
             transferable: z.string().optional(),
@@ -49,6 +49,13 @@ export const useMonetizationSchema = () => {
             personalDataTerms: z.string().optional(),
         })
         .superRefine((data, ctx) => {
+            // if (!data.limitFrequency) {
+            //     ctx.addIssue({
+            //         code: z.ZodIssueCode.custom,
+            //         message: t('val.required'),
+            //     });
+            // }
+
             if (data.license === 'PISTIS License') {
                 if (!data.region && !isWorldwide.value) {
                     ctx.addIssue({
@@ -56,7 +63,6 @@ export const useMonetizationSchema = () => {
                         message: t('val.required'),
                     });
                 }
-
                 if (!data.transferable) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,

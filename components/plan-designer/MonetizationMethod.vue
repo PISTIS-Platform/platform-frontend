@@ -158,11 +158,11 @@ const transferableSelections = [
 ];
 
 const limitFrequencySelections = computed(() => [
-    { title: t('perHour'), value: DownloadFrequency.HOUR },
-    { title: t('perDay'), value: DownloadFrequency.DAY },
-    { title: t('perWeek'), value: DownloadFrequency.WEEK },
-    { title: t('perMonth'), value: DownloadFrequency.MONTH },
-    { title: t('perYear'), value: DownloadFrequency.YEAR },
+    { title: t('perHour'), value: DownloadFrequency.HOUR as string },
+    { title: t('perDay'), value: DownloadFrequency.DAY as string },
+    { title: t('perWeek'), value: DownloadFrequency.WEEK as string },
+    { title: t('perMonth'), value: DownloadFrequency.MONTH as string },
+    { title: t('perYear'), value: DownloadFrequency.YEAR as string },
 ]);
 
 const emit = defineEmits([
@@ -221,6 +221,7 @@ const handleMonetizationClick = (value: string) => {
 };
 
 const customValidate = () => {
+    formRef.value.clear();
     const errors = [];
     const assetErrors = [];
     const assetTotalErrors = assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).error?.issues;
@@ -300,6 +301,7 @@ async function onSubmit(): Promise<void> {
                         class="flex flex-col w-full"
                         :state="monetizationDetails"
                         :validate="customValidate"
+                        :validate-on="['input', 'submit', 'blur']"
                         @submit="onSubmit"
                     >
                         <template v-if="monetizationDetails.type === 'one-off'">
@@ -458,7 +460,7 @@ async function onSubmit(): Promise<void> {
                                             <UFormGroup
                                                 :label="$t('data.designer.termDate')"
                                                 :required="!isPerpetual"
-                                                name="transferable"
+                                                name="termDate"
                                                 class="text-gray-200"
                                             >
                                                 <UPopover :popper="{ placement: 'bottom-start' }">
@@ -490,6 +492,17 @@ async function onSubmit(): Promise<void> {
                                                         />
                                                     </template>
                                                 </UPopover>
+                                                <template #error="{ error }">
+                                                    <span
+                                                        :class="[
+                                                            error
+                                                                ? 'text-red-500 dark:text-red-400'
+                                                                : 'text-primary-500 dark:text-primary-400',
+                                                        ]"
+                                                    >
+                                                        {{ isPerpetual || monetizationDetails.termDate ? '' : error }}
+                                                    </span>
+                                                </template>
                                             </UFormGroup>
                                             <UFormGroup :label="$t('data.designer.perpetual')">
                                                 <UCheckbox
@@ -756,7 +769,7 @@ async function onSubmit(): Promise<void> {
                                             <UFormGroup
                                                 :label="$t('data.designer.termDate')"
                                                 :required="!isPerpetual"
-                                                name="transferable"
+                                                name="termDate"
                                                 class="text-gray-200"
                                             >
                                                 <UPopover :popper="{ placement: 'bottom-start' }">
@@ -788,6 +801,17 @@ async function onSubmit(): Promise<void> {
                                                         />
                                                     </template>
                                                 </UPopover>
+                                                <template #error="{ error }">
+                                                    <span
+                                                        :class="[
+                                                            error
+                                                                ? 'text-red-500 dark:text-red-400'
+                                                                : 'text-primary-500 dark:text-primary-400',
+                                                        ]"
+                                                    >
+                                                        {{ isPerpetual || monetizationDetails.termDate ? '' : error }}
+                                                    </span>
+                                                </template>
                                             </UFormGroup>
                                             <UFormGroup :label="$t('data.designer.perpetual')">
                                                 <UCheckbox
