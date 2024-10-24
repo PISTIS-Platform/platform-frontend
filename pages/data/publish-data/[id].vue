@@ -128,6 +128,7 @@ const submitAll = async () => {
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         termDate: monetizationDetails.value.termDate ?? new Date(86400000000000),
+        distributionId: assetOfferingDetails.value.selectedDistribution.id,
         assetId: newAssetId,
         accessPolicies: {
             assetId: newAssetId,
@@ -139,6 +140,8 @@ const submitAll = async () => {
         numOfResell: 0,
         numOfShare: 0,
     };
+    delete body.distributions;
+    delete body.selectedDistribution;
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
