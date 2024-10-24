@@ -142,15 +142,14 @@ const submitAll = async () => {
             body,
         });
         submitSuccess.value = true;
-        // showSuccessMessage(t('data.designer.assetSubmitted'));
         await delay(3);
-        router.push({ name: 'home' });
-        await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}/${newAssetId}?locale=en`, {
+        await navigateTo(`https://pistis-market.eu/srv/catalog/datasets/${newAssetId}`, {
             open: {
                 target: '_blank',
             },
-            external: true,
+            // external: true,
         });
+        router.push({ name: 'home' });
     } catch (error) {
         submitError.value = true;
     }
