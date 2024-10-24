@@ -9,14 +9,13 @@ import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/pla
 const runtimeConfig = useRuntimeConfig();
 
 const { data: session } = useAuth();
-const { showSuccessMessage } = useAlertMessage();
+// const { showSuccessMessage } = useAlertMessage();
 const router = useRouter();
 const { t } = useI18n();
 const submitError = ref(false);
+const submitSuccess = ref(false);
 const route = useRoute();
 const assetId = route.params.id;
-
-//data for selected dataset
 
 //TODO: Get ID and data to pass down to DatasetSelector from API call
 const selected = ref<
@@ -72,35 +71,12 @@ const loadingValuation = ref(false);
 // data for asset offering details
 
 const assetOfferingDetails = ref<AssetOfferingDetails>({
-    title: undefined,
-    description: undefined,
-    distributions: undefined,
-    selectedDistribution: undefined,
+    title: '',
+    description: '',
+    distributions: [{}],
+    selectedDistribution: {},
     keywords: [],
 });
-
-const assetOfferingDetailsSchema = z.object({
-    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
-    selectedDistribution: z.object({
-        id: z.string(),
-        format: z.object({
-            id: z.string(),
-            label: z.string(),
-            resource: z.string(),
-        }),
-        access_url: z.array(z.string()),
-        title: z.object({
-            en: z.string(),
-        }),
-    }),
-});
-
-const isAssetOfferingDetailsValid = computed(
-    () =>
-        assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
-        assetOfferingDetails.value.keywords.length > 0,
-);
 
 // data for monetization selections
 
@@ -110,23 +86,21 @@ type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
-    price: undefined,
+    price: 0,
     license: 'PISTIS License',
     extraTerms: '',
     contractTerms: '',
-    limitNumber: undefined,
+    limitNumber: 0,
     limitFrequency: '',
     isExclusive: false,
     region: '',
     transferable: '',
     termDate: '',
     additionalRenewalTerms: '',
-    nonRenewalDays: undefined,
-    contractBreachDays: undefined,
+    nonRenewalDays: 0,
+    contractBreachDays: 0,
     personalDataTerms: '',
 });
-
-const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
 // access policies
 const policyData: Array<AccessPolicyDetails> = [];
@@ -144,10 +118,12 @@ const defaultPolicy: AccessPolicyDetails = {
 };
 policyData.push(defaultPolicy);
 
-// validation data
-const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
+const submitting = ref(false);
 
 const submitAll = async () => {
+    submitting.value = true;
+    submitSuccess.value = false;
+    submitError.value = false;
     let body = {
         originalAssetId: selected.value?.id,
         organizationId: runtimeConfig.public?.orgId,
@@ -155,6 +131,7 @@ const submitAll = async () => {
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         termDate: monetizationDetails.value.termDate ?? new Date(86400000000000),
+        distributionId: assetOfferingDetails.value.selectedDistribution.id,
         assetId: newAssetId,
         accessPolicies: {
             assetId: newAssetId,
@@ -166,12 +143,16 @@ const submitAll = async () => {
         numOfResell: 0,
         numOfShare: 0,
     };
+    delete body.distributions;
+    delete body.selectedDistribution;
+
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
             body,
         });
-        showSuccessMessage(t('data.designer.assetSubmitted'));
+        submitSuccess.value = true;
+        await delay(3);
         await navigateTo(`https://pistis-market.eu/srv/catalog/datasets/${newAssetId}`, {
             open: {
                 target: '_blank',
@@ -181,6 +162,8 @@ const submitAll = async () => {
         router.push({ name: 'home' });
     } catch (error) {
         submitError.value = true;
+    } finally {
+        submitting.value = false;
     }
 
     return body;
@@ -195,18 +178,21 @@ const limitFrequencySelections = computed(() => [
 ]);
 
 const steps = computed(() => [
-    { name: t('data.designer.nav.selectDataset'), isActive: false },
+    { name: t('data.designer.nav.selectDataset'), isActive: true },
     { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value },
     { name: t('data.designer.nav.accessPoliciesEditor'), isActive: selected.value && isAllValid.value },
     //TODO: Add extra check for completed access policies info
     { name: t('data.designer.nav.preview'), isActive: selected.value && isAllValid.value },
 ]);
 
+const isAllValid = ref(false);
+
 const selectedPage = ref(1);
 
 const handlePageSelectionBackwards = (value: number) => {
     selectedPage.value = value;
     submitError.value = false;
+    submitSuccess.value = false;
 };
 
 const changeStep = async (stepNum: number) => {
@@ -232,40 +218,12 @@ const changeStep = async (stepNum: number) => {
         //TODO:: use returned compose contract for other pistis components
     }
 };
-
-const goToCatalog = async () => {
-    //TODO: Check if link should be different
-    await navigateTo('https://pistis-market.eu/srv/catalog/datasets?locale=en', {
-        external: true,
-    });
-};
 </script>
 
 <template>
     <NavigationSteps :steps="steps" :selected-page="selectedPage" @select-page="changeStep" />
 
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
-
-    <UAlert
-        v-if="!selected && datasetsStatus !== 'pending'"
-        icon="mingcute:alert-line"
-        color="red"
-        variant="subtle"
-        :title="$t('data.designer.datasetIdNotFound')"
-        :description="$t('data.designer.pleaseGoBackCatalog')"
-        class="cursor-pointer"
-        @click="goToCatalog()"
-    />
-
-    <div class="w-full mb-6">
-        <UAlert
-            v-if="submitError"
-            icon="mingcute:alert-line"
-            color="red"
-            variant="subtle"
-            :description="$t('data.designer.errorInSubmitAsset')"
-        />
-    </div>
 
     <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
@@ -276,23 +234,21 @@ const goToCatalog = async () => {
         />
 
         <AssetOfferingDetails
-            v-if="selected"
             v-model:asset-details-prop="assetOfferingDetails"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
         />
 
-        <FairSuggestions v-if="selected" v-model="fairValuationInfo" :loading-valuation="loadingValuation" />
+        <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" />
 
         <MonetizationMethod
-            v-if="selected"
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
-            :is-all-valid="isAllValid"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
+            @update:is-all-valid="(value: boolean) => (isAllValid = value)"
         />
     </div>
 
@@ -308,13 +264,16 @@ const goToCatalog = async () => {
     </template>
 
     <Preview
-        v-if="isAllValid && selectedPage === 3 && completeOrQuery && selected"
+        v-if="isAllValid && selectedPage === 3 && completeOrQuery && selected?.title"
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
         :limit-frequency-selections="limitFrequencySelections"
         :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
         :has-personal-data="hasPersonalData"
+        :submit-error="submitError"
+        :submit-success="submitSuccess"
+        :submitting="submitting"
         @handle-page-selection-backwards="handlePageSelectionBackwards"
         @submit-all="submitAll"
     />

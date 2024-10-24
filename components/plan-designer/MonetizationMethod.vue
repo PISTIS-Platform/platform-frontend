@@ -12,10 +12,6 @@ const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
 const props = defineProps({
-    isAllValid: {
-        type: Boolean,
-        required: true,
-    },
     monetizationDetailsProp: {
         type: Object as PropType<Partial<monetizationType>>,
         required: true,
@@ -24,10 +20,6 @@ const props = defineProps({
         type: Object,
     },
 });
-
-const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
-
-type monetizationType = z.infer<typeof monetizationSchema>;
 
 //use computed getter and setter to avoid prop mutation
 const monetizationDetails = computed({
@@ -38,6 +30,42 @@ const monetizationDetails = computed({
         emit('update:monetization-details-prop', newValue);
     },
 });
+
+const assetOfferingDetailsSchema = z.object({
+    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    selectedDistribution: z.object({
+        id: z.string(),
+        format: z.object({
+            id: z.string(),
+            label: z.string(),
+            resource: z.string(),
+        }),
+        access_url: z.array(z.string()),
+        title: z.object({
+            en: z.string(),
+        }),
+    }),
+});
+
+const isAssetOfferingDetailsValid = computed(() => {
+    // console.log({ assetOfferingDetailsSchema: assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value) });
+    return (
+        assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success &&
+        props.assetOfferingDetails?.keywords.length > 0
+    );
+});
+
+const isMonetizationValid = computed(() => {
+    // console.log({ monetizationSchema: monetizationSchema.safeParse(monetizationDetails.value) });
+    return monetizationSchema.safeParse(monetizationDetails.value).success;
+});
+
+const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
+
+const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
+
+type monetizationType = z.infer<typeof monetizationSchema>;
 
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
     isFree.value = false;
@@ -52,38 +80,38 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
             type: 'one-off',
-            price: undefined,
+            price: 0,
             license: licenses.pistis,
             extraTerms: '',
             contractTerms: '',
-            limitNumber: undefined,
+            limitNumber: 0,
             limitFrequency: '',
             isExclusive: false,
             region: '',
             transferable: '',
             termDate: '',
             additionalRenewalTerms: '',
-            nonRenewalDays: undefined,
-            contractBreachDays: undefined,
+            nonRenewalDays: 0,
+            contractBreachDays: 0,
             personalDataTerms: '',
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
             type: 'subscription',
-            subscriptionFrequency: '',
-            price: undefined,
+            subscriptionFrequency: 'monthly',
+            price: 0,
             license: licenses.pistis,
             extraTerms: '',
             contractTerms: '',
-            limitNumber: undefined,
+            limitNumber: 0,
             limitFrequency: '',
             isExclusive: false,
             region: '',
             transferable: '',
             termDate: '',
             additionalRenewalTerms: '',
-            nonRenewalDays: undefined,
-            contractBreachDays: undefined,
+            nonRenewalDays: 0,
+            contractBreachDays: 0,
             personalDataTerms: '',
         };
     } else if (monetizationType === 'investment') {
@@ -141,11 +169,11 @@ const transferableSelections = [
 ];
 
 const limitFrequencySelections = computed(() => [
-    { title: t('perHour'), value: DownloadFrequency.HOUR },
-    { title: t('perDay'), value: DownloadFrequency.DAY },
-    { title: t('perWeek'), value: DownloadFrequency.WEEK },
-    { title: t('perMonth'), value: DownloadFrequency.MONTH },
-    { title: t('perYear'), value: DownloadFrequency.YEAR },
+    { title: t('perHour'), value: DownloadFrequency.HOUR as string },
+    { title: t('perDay'), value: DownloadFrequency.DAY as string },
+    { title: t('perWeek'), value: DownloadFrequency.WEEK as string },
+    { title: t('perMonth'), value: DownloadFrequency.MONTH as string },
+    { title: t('perYear'), value: DownloadFrequency.YEAR as string },
 ]);
 
 const emit = defineEmits([
@@ -155,6 +183,7 @@ const emit = defineEmits([
     'update:is-perpetual',
     'update:has-personal-data',
     'changePage',
+    'update:isAllValid',
 ]);
 
 const formRef = ref();
@@ -203,10 +232,37 @@ const handleMonetizationClick = (value: string) => {
     monetizationToSend.value = value;
 };
 
+const customValidate = () => {
+    const errors = [];
+    emit('update:isAllValid', isAllValid.value);
+    //TODO: Somehow get to AssetOfferingDetails component
+    const monetizationTotalErrors = monetizationSchema.safeParse(monetizationDetails.value).error?.issues;
+    if (monetizationTotalErrors?.length) {
+        for (const error of monetizationTotalErrors) {
+            if (error.path[0] === 'contractTerms') continue;
+            errors.push({ path: error.path[0], message: error.message });
+        }
+    }
+    if (!isWorldwide.value && !monetizationDetails.value.region)
+        errors.push({ path: 'region', message: t('val.required') });
+    else formRef.value.clear('region');
+    if (!isPerpetual.value && !monetizationDetails.value.termDate)
+        errors.push({ path: 'termDate', message: t('val.required') });
+    if (!monetizationDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
+    if (!monetizationDetails.value.nonRenewalDays) errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
+    if (!monetizationDetails.value.contractBreachDays)
+        errors.push({ path: 'contractBreachDays', message: t('val.positive') });
+
+    return errors;
+};
+
 async function onSubmit(): Promise<void> {
-    if (props.isAllValid) {
+    if (isAllValid.value) {
         emit('changePage', 2);
     } else {
+        if (!props.assetOfferingDetails?.keywords?.length) {
+            showErrorMessage(t('data.designer.pleaseEnterAtLeastOneKeyword'));
+        }
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
@@ -247,7 +303,8 @@ async function onSubmit(): Promise<void> {
                         :key="monetizationDetails.type"
                         class="flex flex-col w-full"
                         :state="monetizationDetails"
-                        :schema="monetizationSchema"
+                        :validate="customValidate"
+                        :validate-on="['input', 'submit', 'blur', 'change']"
                         @submit="onSubmit"
                     >
                         <template v-if="monetizationDetails.type === 'one-off'">
@@ -374,6 +431,17 @@ async function onSubmit(): Promise<void> {
                                                     class="w-full"
                                                 >
                                                 </UInput>
+                                                <template #error="{ error }">
+                                                    <span
+                                                        :class="[
+                                                            error
+                                                                ? 'text-red-500 dark:text-red-400'
+                                                                : 'text-primary-500 dark:text-primary-400',
+                                                        ]"
+                                                    >
+                                                        {{ isWorldwide ? '' : error }}
+                                                    </span>
+                                                </template>
                                             </UFormGroup>
                                             <UFormGroup :label="$t('data.designer.worldwide')">
                                                 <UCheckbox
@@ -406,7 +474,7 @@ async function onSubmit(): Promise<void> {
                                             <UFormGroup
                                                 :label="$t('data.designer.termDate')"
                                                 :required="!isPerpetual"
-                                                name="transferable"
+                                                name="termDate"
                                                 class="text-gray-200"
                                             >
                                                 <UPopover :popper="{ placement: 'bottom-start' }">
@@ -438,6 +506,17 @@ async function onSubmit(): Promise<void> {
                                                         />
                                                     </template>
                                                 </UPopover>
+                                                <template #error="{ error }">
+                                                    <span
+                                                        :class="[
+                                                            error
+                                                                ? 'text-red-500 dark:text-red-400'
+                                                                : 'text-primary-500 dark:text-primary-400',
+                                                        ]"
+                                                    >
+                                                        {{ isPerpetual || monetizationDetails.termDate ? '' : error }}
+                                                    </span>
+                                                </template>
                                             </UFormGroup>
                                             <UFormGroup :label="$t('data.designer.perpetual')">
                                                 <UCheckbox
@@ -473,7 +552,7 @@ async function onSubmit(): Promise<void> {
                                                 :label="$t('data.designer.noticeForNonRenewal')"
                                                 class="flex-1"
                                                 required
-                                                name="price"
+                                                name="nonRenewalDays"
                                             >
                                                 <UInput
                                                     v-model.number="monetizationDetails.nonRenewalDays"
@@ -491,7 +570,7 @@ async function onSubmit(): Promise<void> {
                                                 :label="$t('data.designer.maximumDaysContractBreach')"
                                                 class="flex-1"
                                                 required
-                                                name="price"
+                                                name="contractBreachDays"
                                             >
                                                 <UInput
                                                     v-model.number="monetizationDetails.contractBreachDays"
@@ -550,6 +629,7 @@ async function onSubmit(): Promise<void> {
                                                     v-model="monetizationDetails.subscriptionFrequency"
                                                     :label="$t('data.designer.monthly')"
                                                     :value="SubscriptionFrequency.MONTHLY"
+                                                    selected
                                                 />
                                                 <URadio
                                                     v-model="monetizationDetails.subscriptionFrequency"
@@ -557,6 +637,17 @@ async function onSubmit(): Promise<void> {
                                                     :value="SubscriptionFrequency.ANNUAL"
                                                 />
                                             </div>
+                                            <template #error="{ error }">
+                                                <span
+                                                    :class="[
+                                                        error
+                                                            ? 'text-red-500 dark:text-red-400'
+                                                            : 'text-primary-500 dark:text-primary-400',
+                                                    ]"
+                                                >
+                                                    {{ monetizationDetails.subscriptionFrequency ? '' : error }}
+                                                </span>
+                                            </template>
                                         </UFormGroup>
                                         <div class="flex-1 flex gap-4">
                                             <UFormGroup
@@ -704,7 +795,7 @@ async function onSubmit(): Promise<void> {
                                             <UFormGroup
                                                 :label="$t('data.designer.termDate')"
                                                 :required="!isPerpetual"
-                                                name="transferable"
+                                                name="termDate"
                                                 class="text-gray-200"
                                             >
                                                 <UPopover :popper="{ placement: 'bottom-start' }">
@@ -736,6 +827,17 @@ async function onSubmit(): Promise<void> {
                                                         />
                                                     </template>
                                                 </UPopover>
+                                                <template #error="{ error }">
+                                                    <span
+                                                        :class="[
+                                                            error
+                                                                ? 'text-red-500 dark:text-red-400'
+                                                                : 'text-primary-500 dark:text-primary-400',
+                                                        ]"
+                                                    >
+                                                        {{ isPerpetual || monetizationDetails.termDate ? '' : error }}
+                                                    </span>
+                                                </template>
                                             </UFormGroup>
                                             <UFormGroup :label="$t('data.designer.perpetual')">
                                                 <UCheckbox
@@ -771,7 +873,7 @@ async function onSubmit(): Promise<void> {
                                                 :label="$t('data.designer.noticeForNonRenewal')"
                                                 class="flex-1"
                                                 required
-                                                name="price"
+                                                name="nonRenewalDays"
                                             >
                                                 <UInput
                                                     v-model.number="monetizationDetails.nonRenewalDays"
@@ -789,7 +891,7 @@ async function onSubmit(): Promise<void> {
                                                 :label="$t('data.designer.maximumDaysContractBreach')"
                                                 class="flex-1"
                                                 required
-                                                name="price"
+                                                name="contractBreachDays"
                                             >
                                                 <UInput
                                                     v-model.number="monetizationDetails.contractBreachDays"

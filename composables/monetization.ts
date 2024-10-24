@@ -10,7 +10,7 @@ export const useMonetizationSchema = () => {
     const oneOffSaleSchema = z
         .object({
             type: z.literal('one-off'),
-            price: z.coerce.number({ invalid_type_error: t('val.validNumber') }).refine(
+            price: z.number({ invalid_type_error: t('val.validNumber') }).refine(
                 (val) => {
                     return isFree.value ? val === 0 : val > 0;
                 },
@@ -23,13 +23,13 @@ export const useMonetizationSchema = () => {
             contractTerms: z.string().min(1, t('val.required')),
             limitNumber: z.coerce
                 .number({ invalid_type_error: t('val.validNumber') })
-                .gte(0, t('val.zeroOrPositive'))
+                .gte(0, t('val.positive'))
                 .refine(
                     (val) => {
                         return val > 0;
                     },
                     {
-                        message: t('val.zeroOrPositive'),
+                        message: t('val.positive'),
                     },
                 ),
             limitFrequency: z.string().min(1, t('val.required')),
@@ -40,11 +40,11 @@ export const useMonetizationSchema = () => {
             additionalRenewalTerms: z.string().optional(),
             nonRenewalDays: z.coerce
                 .number({ invalid_type_error: t('val.validNumber') })
-                .gte(0, t('val.zeroOrPositive'))
+                .gte(0, t('val.positive'))
                 .optional(),
             contractBreachDays: z.coerce
                 .number({ invalid_type_error: t('val.validNumber') })
-                .gte(0, t('val.zeroOrPositive'))
+                .gte(0, t('val.positive'))
                 .optional(),
             personalDataTerms: z.string().optional(),
         })
@@ -74,14 +74,14 @@ export const useMonetizationSchema = () => {
                 if (!data.nonRenewalDays) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        message: t('val.required'),
+                        message: t('val.positive'),
                     });
                 }
 
                 if (!data.contractBreachDays) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        message: t('val.required'),
+                        message: t('val.positive'),
                     });
                 }
 
@@ -111,13 +111,13 @@ export const useMonetizationSchema = () => {
             contractTerms: z.string().min(1, t('val.required')),
             limitNumber: z.coerce
                 .number({ invalid_type_error: t('val.validNumber') })
-                .gte(0, t('val.zeroOrPositive'))
+                .gte(0, t('val.positive'))
                 .refine(
                     (val) => {
                         return val > 0;
                     },
                     {
-                        message: t('val.zeroOrPositive'),
+                        message: t('val.positive'),
                     },
                 ),
             limitFrequency: z.string().min(1, t('val.required')),
@@ -128,11 +128,11 @@ export const useMonetizationSchema = () => {
             additionalRenewalTerms: z.string().optional(),
             nonRenewalDays: z.coerce
                 .number({ invalid_type_error: t('val.validNumber') })
-                .gte(0, t('val.zeroOrPositive'))
+                .gte(0, t('val.positive'))
                 .optional(),
             contractBreachDays: z.coerce
                 .number({ invalid_type_error: t('val.validNumber') })
-                .gte(0, t('val.zeroOrPositive'))
+                .gte(0, t('val.positive'))
                 .optional(),
             personalDataTerms: z.string().optional(),
         })
@@ -162,14 +162,14 @@ export const useMonetizationSchema = () => {
                 if (!data.nonRenewalDays) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        message: t('val.required'),
+                        message: t('val.positive'),
                     });
                 }
 
                 if (!data.contractBreachDays) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        message: t('val.required'),
+                        message: t('val.positive'),
                     });
                 }
 

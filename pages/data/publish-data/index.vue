@@ -9,10 +9,11 @@ import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/pla
 const runtimeConfig = useRuntimeConfig();
 
 const { data: session } = useAuth();
-const { showSuccessMessage } = useAlertMessage();
+// const { showSuccessMessage } = useAlertMessage();
 const router = useRouter();
 const { t } = useI18n();
 const submitError = ref(false);
+const submitSuccess = ref(false);
 
 //data for selected dataset
 
@@ -67,35 +68,12 @@ const loadingValuation = ref(false);
 // data for asset offering details
 
 const assetOfferingDetails = ref<AssetOfferingDetails>({
-    title: undefined,
-    description: undefined,
-    distributions: undefined,
-    selectedDistribution: undefined,
+    title: '',
+    description: '',
+    distributions: [{}],
+    selectedDistribution: {},
     keywords: [],
 });
-
-const assetOfferingDetailsSchema = z.object({
-    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
-    selectedDistribution: z.object({
-        id: z.string(),
-        format: z.object({
-            id: z.string(),
-            label: z.string(),
-            resource: z.string(),
-        }),
-        access_url: z.array(z.string()),
-        title: z.object({
-            en: z.string(),
-        }),
-    }),
-});
-
-const isAssetOfferingDetailsValid = computed(
-    () =>
-        assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
-        assetOfferingDetails.value.keywords.length > 0,
-);
 
 // data for monetization selections
 
@@ -105,23 +83,21 @@ type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
-    price: undefined,
+    price: 0,
     license: 'PISTIS License',
     extraTerms: '',
     contractTerms: '',
-    limitNumber: undefined,
+    limitNumber: 0,
     limitFrequency: '',
     isExclusive: false,
     region: '',
     transferable: '',
     termDate: '',
     additionalRenewalTerms: '',
-    nonRenewalDays: undefined,
-    contractBreachDays: undefined,
+    nonRenewalDays: 0,
+    contractBreachDays: 0,
     personalDataTerms: '',
 });
-
-const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
 // access policies
 const policyData: Array<AccessPolicyDetails> = [];
@@ -139,10 +115,12 @@ const defaultPolicy: AccessPolicyDetails = {
 };
 policyData.push(defaultPolicy);
 
-// validation data
-const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
+const submitting = ref(false);
 
 const submitAll = async () => {
+    submitting.value = true;
+    submitSuccess.value = false;
+    submitError.value = false;
     let body = {
         originalAssetId: selected.value?.id,
         organizationId: runtimeConfig.public?.orgId,
@@ -150,6 +128,7 @@ const submitAll = async () => {
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         termDate: monetizationDetails.value.termDate ?? new Date(86400000000000),
+        distributionId: assetOfferingDetails.value.selectedDistribution.id,
         assetId: newAssetId,
         accessPolicies: {
             assetId: newAssetId,
@@ -161,21 +140,27 @@ const submitAll = async () => {
         numOfResell: 0,
         numOfShare: 0,
     };
+    delete body.distributions;
+    delete body.selectedDistribution;
+
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
             body,
         });
-        showSuccessMessage(t('data.designer.assetSubmitted'));
-        router.push({ name: 'home' });
+        submitSuccess.value = true;
+        await delay(3);
         await navigateTo(`https://pistis-market.eu/srv/catalog/datasets/${newAssetId}`, {
             open: {
                 target: '_blank',
             },
             // external: true,
         });
+        router.push({ name: 'home' });
     } catch (error) {
         submitError.value = true;
+    } finally {
+        submitting.value = false;
     }
 
     return body;
@@ -196,6 +181,8 @@ const steps = computed(() => [
     //TODO: Add extra check for completed access policies info
     { name: t('data.designer.nav.preview'), isActive: selected.value && isAllValid.value },
 ]);
+
+const isAllValid = ref(false);
 
 const selectedPage = ref(0);
 
@@ -219,6 +206,7 @@ const handleDatasetSelection = (dataset: {
 const handlePageSelectionBackwards = (value: number) => {
     selectedPage.value = value;
     submitError.value = false;
+    submitSuccess.value = false;
 };
 
 const changeStep = async (stepNum: number) => {
@@ -258,16 +246,6 @@ const changeStep = async (stepNum: number) => {
         :description="$t('data.designer.noDatasets')"
     />
 
-    <div class="w-full mb-6">
-        <UAlert
-            v-if="submitError"
-            icon="mingcute:alert-line"
-            color="red"
-            variant="subtle"
-            :description="$t('data.designer.errorInSubmitAsset')"
-        />
-    </div>
-
     <DatasetList
         v-show="selectedPage === 0 && datasetsStatus !== 'pending'"
         :datasets-transformed="datasetsTransformed"
@@ -292,12 +270,13 @@ const changeStep = async (stepNum: number) => {
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
-            :is-all-valid="isAllValid"
+            div
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
+            @update:is-all-valid="(value: boolean) => (isAllValid = value)"
         />
     </div>
 
@@ -320,6 +299,9 @@ const changeStep = async (stepNum: number) => {
         :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
         :has-personal-data="hasPersonalData"
+        :submit-error="submitError"
+        :submit-success="submitSuccess"
+        :submitting="submitting"
         @handle-page-selection-backwards="handlePageSelectionBackwards"
         @submit-all="submitAll"
     />
