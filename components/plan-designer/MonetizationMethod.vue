@@ -48,7 +48,7 @@ const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetiz
 
 const assetOfferingDetailsSchema = z.object({
     title: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
-    description: z.string().min(50, t('val.atLeastNumberChars', { count: 50 })),
+    description: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
     selectedDistribution: z.object({
         id: z.string(),
         format: z.object({
