@@ -14,8 +14,8 @@ const props = defineProps({
 const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid']);
 
 const schema = z.object({
-    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+    title: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
+    description: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
     selectedDistribution: z.object({
         label: z.string(),
         id: z.string(),

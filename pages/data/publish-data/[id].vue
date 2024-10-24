@@ -9,10 +9,11 @@ import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/pla
 const runtimeConfig = useRuntimeConfig();
 
 const { data: session } = useAuth();
-const { showSuccessMessage } = useAlertMessage();
+// const { showSuccessMessage } = useAlertMessage();
 const router = useRouter();
 const { t } = useI18n();
 const submitError = ref(false);
+const submitSuccess = ref(false);
 const route = useRoute();
 const assetId = route.params.id;
 
@@ -80,8 +81,8 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
 });
 
 const assetOfferingDetailsSchema = z.object({
-    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    description: z.string().min(20, t('val.atLeastNumberChars', { count: 20 })),
+    title: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
+    description: z.string().min(1, t('val.atLeastNumberChars', { count: 1 })),
     selectedDistribution: z.object({
         id: z.string(),
         format: z.object({
@@ -148,6 +149,8 @@ policyData.push(defaultPolicy);
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
 const submitAll = async () => {
+    submitSuccess.value = false;
+    submitError.value = false;
     let body = {
         originalAssetId: selected.value?.id,
         organizationId: runtimeConfig.public?.orgId,
@@ -171,7 +174,8 @@ const submitAll = async () => {
             method: 'post',
             body,
         });
-        showSuccessMessage(t('data.designer.assetSubmitted'));
+        submitSuccess.value = true;
+        // showSuccessMessage(t('data.designer.assetSubmitted'));
         router.push({ name: 'home' });
         await navigateTo(`${runtimeConfig.public.marketplaceDatasetUrl}/${newAssetId}?locale=en`, {
             open: {
@@ -207,6 +211,7 @@ const selectedPage = ref(1);
 const handlePageSelectionBackwards = (value: number) => {
     selectedPage.value = value;
     submitError.value = false;
+    submitSuccess.value = false;
 };
 
 const changeStep = async (stepNum: number) => {
@@ -256,17 +261,6 @@ const goToCatalog = async () => {
         class="cursor-pointer"
         @click="goToCatalog()"
     />
-
-    <div class="w-full mb-6">
-        <UAlert
-            v-if="submitError"
-            icon="mingcute:alert-line"
-            color="red"
-            variant="subtle"
-            :description="$t('data.designer.errorInSubmitAsset')"
-        />
-    </div>
-
     <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             v-if="selected"
@@ -308,13 +302,15 @@ const goToCatalog = async () => {
     </template>
 
     <Preview
-        v-if="isAllValid && selectedPage === 3 && completeOrQuery && selected"
+        v-if="isAllValid && selectedPage === 3 && completeOrQuery && selected?.title"
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
         :limit-frequency-selections="limitFrequencySelections"
         :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
         :has-personal-data="hasPersonalData"
+        :submit-error="submitError"
+        :submit-success="submitSuccess"
         @handle-page-selection-backwards="handlePageSelectionBackwards"
         @submit-all="submitAll"
     />

@@ -26,6 +26,12 @@ defineProps({
         type: Boolean,
         required: true,
     },
+    submitError: {
+        type: Boolean,
+    },
+    submitSuccess: {
+        type: Boolean,
+    },
 });
 
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
@@ -253,9 +259,27 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                 <UButton size="md" color="gray" variant="outline" @click="emit('handlePageSelectionBackwards', 2)">
                     {{ $t('back') }}
                 </UButton>
-                <UButton class="px-4 py-2" @click="emit('submitAll')">
-                    {{ $t('submit') }}
-                </UButton>
+                <div class="flex items-center gap-4 w-full justify-end">
+                    <UAlert
+                        v-show="submitError"
+                        icon="mingcute:alert-line"
+                        color="red"
+                        variant="subtle"
+                        :description="$t('data.designer.errorInSubmitAsset')"
+                        class="w-full max-w-xl"
+                    />
+                    <UAlert
+                        v-show="submitSuccess && !submitError"
+                        icon="mingcute:alert-line"
+                        color="green"
+                        variant="subtle"
+                        :description="$t('data.designer.assetSubmitted')"
+                        class="w-full max-w-xl"
+                    />
+                    <UButton class="px-4 py-2" @click="emit('submitAll')">
+                        {{ $t('submit') }}
+                    </UButton>
+                </div>
             </div>
         </UCard>
     </div>
