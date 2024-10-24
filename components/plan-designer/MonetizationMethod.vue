@@ -249,7 +249,6 @@ const customValidate = () => {
     else formRef.value.clear('region');
     if (!isPerpetual.value && !monetizationDetails.value.termDate)
         errors.push({ path: 'termDate', message: t('val.required') });
-    else errors.push({ path: 'termDate', message: '' });
     if (!monetizationDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
     if (!monetizationDetails.value.nonRenewalDays) errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
     if (!monetizationDetails.value.contractBreachDays)
