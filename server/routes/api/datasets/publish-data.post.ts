@@ -8,7 +8,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return $fetch(`${factoryUrl}/srv/asset-description-bundler/api/adb`, {
+    // DO NOT REMOVE THE TRAILING SLASH FROM THE URL!
+    return $fetch(`${factoryUrl}/srv/asset-description-bundler/api/adb/`, {
         method: 'POST',
         body,
         headers: {
