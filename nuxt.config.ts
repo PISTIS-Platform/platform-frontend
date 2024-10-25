@@ -57,7 +57,6 @@ export default defineNuxtConfig({
 
         authSecret: '',
         catalogName: '',
-        adbUrl: '',
         walletUrl: '',
         walletAlias: '',
     },
