@@ -252,6 +252,8 @@ const customValidate = () => {
     if (!monetizationDetails.value.nonRenewalDays) errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
     if (!monetizationDetails.value.contractBreachDays)
         errors.push({ path: 'contractBreachDays', message: t('val.positive') });
+    if (hasPersonalData.value && !monetizationDetails.value.personalDataTerms)
+        errors.push({ path: 'personalDataTerms', message: t('val.required') });
 
     return errors;
 };
