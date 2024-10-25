@@ -1,12 +1,12 @@
 import { getToken } from '#auth';
 
-const { jobConfigApiUrl } = useRuntimeConfig();
+const { baseDevelopUrl } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return event.$fetch(`${jobConfigApiUrl}/workflow/fetchWorkflowRun`, {
+    return event.$fetch(`${baseDevelopUrl}/job-configurator/workflow/fetchWorkflowRun`, {
         method: 'POST',
         body,
         headers: {

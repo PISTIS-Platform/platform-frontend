@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return $fetch(`${adbUrl}/api/adb/`, {
+    return $fetch(`${adbUrl}`, {
         method: 'POST',
         body,
         headers: {

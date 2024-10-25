@@ -28,10 +28,16 @@ useHead({
 const navigation = ref([
     { name: 'home.home', to: '/home', target: '_self', icon: '', external: false },
     { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
-    { name: 'catalog.catalog', to: config.public.catalogUrl, target: '_blank', icon: '', external: true },
+    {
+        name: 'catalog.catalog',
+        to: config.public.developUrl + '/catalog/datasets?locale=en',
+        target: '_blank',
+        icon: '',
+        external: true,
+    },
     {
         name: 'marketplace.marketplace',
-        to: config.public.marketplaceUrl,
+        to: config.public.marketUrl + '/catalog/catalogues?locale=en',
         target: '_blank',
         icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,

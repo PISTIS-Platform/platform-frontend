@@ -1,13 +1,13 @@
 import { getToken } from '#auth';
 
-const { dataTransfApiUrl } = useRuntimeConfig();
+const { baseDevelopUrl } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return event.$fetch(`${dataTransfApiUrl}/transform/`, {
+    return event.$fetch(`${baseDevelopUrl}/data-transformation/transform/`, {
         method: 'POST',
         body,
         headers: {

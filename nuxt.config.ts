@@ -44,35 +44,29 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         public: {
-            iamUrl: process.env.NUXT_PUBLIC_IAM_URL,
-            orgId: process.env.NUXT_PUBLIC_ORG_ID, //NUXT_PUBLIC_ORG_ID
-            orgLogo: process.env.NUXT_PUBLIC_ORG_LOGO,
-            catalogUrl: process.env.NUXT_PUBLIC_CATALOG_URL,
-            marketplaceUrl: process.env.NUXT_PUBLIC_MARKETPLACE_URL,
-            marketplaceDatasetUrl: process.env.NUXT_PUBLIC_MARKETPLACE_DATASET,
+            developUrl: '',
+            marketUrl: '',
+            orgId: '',
+            orgLogo: '',
         },
-        authSecret: process.env.NUXT_NEXTAUTH_SECRET,
         keycloak: {
-            issuer: process.env.NUXT_KEYCLOAK_ISSUER,
-            clientId: process.env.NUXT_KEYCLOAK_CLIENT_ID,
-            clientSecret: process.env.NUXT_KEYCLOAK_CLIENT_SECRET,
+            issuer: '',
+            clientId: '',
+            clientSecret: '',
         },
 
+        authSecret: '',
+        baseDevelopUrl: '',
+        baseMarketUrl: '',
+        catalogName: '',
+        adbUrl: '',
+        walletUrl: '',
+        walletAlias: '',
+
+        intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
         marketInsightsUrl: process.env.NUXT_MARKET_INSIGHTS_URL,
         anonymizerApiUrl: process.env.ANONYMIZER_URL,
-        intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
-        sctcUrl: process.env.NUXT_SCTC_URL,
-        jobConfigApiUrl: process.env.NUXT_JOB_CONFIG_API_URL,
-        insightsGenApiUrl: process.env.NUXT_INSIGHTS_GEN_API_URL,
-        dataTransfApiUrl: process.env.NUXT_DATA_TRANSF_API_URL,
-        wsUrl: process.env.NUXT_WS_URL,
-        notificationsUrl: process.env.NUXT_NOTIFICATIONS_URL,
-        assetsUrl: process.env.NUXT_ASSETS_URL,
-        walletUrl: process.env.NUXT_WALLET_URL,
-        walletAlias: process.env.NUXT_WALLET_ALIAS,
-        adbUrl: process.env.NUXT_ADB_URL,
         //TODO: Replace this with whatever catalog we want the assets from
-        catalogAssetsUrl: process.env.NUXT_CATALOG_URL,
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
