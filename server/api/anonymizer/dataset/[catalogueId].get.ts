@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
     const queryString = new URLSearchParams(params).toString();
 
-    const response = await fetch(`${factoryUrl}/anonymiser/api/dataset/${catalogueId}?${queryString}`, {
+    const response = await fetch(`${factoryUrl}/srv/anonymiser/api/dataset/${catalogueId}?${queryString}`, {
         headers: { Authorization: `Bearer ${token!.access_token}` },
     });
     const json = await response.json();

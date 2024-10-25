@@ -7,7 +7,7 @@ const {
 export default defineEventHandler(async (event) => {
     const token = (await getToken({ event })) || { access_token: 'null' };
 
-    const response = await fetch(`${factoryUrl}/anonymiser/api/dataset/preview`, {
+    const response = await fetch(`${factoryUrl}/srv/anonymiser/api/dataset/preview`, {
         headers: { Authorization: `Bearer ${token!.access_token}` },
     });
     const json = await response.json();

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return $fetch(`${factoryUrl}/asset-description-bundler/api/adb`, {
+    return $fetch(`${factoryUrl}/srv/asset-description-bundler/api/adb`, {
         method: 'POST',
         body,
         headers: {

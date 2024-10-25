@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return await $fetch(`${cloudUrl}/intention-analytics/api/questionnaire/${query.id}/${query.version}/answers`, {
+    return await $fetch(`${cloudUrl}/srv/intention-analytics/api/questionnaire/${query.id}/${query.version}/answers`, {
         method: 'POST',
         body,
         headers: {

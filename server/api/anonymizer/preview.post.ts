@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = (await getToken({ event })) || { access_token: 'null' };
 
-    const response = await fetch(`${factoryUrl}/anonymiser/api/dataset/preview/obfuscate`, {
+    const response = await fetch(`${factoryUrl}/srv/anonymiser/api/dataset/preview/obfuscate`, {
         method: 'POST',
         headers: {
             'Content-type': 'application/json; charset=UTF-8',

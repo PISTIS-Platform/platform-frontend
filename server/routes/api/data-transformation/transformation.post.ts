@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return event.$fetch(`${factoryUrl}/data-transformation/transform/`, {
+    return event.$fetch(`${factoryUrl}/srv/data-transformation/transform/`, {
         method: 'POST',
         body,
         headers: {

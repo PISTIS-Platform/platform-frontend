@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return event.$fetch(`${factoryUrl}/insights-generator/insights/`, {
+    return event.$fetch(`${factoryUrl}/srv/insights-generator/insights/`, {
         method: 'POST',
         body,
         headers: {

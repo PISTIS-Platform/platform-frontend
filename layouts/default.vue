@@ -30,7 +30,7 @@ const navigation = ref([
     { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
     {
         name: 'catalog.catalog',
-        to: config.public.factoryUrl + '/catalog/datasets?locale=en',
+        to: config.public.factoryUrl + '/srv/catalog/datasets?locale=en',
         target: '_blank',
         icon: '',
         external: true,
