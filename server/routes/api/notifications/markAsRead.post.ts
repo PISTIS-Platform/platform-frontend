@@ -1,12 +1,14 @@
 import { getToken } from '#auth';
 
-const { notificationsUrl } = useRuntimeConfig();
+const {
+    public: { cloudUrl },
+} = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return $fetch(`${notificationsUrl}/api/notifications/${body.notificationId}/read`, {
+    return $fetch(`${cloudUrl}/srv/notifications/api/notifications/${body.notificationId}/read`, {
         method: 'PATCH',
         headers: {
             Authorization: `Bearer ${token?.access_token}`,

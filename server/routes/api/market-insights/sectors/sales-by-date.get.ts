@@ -1,18 +1,9 @@
-//const { marketInsightsUrl } = useRuntimeConfig();
-
 const generateRandomData = () => {
     return Array.from({ length: 4 }, () => Math.floor(Math.random() * 100));
 };
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
-    //const token = await getToken({ event });
-
-    // const results = await $fetch(`${marketInsightsUrl}/sectors`, {
-    //     headers: {
-    //         Authorization: `Bearer ${token?.access_token}`,
-    //     },
-    // });
 
     let sectors = [
         {

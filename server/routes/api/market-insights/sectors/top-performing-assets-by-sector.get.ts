@@ -8,14 +8,6 @@ const generateRandomData = () => {
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
-    //const token = await getToken({ event });
-
-    // const results = await $fetch(`${marketInsightsUrl}/sectors`, {
-    //     headers: {
-    //         Authorization: `Bearer ${token?.access_token}`,
-    //     },
-    // });
-
     let sectors = [1, 2, 3];
 
     if (query.sectorId) {

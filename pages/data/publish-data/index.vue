@@ -12,8 +12,6 @@ const { data: session } = useAuth();
 // const { showSuccessMessage } = useAlertMessage();
 const router = useRouter();
 const { t } = useI18n();
-const submitError = ref(false);
-const submitSuccess = ref(false);
 
 //data for selected dataset
 
@@ -32,10 +30,10 @@ const datasetsTransformed = computed(() => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return allDatasets.value.map((result: Record<string, any>) => ({
-        id: result.id,
-        title: result.title.en,
-        description: result.description.en,
-        distributions: result.distributions,
+        id: result?.id,
+        title: result?.title?.en || 'N/A',
+        description: result?.description?.en || 'N/A',
+        distributions: result?.distributions,
     }));
 });
 
@@ -115,12 +113,10 @@ const defaultPolicy: AccessPolicyDetails = {
 };
 policyData.push(defaultPolicy);
 
-const submitting = ref(false);
+const submitStatus = ref();
 
 const submitAll = async () => {
-    submitting.value = true;
-    submitSuccess.value = false;
-    submitError.value = false;
+    submitStatus.value = 'pending';
     let body = {
         originalAssetId: selected.value?.id,
         organizationId: runtimeConfig.public?.orgId,
@@ -149,7 +145,7 @@ const submitAll = async () => {
             method: 'post',
             body,
         });
-        submitSuccess.value = true;
+        submitStatus.value = 'success';
         await delay(3);
         await navigateTo(`https://pistis-market.eu/srv/catalog/datasets/${newAssetId}`, {
             open: {
@@ -157,11 +153,10 @@ const submitAll = async () => {
             },
             // external: true,
         });
+        submitStatus.value = '';
         router.push({ name: 'home' });
     } catch (error) {
-        submitError.value = true;
-    } finally {
-        submitting.value = false;
+        submitStatus.value = 'error';
     }
 
     return body;
@@ -206,8 +201,7 @@ const handleDatasetSelection = (dataset: {
 
 const handlePageSelectionBackwards = (value: number) => {
     selectedPage.value = value;
-    submitError.value = false;
-    submitSuccess.value = false;
+    submitStatus.value = '';
 };
 
 const changeStep = async (stepNum: number) => {
@@ -300,9 +294,7 @@ const changeStep = async (stepNum: number) => {
         :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
         :has-personal-data="hasPersonalData"
-        :submit-error="submitError"
-        :submit-success="submitSuccess"
-        :submitting="submitting"
+        :submit-status="submitStatus"
         @handle-page-selection-backwards="handlePageSelectionBackwards"
         @submit-all="submitAll"
     />

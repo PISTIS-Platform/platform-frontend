@@ -28,9 +28,9 @@ const { data: dataset, status: datasetsStatus } = useAsyncData<Record<string, an
 watch(dataset, () => {
     if (!dataset.value) return;
     selected.value = {
-        id: dataset.value.id,
-        title: dataset.value.title.en,
-        description: dataset.value.description.en,
+        id: dataset?.value.id,
+        title: dataset.value.title.en || 'N/A',
+        description: dataset.value.description.en || 'N/A',
         distributions: dataset.value.distributions,
     };
     assetOfferingDetails.value.title = selected.value.title;
@@ -118,12 +118,10 @@ const defaultPolicy: AccessPolicyDetails = {
 };
 policyData.push(defaultPolicy);
 
-const submitting = ref(false);
+const submitStatus = ref();
 
 const submitAll = async () => {
-    submitting.value = true;
-    submitSuccess.value = false;
-    submitError.value = false;
+    submitStatus.value = 'pending';
     let body = {
         originalAssetId: selected.value?.id,
         organizationId: runtimeConfig.public?.orgId,
@@ -152,7 +150,7 @@ const submitAll = async () => {
             method: 'post',
             body,
         });
-        submitSuccess.value = true;
+        submitStatus.value = 'success';
         await delay(3);
         await navigateTo(`https://pistis-market.eu/srv/catalog/datasets/${newAssetId}`, {
             open: {
@@ -160,11 +158,10 @@ const submitAll = async () => {
             },
             // external: true,
         });
+        submitStatus.value = '';
         router.push({ name: 'home' });
     } catch (error) {
-        submitError.value = true;
-    } finally {
-        submitting.value = false;
+        submitStatus.value = 'error';
     }
 
     return body;
@@ -272,9 +269,7 @@ const changeStep = async (stepNum: number) => {
         :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
         :has-personal-data="hasPersonalData"
-        :submit-error="submitError"
-        :submit-success="submitSuccess"
-        :submitting="submitting"
+        :submit-status="submitStatus"
         @handle-page-selection-backwards="handlePageSelectionBackwards"
         @submit-all="submitAll"
     />

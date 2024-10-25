@@ -1,15 +1,4 @@
-//const { marketInsightsUrl } = useRuntimeConfig();
-
 export default defineEventHandler(async () => {
-    //const query = getQuery(event);
-    //const token = await getToken({ event });
-
-    // const results = await $fetch(`${marketInsightsUrl}/sectors`, {
-    //     headers: {
-    //         Authorization: `Bearer ${token?.access_token}`,
-    //     },
-    // });
-
     const sectors = [
         {
             id: 1,
@@ -24,10 +13,6 @@ export default defineEventHandler(async () => {
             label: 'Sector 3',
         },
     ];
-
-    // if (query.sectorId) {
-    //     sectors = sectors.filter((sector: Record<string, any>) => sector.id === parseInt(query.sectorId as string));
-    // }
 
     const timesData = ['January', 'February', 'March', 'April', 'May'];
 

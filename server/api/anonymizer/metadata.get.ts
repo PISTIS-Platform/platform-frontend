@@ -1,11 +1,13 @@
 import { getToken } from '#auth';
 
-const { anonymizerApiUrl } = useRuntimeConfig();
+const {
+    public: { factoryUrl },
+} = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const token = (await getToken({ event })) || { access_token: 'null' };
 
-    const response = await fetch(`${anonymizerApiUrl}/api/dataset/metadata`, {
+    const response = await fetch(`${factoryUrl}/srv/anonymiser/api/dataset/metadata`, {
         headers: { Authorization: `Bearer ${token!.access_token}` },
     });
     const json = await response.json();
