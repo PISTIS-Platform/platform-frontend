@@ -26,14 +26,9 @@ defineProps({
         type: Boolean,
         required: true,
     },
-    submitError: {
-        type: Boolean,
-    },
-    submitSuccess: {
-        type: Boolean,
-    },
-    submitting: {
-        type: Boolean,
+    submitStatus: {
+        type: String,
+        required: true,
     },
 });
 
@@ -264,7 +259,7 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                 </UButton>
                 <div class="flex items-center gap-4 w-full justify-end">
                     <UAlert
-                        v-show="submitError"
+                        v-show="submitStatus === 'error'"
                         icon="mingcute:alert-line"
                         color="red"
                         variant="subtle"
@@ -272,7 +267,7 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                         class="w-full max-w-xl"
                     />
                     <UAlert
-                        v-show="submitSuccess && !submitError"
+                        v-show="submitStatus === 'success'"
                         icon="mingcute:alert-line"
                         color="green"
                         variant="subtle"
@@ -280,14 +275,11 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                         class="w-full max-w-xl"
                     />
                     <UButton
-                        :disabled="submitting && !submitSuccess && !submitError"
+                        :disabled="submitStatus === 'pending'"
                         class="px-4 py-2 w-32 block"
                         @click="emit('submitAll')"
                     >
-                        <UIcon
-                            v-if="submitting && !submitSuccess && !submitError"
-                            name="svg-spinners:270-ring-with-bg"
-                        />
+                        <UIcon v-if="submitStatus === 'pending'" name="svg-spinners:270-ring-with-bg" />
                         <span v-else> {{ $t('submit') }}</span>
                     </UButton>
                 </div>
