@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
 
     const data: Array<{ name: unknown }> = await $fetch(
-        config.public.developUrl + 'identity-access-management/api/v1/ape/groups',
+        config.public.developUrl + '/identity-access-management/api/v1/ape/groups',
         {
             method: 'GET',
             headers: {
