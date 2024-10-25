@@ -133,6 +133,7 @@ const submitAll = async () => {
         termDate: monetizationDetails.value.termDate ?? new Date(86400000000000),
         distributionId: assetOfferingDetails.value.selectedDistribution.id,
         assetId: newAssetId,
+        containsPersonalData: hasPersonalData.value,
         accessPolicies: {
             assetId: newAssetId,
             assetTitle: assetOfferingDetails.value.title,
