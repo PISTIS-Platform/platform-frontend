@@ -28,9 +28,9 @@ const { data: dataset, status: datasetsStatus } = useAsyncData<Record<string, an
 watch(dataset, () => {
     if (!dataset.value) return;
     selected.value = {
-        id: dataset.value.id,
-        title: dataset.value.title.en,
-        description: dataset.value.description.en,
+        id: dataset?.value.id,
+        title: dataset.value.title.en || 'N/A',
+        description: dataset.value.description.en || 'N/A',
         distributions: dataset.value.distributions,
     };
     assetOfferingDetails.value.title = selected.value.title;
