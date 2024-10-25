@@ -30,10 +30,10 @@ const datasetsTransformed = computed(() => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return allDatasets.value.map((result: Record<string, any>) => ({
-        id: result?.id || 'N/A',
+        id: result?.id,
         title: result?.title?.en || 'N/A',
         description: result?.description?.en || 'N/A',
-        distributions: result?.distributions || 'N/A',
+        distributions: result?.distributions,
     }));
 });
 
