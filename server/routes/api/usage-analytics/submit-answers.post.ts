@@ -1,13 +1,13 @@
 import { getToken } from '#auth';
 
-const { intentionAnalyticsServerUrl } = useRuntimeConfig();
+const { baseMarketUrl } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return await $fetch(`${intentionAnalyticsServerUrl}/questionnaire/${query.id}/${query.version}/answers`, {
+    return await $fetch(`${baseMarketUrl}/intention-analytics/api/questionnaire/${query.id}/${query.version}/answers`, {
         method: 'POST',
         body,
         headers: {

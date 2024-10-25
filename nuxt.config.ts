@@ -62,14 +62,6 @@ export default defineNuxtConfig({
         adbUrl: '',
         walletUrl: '',
         walletAlias: '',
-
-        intentionAnalyticsServerUrl: '',
-        marketInsightsUrl: '',
-        anonymizerApiUrl: '',
-
-        // intentionAnalyticsServerUrl: process.env.NUXT_INTENTION_ANALYTICS_SERVER_URL,
-        // marketInsightsUrl: process.env.NUXT_MARKET_INSIGHTS_URL,
-        // anonymizerApiUrl: process.env.ANONYMIZER_URL,
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],

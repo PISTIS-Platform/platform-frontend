@@ -1,19 +1,4 @@
-//const { marketInsightsUrl } = useRuntimeConfig();
-// const sleep = (seconds: number) => {
-//     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-// };
-
 export default defineEventHandler(async () => {
-    //const token = await getToken({ event });
-
-    // const results = await $fetch(`${marketInsightsUrl}/sectors`, {
-    //     headers: {
-    //         Authorization: `Bearer ${token?.access_token}`,
-    //     },
-    // });
-
-    //await sleep(3);
-
     return [
         {
             value: 1,

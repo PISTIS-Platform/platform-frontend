@@ -1,6 +1,6 @@
 import { getToken } from '#auth';
 
-const { anonymizerApiUrl } = useRuntimeConfig();
+const { baseDevelopUrl } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const token = (await getToken({ event })) || { access_token: 'null' };
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
     const queryString = new URLSearchParams(params).toString();
 
-    const response = await fetch(`${anonymizerApiUrl}/api/dataset/${catalogueId}?${queryString}`, {
+    const response = await fetch(`${baseDevelopUrl}/anonymiser/api/dataset/${catalogueId}?${queryString}`, {
         headers: { Authorization: `Bearer ${token!.access_token}` },
     });
     const json = await response.json();
