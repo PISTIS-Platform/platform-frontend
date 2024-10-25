@@ -1,12 +1,14 @@
 import { getToken } from '#auth';
 
-const { baseDevelopUrl } = useRuntimeConfig();
+const {
+    public: { factoryUrl },
+} = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
     const body = await readBody(event);
 
-    return $fetch(`${baseDevelopUrl}/sctc/sctc/compose`, {
+    return $fetch(`${factoryUrl}/sctc/sctc/compose`, {
         method: 'POST',
         body,
         headers: {

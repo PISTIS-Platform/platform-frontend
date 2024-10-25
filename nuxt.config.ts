@@ -44,8 +44,8 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         public: {
-            developUrl: '',
-            marketUrl: '',
+            factoryUrl: '',
+            cloudUrl: '',
             orgId: '',
             orgLogo: '',
         },
@@ -56,8 +56,6 @@ export default defineNuxtConfig({
         },
 
         authSecret: '',
-        baseDevelopUrl: '',
-        baseMarketUrl: '',
         catalogName: '',
         adbUrl: '',
         walletUrl: '',

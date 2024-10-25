@@ -30,14 +30,14 @@ const navigation = ref([
     { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
     {
         name: 'catalog.catalog',
-        to: config.public.developUrl + '/catalog/datasets?locale=en',
+        to: config.public.factoryUrl + '/catalog/datasets?locale=en',
         target: '_blank',
         icon: '',
         external: true,
     },
     {
         name: 'marketplace.marketplace',
-        to: config.public.marketUrl + '/catalog/catalogues?locale=en',
+        to: config.public.cloudUrl + '/catalog/catalogues?locale=en',
         target: '_blank',
         icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
