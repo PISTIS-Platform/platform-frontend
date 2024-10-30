@@ -1,9 +1,33 @@
 <script setup lang="ts">
+import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 
-const { data: transactionsData } = await useLazyFetch<Record<string, any>[]>('/api/wallet/transactions-data');
+const transactions = await $fetch('/api/wallet/transactions-data', {
+    method: 'post',
+});
+const isHovered = ref();
+
+const incoming = transactions.incoming.map((item) => {
+    return {
+        date: item.included_at,
+        id: item.transaction_id,
+        amount: item.payload.Basic.amount,
+        type: 'Incoming',
+    };
+});
+
+const outgoing = transactions.outgoing.map((item) => {
+    return {
+        date: item.included_at,
+        id: item.transaction_id,
+        amount: item.payload.Basic.amount,
+        type: 'Outgoing',
+    };
+});
+
+const transactionsData = computed(() => [...incoming, ...outgoing]);
 
 const { data: currentBalance } = await useLazyFetch(`/api/wallet`, {
     method: 'post',
@@ -18,12 +42,16 @@ const cardInfoData = computed(() => [
     {
         title: t('data.wallet.monthlyExpenses'),
         iconName: 'i-heroicons-briefcase-solid',
-        amount: -1000,
+        amount: outgoing.reduce((sum, transaction) => {
+            return sum + transaction.amount;
+        }, 0),
     },
     {
         title: t('data.wallet.monthlyIncome'),
         iconName: 'i-heroicons-banknotes-20-solid',
-        amount: 800,
+        amount: incoming.reduce((sum, transaction) => {
+            return sum + transaction.amount;
+        }, 0),
     },
 ]);
 
@@ -35,12 +63,12 @@ const transactionsColumns: any = [
         direction: 'desc',
         class: 'w-1/5',
     },
-    {
-        key: 'fromTo',
-        label: 'Buyer / Seller',
-        sortable: true,
-        class: 'w-1/4',
-    },
+    // {
+    //     key: 'fromTo',
+    //     label: 'Buyer / Seller',
+    //     sortable: true,
+    //     class: 'w-1/4',
+    // },
     {
         key: 'type',
         label: 'Type',
@@ -68,6 +96,9 @@ const transactionsRows = computed(() => {
         ? transactionsData.value.slice((page.value - 1) * pageCount, page.value * pageCount)
         : [];
 });
+const truncateId = (item: string, length: number) => {
+    return item.length > length ? item.slice(0, length) + '...' : item;
+};
 </script>
 
 <template>
@@ -92,7 +123,7 @@ const transactionsRows = computed(() => {
                     </template>
                     <UTable :columns="transactionsColumns" :rows="transactionsRows">
                         <template #date-data="{ row }">
-                            <span>{{ useIntlDates(row.date) }}</span>
+                            <span>{{ dayjs(row.date).format('DD/MM/YYYY') }}</span>
                         </template>
                         <template #type-data="{ row }">
                             <div class="text-center">
@@ -112,7 +143,17 @@ const transactionsRows = computed(() => {
                         </template>
                         <template #amount-data="{ row }">
                             <div class="text-right font-semibold">
-                                <span>{{ row.amount }}</span>
+                                <span>{{ row.amount.toFixed(2) }}</span>
+                            </div>
+                        </template>
+                        <template #id-data="{ row }">
+                            <div @mouseover="isHovered = row.id" @mouseleave="isHovered = null">
+                                <span v-if="isHovered === row.id">
+                                    {{ row.id }}
+                                </span>
+                                <span v-else>
+                                    {{ truncateId(row.id, 10) }}
+                                </span>
                             </div>
                         </template>
                     </UTable>
