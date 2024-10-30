@@ -35,23 +35,27 @@ const { data: currentBalance } = await useLazyFetch(`/api/wallet`, {
 //cards info data
 const cardInfoData = computed(() => [
     {
-        title: t('data.wallet.balance'),
-        iconName: 'i-heroicons-currency-dollar-20-solid',
-        amount: currentBalance.value?.dlt_amount || 'N/A',
+        title: t('data.wallet.monthlyIncome'),
+        iconName: 'i-heroicons-banknotes-20-solid',
+        amount: incoming.reduce((sum, transaction) => {
+            return sum + transaction.amount;
+        }, 0),
+        textColor: 'text-green-800',
     },
+
     {
         title: t('data.wallet.monthlyExpenses'),
         iconName: 'i-heroicons-briefcase-solid',
         amount: outgoing.reduce((sum, transaction) => {
             return sum + transaction.amount;
         }, 0),
+        textColor: 'text-red-800',
     },
     {
-        title: t('data.wallet.monthlyIncome'),
-        iconName: 'i-heroicons-banknotes-20-solid',
-        amount: incoming.reduce((sum, transaction) => {
-            return sum + transaction.amount;
-        }, 0),
+        title: t('data.wallet.balance'),
+        iconName: 'i-heroicons-currency-dollar-20-solid',
+        amount: currentBalance.value?.dlt_amount || 'N/A',
+        textColor: 'text-green-800',
     },
 ]);
 
@@ -83,7 +87,7 @@ const transactionsColumns: any = [
     },
     {
         key: 'id',
-        label: 'ID',
+        label: 'Transaction ID',
         sortable: true,
         class: 'w-1/5',
     },
@@ -96,9 +100,10 @@ const transactionsRows = computed(() => {
         ? transactionsData.value.slice((page.value - 1) * pageCount, page.value * pageCount)
         : [];
 });
-const truncateId = (item: string, length: number) => {
-    return item.length > length ? item.slice(0, length) + '...' : item;
-};
+//TODO: Uncomment this in case we add more info in table
+// const truncateId = (item: string, length: number) => {
+//     return item.length > length ? item.slice(0, length) + '...' : item;
+// };
 </script>
 
 <template>
@@ -113,6 +118,7 @@ const truncateId = (item: string, length: number) => {
                     :title="card.title"
                     :amount="card.amount"
                     :icon-name="card.iconName"
+                    :text-color="card.textColor"
                 />
             </div>
             <!-- Transactions -->
@@ -148,12 +154,10 @@ const truncateId = (item: string, length: number) => {
                         </template>
                         <template #id-data="{ row }">
                             <div @mouseover="isHovered = row.id" @mouseleave="isHovered = null">
-                                <span v-if="isHovered === row.id">
-                                    {{ row.id }}
-                                </span>
-                                <span v-else>
+                                <!-- <UTooltip arrow :text="row.id">
                                     {{ truncateId(row.id, 10) }}
-                                </span>
+                                </UTooltip> -->
+                                {{ row.id }}
                             </div>
                         </template>
                     </UTable>
