@@ -73,6 +73,7 @@ export default defineI18nConfig(() => ({
                 zeroOrPositive: 'Must be 0 or a positive number',
                 positive: 'Must be a positive number',
                 required: 'Required',
+                price: 'Must be 10 eur and above',
             },
             home: {
                 home: 'Home',
@@ -118,7 +119,7 @@ export default defineI18nConfig(() => ({
                     pleaseSelectDataset: 'Please select a dataset',
                     free: 'Free',
                     paid: 'Paid',
-                    priceHigherThanZero: 'Price needs to be higher than zero',
+                    priceHigherThanZero: 'Price needs to be higher than 10 EUR',
                     title: 'Publish Data',
                     completeDataset: 'Complete Dataset',
                     selectDataset: 'Select the complete dataset',

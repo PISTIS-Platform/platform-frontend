@@ -243,6 +243,9 @@ const customValidate = () => {
             errors.push({ path: error.path[0], message: error.message });
         }
     }
+    if (monetizationDetails.value.price && monetizationDetails.value.price < 10) {
+        errors.push({ path: 'price', message: t('val.price') });
+    }
     if (!isWorldwide.value && !monetizationDetails.value.region)
         errors.push({ path: 'region', message: t('val.required') });
     else formRef.value.clear('region');

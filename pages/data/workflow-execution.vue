@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const workflowStatus = ref({});
 const runId = ref('');
+const config = useRuntimeConfig();
 const getWorkflowRun = async () => {
     workflowStatus.value = {};
     const formData = new FormData();
@@ -78,11 +79,11 @@ const getWorkflowRun = async () => {
                     <div v-else-if="typeof value === 'object' && value !== null" class="ml-4">
                         <div v-for="(subValue, subKey) in value" :key="subKey" class="flex items-center mt-1">
                             <NuxtLink
-                                :to="`https://develop.pistis-market.eu/srv/catalog/datasets/${subValue}`"
+                                :to="`${config.public.factoryUrl}/srv/catalog/datasets/${subValue}`"
                                 target="_blank"
                                 class="text-blue-500 underline"
                                 external
-                                >{{ `https://develop.pistis-market.eu/srv/catalog/datasets/${subValue}` }}</NuxtLink
+                                >{{ `${config.public.factoryUrl}/srv/catalog/datasets/${subValue}` }}</NuxtLink
                             >
                         </div>
                     </div>

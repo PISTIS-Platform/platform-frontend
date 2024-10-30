@@ -1,4 +1,5 @@
 import { getToken } from '#auth';
+import type { TransactionsType } from '~/interfaces/wallet-transactions';
 
 const {
     public: { factoryUrl },
@@ -9,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
     const body = JSON.stringify({ wallet_alias: walletAlias });
 
-    return $fetch<any>(`${factoryUrl}/srv/payments/v0/dlt/transactions`, {
+    return $fetch<TransactionsType>(`${factoryUrl}/srv/payments/v0/dlt/transactions`, {
         method: 'POST',
         body,
         headers: {
