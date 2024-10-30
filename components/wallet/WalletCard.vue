@@ -17,6 +17,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    textColor: {
+        type: String,
+        required: true,
+    },
 });
 </script>
 
@@ -32,7 +36,13 @@ const props = defineProps({
                         {{ props.title }}
                     </h3>
                 </div>
-                <div :class="['text-lg font-bold', props.amount > 0 ? 'text-green-800' : 'text-red-800']">
+                <div
+                    :class="[
+                        'text-lg font-bold',
+                        props.amount > 0 ? 'text-green-800' : 'text-red-800',
+                        props.textColor,
+                    ]"
+                >
                     {{ props.amount }} {{ props.coin }}
                 </div>
             </div>
