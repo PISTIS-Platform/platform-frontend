@@ -3,58 +3,86 @@ import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
-
-const transactions = await $fetch('/api/wallet/transactions-data', {
-    method: 'post',
-});
-const isHovered = ref();
-
-const incoming = transactions.incoming.map((item) => {
-    return {
-        date: item.included_at,
-        id: item.transaction_id,
-        amount: item.payload.Basic.amount,
+const incoming = ref([
+    {
+        date: '',
+        id: '',
+        amount: '',
         type: 'Incoming',
-    };
-});
-
-const outgoing = transactions.outgoing.map((item) => {
-    return {
-        date: item.included_at,
-        id: item.transaction_id,
-        amount: item.payload.Basic.amount,
+    },
+]);
+const outgoing = ref([
+    {
+        date: '',
+        id: '',
+        amount: '',
         type: 'Outgoing',
-    };
-});
+    },
+]);
 
-const transactionsData = computed(() => [...incoming, ...outgoing]);
+const currentBalance = ref(null);
 
-const { data: currentBalance } = await useLazyFetch(`/api/wallet`, {
+const monthlyIncome = ref(0);
+const monthlyOutcome = ref(0);
+
+const isHovered = ref();
+const { status: balanceStatus } = await useLazyFetch(`/api/wallet`, {
     method: 'post',
+    async onResponse({ response }) {
+        currentBalance.value = response._data;
+        await useLazyFetch('/api/wallet/transactions-data', {
+            method: 'post',
+            async onResponse({ response }) {
+                const transactions = response._data;
+                incoming.value = transactions.incoming.map((item) => {
+                    return {
+                        date: item.included_at,
+                        id: item.transaction_id,
+                        amount: item.payload.Basic.amount,
+                        type: 'Incoming',
+                    };
+                });
+
+                outgoing.value = transactions.outgoing.map((item) => {
+                    return {
+                        date: item.included_at,
+                        id: item.transaction_id,
+                        amount: item.payload.Basic.amount,
+                        type: 'Outgoing',
+                    };
+                });
+                monthlyIncome.value = incoming.value.reduce((sum, transaction) => {
+                    return sum + transaction.amount;
+                }, 0);
+                monthlyOutcome.value = outgoing.value.reduce((sum, transaction) => {
+                    return sum + transaction.amount;
+                }, 0);
+            },
+        });
+    },
 });
+
+const transactionsData = computed(() => [...incoming.value, ...outgoing.value]);
+
 //cards info data
 const cardInfoData = computed(() => [
     {
         title: t('data.wallet.monthlyIncome'),
         iconName: 'i-heroicons-banknotes-20-solid',
-        amount: incoming.reduce((sum, transaction) => {
-            return sum + transaction.amount;
-        }, 0),
+        amount: monthlyIncome.value.toFixed(2),
         textColor: 'text-green-800',
     },
 
     {
         title: t('data.wallet.monthlyExpenses'),
         iconName: 'i-heroicons-briefcase-solid',
-        amount: outgoing.reduce((sum, transaction) => {
-            return sum + transaction.amount;
-        }, 0),
+        amount: monthlyOutcome.value.toFixed(2),
         textColor: 'text-red-800',
     },
     {
         title: t('data.wallet.balance'),
         iconName: 'i-heroicons-currency-dollar-20-solid',
-        amount: currentBalance.value?.dlt_amount || 'N/A',
+        amount: currentBalance.value?.dlt_amount.toFixed(2) || 'N/A',
         textColor: 'text-green-800',
     },
 ]);
@@ -81,9 +109,9 @@ const transactionsColumns: any = [
     },
     {
         key: 'amount',
-        label: 'Amount',
+        label: 'Amount(EUR)',
         sortable: true,
-        class: 'text-right w-1/5',
+        class: 'text-center w-1/5',
     },
     {
         key: 'id',
@@ -93,13 +121,17 @@ const transactionsColumns: any = [
     },
 ];
 const page = ref<number>(1);
-const pageCount = 5;
+const pageCount = 10;
 
 const transactionsRows = computed(() => {
     return transactionsData.value
         ? transactionsData.value.slice((page.value - 1) * pageCount, page.value * pageCount)
         : [];
 });
+
+// const fixedAmount = (item: number) => {
+//     return item.toFixed(2);
+// };
 //TODO: Uncomment this in case we add more info in table
 // const truncateId = (item: string, length: number) => {
 //     return item.length > length ? item.slice(0, length) + '...' : item;
@@ -110,7 +142,10 @@ const transactionsRows = computed(() => {
     <PageContainer>
         <div class="w-full h-full">
             <!-- Cards Info -->
-            <div class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8">
+            <div v-if="balanceStatus === 'pending'" class="flex w-full gap-4">
+                <USkeleton v-for="item in new Array(3)" :key="item" class="h-[84px] w-full" />
+            </div>
+            <div v-else class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8">
                 <WalletCard
                     v-for="card in cardInfoData"
                     :key="card.title"
@@ -123,7 +158,8 @@ const transactionsRows = computed(() => {
             </div>
             <!-- Transactions -->
             <div class="flex flex-col w-full mt-8">
-                <UCard>
+                <USkeleton v-if="balanceStatus === 'pending'" class="w-full h-96" />
+                <UCard v-else>
                     <template #header>
                         <SubHeading :title="$t('data.wallet.transactions.title')" />
                     </template>
@@ -148,7 +184,7 @@ const transactionsRows = computed(() => {
                             <span>{{ row?.from ?? row.to }} </span>
                         </template>
                         <template #amount-data="{ row }">
-                            <div class="text-right font-semibold">
+                            <div class="text-center font-semibold">
                                 <span>{{ row.amount.toFixed(2) }}</span>
                             </div>
                         </template>
@@ -171,6 +207,7 @@ const transactionsRows = computed(() => {
                         />
                     </div>
                 </UCard>
+                <USkeleton v-if="balanceStatus === 'pending'" class="w-full h-96" />
             </div>
         </div>
     </PageContainer>
