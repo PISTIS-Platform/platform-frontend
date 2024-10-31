@@ -19,12 +19,14 @@ const schema = z.object({
     selectedDistribution: z.object({
         label: z.string(),
         id: z.string(),
-        format: z.object({
-            id: z.string(),
-            label: z.string(),
-            resource: z.string(),
-        }),
-        access_url: z.array(z.string()),
+        format: z
+            .object({
+                id: z.string(),
+                label: z.string().optional(),
+                resource: z.string().optional(),
+            })
+            .optional(),
+        access_url: z.array(z.string()).optional(),
         title: z.object({
             en: z.string(),
         }),

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const R = useRamda();
 import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
@@ -87,7 +88,7 @@ const cardInfoData = computed(() => [
     {
         title: t('data.wallet.balance'),
         iconName: 'i-heroicons-currency-dollar-20-solid',
-        amount: currentBalance.value?.dlt_amount.toFixed(2) || 'N/A',
+        amount: !R.isNil(currentBalance.value?.dlt_amount) ? currentBalance.value?.dlt_amount.toFixed(2) : 'N/A',
         textColor: 'text-green-800',
     },
 ]);
@@ -129,7 +130,7 @@ const page = ref<number>(1);
 const pageCount = 10;
 
 const transactionsRows = computed(() => {
-    return transactionsData.value
+    return !R.isNil(transactionsData.value)
         ? transactionsData.value.slice((page.value - 1) * pageCount, page.value * pageCount)
         : [];
 });
@@ -147,8 +148,13 @@ const transactionsRows = computed(() => {
     <PageContainer>
         <div class="w-full h-full">
             <!-- Cards Info -->
-            <div v-if="balanceStatus === 'pending'" class="flex w-full gap-4">
-                <USkeleton v-for="item in new Array(3)" :key="item" class="h-[84px] w-full" />
+            <div v-if="balanceStatus === 'pending'" class="flex w-full gap-4 mt-8">
+                <USkeleton
+                    v-for="item in new Array(3)"
+                    :key="item"
+                    :ui="{ background: 'bg-gray-200' }"
+                    class="h-[84px] w-full"
+                />
             </div>
             <div v-else class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8">
                 <WalletCard
@@ -163,8 +169,12 @@ const transactionsRows = computed(() => {
             </div>
             <!-- Transactions -->
             <div class="flex flex-col w-full mt-8">
-                <USkeleton v-if="balanceStatus === 'pending'" class="w-full h-96" />
-                <UCard v-else>
+                <USkeleton
+                    v-if="balanceStatus === 'pending'"
+                    :ui="{ background: 'bg-gray-200' }"
+                    class="w-full h-96 mb-8"
+                />
+                <UCard v-else class="mb-8">
                     <template #header>
                         <SubHeading :title="$t('data.wallet.transactions.title')" />
                     </template>
@@ -190,7 +200,7 @@ const transactionsRows = computed(() => {
                         </template>
                         <template #amount-data="{ row }">
                             <div class="text-center font-semibold">
-                                <span>{{ row.amount.toFixed(2) }}</span>
+                                <span>{{ !R.isNil(row?.amount) ? row.amount.toFixed(2) : 'N/A' }}</span>
                             </div>
                         </template>
                         <template #id-data="{ row }">
@@ -212,7 +222,6 @@ const transactionsRows = computed(() => {
                         />
                     </div>
                 </UCard>
-                <USkeleton v-if="balanceStatus === 'pending'" class="w-full h-96" />
             </div>
         </div>
     </PageContainer>
