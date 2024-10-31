@@ -87,7 +87,7 @@ const cardInfoData = computed(() => [
     {
         title: t('data.wallet.balance'),
         iconName: 'i-heroicons-currency-dollar-20-solid',
-        amount: currentBalance.value?.dlt_amount.toFixed(2) || 'N/A',
+        amount: currentBalance.value?.dlt_amount ? currentBalance.value?.dlt_amount.toFixed(2) : 'N/A',
         textColor: 'text-green-800',
     },
 ]);
@@ -190,7 +190,7 @@ const transactionsRows = computed(() => {
                         </template>
                         <template #amount-data="{ row }">
                             <div class="text-center font-semibold">
-                                <span>{{ row.amount.toFixed(2) }}</span>
+                                <span>{{ row?.amount ? row.amount.toFixed(2) : 'N/A' }}</span>
                             </div>
                         </template>
                         <template #id-data="{ row }">
