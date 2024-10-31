@@ -147,7 +147,7 @@ const transactionsRows = computed(() => {
     <PageContainer>
         <div class="w-full h-full">
             <!-- Cards Info -->
-            <div v-if="balanceStatus === 'pending'" class="flex w-full gap-4">
+            <div v-if="balanceStatus === 'pending'" class="flex w-full gap-4 mt-8">
                 <USkeleton v-for="item in new Array(3)" :key="item" class="h-[84px] w-full" />
             </div>
             <div v-else class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8">
