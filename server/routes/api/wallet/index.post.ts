@@ -1,16 +1,15 @@
-import { getServerSession, getToken } from '#auth';
-import { walletAliasObject } from '~/constants/walletAlias';
+import { getToken } from '#auth';
 
-//FIXME: Add actual service for wallet when it's ready
+const {
+    public: { factoryUrl },
+    walletAlias,
+} = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    const session = await getServerSession(event);
-    const walletKey = session?.roles?.includes('PISTIS_ADMIN') ? 'pistis-admin' : session?.orgId;
-    if (!walletKey) return 0;
-    const body = JSON.stringify({ wallet_alias: walletAliasObject[walletKey].alias });
     const token = await getToken({ event });
+    const body = JSON.stringify({ wallet_alias: walletAlias });
 
-    return $fetch<any>(`${walletAliasObject[walletKey].url}/srv/payments/v0/dlt/wallets/balance`, {
+    return $fetch<any>(`${factoryUrl}/srv/payments/v0/dlt/wallets/balance`, {
         method: 'POST',
         body,
         headers: {

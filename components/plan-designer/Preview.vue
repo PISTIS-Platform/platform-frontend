@@ -275,7 +275,7 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                         class="w-full max-w-xl"
                     />
                     <UButton
-                        :disabled="submitStatus === 'pending'"
+                        :disabled="submitStatus === 'pending' || submitStatus === 'success'"
                         class="px-4 py-2 w-32 block"
                         @click="emit('submitAll')"
                     >
