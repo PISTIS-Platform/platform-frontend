@@ -148,7 +148,12 @@ const transactionsRows = computed(() => {
         <div class="w-full h-full">
             <!-- Cards Info -->
             <div v-if="balanceStatus === 'pending'" class="flex w-full gap-4 mt-8">
-                <USkeleton v-for="item in new Array(3)" :key="item" class="h-[84px] w-full" />
+                <USkeleton
+                    v-for="item in new Array(3)"
+                    :key="item"
+                    :ui="{ background: 'bg-gray-200' }"
+                    class="h-[84px] w-full"
+                />
             </div>
             <div v-else class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8">
                 <WalletCard
@@ -163,8 +168,12 @@ const transactionsRows = computed(() => {
             </div>
             <!-- Transactions -->
             <div class="flex flex-col w-full mt-8">
-                <USkeleton v-if="balanceStatus === 'pending'" class="w-full h-96" />
-                <UCard v-else>
+                <USkeleton
+                    v-if="balanceStatus === 'pending'"
+                    :ui="{ background: 'bg-gray-200' }"
+                    class="w-full h-96 mb-8"
+                />
+                <UCard v-else class="mb-8">
                     <template #header>
                         <SubHeading :title="$t('data.wallet.transactions.title')" />
                     </template>
@@ -212,7 +221,6 @@ const transactionsRows = computed(() => {
                         />
                     </div>
                 </UCard>
-                <USkeleton v-if="balanceStatus === 'pending'" class="w-full h-96" />
             </div>
         </div>
     </PageContainer>
