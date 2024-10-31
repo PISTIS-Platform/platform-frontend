@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const R = useRamda();
 import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
@@ -87,7 +88,7 @@ const cardInfoData = computed(() => [
     {
         title: t('data.wallet.balance'),
         iconName: 'i-heroicons-currency-dollar-20-solid',
-        amount: currentBalance.value?.dlt_amount ? currentBalance.value?.dlt_amount.toFixed(2) : 'N/A',
+        amount: !R.isNil(currentBalance.value?.dlt_amount) ? currentBalance.value?.dlt_amount.toFixed(2) : 'N/A',
         textColor: 'text-green-800',
     },
 ]);
@@ -129,7 +130,7 @@ const page = ref<number>(1);
 const pageCount = 10;
 
 const transactionsRows = computed(() => {
-    return transactionsData.value
+    return !R.isNil(transactionsData.value)
         ? transactionsData.value.slice((page.value - 1) * pageCount, page.value * pageCount)
         : [];
 });
@@ -199,7 +200,7 @@ const transactionsRows = computed(() => {
                         </template>
                         <template #amount-data="{ row }">
                             <div class="text-center font-semibold">
-                                <span>{{ row?.amount ? row.amount.toFixed(2) : 'N/A' }}</span>
+                                <span>{{ !R.isNil(row?.amount) ? row.amount.toFixed(2) : 'N/A' }}</span>
                             </div>
                         </template>
                         <template #id-data="{ row }">
