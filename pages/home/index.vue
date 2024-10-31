@@ -20,6 +20,11 @@ const outgoing = ref([
     },
 ]);
 
+const sort = ref({
+    column: 'date',
+    direction: 'desc',
+});
+
 const currentBalance = ref(null);
 
 const monthlyIncome = ref(0);
@@ -62,7 +67,7 @@ const { status: balanceStatus } = await useLazyFetch(`/api/wallet`, {
     },
 });
 
-const transactionsData = computed(() => [...incoming.value, ...outgoing.value]);
+const transactionsData = computed(() => [...outgoing.value, ...incoming.value]);
 
 //cards info data
 const cardInfoData = computed(() => [
@@ -163,7 +168,7 @@ const transactionsRows = computed(() => {
                     <template #header>
                         <SubHeading :title="$t('data.wallet.transactions.title')" />
                     </template>
-                    <UTable :columns="transactionsColumns" :rows="transactionsRows">
+                    <UTable :columns="transactionsColumns" :rows="transactionsRows" :sort="sort">
                         <template #date-data="{ row }">
                             <span>{{ dayjs(row.date).format('DD/MM/YYYY') }}</span>
                         </template>

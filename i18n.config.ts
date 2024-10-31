@@ -73,7 +73,7 @@ export default defineI18nConfig(() => ({
                 zeroOrPositive: 'Must be 0 or a positive number',
                 positive: 'Must be a positive number',
                 required: 'Required',
-                price: 'Must be 10 eur and above',
+                price: 'Must be 10 EUR or above',
             },
             home: {
                 home: 'Home',
