@@ -2,6 +2,8 @@ import { getServerSession, getToken } from '#auth';
 import { walletAliasObject } from '~/constants/walletAlias';
 import type { TransactionsType } from '~/interfaces/wallet-transactions';
 
+//FIXME: Add actual service for wallet when it's ready
+
 export default defineEventHandler(async (event) => {
     const session = await getServerSession(event);
     const walletKey = session?.roles?.includes('PISTIS_ADMIN') ? 'pistis-admin' : session?.orgId;
