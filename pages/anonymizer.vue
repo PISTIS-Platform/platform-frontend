@@ -16,22 +16,20 @@ onMounted(async () => {
     const route = useRoute();
     const queryParams = route.query;
 
-    const catalogueId = queryParams['catalogueId'];
+    const datasetId = queryParams['datasetId'];
     const distribution = queryParams['distribution'];
     const language = queryParams['language'];
 
-    if (catalogueId && distribution && language) {
+    if (datasetId && distribution && language) {
         const metadataResponse: AnonymiserResponse<UserMetadata> = (await useFetch('/api/anonymizer/metadata')).data
             .value as AnonymiserResponse<UserMetadata>;
 
         if (
             metadataResponse.code == 404 ||
-            (metadataResponse.result && metadataResponse.result.catalogueId != catalogueId)
+            (metadataResponse.result && metadataResponse.result.catalogueId != datasetId)
         ) {
             const loadDatasetResponse: AnonymiserResponse<undefined> = (
-                await useFetch(
-                    `/api/anonymizer/dataset/${catalogueId}?distribution=${distribution}&language=${language}`,
-                )
+                await useFetch(`/api/anonymizer/dataset/${datasetId}?distribution=${distribution}&language=${language}`)
             ).data.value as AnonymiserResponse<undefined>;
 
             if (loadDatasetResponse.code != 200) {

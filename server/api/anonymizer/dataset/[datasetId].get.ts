@@ -6,9 +6,11 @@ const {
 
 export default defineEventHandler(async (event) => {
     const token = (await getToken({ event })) || { access_token: 'null' };
-    const catalogueId: string = getRouterParam(event, 'catalogueId') || '';
-    const distribution: string = getRouterParam(event, 'distribution') || '0';
-    const language: string = getRouterParam(event, 'language') || 'en';
+    const query = getQuery(event);
+
+    const datasetId: string = getRouterParam(event, 'datasetId') || '';
+    const distribution: string = query.distribution?.toString() || '0';
+    const language: string = query.language?.toString() || 'en';
 
     const params = {
         distribution: distribution,
@@ -16,8 +18,7 @@ export default defineEventHandler(async (event) => {
     };
 
     const queryString = new URLSearchParams(params).toString();
-
-    const response = await fetch(`${factoryUrl}/srv/anonymiser/api/dataset/${catalogueId}?${queryString}`, {
+    const response = await fetch(`${factoryUrl}/srv/anonymiser/api/dataset/${datasetId}?${queryString}`, {
         headers: { Authorization: `Bearer ${token!.access_token}` },
     });
     const json = await response.json();
