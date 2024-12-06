@@ -54,7 +54,30 @@ export interface Preview {
     report: Report;
 }
 
+export interface Preview {
+    dataset: Dataset;
+    metadata: Metadata;
+    report: Report;
+}
+
+/**
+ * Stores a preview of a dataset that has had k-anonymity applied to it.
+ */
+export interface KAnonPreview {
+    dataset: string[][];
+    riskMetrics: RiskMetrics;
+}
+
 export interface Solution {
     transformation: { [key: string | number]: number };
     informationLoss: string;
+}
+
+/**
+ * Stores data about the risk of reidentification posed to a dataset.
+ */
+export interface RiskMetrics {
+    recordsAtRisk: number;
+    highestRisk: number;
+    successRate: number;
 }

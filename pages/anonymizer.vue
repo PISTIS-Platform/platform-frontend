@@ -6,13 +6,12 @@ const routes = ref([
     { name: 'anonymizer.anonymizer', to: '/anonymizer' },
     { name: 'anonymizer.obfuscation', to: '/anonymizer/obfuscation' },
     { name: 'anonymizer.kAnonymity', to: '/anonymizer/k-anonymity' },
+    { name: 'Synthetic Data', to: '/anonymizer/synth' },
 ]);
 
 const anonymizerStore = useAnonymizerStore();
 
 onMounted(async () => {
-    //Initialise data preview for sharing across anonymizer pages
-    //This is necessary for components to work
     const route = useRoute();
     const queryParams = route.query;
 

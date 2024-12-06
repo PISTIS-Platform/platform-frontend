@@ -105,11 +105,9 @@ async function discardChanges(): Promise<void> {
                 </p>
                 <UButton class="w-44" to="/anonymizer/k-anonymity">k-Anonymity</UButton>
 
-                <!-- Temporarily disabled while differential privacy is not in place
-                <h3 class="font-bold">Differential Privacy</h3>
-                <p>Inject noise into your dataset so that personally identifiable information is obscured.</p>
-                <UButton class="w-44">Differential Privacy</UButton>
-                -->
+                <h3 class="font-bold">Synthetic Data</h3>
+                <p>Replace your data with synthetic data that maintains its statistical properties.</p>
+                <UButton class="w-44" to="/anonymizer/synth">Synthesize Data</UButton>
             </div>
         </UCard>
     </div>

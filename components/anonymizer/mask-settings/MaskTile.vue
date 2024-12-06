@@ -57,7 +57,9 @@ anonymizerStore.$subscribe((mutation, state) => {
     }
 });
 
-const maskMap: { [key: string]: any } = {
+const maskMap: {
+    [key: string]: typeof Delete | typeof Faker | typeof Hash | typeof Location | typeof None | typeof Range;
+} = {
     delete: Delete,
     faker: Faker,
     hash: Hash,
@@ -77,8 +79,32 @@ function updateConfig(settings: LocationSettings | RangeSettings | HashSettings 
 }
 
 function clearConfig() {
+    var preservedField;
+
+    switch (config.mask) {
+        case 'faker':
+            preservedField = 'replacer';
+            break;
+
+        case 'hash':
+            preservedField = 'classification';
+            break;
+
+        case 'location':
+            preservedField = 'isLat';
+            break;
+
+        case 'range':
+            preservedField = 'interval';
+            break;
+
+        default:
+            preservedField = 'none';
+            break;
+    }
+
     for (const [key] of Object.entries(config.config)) {
-        if (key !== 'name') {
+        if (key !== 'name' && key !== preservedField) {
             delete config.config[key];
         }
     }

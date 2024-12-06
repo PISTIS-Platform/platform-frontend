@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { type Preview, type Report, type Solution, type TableRow } from '~/interfaces/dataset-preview';
+import type { KAnonPreview, Preview, Report, RiskMetrics, Solution, TableRow } from '~/interfaces/dataset-preview';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
 import Title from '../../components/anonymizer/Title.vue';
 
 const { t } = useI18n();
 
-const title = `${t('anonymizer.anonymizer')} - ${t('anonymizer.kAnonymity')}`;
+const title = `${t('anonymizer.kAnonymity')}`;
 
 enum Sensitivity {
     Sensitive = 'SENSITIVE',
@@ -24,6 +24,7 @@ const solutions = ref([] as Solution[]); // list of possible transformations
 const displayedSolutions = ref([] as TableRow[]); // list of transformations as displayed
 const solutionColumns = ref([] as TableRow[]); // columns names for solutions table
 const obfuscatedRows = ref([] as TableRow[]); // preview of obfuscated dataset
+const riskMetrics = ref({} as RiskMetrics); // risk metrics of the anonymized dataset
 
 // paginated view of displayedSolutions
 const page = ref(1);
@@ -100,11 +101,10 @@ async function generateSolutions() {
     //check that there is a single quasi identifier
     const sensitivities = Object.values(rawPreview.columnSensitivity);
     if (!sensitivities.includes('QUASI_IDENTIFIER')) {
-        window.alert('Please select at least one quasi identifier!');
+        window.alert('Your dataset must contain at least one quasi identifier for k-anonymity to work!');
     } else {
         loadingSolutions.value = true;
 
-        //Fetch a preview of the obfuscation
         let response = await useFetch('/api/anonymizer/solution', {
             method: 'POST',
             body: {
@@ -185,10 +185,14 @@ async function generatePreview(transformation: TableRow) {
         },
     });
 
-    const preview = response.data.value as string[][];
-    obfuscatedRows.value = formatPreview(preview);
+    const kAnonPreview = response.data.value as KAnonPreview;
+    const dataset = kAnonPreview.dataset;
+    obfuscatedRows.value = formatPreview(dataset);
     currentSolution.columnSensitivity = rawPreview.columnSensitivity;
     currentSolution.transformation = transformation;
+
+    const newRiskMetrics = kAnonPreview.riskMetrics;
+    riskMetrics.value = newRiskMetrics;
     loadingPreview.value = false;
 }
 
@@ -206,7 +210,7 @@ async function submitObfuscation() {
     }
 
     //Update preview to reflect changes
-    const updatedData = await useFetch('/api/anonymizer/preview');
+    const updatedData = await useFetch('/api/anonymizer/dataset/preview');
     const data = updatedData.data.value;
 
     const result: Preview = data.result;
@@ -227,46 +231,69 @@ onMounted(async () => {
     <UCard class="w-full">
         <div class="w-full flex flex-col gap-5">
             <h2 class="text-2xl">Data Preview</h2>
-            <UTable :rows="rawPreview.rows" :loading="rawPreview.rows.length === 0" />
+            <!--TODO replace this with PreviewTable-->
+            <UTable
+                :rows="rawPreview.rows"
+                :loading="rawPreview.rows.length === 0 && anonymizerStore.getPreviewFetchCode !== 404"
+                :empty-state="{
+                    icon: 'i-heroicons-circle-stack-20-solid',
+                    label: 'No data. Please upload a dataset!',
+                }"
+            />
 
-            <h2 class="text-2xl">Sensitivity Settings</h2>
-            <div class="w-full flex overflow-x-scroll gap-2 pb-5">
-                <div
-                    v-for="(columnReport, column) in rawPreview.columnSensitivity"
-                    :key="column"
-                    class="flex flex-col gap-1 min-w-[17rem] border p-2 rounded-md shadow-md bg-pistis-50"
-                >
-                    <h3 class="text-md font-bold">{{ column }}</h3>
-                    <h4 class="text-sm font-bold">Predicted Sensitivity:</h4>
-                    <p>{{ rawPreview.report[column].sensitivity }}</p>
-                    <!--
+            <template v-if="anonymizerStore.getPreviewFetchCode === 200">
+                <h2 class="text-2xl">Sensitivity Settings</h2>
+                <div class="w-full flex overflow-x-scroll gap-2 pb-5">
+                    <div
+                        v-for="(columnReport, column) in rawPreview.columnSensitivity"
+                        :key="column"
+                        class="flex flex-col gap-1 min-w-[17rem] border p-2 rounded-md shadow-md bg-pistis-50"
+                    >
+                        <h3 class="text-md font-bold">{{ column }}</h3>
+                        <h4 class="text-sm font-bold">Predicted Sensitivity:</h4>
+                        <p>{{ rawPreview.report[column].sensitivity }}</p>
+                        <!--
                     <h4 class="text-sm font-bold">Change Sensitivity:</h4>
                     <USelect v-model="rawPreview.columnSensitivity[column]" :options="Object.values(Sensitivity)" />
-                    -->
+                    --></div>
                 </div>
-            </div>
-            <UButton class="w-36 text-center" :loading="loadingSolutions" @click="generateSolutions()"
-                >See Solutions
-            </UButton>
+                <UButton class="w-36 text-center" :loading="loadingSolutions" @click="generateSolutions()"
+                    >See Solutions
+                </UButton>
 
-            <div :hidden="solutions.length === 0" class="mt-3">
-                <h2 class="text-2xl">Solutions</h2>
-                <p>Below you can find a list of configurations to keep your data anonymous.</p>
-                <UTable :rows="displayedSolutionView" :columns="solutionColumns" :loading="solutions.length === 0">
-                    <template #actions-data="{ row }">
-                        <UButton @click="generatePreview(solutions[row.index].transformation)">Preview</UButton>
-                    </template>
-                </UTable>
-                <div class="flex justify-start px-3 py-3.5 border-t border-gray-200 dark:border-gray-700">
-                    <UPagination v-model="page" :page-count="pageCount" :total="displayedSolutions.length" />
+                <div :hidden="solutions.length === 0" class="mt-3">
+                    <h2 class="text-2xl">Solutions</h2>
+                    <p>Below you can find a list of configurations to keep your data anonymous.</p>
+                    <UTable :rows="displayedSolutionView" :columns="solutionColumns" :loading="solutions.length === 0">
+                        <template #actions-data="{ row }">
+                            <UButton @click="generatePreview(solutions[row.index].transformation)">Preview</UButton>
+                        </template>
+                    </UTable>
+                    <div class="flex justify-start px-3 py-3.5 border-t border-gray-200 dark:border-gray-700">
+                        <UPagination v-model="page" :page-count="pageCount" :total="displayedSolutions.length" />
+                    </div>
                 </div>
-            </div>
 
-            <div :hidden="obfuscatedRows.length === 0 && !loadingPreview" class="mt-3">
-                <h2 class="text-2xl">Preview</h2>
-                <UTable :rows="obfuscatedRows" :loading="loadingPreview" :progress="{ animation: 'carousel' }" />
-                <UButton class="mt-4" :loading="isAnonymizing" @click="submitObfuscation()">Anonymize Dataset</UButton>
-            </div>
+                <div :hidden="obfuscatedRows.length === 0 && !loadingPreview" class="mt-3">
+                    <h2 class="text-2xl">Preview</h2>
+                    <UTable :rows="obfuscatedRows" :loading="loadingPreview" :progress="{ animation: 'carousel' }" />
+                    <div class="mt-3">
+                        <h3 class="text-md font-bold">Risk of Reidentification</h3>
+                        <p>The risk of reidentification after this transformation is:</p>
+                        <ul class="ml-4">
+                            <li>- Percentage of records at risk: {{ riskMetrics.recordsAtRisk * 100 }}%</li>
+                            <li>- Highest risk of any single record: {{ riskMetrics.highestRisk * 100 }}%</li>
+                            <li>
+                                - The average success rate when reidentifying records is:
+                                {{ riskMetrics.successRate * 100 }}%
+                            </li>
+                        </ul>
+                    </div>
+                    <UButton class="mt-4" :loading="isAnonymizing" @click="submitObfuscation()"
+                        >Anonymize Dataset
+                    </UButton>
+                </div>
+            </template>
         </div>
     </UCard>
 </template>
