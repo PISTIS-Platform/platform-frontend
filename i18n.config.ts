@@ -18,6 +18,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            timesPer: 'times per',
             worldwide: 'Worldwide',
             select: 'Select',
             search: 'Search...',
