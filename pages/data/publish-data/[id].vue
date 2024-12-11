@@ -243,6 +243,14 @@ const changeStep = async (stepNum: number) => {
             :asset-offering-details="assetOfferingDetails"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
+            @update:is-all-valid="(value: boolean) => (isAllValid = value)"
+        />
+
+        <LicenseDetails
+            v-model:monetization-details-prop="monetizationDetails"
+            :asset-offering-details="assetOfferingDetails"
+            :is-free="isFree"
+            @change-page="changeStep"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
