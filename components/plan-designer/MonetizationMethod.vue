@@ -8,6 +8,9 @@ import type CardSelection from '~/interfaces/card-selection';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 import { SubscriptionFrequency } from '~/interfaces/subscription-frequency.enum';
 
+//TODO: Get this list of countries from somewhere like an API call
+const listOfCountries = ['Greece', 'Cyprus', 'Italy', 'Germany', 'France'];
+
 const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
@@ -427,7 +430,7 @@ async function onSubmit(): Promise<void> {
                                                 :required="!isWorldwide"
                                                 class="w-full"
                                             >
-                                                <UInput
+                                                <!-- <UInput
                                                     v-model.number="monetizationDetails.region"
                                                     :class="isWorldwide ? 'opacity-50' : ''"
                                                     :disabled="isWorldwide"
@@ -435,7 +438,18 @@ async function onSubmit(): Promise<void> {
                                                     type="numeric"
                                                     class="w-full"
                                                 >
-                                                </UInput>
+                                                </UInput> -->
+                                                <USelectMenu
+                                                    v-model="monetizationDetails.region"
+                                                    :ui="{
+                                                        option: { active: 'text-gray-200' },
+                                                        input: 'placeholder:text-gray-200 text-gray-200',
+                                                        button: 'text-gray-200',
+                                                    }"
+                                                    :options="listOfCountries"
+                                                    :placeholder="$t('data.designer.regionCountry')"
+                                                ></USelectMenu>
+
                                                 <template #error="{ error }">
                                                     <span
                                                         :class="[
@@ -759,7 +773,7 @@ async function onSubmit(): Promise<void> {
                                                 :required="!isWorldwide"
                                                 class="w-full"
                                             >
-                                                <UInput
+                                                <!-- <UInput
                                                     v-model.number="monetizationDetails.region"
                                                     :class="isWorldwide ? 'opacity-50' : ''"
                                                     :disabled="isWorldwide"
@@ -767,7 +781,17 @@ async function onSubmit(): Promise<void> {
                                                     type="numeric"
                                                     class="w-full"
                                                 >
-                                                </UInput>
+                                                </UInput> -->
+                                                <USelectMenu
+                                                    v-model="monetizationDetails.region"
+                                                    :ui="{
+                                                        option: { active: 'text-gray-200' },
+                                                        input: 'placeholder:text-gray-200 text-gray-200',
+                                                        button: 'text-gray-200',
+                                                    }"
+                                                    :options="listOfCountries"
+                                                    :placeholder="$t('data.designer.regionCountry')"
+                                                ></USelectMenu>
                                             </UFormGroup>
                                             <UFormGroup :label="$t('data.designer.worldwide')">
                                                 <UCheckbox
