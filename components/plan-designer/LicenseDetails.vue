@@ -20,7 +20,7 @@ const props = defineProps({
     assetOfferingDetails: {
         type: Object,
     },
-    isFree: {
+    isPriceFree: {
         type: Boolean,
     },
 });
@@ -53,7 +53,6 @@ const assetOfferingDetailsSchema = z.object({
 });
 
 const isAssetOfferingDetailsValid = computed(() => {
-    // console.log({ assetOfferingDetailsSchema: assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value) });
     return (
         assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success &&
         props.assetOfferingDetails?.keywords.length > 0
@@ -61,25 +60,25 @@ const isAssetOfferingDetailsValid = computed(() => {
 });
 
 const isMonetizationValid = computed(() => {
-    // console.log({ monetizationSchema: monetizationSchema.safeParse(monetizationDetails.value) });
     return monetizationSchema.safeParse(monetizationDetails.value).success;
 });
 
 const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
-const { isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
+const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
 const switchWarningOpen = ref(false);
 const monetizationToSend = ref();
 
-const licenseSelections = computed(() => (props.isFree ? Object.values(licenses) : [licenses.pistis]));
+const licenseSelections = computed(() => (props.isPriceFree ? Object.values(licenses) : [licenses.pistis]));
 
-const isFreeComputed = computed(() => props.isFree);
+const isFreeComputed = computed(() => props.isPriceFree);
 
 watch(isFreeComputed, () => {
     monetizationDetails.value.license = undefined;
+    isFree.value = isFreeComputed.value;
 });
 
 const transferableSelections = [
@@ -152,24 +151,26 @@ const customValidate = () => {
     const monetizationTotalErrors = monetizationSchema.safeParse(monetizationDetails.value).error?.issues;
     if (monetizationTotalErrors?.length) {
         for (const error of monetizationTotalErrors) {
+            if (error.path[0] === undefined) continue;
             if (error.path[0] === 'contractTerms') continue;
             errors.push({ path: error.path[0], message: error.message });
         }
     }
-    if (monetizationDetails.value.price && monetizationDetails.value.price < 10) {
-        errors.push({ path: 'price', message: t('val.price') });
+
+    if (monetizationDetails.value.license === 'PISTIS License') {
+        if (!isWorldwide.value && !monetizationDetails.value.region)
+            errors.push({ path: 'region', message: t('val.required') });
+        else formRef.value.clear('region');
+        if (!isPerpetual.value && !monetizationDetails.value.termDate)
+            errors.push({ path: 'termDate', message: t('val.required') });
+        if (!monetizationDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
+        if (!monetizationDetails.value.nonRenewalDays)
+            errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
+        if (!monetizationDetails.value.contractBreachDays)
+            errors.push({ path: 'contractBreachDays', message: t('val.positive') });
+        if (hasPersonalData.value && !monetizationDetails.value.personalDataTerms)
+            errors.push({ path: 'personalDataTerms', message: t('val.required') });
     }
-    if (!isWorldwide.value && !monetizationDetails.value.region)
-        errors.push({ path: 'region', message: t('val.required') });
-    else formRef.value.clear('region');
-    if (!isPerpetual.value && !monetizationDetails.value.termDate)
-        errors.push({ path: 'termDate', message: t('val.required') });
-    if (!monetizationDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
-    if (!monetizationDetails.value.nonRenewalDays) errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
-    if (!monetizationDetails.value.contractBreachDays)
-        errors.push({ path: 'contractBreachDays', message: t('val.positive') });
-    if (hasPersonalData.value && !monetizationDetails.value.personalDataTerms)
-        errors.push({ path: 'personalDataTerms', message: t('val.required') });
 
     return errors;
 };

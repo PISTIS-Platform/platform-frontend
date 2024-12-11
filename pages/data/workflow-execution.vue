@@ -6,13 +6,11 @@ const getWorkflowRun = async () => {
     workflowStatus.value = {};
     const formData = new FormData();
     formData.append('runId', runId.value); // Add Run ID to the form data
-    //console.log('runId:', runId.value);
     try {
         const response = await $fetch.raw('/api/job-configurator/fetch', {
             method: 'POST',
             body: formData,
         });
-        //console.log('response:', response);
         if (!response.ok) {
             const data = await response.json();
             workflowStatus.value = data;
@@ -20,7 +18,6 @@ const getWorkflowRun = async () => {
         }
         //const data = await response.json();
         const data = response._data;
-        //console.log('Data:', data);
         //workflowStatus.value = data;
         workflowStatus.value = JSON.stringify(data);
         workflowStatus.value = JSON.parse(workflowStatus.value);

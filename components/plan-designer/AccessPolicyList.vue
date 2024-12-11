@@ -273,7 +273,6 @@ const handlePolicyForm = () => {
         }
     }
 
-    //console.log(accessPolicyDetails.value);
     let isValid = true;
     let errorKeys = [];
     if (accessPolicyDetails.value.title === undefined || accessPolicyDetails.value.title.length < 5) {
@@ -329,9 +328,7 @@ const handlePolicyForm = () => {
         //const updatedPolicyData = [...props.policyData, p];
         //props.policyData = updatedPolicyData;
         emit('update:policy-data', policyData);
-        //console.log(JSON.stringify(policyData));
         switchPolicyForm.value = false;
-        //console.log(policiesCount.value);
         page.value = Math.floor(policyData.length / pageCount) + 2;
         page.value = 1;
     }

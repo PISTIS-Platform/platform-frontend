@@ -8,7 +8,6 @@ import { SubscriptionFrequency } from '~/interfaces/subscription-frequency.enum'
 
 //TODO: Get this list of countries from somewhere like an API call
 
-const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
 const props = defineProps({
@@ -30,38 +29,6 @@ const monetizationDetails = computed({
         emit('update:monetization-details-prop', newValue);
     },
 });
-
-const assetOfferingDetailsSchema = z.object({
-    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    selectedDistribution: z.object({
-        id: z.string(),
-        format: z.object({
-            id: z.string(),
-            label: z.string(),
-            resource: z.string(),
-        }),
-        access_url: z.array(z.string()),
-        title: z.object({
-            en: z.string(),
-        }),
-    }),
-});
-
-const isAssetOfferingDetailsValid = computed(() => {
-    // console.log({ assetOfferingDetailsSchema: assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value) });
-    return (
-        assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success &&
-        props.assetOfferingDetails?.keywords.length > 0
-    );
-});
-
-const isMonetizationValid = computed(() => {
-    // console.log({ monetizationSchema: monetizationSchema.safeParse(monetizationDetails.value) });
-    return monetizationSchema.safeParse(monetizationDetails.value).success;
-});
-
-const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
 
 const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 
@@ -181,11 +148,11 @@ const handleMonetizationClick = (value: string) => {
 
 const customValidate = () => {
     const errors = [];
-    emit('update:isAllValid', isAllValid.value);
     //TODO: Somehow get to AssetOfferingDetails component
     const monetizationTotalErrors = monetizationSchema.safeParse(monetizationDetails.value).error?.issues;
     if (monetizationTotalErrors?.length) {
         for (const error of monetizationTotalErrors) {
+            if (error.path[0] === undefined) continue;
             if (error.path[0] === 'contractTerms') continue;
             errors.push({ path: error.path[0], message: error.message });
         }
@@ -193,31 +160,9 @@ const customValidate = () => {
     if (monetizationDetails.value.price && monetizationDetails.value.price < 10) {
         errors.push({ path: 'price', message: t('val.price') });
     }
-    if (!isWorldwide.value && !monetizationDetails.value.region)
-        errors.push({ path: 'region', message: t('val.required') });
-    else formRef.value.clear('region');
-    if (!isPerpetual.value && !monetizationDetails.value.termDate)
-        errors.push({ path: 'termDate', message: t('val.required') });
-    if (!monetizationDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
-    if (!monetizationDetails.value.nonRenewalDays) errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
-    if (!monetizationDetails.value.contractBreachDays)
-        errors.push({ path: 'contractBreachDays', message: t('val.positive') });
-    if (hasPersonalData.value && !monetizationDetails.value.personalDataTerms)
-        errors.push({ path: 'personalDataTerms', message: t('val.required') });
 
     return errors;
 };
-
-async function onSubmit(): Promise<void> {
-    if (isAllValid.value) {
-        emit('changePage', 2);
-    } else {
-        if (!props.assetOfferingDetails?.keywords?.length) {
-            showErrorMessage(t('data.designer.pleaseEnterAtLeastOneKeyword'));
-        }
-        showErrorMessage(t('data.designer.pleaseCheck'));
-    }
-}
 </script>
 
 <template>
@@ -257,7 +202,6 @@ async function onSubmit(): Promise<void> {
                         :state="monetizationDetails"
                         :validate="customValidate"
                         :validate-on="['input', 'submit', 'blur', 'change']"
-                        @submit="onSubmit"
                     >
                         <template v-if="monetizationDetails.type === 'one-off'">
                             <div class="flex flex-col space-y-5">
