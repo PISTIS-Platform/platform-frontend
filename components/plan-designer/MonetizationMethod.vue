@@ -47,7 +47,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
             type: 'one-off',
-            price: 0,
+            price: 10,
             license: licenses.pistis,
             extraTerms: '',
             contractTerms: '',
@@ -66,7 +66,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
         monetizationDetails.value = {
             type: 'subscription',
             subscriptionFrequency: 'monthly',
-            price: 0,
+            price: 10,
             license: licenses.pistis,
             extraTerms: '',
             contractTerms: '',
