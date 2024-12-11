@@ -112,6 +112,8 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    noDatasetSelected: 'No Dataset Selected',
+                    pleaseSelectFromCatalog: 'Please select a dataset from the catalogue to publish data.',
                     noTitle: 'No Title Given',
                     unknownFormat: 'Unknown Format',
                     pleaseEnterAtLeastOneKeyword: 'Please enter at least one keyword in the asset offering details',
