@@ -6,44 +6,108 @@ import { useAnonymizerStore } from '~/store/anonymizer';
 
 import Title from '../../components/anonymizer/Title.vue';
 
+/**
+ * Translater for this page.
+ */
 const { t } = useI18n();
 
+/**
+ * Title of the page
+ */
 const title = `${t('anonymizer.kAnonymity')}`;
 
+/**
+ * Potential sensitivity classifications for each column.
+ */
 enum Sensitivity {
     Sensitive = 'SENSITIVE',
     Insensitive = 'INSENSITIVE',
     QuasiIdentifier = 'QUASI_IDENTIFIER',
 }
 
+/**
+ * Reference to the anonymiser pinia store
+ */
 const anonymizerStore = useAnonymizerStore();
+
+/**
+ * Reference to the nuxt router.
+ */
 const router = useRouter();
+
+/**
+ * List of available numbers that are used to determine the ranges that will replace numerical values in a column.
+ */
 const intervals = ref([] as number[]);
 
-const solutions = ref([] as Solution[]); // list of possible transformations
-const displayedSolutions = ref([] as TableRow[]); // list of transformations as displayed
-const solutionColumns = ref([] as TableRow[]); // columns names for solutions table
-const obfuscatedRows = ref([] as TableRow[]); // preview of obfuscated dataset
-const riskMetrics = ref({} as RiskMetrics); // risk metrics of the anonymized dataset
+/**
+ * List of possible transformations.
+ */
+const solutions = ref([] as Solution[]);
 
-// paginated view of displayedSolutions
+/**
+ * List of transformations that are currently displayed
+ */
+const displayedSolutions = ref([] as TableRow[]);
+
+/**
+ * Column names for the solutions table.
+ */
+const solutionColumns = ref([] as TableRow[]);
+
+/**
+ * Preview of the obfuscated dataset.
+ */
+const obfuscatedRows = ref([] as TableRow[]);
+
+/**
+ * Risk metrics of the obfuscation preview.
+ */
+const riskMetrics = ref({} as RiskMetrics);
+
+/**
+ * Current page of potential soluionts that are being displayed by the anonymiser
+ */
 const page = ref(1);
+
+/**
+ * Maximum number of solutions that can appear in the solutions table.
+ */
 const pageCount = 5;
 
+/**
+ * The data that is to be displayed by the solutions table.
+ */
 const displayedSolutionView = computed(() => {
     return displayedSolutions.value.slice((page.value - 1) * pageCount, page.value * pageCount);
 });
 
+/**
+ * Trigger for the solutions table loading animation.
+ */
 const loadingSolutions = ref(false);
+
+/**
+ * Trigger for the preview table loading animation.
+ */
 const loadingPreview = ref(false);
+
+/**
+ * Trigger for the anonymize button loading animation.
+ */
 const isAnonymizing = ref(false);
 
+/**
+ * The current solution that is being displayed by the preview table.
+ */
 const currentSolution = reactive({
     transformation: {} as TableRow,
     columnSensitivity: {} as TableRow,
 });
 
-//Preview before anonymization
+/**
+ * The preview of the dataset before anonymisation.
+ */
 const rawPreview = reactive({
     rows: anonymizerStore.getTableRows,
     columns: anonymizerStore.getMetadata.types,
@@ -51,6 +115,9 @@ const rawPreview = reactive({
     columnSensitivity: formatReport(anonymizerStore.getReport),
 });
 
+/**
+ * Update the rawPreview on mutation of anonymiser pinia store state.
+ */
 anonymizerStore.$subscribe((mutation, state) => {
     rawPreview.rows = state.tableRows;
     rawPreview.columns = state.metadata.types;
@@ -62,7 +129,11 @@ anonymizerStore.$subscribe((mutation, state) => {
     obfuscatedRows.value = [];
 });
 
-//format report so that results can be read by v-for
+/**
+ * format report so that results can be read by v-for.
+ *
+ * @returns a table row containing a mapping of column names to their respective sensitivities.
+ */
 function formatReport(report: Report) {
     let columnSensitivity: TableRow = {};
 
@@ -73,7 +144,11 @@ function formatReport(report: Report) {
     return columnSensitivity;
 }
 
-//format column names for UTable component
+/**
+ * Format a list of column names so that they can be displayed by nuxt's UTable component.
+ *
+ * @returns formatted table row
+ */
 function formatColumns(columns: string[]): TableRow[] {
     const formattedColumns = [
         {
@@ -96,7 +171,10 @@ function formatColumns(columns: string[]): TableRow[] {
     return formattedColumns;
 }
 
-// request list of solutions from the server
+/**
+ * Request a list of potential solutions from the anonymiser backend
+ * and load the results into all the necessary variables.
+ */
 async function generateSolutions() {
     //check that there is a single quasi identifier
     const sensitivities = Object.values(rawPreview.columnSensitivity);
@@ -119,7 +197,14 @@ async function generateSolutions() {
     }
 }
 
-//format solution from the server for UTable component
+/**
+ * Format solutions so that they are compatible with the NuxtUI UTable component.
+ *
+ * @param solutions the solutions to format
+ * @param columns A map of columns to their respective data type
+ * @param columnSensitivity A map of columns to their respective sensitivity
+ * @returns Formatted results
+ */
 function formatSolutions(solutions: Solution[], columns: TableRow, columnSensitivity: TableRow): TableRow[] {
     return solutions.map((solution, index) => {
         let row: TableRow = {};
@@ -156,7 +241,12 @@ function formatSolutions(solutions: Solution[], columns: TableRow, columnSensiti
     });
 }
 
-//format obfuscated preview for UTable component
+/**
+ * Format a dataset as retrieved from the anonymiser k-anonymity backend.
+ *
+ * @param dataset Dataset from the k-anonymity backend.
+ * @returns Formatted rows
+ */
 function formatPreview(dataset: string[][]): TableRow[] {
     let rows = [] as TableRow[];
 
@@ -174,6 +264,12 @@ function formatPreview(dataset: string[][]): TableRow[] {
     return rows;
 }
 
+/**
+ * Get a preview of a transformation from the anonymiser backend and load the result
+ * into the relevant variables.
+ *
+ * @param transformation A mapping of column names to their anonymisation level.
+ */
 async function generatePreview(transformation: TableRow) {
     loadingPreview.value = true;
 
@@ -196,6 +292,9 @@ async function generatePreview(transformation: TableRow) {
     loadingPreview.value = false;
 }
 
+/**
+ * Apply the current currentSolution to the dataset.
+ */
 async function submitObfuscation() {
     isAnonymizing.value = true;
     let response = await useFetch('/api/anonymizer/applySolution', {
@@ -220,6 +319,9 @@ async function submitObfuscation() {
     router.push({ name: 'anonymizer' });
 }
 
+/**
+ * Fetch the available intervals for numeric anonymization from the backend on mount.
+ */
 onMounted(async () => {
     const response = await useFetch('/api/anonymizer/intervals');
     intervals.value = response.data.value;
@@ -231,7 +333,6 @@ onMounted(async () => {
     <UCard class="w-full">
         <div class="w-full flex flex-col gap-5">
             <h2 class="text-2xl">Data Preview</h2>
-            <!--TODO replace this with PreviewTable-->
             <UTable
                 :rows="rawPreview.rows"
                 :loading="rawPreview.rows.length === 0 && anonymizerStore.getPreviewFetchCode !== 404"

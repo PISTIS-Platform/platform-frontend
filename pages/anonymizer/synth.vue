@@ -4,7 +4,14 @@ import { useAnonymizerStore } from '~/store/anonymizer';
 
 import Title from '../../components/anonymizer/Title.vue';
 
+/**
+ * Trigger for the Replace Data button loading animation.
+ */
 const isLoading: Ref<boolean> = ref(false);
+
+/**
+ * Reference to the anonymiser pinia store.
+ */
 const anonymizerStore = useAnonymizerStore();
 
 /**

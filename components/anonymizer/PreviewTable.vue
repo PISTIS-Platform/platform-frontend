@@ -2,9 +2,19 @@
 import type { TableRow } from '~/interfaces/dataset-preview';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
+/**
+ * Reference to the anonymiser pinia store
+ */
 const anonymizerStore = useAnonymizerStore();
+
+/**
+ * Stores all rows that are displayed in the table
+ */
 const rows = ref<TableRow[]>(anonymizerStore.getTableRows);
 
+/**
+ * Listens for changes in the anonymiser store and updates table rows if any are detected
+ */
 anonymizerStore.$subscribe((mutation, state) => {
     rows.value = state.tableRows;
 });
