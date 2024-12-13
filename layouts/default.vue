@@ -31,26 +31,20 @@ const navigation = ref([
     {
         name: 'catalog.catalog',
         to: config.public.factoryUrl + '/srv/catalog/datasets?locale=en',
-        target: 'FACTORY_CATALOG',
+        target: '_self',
         icon: '',
         external: true,
     },
     {
         name: 'marketplace.marketplace',
         to: config.public.cloudUrl + '/srv/catalog/datasets?locale=en',
-        target: 'MARKETPLACE',
-        icon: 'heroicons:arrow-top-right-on-square-16-solid',
+        target: '_self',
+        icon: '',
+        // icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
     },
     { name: 'market.market', to: '/market', target: '_self', icon: '', external: false },
 ]);
-
-const handleExternalClick = (item: { to: string; external: boolean; target: string }) => {
-    if (item.external) {
-        // Open link in a named tab, reusing the same tab if it exists
-        window.open(item.to, item.target);
-    }
-};
 
 const userNavigation: { name: 'string'; href: 'string' }[] = [];
 
@@ -85,38 +79,18 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                         </div>
                         <div class="hidden md:block">
                             <div v-if="status === 'authenticated'" class="ml-10 flex items-baseline space-x-4">
-                                <div v-for="item in navigation" :key="item.name">
-                                    <a
-                                        v-if="item.external"
-                                        :href="item.to"
-                                        :target="item.target"
-                                        rel="noopener noreferrer"
-                                        class="text-white hover:bg-primary-600 hover:bg-opacity-75 rounded-md px-3 py-2 text-sm font-medium"
-                                        @click.prevent="handleExternalClick(item)"
-                                    >
-                                        {{ $t(item.name) }}
-                                        <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
-                                    </a>
-
-                                    <NuxtLink
-                                        v-else
-                                        :to="item.to"
-                                        :target="item.target"
-                                        class="text-white hover:bg-primary-600 hover:bg-opacity-75 rounded-md px-3 py-2 text-sm font-medium"
-                                        active-class="bg-primary-800"
-                                    >
-                                        {{ $t(item.name) }}
-                                        <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
-                                    </NuxtLink>
-                                </div>
-                                <!-- I comment out the previous in case we need it again -->
-                                <!-- <NuxtLink v-for="item in navigation" :key="item.name" :to="item.to"
-                                    :target="item.target" :external="item.external"
+                                <NuxtLink
+                                    v-for="item in navigation"
+                                    :key="item.name"
+                                    :to="item.to"
+                                    :target="item.target"
+                                    :external="item.external"
                                     class="text-white hover:bg-primary-600 hover:bg-opacity-75 rounded-md px-3 py-2 text-sm font-medium"
-                                    active-class="bg-primary-800">
+                                    active-class="bg-primary-800"
+                                >
                                     {{ $t(item.name) }}
                                     <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
-                                </NuxtLink> -->
+                                </NuxtLink>
                             </div>
                         </div>
                         <div class="mt-1 md:hidden flex gap-4 justify-center items-center ml-4 text-white">
