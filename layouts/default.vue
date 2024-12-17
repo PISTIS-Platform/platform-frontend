@@ -40,7 +40,6 @@ const navigation = ref([
         to: config.public.cloudUrl + '/srv/catalog/datasets?locale=en',
         target: '_self',
         icon: '',
-        // icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
     },
     { name: 'market.market', to: '/market', target: '_self', icon: '', external: false },
