@@ -134,8 +134,8 @@ const submitAll = async () => {
             policyData: policyData,
         },
         sellerId: session.value?.user?.sub,
-        numOfResell: 0,
-        numOfShare: 0,
+        numOfResell: 100,
+        numOfShare: 100,
     };
     delete body.distributions;
     delete body.selectedDistribution;
