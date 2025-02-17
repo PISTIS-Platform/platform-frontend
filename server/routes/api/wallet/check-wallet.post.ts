@@ -1,7 +1,4 @@
 import { getToken } from '#auth';
-import { useUserStore } from '~/store/user';
-// import type { TransactionsType } from '~/interfaces/wallet-transactions';
-const userStore = useUserStore();
 
 const {
     public: { factoryUrl },
@@ -37,8 +34,6 @@ export default defineEventHandler(async (event) => {
             },
         });
     }
-
-    userStore.setWalletAlias(result?.walletAlias ?? walletAlias);
 
     return result?.walletAlias ?? walletAlias;
 });

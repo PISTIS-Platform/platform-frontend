@@ -3,6 +3,9 @@ const R = useRamda();
 import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
+import { useUserStore } from '~/store/user';
+
+const userStore = useUserStore();
 const { t } = useI18n();
 const incoming = ref([
     {
@@ -35,10 +38,11 @@ const isHovered = ref();
 
 const checkWalletData = await $fetch(`/api/wallet/check-wallet`, {
     method: 'POST',
-    // async onResponse({ response }) {
-    // console.log({ response: response._data });
-    // console.log('Here first')
-    // },
+    async onResponse({ response }) {
+        // console.log({ response: response._data });
+        // console.log('Here first');
+        userStore.setWalletAlias(response._data);
+    },
 });
 
 //TODO: Use found wallet alias from above to make calls below
