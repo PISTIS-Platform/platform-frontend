@@ -32,14 +32,34 @@ const monthlyIncome = ref(0);
 const monthlyOutcome = ref(0);
 
 const isHovered = ref();
-const { status: balanceStatus } = await useLazyFetch(`/api/wallet`, {
+
+const checkWalletData = await $fetch(`/api/wallet/check-wallet`, {
+    method: 'POST',
+    // async onResponse({ response }) {
+    // console.log({ response: response._data });
+    // console.log('Here first')
+    // },
+});
+
+//TODO: Use found wallet alias from above to make calls below
+
+const { status: balanceStatus } = useLazyFetch(`/api/wallet`, {
     method: 'post',
+    body: {
+        walletAlias: checkWalletData,
+    },
     async onResponse({ response }) {
+        // console.log('Here next')
+        // console.log({checkWalletData})
         currentBalance.value = response._data;
         await useLazyFetch('/api/wallet/transactions-data', {
             method: 'post',
+            body: {
+                walletAlias: checkWalletData,
+            },
             async onResponse({ response }) {
                 const transactions = response._data;
+                // console.log('Here latest')
                 incoming.value = transactions.incoming.map((item) => {
                     return {
                         date: item.included_at,

@@ -12,6 +12,7 @@ export const useUserStore = defineStore('UserStore', {
             fullName: '',
             username: '',
             email: '',
+            walletAlias: '',
         },
     }),
     getters: {
@@ -27,6 +28,9 @@ export const useUserStore = defineStore('UserStore', {
         getEmail(): string {
             return this.user.email;
         },
+        getWalletAlias(): string {
+            return this.user.walletAlias;
+        },
     },
     actions: {
         setFullName(name: string): void {
@@ -38,11 +42,15 @@ export const useUserStore = defineStore('UserStore', {
         setEmail(email: string): void {
             this.user.email = email;
         },
+        setWalletAlias(walletAlias: string): void {
+            this.user.walletAlias = walletAlias;
+        },
         resetUser(): void {
             this.user = {
                 fullName: '',
                 username: '',
                 email: '',
+                walletAlias: '',
             };
         },
     },
