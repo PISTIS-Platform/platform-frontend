@@ -3,11 +3,12 @@ import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
+import { countriesInEnglish } from '~/constants/countries';
 import { licenses } from '~/constants/licenses';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
 //TODO: Get this list of countries from somewhere like an API call
-const listOfCountries = ['Greece', 'Cyprus', 'Italy', 'Germany', 'France'];
+const listOfCountries = Object.values(countriesInEnglish);
 
 const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
@@ -320,15 +321,12 @@ async function onSubmit(): Promise<void> {
                                                 </UInput> -->
                                                 <USelectMenu
                                                     v-model="monetizationDetails.region"
-                                                    :ui="{
-                                                        option: { active: 'text-gray-200' },
-                                                        input: 'placeholder:text-gray-200 text-gray-200',
-                                                        button: 'text-gray-200',
-                                                    }"
+                                                    searchable
+                                                    :searchable-placeholder="$t('data.designer.searchForACountry')"
                                                     :options="listOfCountries"
                                                     :placeholder="$t('data.designer.regionCountry')"
-                                                    :disabled="isWorldwide"
-                                                ></USelectMenu>
+                                                    multiple
+                                                />
 
                                                 <template #error="{ error }">
                                                     <span

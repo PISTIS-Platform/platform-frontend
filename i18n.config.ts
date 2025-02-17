@@ -122,6 +122,7 @@ export default defineI18nConfig(() => ({
                         contractDetails: 'Contract Details',
                         personalData: 'Personal Data',
                     },
+                    searchForACountry: 'Search for a country...',
                     licenseDetails: 'License Details',
                     licenseDetailsDescription: 'Details about the license you wish to apply to your asset',
                     noDatasetSelected: 'No Dataset Selected',

@@ -187,9 +187,12 @@ const transferableSelections = [
                     </div>
                     <div class="flex flex-col gap-4">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.availability') }}</span>
-                        <span>{{
-                            monetizationDetails.region ? monetizationDetails.region : $t('data.designer.worldwide')
-                        }}</span>
+                        <span v-if="monetizationDetails.region.length" class="flex items-center gap-2 flex-wrap">
+                            <span v-for="(country, index) in monetizationDetails.region" :key="country"
+                                >{{ country }}<span v-if="index !== monetizationDetails.region.length - 1">,</span>
+                            </span>
+                        </span>
+                        <span v-else>{{ $t('data.designer.worldwide') }}</span>
                     </div>
                 </div>
                 <span class="font-semibold text-sm -mb-3 mt-5">{{ $t('data.designer.fields.licensingDetails') }}</span>

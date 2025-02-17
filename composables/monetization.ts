@@ -34,7 +34,7 @@ export const useMonetizationSchema = () => {
                 ),
             limitFrequency: z.string().min(1, t('val.required')),
             isExclusive: z.boolean().optional(),
-            region: z.string().optional(),
+            region: z.string().array().optional(),
             transferable: z.string().optional(),
             termDate: z.string().optional(),
             additionalRenewalTerms: z.string().optional(),
@@ -50,7 +50,7 @@ export const useMonetizationSchema = () => {
         })
         .superRefine((data, ctx) => {
             if (data.license === 'PISTIS License') {
-                if (!data.region && !isWorldwide.value) {
+                if (!data.region?.length && !isWorldwide.value) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         message: t('val.required'),
@@ -122,7 +122,7 @@ export const useMonetizationSchema = () => {
                 ),
             limitFrequency: z.string().min(1, t('val.required')),
             isExclusive: z.boolean().optional(),
-            region: z.string().optional(),
+            region: z.string().array().optional(),
             transferable: z.string().optional(),
             termDate: z.string().optional(),
             additionalRenewalTerms: z.string().optional(),
@@ -138,7 +138,7 @@ export const useMonetizationSchema = () => {
         })
         .superRefine((data, ctx) => {
             if (data.license === 'PISTIS License') {
-                if (!data.region && !isWorldwide.value) {
+                if (!data.region?.length && !isWorldwide.value) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         message: t('val.required'),

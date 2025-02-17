@@ -93,7 +93,7 @@ const monetizationDetails = ref<Partial<monetizationType>>({
     limitNumber: 0,
     limitFrequency: '',
     isExclusive: false,
-    region: '',
+    region: [],
     transferable: '',
     termDate: '',
     additionalRenewalTerms: '',
