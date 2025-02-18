@@ -338,7 +338,7 @@ const handlePolicyForm = () => {
 };
 
 async function onSubmit(): Promise<void> {
-    emit('changePage', 3);
+    emit('changePage', 4);
 }
 </script>
 

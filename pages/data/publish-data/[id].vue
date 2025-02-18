@@ -226,7 +226,7 @@ const handlePageSelectionBackwards = (value: number) => {
 
 const changeStep = async (stepNum: number) => {
     selectedPage.value = stepNum;
-    if (stepNum === 3) {
+    if (stepNum === 4) {
         //api call to contract template composer
         //FIXME: Currently getting a 404 for API which this fetch calls
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
@@ -309,9 +309,10 @@ const changeStep = async (stepNum: number) => {
     </template>
 
     <Preview
-        v-if="isAllValid && selectedPage === 4 && completeOrQuery && selected?.title"
+        v-if="selectedPage === 4"
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
+        :license-details="licenseDetails"
         :limit-frequency-selections="limitFrequencySelections"
         :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
