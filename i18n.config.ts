@@ -114,6 +114,7 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    searchForACountry: 'Search for a country...',
                     licenseSelector: 'License Selector',
                     licenseSelectorInfo: 'Select the license you wish to use to publish your dataset',
                     noTitle: 'No Title Given',

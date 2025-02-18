@@ -9,6 +9,10 @@ import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
+import { countriesInEnglish } from '~/constants/countries';
+
+const listOfCountries = Object.values(countriesInEnglish);
+
 const props = defineProps({
     licenseDetailsProp: {
         type: Object as PropType<Partial<licenseType>>,
@@ -263,17 +267,16 @@ async function onSubmit(): Promise<void> {
                                             name="region"
                                             :required="!isWorldwide"
                                             class="w-full"
-                                            eager-validation
                                         >
-                                            <UInput
-                                                v-model.number="licenseDetails.region"
-                                                :class="isWorldwide ? 'opacity-50' : ''"
-                                                :disabled="isWorldwide"
+                                            <USelectMenu
+                                                v-model="licenseDetails.region"
+                                                searchable
+                                                :searchable-placeholder="$t('data.designer.searchForACountry')"
+                                                :options="listOfCountries"
                                                 :placeholder="$t('data.designer.regionCountry')"
-                                                type="numeric"
-                                                class="w-full"
-                                            >
-                                            </UInput>
+                                                multiple
+                                            />
+
                                             <template #error="{ error }">
                                                 <span
                                                     :class="[
