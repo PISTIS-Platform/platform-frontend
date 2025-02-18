@@ -18,6 +18,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            required: 'Required',
             worldwide: 'Worldwide',
             select: 'Select',
             search: 'Search...',

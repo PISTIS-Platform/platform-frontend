@@ -104,27 +104,32 @@ const isAssetOfferingDetailsValid = computed(() => {
 
 // data for monetization selections
 
-const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
+const { isFree, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
     price: 0,
-    license: 'PISTIS License',
-    extraTerms: '',
-    contractTerms: '',
-    limitNumber: 0,
-    limitFrequency: '',
-    isExclusive: false,
-    region: '',
-    transferable: '',
-    termDate: '',
-    additionalRenewalTerms: '',
-    nonRenewalDays: 0,
-    contractBreachDays: 0,
-    personalDataTerms: '',
 });
+
+// const licenseDetails = ref<Partial<monetizationType>>({
+//     type: 'one-off',
+//     price: 0,
+//     license: 'PISTIS License',
+//     extraTerms: '',
+//     contractTerms: '',
+//     limitNumber: 0,
+//     limitFrequency: '',
+//     isExclusive: false,
+//     region: '',
+//     transferable: '',
+//     termDate: '',
+//     additionalRenewalTerms: '',
+//     nonRenewalDays: 0,
+//     contractBreachDays: 0,
+//     personalDataTerms: '',
+// });
 
 // access policies
 const policyData: Array<AccessPolicyDetails> = [];
@@ -262,7 +267,7 @@ const changeStep = async (stepNum: number) => {
         />
     </div>
 
-    <div v-show="selectedPage === 1">
+    <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" />
 
         <MonetizationMethod
