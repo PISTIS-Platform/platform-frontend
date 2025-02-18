@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import dayjs from 'dayjs';
+const { t } = useI18n();
 
 defineProps({
     assetOfferingDetails: {
@@ -37,6 +37,11 @@ defineProps({
 });
 
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
+
+const subscriptionMapping: Record<string, string> = {
+    subscription: t('data.designer.subscription'),
+    'one-off': t('data.designer.oneOffSale'),
+};
 </script>
 
 <template>
@@ -83,97 +88,21 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                     :info="$t('data.designer.monetizationMethodInfo')"
                 />
             </template>
-            <div v-if="monetizationDetails.type === 'one-off'" class="flex flex-col gap-8">
-                <div class="flex items-start gap-8">
-                    <div class="flex gap-2 flex-col">
+            <div class="flex flex-col gap-8">
+                <div class="flex items-start w-full">
+                    <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.monetizationMethod')
                         }}</span>
-                        <span>{{ $t('data.designer.oneOffSale') }}</span>
+                        <span>{{ subscriptionMapping[monetizationDetails.type] }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-if="monetizationDetails.type === 'one-off'" class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.oneOffPrice') }}</span>
                         <span>{{
                             monetizationDetails.price ? monetizationDetails.price + ' EUR' : $t('data.designer.free')
                         }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
-                        <span>{{ licenseDetails.license }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
-                        }}</span>
-                        <span>{{
-                            licenseDetails.limitNumber +
-                            ' ' +
-                            $t('times') +
-                            ' ' +
-                            limitFrequencySelections.find((item) => item.value === licenseDetails.limitFrequency)?.title
-                        }}</span>
-                    </div>
-                </div>
-                <div class="flex items-start gap-8">
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('exclusive') }}</span>
-                        <span>{{ licenseDetails.isExclusive ? $t('yes') : $t('no') }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.availability') }}</span>
-                        <span>{{ isWorldwide ? $t('worldwide') : licenseDetails.region }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.transferable') }}</span>
-                        <span>{{ licenseDetails.transferable }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.termDate') }}</span>
-                        <span>{{
-                            isPerpetual
-                                ? $t('data.designer.perpetual')
-                                : dayjs(licenseDetails.termDate).format('YYYY/MM/DD')
-                        }}</span>
-                    </div>
-                </div>
-                <div v-if="licenseDetails.extraTerms" class="flex gap-2 flex-col">
-                    <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
-                    <span>{{ licenseDetails.extraTerms }}</span>
-                </div>
-                <div v-if="licenseDetails.additionalRenewalTerms" class="flex gap-2 flex-col">
-                    <span class="text-sm font-semibold text-gray-400">{{
-                        $t('data.designer.additionalRenewalTerms')
-                    }}</span>
-                    <span>{{ licenseDetails.additionalRenewalTerms }}</span>
-                </div>
-                <div class="flex items-start gap-8">
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.noticeForNonRenewal')
-                        }}</span>
-                        <span>{{ licenseDetails.nonRenewalDays }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.maximumDaysContractBreach')
-                        }}</span>
-                        <span>{{ licenseDetails.contractBreachDays }}</span>
-                    </div>
-                </div>
-                <div v-if="hasPersonalData" class="flex gap-2 flex-col">
-                    <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.personalDataTerms') }}</span>
-                    <span>{{ licenseDetails.personalDataTerms }}</span>
-                </div>
-            </div>
-            <div v-if="monetizationDetails.type === 'subscription'" class="flex flex-col gap-8">
-                <div class="flex items-start gap-8">
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.monetizationMethod')
-                        }}</span>
-                        <span>{{ $t('data.designer.subscription') }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-if="monetizationDetails.type === 'subscription'" class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.subscriptionPrice') + ' & ' + $t('data.designer.subscriptionFrequency')
                         }}</span>
@@ -191,7 +120,20 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                                       : $t('data.designer.monthly'))
                         }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                </div>
+            </div>
+        </UCard>
+
+        <UCard>
+            <template #header>
+                <SubHeading
+                    :title="$t('data.designer.licenseSelector') + ' - ' + $t('preview')"
+                    :info="$t('data.designer.licenseSelectorInfo')"
+                />
+            </template>
+            <div class="flex flex-col gap-8">
+                <div class="flex items-start w-full">
+                    <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
                         <span>{{ licenseDetails.license }}</span>
                     </div>
@@ -208,23 +150,52 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                         }}</span>
                     </div>
                 </div>
-                <div class="flex items-start gap-8">
-                    <div class="flex gap-2 flex-col">
+                <div class="flex items-start w-full">
+                    <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('exclusive') }}</span>
                         <span>{{ licenseDetails.isExclusive ? $t('yes') : $t('no') }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-if="isWorldwide" class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.availability') }}</span>
-                        <span>{{ isWorldwide ? $t('worldwide') : licenseDetails.region }}</span>
+                        <span>{{ $t('worldwide') }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-else class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.availability') }}</span>
+                        <span class="flex items-center gap-2">
+                            <span v-for="(country, idx) in licenseDetails.region" :key="country">
+                                <span>{{ country }}</span>
+                                <span v-if="idx !== licenseDetails.region.length - 1">,</span>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-start w-full">
+                    <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.transferable') }}</span>
                         <span>{{ licenseDetails.transferable }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.termDate') }}</span>
                         <span>{{ isPerpetual ? $t('data.designer.perpetual') : licenseDetails.termDate }}</span>
                     </div>
+                </div>
+                <div class="flex items-start w-full">
+                    <div class="flex gap-2 flex-col w-1/2">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.designer.noticeForNonRenewal')
+                        }}</span>
+                        <span>{{ licenseDetails.nonRenewalDays }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col w-1/2">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.designer.maximumDaysContractBreach')
+                        }}</span>
+                        <span>{{ licenseDetails.contractBreachDays }}</span>
+                    </div>
+                </div>
+                <div v-if="hasPersonalData" class="flex gap-2 flex-col">
+                    <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.personalDataTerms') }}</span>
+                    <span>{{ licenseDetails.personalDataTerms }}</span>
                 </div>
                 <div v-if="licenseDetails.extraTerms" class="flex gap-2 flex-col">
                     <span class="text-sm font-semibold text-gray-400">{{ $t('termsConditions') }}</span>
@@ -236,25 +207,8 @@ const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
                     }}</span>
                     <span>{{ licenseDetails.additionalRenewalTerms }}</span>
                 </div>
-                <div class="flex items-start gap-8">
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.noticeForNonRenewal')
-                        }}</span>
-                        <span>{{ licenseDetails.nonRenewalDays }}</span>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.maximumDaysContractBreach')
-                        }}</span>
-                        <span>{{ licenseDetails.contractBreachDays }}</span>
-                    </div>
-                </div>
-                <div v-if="hasPersonalData" class="flex gap-2 flex-col">
-                    <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.personalDataTerms') }}</span>
-                    <span>{{ licenseDetails.personalDataTerms }}</span>
-                </div>
             </div>
+
             <div class="w-full flex justify-between items-center mt-8">
                 <UButton size="md" color="gray" variant="outline" @click="emit('handlePageSelectionBackwards', 2)">
                     {{ $t('back') }}

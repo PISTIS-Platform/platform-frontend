@@ -95,7 +95,7 @@ const updateWorldwide = (value: boolean) => {
     isWorldwide.value = value;
     emit('update:is-worldwide', value);
     if (isWorldwide.value) {
-        licenseDetails.value.region = '';
+        licenseDetails.value.region = [];
     }
 };
 
@@ -130,7 +130,8 @@ const customValidate = () => {
             errors.push({ path: error.path[0], message: error.message });
         }
     }
-    if (!isWorldwide.value && !licenseDetails.value.region) errors.push({ path: 'region', message: t('val.required') });
+    if (!isWorldwide.value && !licenseDetails.value.region.length)
+        errors.push({ path: 'region', message: t('val.required') });
     else formRef.value.clear('region');
     if (!isPerpetual.value && !licenseDetails.value.termDate)
         errors.push({ path: 'termDate', message: t('val.required') });
@@ -275,6 +276,8 @@ async function onSubmit(): Promise<void> {
                                                 :options="listOfCountries"
                                                 :placeholder="$t('data.designer.regionCountry')"
                                                 multiple
+                                                :disabled="isWorldwide"
+                                                class="disabled:opacity-50"
                                             />
 
                                             <template #error="{ error }">

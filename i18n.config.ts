@@ -198,7 +198,7 @@ export default defineI18nConfig(() => ({
                     annual: 'Annual',
                     pleaseCheck: 'Please check the form and fill in all required (*) fields',
                     availability: 'Availability',
-                    regionCountry: 'Region / Country',
+                    regionCountry: 'Select a country',
                     worldwide: 'Worldwide',
                     transferable: 'Transferable',
                     nonTransferable: 'Non-transferable',
