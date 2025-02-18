@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 const { t } = useI18n();
+const { showErrorMessage } = useAlertMessage();
 
 const props = defineProps({
     assetDetailsProp: {
@@ -11,11 +12,11 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid']);
+const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid', 'changePage']);
 
 const schema = z.object({
-    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    title: z.string().min(1, t('required', { count: 1 })),
+    description: z.string().min(1, t('required', { count: 1 })),
     selectedDistribution: z.object({
         label: z.string(),
         id: z.string(),
@@ -51,10 +52,35 @@ const customValidate = () => {
             assetErrors.push({ path: error.path[0], message: error.message });
         }
     }
-    if (!assetOfferingDetails.value.keywords?.length)
-        assetErrors.push({ path: 'keywords', message: t('val.required') });
+    if (!assetOfferingDetails.value.keywords?.length) assetErrors.push({ path: 'keywords', message: t('required') });
     return assetErrors;
 };
+
+const formRef = ref();
+
+watch(
+    () => assetOfferingDetails.value.keywords,
+    () => {
+        if (assetOfferingDetails.value.keywords.length >= 1) {
+            formRef.value.clear('keywords');
+        }
+    },
+);
+
+const isAssetOfferingDetailsValid = computed(() => {
+    return schema.safeParse(assetOfferingDetails.value).success && assetOfferingDetails?.value.keywords.length > 0;
+});
+
+async function onSubmit(): Promise<void> {
+    if (isAssetOfferingDetailsValid.value) {
+        emit('changePage', 1);
+    } else {
+        if (!assetOfferingDetails?.value.keywords?.length) {
+            showErrorMessage(t('data.designer.pleaseEnterAtLeastOneKeyword'));
+        }
+        showErrorMessage(t('data.designer.pleaseCheck'));
+    }
+}
 </script>
 
 <template>
@@ -74,30 +100,35 @@ const customValidate = () => {
                 />
             </template>
             <UForm
+                ref="formRef"
                 class="flex flex-col space-y-5 w-full"
                 :state="assetOfferingDetails"
                 :schema="schema"
                 :validate="customValidate"
-                :validate-on="['input', 'submit', 'blur', 'change']"
             >
-                <UFormGroup :label="$t('title')" required name="title">
+                <UFormGroup :label="$t('title')" required name="title" eager-validation>
                     <UInput v-model="assetOfferingDetails.title" :placeholder="$t('data.designer.titleOfAsset')" />
                 </UFormGroup>
-                <UFormGroup :label="$t('description')" required name="description">
+                <UFormGroup :label="$t('description')" required name="description" eager-validation>
                     <UTextarea
                         v-model="assetOfferingDetails.description"
                         :placeholder="$t('data.designer.descriptionOfAsset')"
                         icon="i-heroicons-envelope"
                     />
                 </UFormGroup>
-                <UFormGroup :label="$t('data.selectedDistribution')" required name="selectedDistribution">
+                <UFormGroup
+                    :label="$t('data.selectedDistribution')"
+                    required
+                    name="selectedDistribution"
+                    eager-validation
+                >
                     <USelectMenu
                         v-model="assetOfferingDetails.selectedDistribution"
                         :options="assetOfferingDetails.distributions"
                     >
                     </USelectMenu>
                 </UFormGroup>
-                <UFormGroup :label="$t('keywords')" required name="keywords">
+                <UFormGroup :label="$t('keywords')" required name="keywords" eager-validation>
                     <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->
                     <vue3-tags-input
                         :tags="assetOfferingDetails.keywords"
@@ -105,6 +136,9 @@ const customValidate = () => {
                         @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
                     />
                 </UFormGroup>
+                <div class="w-full flex items-center justify-end gap-4">
+                    <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
+                </div>
             </UForm>
         </UCard>
     </Transition>

@@ -31,37 +31,12 @@ const monetizationDetails = computed({
     },
 });
 
-const assetOfferingDetailsSchema = z.object({
-    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    selectedDistribution: z.object({
-        id: z.string(),
-        format: z.object({
-            id: z.string(),
-            label: z.string(),
-            resource: z.string(),
-        }),
-        access_url: z.array(z.string()),
-        title: z.object({
-            en: z.string(),
-        }),
-    }),
-});
-
-const isAssetOfferingDetailsValid = computed(() => {
-    // console.log({ assetOfferingDetailsSchema: assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value) });
-    return (
-        assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success &&
-        props.assetOfferingDetails?.keywords.length > 0
-    );
-});
-
 const isMonetizationValid = computed(() => {
     // console.log({ monetizationSchema: monetizationSchema.safeParse(monetizationDetails.value) });
     return monetizationSchema.safeParse(monetizationDetails.value).success;
 });
 
-const isAllValid = computed(() => isAssetOfferingDetailsValid.value && isMonetizationValid.value);
+const isAllValid = computed(() => isMonetizationValid.value);
 
 const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
 

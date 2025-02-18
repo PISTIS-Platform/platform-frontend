@@ -109,6 +109,7 @@ export default defineI18nConfig(() => ({
                     nav: {
                         selectDataset: 'Select Dataset',
                         monetizationPlanner: 'Monetization Planner',
+                        licenseSelector: 'License Selector',
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },

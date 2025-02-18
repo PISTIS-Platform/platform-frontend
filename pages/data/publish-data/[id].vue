@@ -78,6 +78,30 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
     keywords: [],
 });
 
+const assetOfferingDetailsSchema = z.object({
+    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    selectedDistribution: z.object({
+        id: z.string(),
+        format: z.object({
+            id: z.string(),
+            label: z.string(),
+            resource: z.string(),
+        }),
+        access_url: z.array(z.string()),
+        title: z.object({
+            en: z.string(),
+        }),
+    }),
+});
+
+const isAssetOfferingDetailsValid = computed(() => {
+    return (
+        assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
+        assetOfferingDetails?.value.keywords.length > 0
+    );
+});
+
 // data for monetization selections
 
 const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
@@ -176,16 +200,16 @@ const limitFrequencySelections = computed(() => [
 ]);
 
 const steps = computed(() => [
-    { name: t('data.designer.nav.selectDataset'), isActive: true },
-    { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value },
+    { name: t('data.designer.nav.selectDataset'), isActive: selected.value },
+    { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value && isAssetOfferingDetailsValid.value },
+    { name: t('data.designer.nav.licenseSelector'), isActive: true },
     { name: t('data.designer.nav.accessPoliciesEditor'), isActive: selected.value && isAllValid.value },
-    //TODO: Add extra check for completed access policies info
     { name: t('data.designer.nav.preview'), isActive: selected.value && isAllValid.value },
 ]);
 
 const isAllValid = ref(false);
 
-const selectedPage = ref(1);
+const selectedPage = ref(0);
 
 const handlePageSelectionBackwards = (value: number) => {
     selectedPage.value = value;
@@ -223,7 +247,7 @@ const changeStep = async (stepNum: number) => {
 
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 0" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             v-if="selected"
             :selected="selected"
@@ -234,8 +258,11 @@ const changeStep = async (stepNum: number) => {
         <AssetOfferingDetails
             v-model:asset-details-prop="assetOfferingDetails"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
+            @change-page="changeStep"
         />
+    </div>
 
+    <div v-show="selectedPage === 1">
         <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" />
 
         <MonetizationMethod
