@@ -117,6 +117,8 @@ export default defineI18nConfig(() => ({
                     pleaseEnterAtLeastOneKeyword: 'Please enter at least one keyword in the asset offering details',
                     noDatasets: 'There are no datasets in this catalog',
                     datasetIdNotFound: 'Dataset ID Not Found',
+                    noDatasetSelected: 'No Dataset Selected',
+                    pleaseSelectFromCatalog: 'Please select a dataset from the catalogue to publish data.',
                     pleaseGoBackCatalog: 'Please go back to the catalog and select a valid dataset.',
                     pleaseSelectDataset: 'Please select a dataset',
                     free: 'Free',
