@@ -63,6 +63,8 @@ watch(
     () => {
         if (assetOfferingDetails.value.keywords.length >= 1) {
             formRef.value.clear('keywords');
+        } else {
+            formRef.value.setErrors([{ path: 'keywords', message: t('required') }], 'keywords');
         }
     },
 );
