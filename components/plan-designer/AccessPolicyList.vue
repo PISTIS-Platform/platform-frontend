@@ -383,7 +383,7 @@ async function onSubmit(): Promise<void> {
                 <UButton @click="handleNewPolicyClick()">{{ $t('policies.actions.add') }}</UButton>
             </UCard>
             <div class="w-full flex items-center justify-between mt-4">
-                <UButton size="lg" color="gray" variant="outline" @click="emit('changePage', 1)">
+                <UButton size="lg" color="gray" variant="outline" @click="emit('changePage', 2)">
                     {{ $t('back') }}
                 </UButton>
                 <UButton size="md" type="submit">{{ $t('next') }} </UButton>

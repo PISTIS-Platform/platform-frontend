@@ -16,9 +16,11 @@ const props = defineProps({
     },
     monetizationDetails: {
         type: Object as PropType<Partial<monetizationType>>,
+        required: true,
     },
     assetOfferingDetails: {
         type: Object,
+        required: true,
     },
     isFree: {
         type: Boolean,
@@ -109,9 +111,9 @@ const updatePersonal = (value: boolean) => {
     }
 };
 
-// const updateContractTerms = (value: string) => {
-//     licenseDetails.value.contractTerms = value;
-// };
+const updateContractTerms = (value: string) => {
+    licenseDetails.value.contractTerms = value;
+};
 
 const customValidate = () => {
     const errors = [];
@@ -139,7 +141,7 @@ const customValidate = () => {
 };
 
 async function onSubmit(): Promise<void> {
-    if (isAllValid.value) {
+    if (isLicenseValid.value) {
         emit('changePage', 3);
     } else {
         showErrorMessage(t('data.designer.pleaseCheck'));
@@ -177,7 +179,6 @@ async function onSubmit(): Promise<void> {
                         class="flex flex-col w-full"
                         :state="licenseDetails"
                         :validate="customValidate"
-                        :validate-on="['input', 'submit', 'blur', 'change']"
                         @submit="onSubmit"
                     >
                         <div class="flex flex-col space-y-5">
@@ -459,11 +460,12 @@ async function onSubmit(): Promise<void> {
                         <!-- Terms Document -->
                         <div v-show="licenseDetails.license">
                             <p class="font-semibold text-sm mt-5 mb-1.5">{{ $t('licenseDetails') }}</p>
-                            <!-- <DataShareTerms
-                                :asset-offering-details="assetOfferingDetails"
+                            <DataShareTerms
+                                :asset-offering-details="props.assetOfferingDetails"
+                                :monetization-details="props.monetizationDetails"
                                 :license-details="licenseDetails"
                                 @update:contract-terms="(value: string) => updateContractTerms(value)"
-                            /> -->
+                            />
                         </div>
 
                         <div class="w-full flex items-center justify-between mt-4">

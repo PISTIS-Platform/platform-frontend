@@ -228,16 +228,17 @@ const changeStep = async (stepNum: number) => {
     selectedPage.value = stepNum;
     if (stepNum === 3) {
         //api call to contract template composer
+        //FIXME: Currently getting a 404 for API which this fetch calls
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
             body: {
                 assetId: newAssetId,
                 organizationId: runtimeConfig.public?.orgId,
-                terms: monetizationDetails.value.contractTerms,
+                terms: licenseDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
                 price: monetizationDetails.value.price,
-                limitNumber: monetizationDetails.value.limitNumber,
-                limitFrequency: monetizationDetails.value.limitFrequency,
+                limitNumber: licenseDetails.value.limitNumber,
+                limitFrequency: licenseDetails.value.limitFrequency,
                 subscriptionFrequency:
                     monetizationDetails.value.type === 'subscription'
                         ? monetizationDetails.value.subscriptionFrequency
