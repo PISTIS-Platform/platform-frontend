@@ -4,18 +4,6 @@ export const useMonetizationSchema = () => {
     const { t } = useI18n();
     const isFree = ref(false);
 
-    // const oneOffSaleSchema = z.object({
-    //     type: z.literal('one-off'),
-    //     price: z.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
-    //         (val) => {
-    //             return isFree.value ? val === 0 : val >= 10 && val.toString().length > 1;
-    //         },
-    //         {
-    //             message: isFree.value ? '' : t('data.designer.priceHigherThanZero'),
-    //         },
-    //     ),
-    // });
-
     const oneOffSaleSchema = z.object({
         type: z.literal('one-off'),
         price: z.union([
@@ -24,7 +12,7 @@ export const useMonetizationSchema = () => {
                 .min(1, { message: t('required') })
                 .refine(
                     (val) => {
-                        return val.trim().length > 1;
+                        return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
                     },
                     {
                         message: t('val.validNumber'),
@@ -50,7 +38,7 @@ export const useMonetizationSchema = () => {
                 .min(1, { message: t('required') })
                 .refine(
                     (val) => {
-                        return val.trim().length > 1;
+                        return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
                     },
                     {
                         message: t('val.validNumber'),
