@@ -113,23 +113,25 @@ const monetizationDetails = ref<Partial<monetizationType>>({
     price: 0,
 });
 
-// const licenseDetails = ref<Partial<monetizationType>>({
-//     type: 'one-off',
-//     price: 0,
-//     license: 'PISTIS License',
-//     extraTerms: '',
-//     contractTerms: '',
-//     limitNumber: 0,
-//     limitFrequency: '',
-//     isExclusive: false,
-//     region: '',
-//     transferable: '',
-//     termDate: '',
-//     additionalRenewalTerms: '',
-//     nonRenewalDays: 0,
-//     contractBreachDays: 0,
-//     personalDataTerms: '',
-// });
+type licenseType = z.infer<typeof licenseSchema>;
+
+const licenseDetails = ref<Partial<licenseType>>({
+    license: 'PISTIS License',
+    extraTerms: '',
+    contractTerms: '',
+    limitNumber: 0,
+    limitFrequency: '',
+    isExclusive: false,
+    region: '',
+    transferable: '',
+    termDate: '',
+    additionalRenewalTerms: '',
+    nonRenewalDays: 0,
+    contractBreachDays: 0,
+    personalDataTerms: '',
+});
+
+const { isWorldwide, isPerpetual, hasPersonalData, licenseSchema } = useLicenseSchema();
 
 // access policies
 const policyData: Array<AccessPolicyDetails> = [];
@@ -278,12 +280,24 @@ const changeStep = async (stepNum: number) => {
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
-            @update:is-all-valid="(value: boolean) => (isAllValid = value)"
+        />
+    </div>
+
+    <div v-show="selectedPage === 2" class="w-full h-full text-gray-700 space-y-8">
+        <LicenseSelector
+            v-model:license-details-prop="licenseDetails"
+            :monetization-details="monetizationDetails"
+            :asset-offering-details="assetOfferingDetails"
+            :is-free="isFree"
+            @change-page="changeStep"
+            @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
+            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
+            @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
 
     <template v-if="selected">
-        <div v-show="selectedPage === 2" class="w-full h-full text-gray-700 space-y-8">
+        <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">
             <AccessPolicyList
                 v-model:policy-data="policyData"
                 :selected="selected"
@@ -294,7 +308,7 @@ const changeStep = async (stepNum: number) => {
     </template>
 
     <Preview
-        v-if="isAllValid && selectedPage === 3 && completeOrQuery && selected?.title"
+        v-if="isAllValid && selectedPage === 4 && completeOrQuery && selected?.title"
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
         :limit-frequency-selections="limitFrequencySelections"

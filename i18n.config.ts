@@ -114,6 +114,8 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    licenseSelector: 'License Selector',
+                    licenseSelectorInfo: 'Select the license you wish to use to publish your dataset',
                     noTitle: 'No Title Given',
                     unknownFormat: 'Unknown Format',
                     pleaseEnterAtLeastOneKeyword: 'Please enter at least one keyword in the asset offering details',
