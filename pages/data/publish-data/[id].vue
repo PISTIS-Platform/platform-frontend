@@ -79,16 +79,19 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
 });
 
 const assetOfferingDetailsSchema = z.object({
-    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    title: z.string().min(1, t('required', { count: 1 })),
+    description: z.string().min(1, t('required', { count: 1 })),
     selectedDistribution: z.object({
+        label: z.string(),
         id: z.string(),
-        format: z.object({
-            id: z.string(),
-            label: z.string(),
-            resource: z.string(),
-        }),
-        access_url: z.array(z.string()),
+        format: z
+            .object({
+                id: z.string(),
+                label: z.string().optional(),
+                resource: z.string().optional(),
+            })
+            .optional(),
+        access_url: z.array(z.string()).optional(),
         title: z.object({
             en: z.string(),
         }),
@@ -113,6 +116,13 @@ const monetizationDetails = ref<Partial<monetizationType>>({
     price: 0,
 });
 
+const isMonetizationValid = computed(() => {
+    return monetizationSchema.safeParse(monetizationDetails.value).success;
+});
+
+const isLicenseValid = computed(() => {
+    return licenseSchema.safeParse(licenseDetails.value).success;
+});
 type licenseType = z.infer<typeof licenseSchema>;
 
 const licenseDetails = ref<Partial<licenseType>>({
@@ -209,12 +219,21 @@ const limitFrequencySelections = computed(() => [
 const steps = computed(() => [
     { name: t('data.designer.nav.selectDataset'), isActive: selected.value },
     { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value && isAssetOfferingDetailsValid.value },
-    { name: t('data.designer.nav.licenseSelector'), isActive: true },
-    { name: t('data.designer.nav.accessPoliciesEditor'), isActive: selected.value && isAllValid.value },
-    { name: t('data.designer.nav.preview'), isActive: selected.value && isAllValid.value },
+    {
+        name: t('data.designer.nav.licenseSelector'),
+        isActive: selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value,
+    },
+    {
+        name: t('data.designer.nav.accessPoliciesEditor'),
+        isActive:
+            selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value && isLicenseValid.value,
+    },
+    {
+        name: t('data.designer.nav.preview'),
+        isActive:
+            selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value && isLicenseValid.value,
+    },
 ]);
-
-const isAllValid = ref(false);
 
 const selectedPage = ref(0);
 
