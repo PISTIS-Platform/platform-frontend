@@ -57,6 +57,7 @@ export default defineI18nConfig(() => ({
                 noFactoryFound: 'No factory found for this user',
                 factoryUrl: 'Factory URL',
                 authorizationStatus: 'Authorization Status',
+                factory: 'Factory',
                 accepted: 'Accepted',
                 notAccepted: 'Not Accepted',
                 organizationName: 'Organization Name',
@@ -457,6 +458,9 @@ export default defineI18nConfig(() => ({
                 settings: 'Settings',
                 signOut: 'Sign out',
                 signIn: 'Sign in',
+                account: 'Account',
+                factorySettings: 'Factory Settings',
+                systemMonitor: 'System Monitor',
             },
             admin: {
                 services: {
