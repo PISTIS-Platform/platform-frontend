@@ -128,29 +128,30 @@ const customValidate = () => {
 </script>
 
 <template>
-    <UCard>
-        <template #header>
-            <div class="flex items-center gap-8">
-                <UIcon name="material-symbols:monetization-on" class="w-10 h-10 text-gray-500" />
-                <SubHeading
-                    :title="$t('data.designer.monetizationMethod')"
-                    :info="$t('data.designer.monetizationMethodInfo')"
+    <UForm
+        ref="formRef"
+        :key="monetizationDetails.type"
+        class="flex flex-col w-full"
+        :state="monetizationDetails"
+        :validate="customValidate"
+    >
+        <UCard class="pb-2">
+            <template #header>
+                <div class="flex items-center gap-8">
+                    <UIcon name="material-symbols:monetization-on" class="w-10 h-10 text-gray-500" />
+                    <SubHeading
+                        :title="$t('data.designer.monetizationMethod')"
+                        :info="$t('data.designer.monetizationMethodInfo')"
+                    />
+                </div>
+            </template>
+            <div class="space-y-5">
+                <SelectionCards
+                    :model-value="monetizationDetails.type || ''"
+                    :selections="monetizationSelections"
+                    @update:model-value="(value: string) => handleMonetizationClick(value)"
                 />
-            </div>
-        </template>
-        <div class="space-y-5">
-            <SelectionCards
-                :model-value="monetizationDetails.type || ''"
-                :selections="monetizationSelections"
-                @update:model-value="(value: string) => handleMonetizationClick(value)"
-            />
-            <UForm
-                ref="formRef"
-                :key="monetizationDetails.type"
-                class="flex flex-col w-full"
-                :state="monetizationDetails"
-                :validate="customValidate"
-            >
+
                 <template v-if="monetizationDetails.type === 'one-off'">
                     <div class="flex flex-col space-y-5">
                         <div class="flex flex-row gap-4">
@@ -160,6 +161,7 @@ const customValidate = () => {
                                     class="flex-1"
                                     :required="!isFree"
                                     name="price"
+                                    :ui="{ error: 'absolute -bottom-6' }"
                                     eager-validation
                                 >
                                     <UInput
@@ -185,7 +187,12 @@ const customValidate = () => {
                                         </span>
                                     </template>
                                 </UFormGroup>
-                                <UFormGroup :label="$t('data.designer.free')" name="free" eager-validation>
+                                <UFormGroup
+                                    :label="$t('data.designer.free')"
+                                    name="free"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
+                                >
                                     <UCheckbox
                                         :model-value="isFree"
                                         name="oneOffFree"
@@ -206,6 +213,7 @@ const customValidate = () => {
                                     :label="$t('data.designer.subscriptionFrequency')"
                                     required
                                     name="subscriptionFrequency"
+                                    :ui="{ error: 'absolute -bottom-6' }"
                                     eager-validation
                                 >
                                     <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
@@ -239,6 +247,7 @@ const customValidate = () => {
                                         class="flex-1"
                                         :required="!isFree"
                                         name="price"
+                                        :ui="{ error: 'absolute -bottom-6' }"
                                         eager-validation
                                     >
                                         <UInput
@@ -264,7 +273,12 @@ const customValidate = () => {
                                             </span>
                                         </template>
                                     </UFormGroup>
-                                    <UFormGroup :label="$t('data.designer.free')" name="free" eager-validation>
+                                    <UFormGroup
+                                        :label="$t('data.designer.free')"
+                                        name="free"
+                                        :ui="{ error: 'absolute -bottom-6' }"
+                                        eager-validation
+                                    >
                                         <UCheckbox
                                             :model-value="isFree"
                                             name="subscriptionFree"
@@ -283,14 +297,13 @@ const customValidate = () => {
 
                         <template v-if="monetizationDetails.type === 'nft'">
                         </template> -->
-
-                <div class="w-full flex items-center justify-between mt-4">
-                    <UButton size="md" color="gray" variant="outline" @click="emit('changePage', 0)">
-                        {{ $t('back') }}
-                    </UButton>
-                    <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
-                </div>
-            </UForm>
+            </div>
+        </UCard>
+        <div class="w-full flex items-center justify-between mt-4">
+            <UButton size="md" color="gray" variant="outline" @click="emit('changePage', 0)">
+                {{ $t('back') }}
+            </UButton>
+            <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
         </div>
-    </UCard>
+    </UForm>
 </template>

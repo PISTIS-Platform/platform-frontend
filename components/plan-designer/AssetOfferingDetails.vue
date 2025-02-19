@@ -86,53 +86,81 @@ async function onSubmit(): Promise<void> {
 </script>
 
 <template>
-    <UCard>
-        <template #header>
-            <div class="flex items-center gap-8">
-                <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500" />
-                <SubHeading
-                    :title="$t('data.designer.assetOfferingDetails')"
-                    :info="$t('data.designer.assetOfferingDetailsInfo')"
-                />
-            </div>
-        </template>
-        <UForm
-            ref="formRef"
-            class="flex flex-col space-y-5 w-full"
-            :state="assetOfferingDetails"
-            :schema="schema"
-            :validate="customValidate"
-        >
-            <UFormGroup :label="$t('title')" required name="title" eager-validation>
-                <UInput v-model="assetOfferingDetails.title" :placeholder="$t('data.designer.titleOfAsset')" />
-            </UFormGroup>
-            <UFormGroup :label="$t('description')" required name="description" eager-validation>
-                <UTextarea
-                    v-model="assetOfferingDetails.description"
-                    :placeholder="$t('data.designer.descriptionOfAsset')"
-                    icon="i-heroicons-envelope"
-                />
-            </UFormGroup>
-            <UFormGroup :label="$t('data.selectedDistribution')" required name="selectedDistribution" eager-validation>
-                <USelectMenu
-                    v-model="assetOfferingDetails.selectedDistribution"
-                    :options="assetOfferingDetails.distributions"
+    <UForm
+        ref="formRef"
+        class="flex flex-col space-y-5 w-full"
+        :state="assetOfferingDetails"
+        :schema="schema"
+        :validate="customValidate"
+    >
+        <UCard>
+            <template #header>
+                <div class="flex items-center gap-8">
+                    <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500" />
+                    <SubHeading
+                        :title="$t('data.designer.assetOfferingDetails')"
+                        :info="$t('data.designer.assetOfferingDetailsInfo')"
+                    />
+                </div>
+            </template>
+
+            <div class="flex flex-col space-y-5 w-full">
+                <UFormGroup
+                    :label="$t('title')"
+                    required
+                    name="title"
+                    :ui="{ error: 'absolute -bottom-6' }"
+                    eager-validation
                 >
-                </USelectMenu>
-            </UFormGroup>
-            <UFormGroup :label="$t('keywords')" required name="keywords" eager-validation>
-                <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->
-                <vue3-tags-input
-                    :tags="assetOfferingDetails.keywords"
-                    :placeholder="assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')"
-                    @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
-                />
-            </UFormGroup>
-            <div class="w-full flex items-center justify-end gap-4">
-                <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
+                    <UInput v-model="assetOfferingDetails.title" :placeholder="$t('data.designer.titleOfAsset')" />
+                </UFormGroup>
+                <UFormGroup
+                    :label="$t('description')"
+                    required
+                    name="description"
+                    :ui="{ error: 'absolute -bottom-6' }"
+                    eager-validation
+                >
+                    <UTextarea
+                        v-model="assetOfferingDetails.description"
+                        :placeholder="$t('data.designer.descriptionOfAsset')"
+                        icon="i-heroicons-envelope"
+                    />
+                </UFormGroup>
+                <UFormGroup
+                    :label="$t('data.selectedDistribution')"
+                    required
+                    name="selectedDistribution"
+                    :ui="{ error: 'absolute -bottom-6' }"
+                    eager-validation
+                >
+                    <USelectMenu
+                        v-model="assetOfferingDetails.selectedDistribution"
+                        :options="assetOfferingDetails.distributions"
+                    >
+                    </USelectMenu>
+                </UFormGroup>
+                <UFormGroup
+                    :label="$t('keywords')"
+                    required
+                    name="keywords"
+                    :ui="{ error: 'absolute -bottom-6' }"
+                    eager-validation
+                >
+                    <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->
+                    <vue3-tags-input
+                        class="mb-3"
+                        :tags="assetOfferingDetails.keywords"
+                        :placeholder="assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')"
+                        @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
+                    />
+                </UFormGroup>
             </div>
-        </UForm>
-    </UCard>
+        </UCard>
+        <div class="w-full flex items-center justify-end gap-4">
+            <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
+        </div>
+    </UForm>
 </template>
 
 <style lang="css">

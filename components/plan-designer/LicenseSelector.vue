@@ -165,7 +165,7 @@ async function onSubmit(): Promise<void> {
                 />
             </div>
         </template>
-        <div class="space-y-5">
+        <div class="space-y-6">
             <UForm
                 ref="formRef"
                 class="flex flex-col w-full"
@@ -173,13 +173,14 @@ async function onSubmit(): Promise<void> {
                 :validate="customValidate"
                 @submit="onSubmit"
             >
-                <div class="flex flex-col space-y-5">
+                <div class="flex flex-col space-y-6">
                     <div class="flex flex-row gap-4">
                         <UFormGroup
                             :label="$t('license')"
                             required
                             name="license"
                             class="flex-1 text-gray-200"
+                            :ui="{ error: 'absolute -bottom-6' }"
                             eager-validation
                         >
                             <USelectMenu
@@ -206,6 +207,7 @@ async function onSubmit(): Promise<void> {
                             required
                             name="limitNumber"
                             class="flex-1"
+                            :ui="{ error: 'absolute -bottom-6' }"
                             eager-validation
                         >
                             <UInput
@@ -223,6 +225,7 @@ async function onSubmit(): Promise<void> {
                             required
                             name="limitFrequency"
                             class="flex-1"
+                            :ui="{ error: 'absolute -bottom-6' }"
                             eager-validation
                         >
                             <USelectMenu
@@ -240,10 +243,15 @@ async function onSubmit(): Promise<void> {
                             >
                         </UFormGroup>
                     </div>
-                    <div v-if="licenseDetails.license === licenses.pistis" class="flex flex-col gap-4">
+                    <div v-if="licenseDetails.license === licenses.pistis" class="flex flex-col space-y-6">
                         <div class="flex flex-row gap-4">
                             <div class="flex flex-1 gap-4">
-                                <UFormGroup :label="$t('exclusive')" name="isExclusive" eager-validation>
+                                <UFormGroup
+                                    :label="$t('exclusive')"
+                                    name="isExclusive"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
+                                >
                                     <UCheckbox
                                         v-model="licenseDetails.isExclusive"
                                         name="isExclusive"
@@ -255,6 +263,8 @@ async function onSubmit(): Promise<void> {
                                     name="region"
                                     :required="!isWorldwide"
                                     class="w-full"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
                                 >
                                     <USelectMenu
                                         v-model="licenseDetails.region"
@@ -279,7 +289,11 @@ async function onSubmit(): Promise<void> {
                                         </span>
                                     </template>
                                 </UFormGroup>
-                                <UFormGroup :label="$t('data.designer.worldwide')" eager-validation>
+                                <UFormGroup
+                                    :label="$t('data.designer.worldwide')"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
+                                >
                                     <UCheckbox
                                         :model-value="isWorldwide"
                                         class="mt-2.5 justify-center"
@@ -293,6 +307,7 @@ async function onSubmit(): Promise<void> {
                                     required
                                     name="transferable"
                                     class="flex-1 text-gray-200"
+                                    :ui="{ error: 'absolute -bottom-6' }"
                                     eager-validation
                                 >
                                     <USelectMenu
@@ -313,6 +328,7 @@ async function onSubmit(): Promise<void> {
                                     :required="!isPerpetual"
                                     name="termDate"
                                     class="text-gray-200"
+                                    :ui="{ error: 'absolute -bottom-6' }"
                                     eager-validation
                                 >
                                     <UPopover :popper="{ placement: 'bottom-start' }">
@@ -348,7 +364,11 @@ async function onSubmit(): Promise<void> {
                                         </span>
                                     </template>
                                 </UFormGroup>
-                                <UFormGroup :label="$t('data.designer.perpetual')" eager-validation>
+                                <UFormGroup
+                                    :label="$t('data.designer.perpetual')"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
+                                >
                                     <UCheckbox
                                         :model-value="isPerpetual"
                                         class="mt-2.5 justify-center"
@@ -357,7 +377,12 @@ async function onSubmit(): Promise<void> {
                                 </UFormGroup>
                             </div>
                         </div>
-                        <UFormGroup :label="$t('termsConditions')" name="extraTerms" eager-validation>
+                        <UFormGroup
+                            :label="$t('termsConditions')"
+                            name="extraTerms"
+                            :ui="{ error: 'absolute -bottom-6' }"
+                            eager-validation
+                        >
                             <UTextarea
                                 v-model="licenseDetails.extraTerms"
                                 :rows="4"
@@ -368,6 +393,7 @@ async function onSubmit(): Promise<void> {
                         <UFormGroup
                             :label="$t('data.designer.additionalRenewalTerms')"
                             name="additionalRenewalTerms"
+                            :ui="{ error: 'absolute -bottom-6' }"
                             eager-validation
                         >
                             <UTextarea
@@ -384,6 +410,7 @@ async function onSubmit(): Promise<void> {
                                     class="flex-1"
                                     required
                                     name="nonRenewalDays"
+                                    :ui="{ error: 'absolute -bottom-6' }"
                                     eager-validation
                                 >
                                     <UInput
@@ -403,6 +430,7 @@ async function onSubmit(): Promise<void> {
                                     class="flex-1"
                                     required
                                     name="contractBreachDays"
+                                    :ui="{ error: 'absolute -bottom-6' }"
                                     eager-validation
                                 >
                                     <UInput
@@ -432,6 +460,7 @@ async function onSubmit(): Promise<void> {
                                 :label="$t('data.designer.personalDataTerms')"
                                 name="personalDataTerms"
                                 :required="hasPersonalData"
+                                :ui="{ error: 'absolute -bottom-6' }"
                                 eager-validation
                             >
                                 <UTextarea

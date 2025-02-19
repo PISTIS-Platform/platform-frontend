@@ -413,14 +413,22 @@ async function onSubmit(): Promise<void> {
             <input v-model="accessPolicyDetails.id" type="hidden" />
             <div class="flex items-start gap-8">
                 <div class="flex flex-col w-full">
-                    <UFormGroup :label="$t('policies.policyUI.defName')">
+                    <UFormGroup
+                        :label="$t('policies.policyUI.defName')"
+                        :ui="{ error: 'absolute -bottom-6' }"
+                        eager-validation
+                    >
                         <UInput v-model="accessPolicyDetails.title" placeholder="" />
                     </UFormGroup>
                 </div>
             </div>
             <div class="flex items-start gap-8">
                 <div class="flex flex-col w-full">
-                    <UFormGroup :label="$t('policies.policyUI.defDesc')">
+                    <UFormGroup
+                        :label="$t('policies.policyUI.defDesc')"
+                        :ui="{ error: 'absolute -bottom-6' }"
+                        eager-validation
+                    >
                         <UTextarea v-model="accessPolicyDetails.description" placeholder="" />
                     </UFormGroup>
                 </div>
