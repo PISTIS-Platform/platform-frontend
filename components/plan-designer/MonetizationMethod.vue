@@ -41,20 +41,20 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
     if (monetizationType === 'one-off') {
         monetizationDetails.value = {
             type: 'one-off',
-            price: 0,
+            price: '',
         };
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
             type: 'subscription',
             subscriptionFrequency: 'monthly',
-            price: 0,
+            price: '',
         };
     } else if (monetizationType === 'investment') {
         monetizationDetails.value = {
             type: 'investment',
-            percentageToSell: 0,
-            percentageMinimum: 0,
-            percentagePrice: 0,
+            percentageToSell: '',
+            percentageMinimum: '',
+            percentagePrice: '',
             validOfferDate: '',
         };
     } else if (monetizationType === 'nft') {
@@ -106,7 +106,7 @@ const formRef = ref();
 const updateFree = (value: boolean) => {
     isFree.value = value;
     emit('update:is-free', value);
-    monetizationDetails.value.price = 0;
+    monetizationDetails.value.price = '';
 };
 
 const handleMonetizationClick = (value: string) => {

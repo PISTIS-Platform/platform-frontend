@@ -113,7 +113,7 @@ type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
-    price: 0,
+    price: '',
 });
 
 const isMonetizationValid = computed(() => {
@@ -129,15 +129,15 @@ const licenseDetails = ref<Partial<licenseType>>({
     license: 'PISTIS License',
     extraTerms: '',
     contractTerms: '',
-    limitNumber: 0,
+    limitNumber: '',
     limitFrequency: '',
     isExclusive: false,
     region: '',
     transferable: '',
     termDate: '',
     additionalRenewalTerms: '',
-    nonRenewalDays: 0,
-    contractBreachDays: 0,
+    nonRenewalDays: '',
+    contractBreachDays: '',
     personalDataTerms: '',
 });
 
