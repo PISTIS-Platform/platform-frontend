@@ -175,11 +175,11 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                                     }}</span>
                                                     <div
                                                         v-if="factorySettingsData.isAccepted"
-                                                        class="border w-3 h-3 rounded-full bg-green-300 border-green-500 mt-0.5"
+                                                        class="border w-3 h-3 rounded-full bg-green-300 border-green-500"
                                                     ></div>
                                                     <div
                                                         v-else
-                                                        class="border w-3 h-3 rounded-full bg-red-300 border-red-500 mt-0.5"
+                                                        class="border w-3 h-3 rounded-full bg-red-300 border-red-500"
                                                     ></div>
                                                 </span>
                                                 <span v-else class="text-xs">{{ $t('settings.noFactoryFound') }}</span>
