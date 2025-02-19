@@ -31,7 +31,7 @@ const { data: accountData, status: accountStatus } = useFetch<Record<string, any
                             </div>
                         </div>
                     </UCard>
-                    <UCard class="w-full sm:w-1/2 mt-12 sm:mt-0 flex flex-col">
+                    <UCard class="w-full sm:w-1/2 flex flex-col">
                         <template #header>
                             <SubHeading :title="$t('account.orgDetails')" :info="$t('account.orgDetailsInfo')" />
                         </template>
