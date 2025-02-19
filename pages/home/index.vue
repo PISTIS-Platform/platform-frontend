@@ -3,6 +3,9 @@ const R = useRamda();
 import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
+import { useUserStore } from '~/store/user';
+
+const userStore = useUserStore();
 const { t } = useI18n();
 const incoming = ref([
     {
@@ -32,14 +35,35 @@ const monthlyIncome = ref(0);
 const monthlyOutcome = ref(0);
 
 const isHovered = ref();
-const { status: balanceStatus } = await useLazyFetch(`/api/wallet`, {
-    method: 'post',
+
+const checkWalletData = await $fetch(`/api/wallet/check-wallet`, {
+    method: 'POST',
     async onResponse({ response }) {
+        // console.log({ response: response._data });
+        // console.log('Here first');
+        userStore.setWalletAlias(response._data);
+    },
+});
+
+//TODO: Use found wallet alias from above to make calls below
+
+const { status: balanceStatus } = useLazyFetch(`/api/wallet`, {
+    method: 'post',
+    body: {
+        walletAlias: checkWalletData,
+    },
+    async onResponse({ response }) {
+        // console.log('Here next')
+        // console.log({checkWalletData})
         currentBalance.value = response._data;
         await useLazyFetch('/api/wallet/transactions-data', {
             method: 'post',
+            body: {
+                walletAlias: checkWalletData,
+            },
             async onResponse({ response }) {
                 const transactions = response._data;
+                // console.log('Here latest')
                 incoming.value = transactions.incoming.map((item) => {
                     return {
                         date: item.included_at,
