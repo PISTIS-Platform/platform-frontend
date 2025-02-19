@@ -274,7 +274,7 @@ const changeStep = async (stepNum: number) => {
 
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 0" class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 0 && selected" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             v-if="selected"
             :selected="selected"

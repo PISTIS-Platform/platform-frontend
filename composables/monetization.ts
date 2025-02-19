@@ -23,7 +23,7 @@ export const useMonetizationSchema = () => {
                     return isFree.value ? val === 0 : val >= 10 && val.toString().length > 1;
                 },
                 {
-                    message: isFree.value ? '' : t('data.designer.priceHigherThanZero'),
+                    message: isFree.value ? '' : t('data.designer.priceHigherThanTen'),
                 },
             ),
         ]),
@@ -49,7 +49,7 @@ export const useMonetizationSchema = () => {
                     return isFree.value ? val === 0 : val >= 10 && val.toString().length > 1;
                 },
                 {
-                    message: isFree.value ? '' : t('data.designer.priceHigherThanZero'),
+                    message: isFree.value ? '' : t('data.designer.priceHigherThanTen'),
                 },
             ),
         ]),

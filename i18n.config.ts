@@ -128,7 +128,7 @@ export default defineI18nConfig(() => ({
                     pleaseSelectDataset: 'Please select a dataset',
                     free: 'Free',
                     paid: 'Paid',
-                    priceHigherThanZero: 'Price needs to be higher than 10 EUR',
+                    priceHigherThanTen: 'Price needs to be 10 EUR or higher',
                     title: 'Publish Data',
                     completeDataset: 'Complete Dataset',
                     selectDataset: 'Select the complete dataset',

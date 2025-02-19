@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { t } = useI18n();
+import dayjs from 'dayjs';
 
 defineProps({
     assetOfferingDetails: {
@@ -185,7 +186,11 @@ const subscriptionMapping: Record<string, string> = {
                     </div>
                     <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.termDate') }}</span>
-                        <span>{{ isPerpetual ? $t('data.designer.perpetual') : licenseDetails.termDate }}</span>
+                        <span>{{
+                            isPerpetual
+                                ? $t('data.designer.perpetual')
+                                : dayjs(licenseDetails.termDate).format('DD/MM/YYYY')
+                        }}</span>
                     </div>
                 </div>
                 <div class="flex items-start w-full">

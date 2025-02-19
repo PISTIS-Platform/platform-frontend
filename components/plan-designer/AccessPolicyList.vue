@@ -344,55 +344,46 @@ async function onSubmit(): Promise<void> {
 
 <template>
     <DialogWrapper />
-    <Transition
-        enter-active-class="duration-300 ease-out"
-        enter-from-class="transform opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="duration-300 ease-in"
-        leave-from-class="opacity-100"
-        leave-to-class="transform opacity-0"
-    >
-        <UForm ref="formRef" class="flex flex-col w-full" @submit="onSubmit">
-            <UCard>
-                <template #header>
-                    <div class="flex items-center gap-8">
-                        <UIcon name="uis:lock-access" class="w-10 h-10 text-gray-500" />
-                        <SubHeading :title="$t('policies.title')" :info="$t('policies.info')" />
+    <UForm ref="formRef" class="flex flex-col w-full" @submit="onSubmit">
+        <UCard>
+            <template #header>
+                <div class="flex items-center gap-8">
+                    <UIcon name="uis:lock-access" class="w-10 h-10 text-gray-500" />
+                    <SubHeading :title="$t('policies.title')" :info="$t('policies.info')" />
+                </div>
+            </template>
+
+            <UTable :key="policiesCount" :columns="columns" :rows="rows">
+                <template #amount-data="{ row }">
+                    <div class="text-left font-semibold">
+                        <span>{{ row.id }}</span>
                     </div>
                 </template>
 
-                <UTable :key="policiesCount" :columns="columns" :rows="rows">
-                    <template #amount-data="{ row }">
-                        <div class="text-left font-semibold">
-                            <span>{{ row.id }}</span>
-                        </div>
-                    </template>
+                <template #actions-data="{ row }">
+                    <div v-if="row.id === '1'"></div>
+                    <div v-else>
+                        <UDropdown :items="actions(row)">
+                            <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+                        </UDropdown>
+                    </div>
+                </template>
+            </UTable>
 
-                    <template #actions-data="{ row }">
-                        <div v-if="row.id === '1'"></div>
-                        <div v-else>
-                            <UDropdown :items="actions(row)">
-                                <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
-                            </UDropdown>
-                        </div>
-                    </template>
-                </UTable>
-
-                <!-- Display the pagination only if the total number of transactions is larger than the page count -->
-                <div v-if="policyData.length > pageCount" class="flex justify-end mt-2">
-                    <UPagination v-model="page" :page-count="pageCount" :total="policyData.length" />
-                </div>
-
-                <UButton @click="handleNewPolicyClick()">{{ $t('policies.actions.add') }}</UButton>
-            </UCard>
-            <div class="w-full flex items-center justify-between mt-4">
-                <UButton size="lg" color="gray" variant="outline" @click="emit('changePage', 2)">
-                    {{ $t('back') }}
-                </UButton>
-                <UButton size="md" type="submit">{{ $t('next') }} </UButton>
+            <!-- Display the pagination only if the total number of transactions is larger than the page count -->
+            <div v-if="policyData.length > pageCount" class="flex justify-end mt-2">
+                <UPagination v-model="page" :page-count="pageCount" :total="policyData.length" />
             </div>
-        </UForm>
-    </Transition>
+
+            <UButton @click="handleNewPolicyClick()">{{ $t('policies.actions.add') }}</UButton>
+        </UCard>
+        <div class="w-full flex items-center justify-between mt-4">
+            <UButton size="lg" color="gray" variant="outline" @click="emit('changePage', 2)">
+                {{ $t('back') }}
+            </UButton>
+            <UButton size="md" type="submit">{{ $t('next') }} </UButton>
+        </div>
+    </UForm>
     <!-- Modal -->
     <UModal v-model="switchPolicyForm" class="flex flex-grow">
         <UCard class="flex flex-col text-gray-700">
