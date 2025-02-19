@@ -54,7 +54,7 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             type: 'investment',
             percentageToSell: 0,
             percentageMinimum: 0,
-            price: 0,
+            percentagePrice: 0,
             validOfferDate: '',
         };
     } else if (monetizationType === 'nft') {
@@ -325,13 +325,13 @@ const customValidate = () => {
                                     <UFormGroup
                                         :label="$t('data.designer.priceOfPercentage')"
                                         class="flex-1"
-                                        name="price"
+                                        name="percentagePrice"
                                         :ui="{ error: 'absolute -bottom-6' }"
                                         required
                                         eager-validation
                                     >
                                         <UInput
-                                            v-model.number="monetizationDetails.price"
+                                            v-model.number="monetizationDetails.percentagePrice"
                                             :placeholder="$t('data.designer.priceOfPercentageInfo')"
                                             type="numeric"
                                         >

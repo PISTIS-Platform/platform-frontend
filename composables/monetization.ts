@@ -20,7 +20,7 @@ export const useMonetizationSchema = () => {
                 ),
             z.coerce.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
                 (val) => {
-                    return isFree.value ? val === 0 : val >= 10 && val.toString().length > 1;
+                    return isFree.value ? val === 0 : val >= 10;
                 },
                 {
                     message: isFree.value ? '' : t('data.designer.priceHigherThanTen'),
@@ -46,7 +46,7 @@ export const useMonetizationSchema = () => {
                 ),
             z.coerce.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
                 (val) => {
-                    return isFree.value ? val === 0 : val >= 10 && val.toString().length > 1;
+                    return isFree.value ? val === 0 : val >= 10;
                 },
                 {
                     message: isFree.value ? '' : t('data.designer.priceHigherThanTen'),
@@ -71,7 +71,7 @@ export const useMonetizationSchema = () => {
                 ),
             z.coerce.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
                 (val) => {
-                    return val >= 1 && val <= 99 && val.toString().length > 1;
+                    return val >= 1 && val <= 99;
                 },
                 {
                     message: t('data.designer.percentageBetweenOneNinetyNine'),
@@ -92,14 +92,14 @@ export const useMonetizationSchema = () => {
                 ),
             z.coerce.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
                 (val) => {
-                    return val >= 1 && val <= 99 && val.toString().length > 1;
+                    return val >= 1 && val <= 99;
                 },
                 {
                     message: t('data.designer.percentageBetweenOneNinetyNine'),
                 },
             ),
         ]),
-        price: z.union([
+        percentagePrice: z.union([
             z
                 .string()
                 .min(1, { message: t('required') })
@@ -113,7 +113,7 @@ export const useMonetizationSchema = () => {
                 ),
             z.coerce.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
                 (val) => {
-                    return isFree.value ? val === 0 : val >= 10 && val.toString().length > 1;
+                    return val >= 10;
                 },
                 {
                     message: t('data.designer.priceHigherThanTen'),
