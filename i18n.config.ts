@@ -214,6 +214,16 @@ export default defineI18nConfig(() => ({
                     hasPersonalData: 'This dataset contains personal data',
                     assetSubmitted: 'Your dataset has been published successfully',
                     errorInSubmitAsset: 'Error occurred while publishing dataset',
+                    percentageBetweenOneNinetyNine: 'Percentage needs to be between 1 and 99',
+
+                    percentageToSell: 'Percentage To Sell',
+                    ownershipPercentage: '% of ownership to place on the market',
+                    priceOfPercentage: 'Price of Percentage',
+                    priceOfPercentageInfo: 'Price of each 1%',
+                    percentageMinimum: 'Percentage Minimum',
+                    percentageMinimumInfo: 'The minimum % that a buyer can get',
+                    validOfferDate: 'Valid Offer Date',
+                    validOfferDateInfo: 'Date until when the offer is valid',
                 },
                 wallet: {
                     title: 'Wallet',
