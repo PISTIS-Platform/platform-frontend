@@ -49,7 +49,9 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             price: 0,
         };
     } else if (monetizationType === 'investment') {
-        //TODO: Do once we know what goes here
+        monetizationDetails.value = {
+            type: 'investment',
+        };
     } else if (monetizationType === 'nft') {
         //TODO: Do once we know what goes here
     }
@@ -60,27 +62,27 @@ const monetizationToSend = ref();
 const monetizationSelections: CardSelection[] = [
     {
         title: t('data.designer.oneOffSale'),
-        info: t('data.designer.oneOffSaleInfo'),
+        // info: t('data.designer.oneOffSaleInfo'),
         value: 'one-off',
         disabled: false,
     },
     {
         title: t('data.designer.subscription'),
-        info: t('data.designer.subscriptionInfo'),
+        // info: t('data.designer.subscriptionInfo'),
         value: 'subscription',
         disabled: false,
     },
     {
         title: t('data.designer.nft'),
-        info: t('data.designer.nftInfo'),
+        // info: t('data.designer.nftInfo'),
         value: 'nft',
         disabled: true,
     },
     {
         title: t('data.designer.investmentPlan'),
-        info: t('data.designer.investmentPlanInfo'),
+        // info: t('data.designer.investmentPlanInfo'),
         value: 'investment',
-        disabled: true,
+        disabled: false,
     },
 ];
 
@@ -292,10 +294,9 @@ const customValidate = () => {
                     </div>
                 </template>
 
-                <!-- <template v-if="monetizationDetails.type === 'investment'">
-                        </template>
+                <template v-if="monetizationDetails.type === 'investment'"> </template>
 
-                        <template v-if="monetizationDetails.type === 'nft'">
+                <!-- <template v-if="monetizationDetails.type === 'nft'">
                         </template> -->
             </div>
         </UCard>

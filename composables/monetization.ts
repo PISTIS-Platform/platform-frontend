@@ -55,7 +55,11 @@ export const useMonetizationSchema = () => {
         ]),
     });
 
-    const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema]);
+    const investmentSchema = z.object({
+        type: z.literal('investment'),
+    });
+
+    const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema, investmentSchema]);
 
     return {
         isFree,
