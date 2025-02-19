@@ -353,7 +353,10 @@ async function onSubmit(): Promise<void> {
             <template #header>
                 <div class="flex items-center gap-8">
                     <UIcon name="uis:lock-access" class="w-10 h-10 text-gray-500" />
-                    <SubHeading :title="$t('policies.title')" :info="$t('policies.info')" />
+                    <SubHeading
+                        :title="preview ? $t('policies.title') + ' - ' + $t('preview') : $t('policies.title')"
+                        :info="$t('policies.info')"
+                    />
                 </div>
             </template>
 
