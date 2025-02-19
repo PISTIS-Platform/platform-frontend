@@ -38,45 +38,33 @@ const dataSetSelections = computed(() => [
 <template>
     <UCard class="overflow-visible">
         <template #header>
-            <SubHeading :title="$t('data.designer.datasetSelected')" :info="$t('data.designer.datasetSelectedInfo')" />
+            <div class="flex items-center gap-8">
+                <UIcon name="lsicon:data-filled" class="w-10 h-10 text-gray-500" />
+                <SubHeading
+                    :title="$t('data.designer.datasetSelected')"
+                    :info="$t('data.designer.datasetSelectedInfo')"
+                />
+            </div>
         </template>
         <div class="space-y-5">
             <div>
                 <div v-if="selected.id" class="space-y-5">
-                    <Transition
-                        enter-active-class="duration-300 ease-out"
-                        enter-from-class="transform opacity-0"
-                        enter-to-class="opacity-100"
-                        leave-active-class="duration-300 ease-in"
-                        leave-from-class="opacity-100"
-                        leave-to-class="transform opacity-0"
-                    >
-                        <div class="flex gap-4 w-full">
-                            <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
-                                <p>{{ $t('data.designer.assetTitle') }}:</p>
-                                <p>{{ $t('data.designer.assetDescription') }}:</p>
-                            </div>
-                            <div class="flex flex-col items-start justify-start gap-4">
-                                <p class="font-bold">{{ selected.title }}</p>
-                                <p>{{ selected.description }}</p>
-                            </div>
+                    <div class="flex gap-4 w-full">
+                        <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
+                            <p>{{ $t('data.designer.assetTitle') }}:</p>
+                            <p>{{ $t('data.designer.assetDescription') }}:</p>
                         </div>
-                    </Transition>
-                    <Transition
-                        enter-active-class="duration-300 ease-out"
-                        enter-from-class="transform opacity-0"
-                        enter-to-class="opacity-100"
-                        leave-active-class="duration-300 ease-in"
-                        leave-from-class="opacity-100"
-                        leave-to-class="transform opacity-0"
-                    >
-                        <SelectionCards
-                            :model-value="completeOrQuery"
-                            class="gap-4"
-                            :selections="dataSetSelections"
-                            @update:model-value="(value: string) => emit('update:complete-or-query', value)"
-                        />
-                    </Transition>
+                        <div class="flex flex-col items-start justify-start gap-4">
+                            <p class="font-bold">{{ selected.title }}</p>
+                            <p>{{ selected.description }}</p>
+                        </div>
+                    </div>
+                    <SelectionCards
+                        :model-value="completeOrQuery"
+                        class="gap-4"
+                        :selections="dataSetSelections"
+                        @update:model-value="(value: string) => emit('update:complete-or-query', value)"
+                    />
                 </div>
             </div>
         </div>

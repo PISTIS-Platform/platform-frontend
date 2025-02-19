@@ -18,6 +18,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            required: 'Required',
             worldwide: 'Worldwide',
             select: 'Select',
             search: 'Search...',
@@ -107,11 +108,15 @@ export default defineI18nConfig(() => ({
 
                 designer: {
                     nav: {
-                        selectDataset: 'Select Dataset',
+                        selectDataset: 'Dataset Selector',
                         monetizationPlanner: 'Monetization Planner',
+                        licenseSelector: 'License Selector',
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    searchForACountry: 'Search for a country...',
+                    licenseSelector: 'License Selector',
+                    licenseSelectorInfo: 'Select the license you wish to use to publish your dataset',
                     noTitle: 'No Title Given',
                     unknownFormat: 'Unknown Format',
                     pleaseEnterAtLeastOneKeyword: 'Please enter at least one keyword in the asset offering details',
@@ -123,7 +128,7 @@ export default defineI18nConfig(() => ({
                     pleaseSelectDataset: 'Please select a dataset',
                     free: 'Free',
                     paid: 'Paid',
-                    priceHigherThanZero: 'Price needs to be higher than 10 EUR',
+                    priceHigherThanTen: 'Price needs to be 10 EUR or higher',
                     title: 'Publish Data',
                     completeDataset: 'Complete Dataset',
                     selectDataset: 'Select the complete dataset',
@@ -193,7 +198,7 @@ export default defineI18nConfig(() => ({
                     annual: 'Annual',
                     pleaseCheck: 'Please check the form and fill in all required (*) fields',
                     availability: 'Availability',
-                    regionCountry: 'Region / Country',
+                    regionCountry: 'Select a country',
                     worldwide: 'Worldwide',
                     transferable: 'Transferable',
                     nonTransferable: 'Non-transferable',
@@ -209,6 +214,16 @@ export default defineI18nConfig(() => ({
                     hasPersonalData: 'This dataset contains personal data',
                     assetSubmitted: 'Your dataset has been published successfully',
                     errorInSubmitAsset: 'Error occurred while publishing dataset',
+                    percentageBetweenOneNinetyNine: 'Percentage needs to be between 1 and 99',
+
+                    percentageToSell: 'Percentage To Sell',
+                    ownershipPercentage: '% of ownership to place on the market',
+                    priceOfPercentage: 'Price of Percentage',
+                    priceOfPercentageInfo: 'Price of each 1%',
+                    percentageMinimum: 'Percentage Minimum',
+                    percentageMinimumInfo: 'The minimum % that a buyer can get',
+                    validOfferDate: 'Valid Offer Date',
+                    validOfferDateInfo: 'Date until when the offer is valid',
                 },
                 wallet: {
                     title: 'Wallet',
