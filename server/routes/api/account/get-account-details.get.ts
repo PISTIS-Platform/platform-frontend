@@ -1,17 +1,30 @@
 import { getToken } from '#auth';
 
-const {
-    public: { cloudUrl },
-} = useRuntimeConfig();
-
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
+    let user;
+    let org;
 
-    const result = await $fetch(`${cloudUrl}/srv/factories-registry/api/factories/user-factory`, {
-        headers: {
-            Authorization: `Bearer ${token?.access_token}`,
-        },
-    });
+    if (token) {
+        user = {
+            name: token.name,
+            email: token.email,
+            roles: token.pistis.user.role,
+        };
 
-    return result;
+        org = {
+            name: token.orgName,
+            country: token.pistis.group.country,
+            size: token.pistis.group.size,
+            domain: token.pistis.group.domain,
+            type: token.pistis.group.type,
+        };
+    } else {
+        return null;
+    }
+
+    return {
+        user,
+        org,
+    };
 });
