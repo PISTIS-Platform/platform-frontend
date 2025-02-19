@@ -51,6 +51,17 @@ export default defineI18nConfig(() => ({
             or: 'or',
             sortBy: 'Sort By',
             days: 'days',
+            settings: {
+                title: 'Factory Settings',
+                info: 'The settings of your unique factory',
+                noFactoryFound: 'No factory found for this user',
+                factoryUrl: 'Factory URL',
+                authorizationStatus: 'Authorization Status',
+                factory: 'Factory',
+                accepted: 'Accepted',
+                notAccepted: 'Not Accepted',
+                organizationName: 'Organization Name',
+            },
             sectors: {
                 aviation: 'Aviation',
                 energy: 'Energy',
@@ -447,6 +458,9 @@ export default defineI18nConfig(() => ({
                 settings: 'Settings',
                 signOut: 'Sign out',
                 signIn: 'Sign in',
+                account: 'Account',
+                factorySettings: 'Factory Settings',
+                systemMonitor: 'System Monitor',
             },
             admin: {
                 services: {

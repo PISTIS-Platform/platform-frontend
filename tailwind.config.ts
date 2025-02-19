@@ -5,6 +5,7 @@ import { fontFamily } from 'tailwindcss/defaultTheme';
 
 export default {
     content: ['./components/**/*.{vue,js,ts}', './layouts/**/*.vue', './pages/**/*.vue', './app.{js,ts,vue}'],
+    mode: 'jit',
     theme: {
         extend: {
             colors: {
