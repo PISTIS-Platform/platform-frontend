@@ -15,6 +15,10 @@ defineProps({
         type: Object as PropType<Record<string, any>>,
         required: true,
     },
+    policyData: {
+        type: Object as PropType<Record<string, any>[]>,
+        required: true,
+    },
     limitFrequencySelections: {
         type: Array<Record<string, any>>,
         required: true,
@@ -222,38 +226,40 @@ const subscriptionMapping: Record<string, string> = {
                     <span>{{ licenseDetails.additionalRenewalTerms }}</span>
                 </div>
             </div>
-
-            <div class="w-full flex justify-between items-center mt-8">
-                <UButton size="md" color="gray" variant="outline" @click="emit('handlePageSelectionBackwards', 3)">
-                    {{ $t('back') }}
-                </UButton>
-                <div class="flex items-center gap-4 w-full justify-end">
-                    <UAlert
-                        v-show="submitStatus === 'error'"
-                        icon="mingcute:alert-line"
-                        color="red"
-                        variant="subtle"
-                        :description="$t('data.designer.errorInSubmitAsset')"
-                        class="w-full max-w-xl"
-                    />
-                    <UAlert
-                        v-show="submitStatus === 'success'"
-                        icon="mingcute:alert-line"
-                        color="green"
-                        variant="subtle"
-                        :description="$t('data.designer.assetSubmitted')"
-                        class="w-full max-w-xl"
-                    />
-                    <UButton
-                        :disabled="submitStatus === 'pending' || submitStatus === 'success'"
-                        class="px-4 py-2 w-32 block"
-                        @click="emit('submitAll')"
-                    >
-                        <UIcon v-if="submitStatus === 'pending'" name="svg-spinners:270-ring-with-bg" />
-                        <span v-else> {{ $t('submit') }}</span>
-                    </UButton>
-                </div>
-            </div>
         </UCard>
+
+        <AccessPolicyList preview :policy-data="policyData" />
+
+        <div class="w-full flex justify-between items-center mt-8">
+            <UButton size="md" color="gray" variant="outline" @click="emit('handlePageSelectionBackwards', 3)">
+                {{ $t('back') }}
+            </UButton>
+            <div class="flex items-center gap-4 w-full justify-end">
+                <UAlert
+                    v-show="submitStatus === 'error'"
+                    icon="mingcute:alert-line"
+                    color="red"
+                    variant="subtle"
+                    :description="$t('data.designer.errorInSubmitAsset')"
+                    class="w-full max-w-xl"
+                />
+                <UAlert
+                    v-show="submitStatus === 'success'"
+                    icon="mingcute:alert-line"
+                    color="green"
+                    variant="subtle"
+                    :description="$t('data.designer.assetSubmitted')"
+                    class="w-full max-w-xl"
+                />
+                <UButton
+                    :disabled="submitStatus === 'pending' || submitStatus === 'success'"
+                    class="px-4 py-2 w-32 block"
+                    @click="emit('submitAll')"
+                >
+                    <UIcon v-if="submitStatus === 'pending'" name="svg-spinners:270-ring-with-bg" />
+                    <span v-else> {{ $t('submit') }}</span>
+                </UButton>
+            </div>
+        </div>
     </div>
 </template>

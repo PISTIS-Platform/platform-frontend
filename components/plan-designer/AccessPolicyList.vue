@@ -19,6 +19,10 @@ const props = defineProps({
         type: Array<AccessPolicyDetails>,
         required: true,
     },
+    preview: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 // const allGroups = await useFetch('/api/iam/get-groups');
@@ -375,9 +379,9 @@ async function onSubmit(): Promise<void> {
                 <UPagination v-model="page" :page-count="pageCount" :total="policyData.length" />
             </div>
 
-            <UButton @click="handleNewPolicyClick()">{{ $t('policies.actions.add') }}</UButton>
+            <UButton v-if="!preview" @click="handleNewPolicyClick()">{{ $t('policies.actions.add') }}</UButton>
         </UCard>
-        <div class="w-full flex items-center justify-between mt-4">
+        <div v-if="!preview" class="w-full flex items-center justify-between mt-4">
             <UButton size="lg" color="gray" variant="outline" @click="emit('changePage', 2)">
                 {{ $t('back') }}
             </UButton>

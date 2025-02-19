@@ -329,6 +329,7 @@ const changeStep = async (stepNum: number) => {
 
     <Preview
         v-if="selectedPage === 4"
+        :policy-data="policyData"
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
         :license-details="licenseDetails"
