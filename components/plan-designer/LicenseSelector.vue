@@ -165,10 +165,13 @@ async function onSubmit(): Promise<void> {
     >
         <UCard>
             <template #header>
-                <SubHeading
-                    :title="$t('data.designer.licenseSelector')"
-                    :info="$t('data.designer.licenseSelectorInfo')"
-                />
+                <div class="flex items-center gap-8">
+                    <UIcon name="clarity:license-solid" class="w-10 h-10 text-gray-500" />
+                    <SubHeading
+                        :title="$t('data.designer.licenseSelector')"
+                        :info="$t('data.designer.licenseSelectorInfo')"
+                    />
+                </div>
             </template>
             <div class="space-y-5">
                 <Transition

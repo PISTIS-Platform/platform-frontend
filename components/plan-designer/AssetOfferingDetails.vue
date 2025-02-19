@@ -96,10 +96,13 @@ async function onSubmit(): Promise<void> {
     >
         <UCard>
             <template #header>
-                <SubHeading
-                    :title="$t('data.designer.assetOfferingDetails')"
-                    :info="$t('data.designer.assetOfferingDetailsInfo')"
-                />
+                <div class="flex items-center gap-8">
+                    <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500" />
+                    <SubHeading
+                        :title="$t('data.designer.assetOfferingDetails')"
+                        :info="$t('data.designer.assetOfferingDetailsInfo')"
+                    />
+                </div>
             </template>
             <UForm
                 ref="formRef"

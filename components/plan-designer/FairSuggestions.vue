@@ -51,7 +51,10 @@ const computedColor = computed(() => {
         <UCard class="bg-secondary-50 border border-secondary-500">
             <template #header>
                 <div class="flex justify-between gap-4 items-start">
-                    <SubHeading :title="$t('data.designer.fairTitle')" :info="$t('data.designer.fairInfo')" />
+                    <div class="flex items-center gap-8">
+                        <UIcon name="ri:price-tag-3-fill" class="w-10 h-10 text-gray-500" />
+                        <SubHeading :title="$t('data.designer.fairTitle')" :info="$t('data.designer.fairInfo')" />
+                    </div>
                     <a href="" class="text-xs text-primary-500 underline">{{ $t('learnMore') }}</a>
                 </div>
             </template>

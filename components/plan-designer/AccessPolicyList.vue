@@ -355,7 +355,10 @@ async function onSubmit(): Promise<void> {
         <UForm ref="formRef" class="flex flex-col w-full" @submit="onSubmit">
             <UCard>
                 <template #header>
-                    <SubHeading :title="$t('policies.title')" :info="$t('policies.info')" />
+                    <div class="flex items-center gap-8">
+                        <UIcon name="uis:lock-access" class="w-10 h-10 text-gray-500" />
+                        <SubHeading :title="$t('policies.title')" :info="$t('policies.info')" />
+                    </div>
                 </template>
 
                 <UTable :key="policiesCount" :columns="columns" :rows="rows">

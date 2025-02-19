@@ -48,10 +48,13 @@ const subscriptionMapping: Record<string, string> = {
     <div class="w-full h-full text-gray-700 space-y-8">
         <UCard>
             <template #header>
-                <SubHeading
-                    :title="$t('data.designer.assetOfferingDetails') + ' - ' + $t('preview')"
-                    :info="$t('data.designer.assetOfferingDetailsInfo')"
-                />
+                <div class="flex items-center gap-8">
+                    <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500" />
+                    <SubHeading
+                        :title="$t('data.designer.assetOfferingDetails') + ' - ' + $t('preview')"
+                        :info="$t('data.designer.assetOfferingDetailsInfo')"
+                    />
+                </div>
             </template>
             <div class="flex flex-col gap-8">
                 <div class="flex gap-2 flex-col">
@@ -83,10 +86,13 @@ const subscriptionMapping: Record<string, string> = {
 
         <UCard>
             <template #header>
-                <SubHeading
-                    :title="$t('data.designer.monetizationMethod') + ' - ' + $t('preview')"
-                    :info="$t('data.designer.monetizationMethodInfo')"
-                />
+                <div class="flex items-center gap-8">
+                    <UIcon name="material-symbols:monetization-on" class="w-10 h-10 text-gray-500" />
+                    <SubHeading
+                        :title="$t('data.designer.monetizationMethod') + ' - ' + $t('preview')"
+                        :info="$t('data.designer.monetizationMethodInfo')"
+                    />
+                </div>
             </template>
             <div class="flex flex-col gap-8">
                 <div class="flex items-start w-full">
@@ -126,10 +132,13 @@ const subscriptionMapping: Record<string, string> = {
 
         <UCard>
             <template #header>
-                <SubHeading
-                    :title="$t('data.designer.licenseSelector') + ' - ' + $t('preview')"
-                    :info="$t('data.designer.licenseSelectorInfo')"
-                />
+                <div class="flex items-center gap-8">
+                    <UIcon name="clarity:license-solid" class="w-10 h-10 text-gray-500" />
+                    <SubHeading
+                        :title="$t('data.designer.licenseSelector') + ' - ' + $t('preview')"
+                        :info="$t('data.designer.licenseSelectorInfo')"
+                    />
+                </div>
             </template>
             <div class="flex flex-col gap-8">
                 <div class="flex items-start w-full">
@@ -161,7 +170,7 @@ const subscriptionMapping: Record<string, string> = {
                     </div>
                     <div v-else class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.availability') }}</span>
-                        <span class="flex items-center gap-2">
+                        <span class="flex items-center gap-2 flex-wrap">
                             <span v-for="(country, idx) in licenseDetails.region" :key="country">
                                 <span>{{ country }}</span>
                                 <span v-if="idx !== licenseDetails.region.length - 1">,</span>
@@ -210,7 +219,7 @@ const subscriptionMapping: Record<string, string> = {
             </div>
 
             <div class="w-full flex justify-between items-center mt-8">
-                <UButton size="md" color="gray" variant="outline" @click="emit('handlePageSelectionBackwards', 2)">
+                <UButton size="md" color="gray" variant="outline" @click="emit('handlePageSelectionBackwards', 3)">
                     {{ $t('back') }}
                 </UButton>
                 <div class="flex items-center gap-4 w-full justify-end">
