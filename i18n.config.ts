@@ -108,7 +108,7 @@ export default defineI18nConfig(() => ({
 
                 designer: {
                     nav: {
-                        selectDataset: 'Select Dataset',
+                        selectDataset: 'Dataset Selector',
                         monetizationPlanner: 'Monetization Planner',
                         licenseSelector: 'License Selector',
                         accessPoliciesEditor: 'Access Policies Editor',
