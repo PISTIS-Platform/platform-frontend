@@ -80,8 +80,8 @@ export default defineI18nConfig(() => ({
                 factoryUrl: 'Factory URL',
                 authorizationStatus: 'Authorization Status',
                 factory: 'Factory',
-                accepted: 'Accepted',
-                notAccepted: 'Not Accepted',
+                accepted: 'Authorized',
+                notAccepted: 'Not Authorized',
                 organizationName: 'Organization Name',
             },
             account: {

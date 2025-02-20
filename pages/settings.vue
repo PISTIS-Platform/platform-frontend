@@ -20,8 +20,10 @@ const { data: factorySettingsData, status: factorySettingsStatus } = useFetch<Re
                     <div class="flex flex-col gap-2">
                         <span class="font-semibold text-gray-500">{{ $t('settings.authorizationStatus') }}</span>
                         <span class="flex items-center gap-2">
-                            <span v-if="factorySettingsData.isAccepted">{{ $t('settings.accepted') }}</span>
-                            <span v-else>{{ $t('settings.notAccepted') }}</span>
+                            <span v-if="factorySettingsData.isAccepted">{{
+                                $t('settings.factory') + ' ' + $t('settings.accepted')
+                            }}</span>
+                            <span v-else>{{ $t('settings.factory') + ' ' + $t('settings.notAccepted') }}</span>
                             <div
                                 v-if="factorySettingsData.isAccepted"
                                 class="border w-3 h-3 rounded-full bg-green-300 border-green-500 mt-0.5"

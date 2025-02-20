@@ -20,10 +20,6 @@ const firstLevelRoutePath = route.fullPath.split('/')[1];
 
 const { status, signIn, signOut, data: session } = useAuth();
 
-const { data: factorySettingsData, status: factorySettingsStatus } = useFetch<Record<string, any>>(
-    `/api/settings/get-factory-settings`,
-);
-
 useHead({
     htmlAttrs: { class: 'min-h-full bg-gray-100' },
     bodyAttrs: { class: 'h-full' },
@@ -158,33 +154,6 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                     <MenuItems
                                         class="absolute right-0 mt-2 w-52 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                                     >
-                                        <MenuItem v-if="factorySettingsStatus !== 'pending'">
-                                            <a
-                                                href="#"
-                                                :class="[
-                                                    'bg-gray-100',
-                                                    'block px-4 py-2 text-sm text-gray-700 cursor-default',
-                                                ]"
-                                            >
-                                                <span v-if="factorySettingsData" class="flex items-center gap-2">
-                                                    <span v-if="factorySettingsData.isAccepted" class="text-nowrap">{{
-                                                        $t('settings.factory') + ' ' + $t('settings.accepted')
-                                                    }}</span>
-                                                    <span v-else class="text-nowrap">{{
-                                                        $t('settings.factory') + ' ' + $t('settings.notAccepted')
-                                                    }}</span>
-                                                    <div
-                                                        v-if="factorySettingsData.isAccepted"
-                                                        class="border w-3 h-3 rounded-full bg-green-300 border-green-500"
-                                                    ></div>
-                                                    <div
-                                                        v-else
-                                                        class="border w-3 h-3 rounded-full bg-red-300 border-red-500"
-                                                    ></div>
-                                                </span>
-                                                <span v-else class="text-xs">{{ $t('settings.noFactoryFound') }}</span>
-                                            </a>
-                                        </MenuItem>
                                         <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
                                             <a
                                                 :href="item.href"
