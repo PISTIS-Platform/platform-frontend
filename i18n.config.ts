@@ -75,6 +75,7 @@ export default defineI18nConfig(() => ({
                 positive: 'Must be a positive number',
                 required: 'Required',
                 price: 'Must be 10 EUR or above',
+                integer: 'Number must be an integer',
             },
             home: {
                 home: 'Home',
@@ -217,14 +218,14 @@ export default defineI18nConfig(() => ({
                     percentageBetweenOneNinetyNine: 'Percentage needs to be between 1 and 99',
 
                     percentageToSell: 'Percentage To Sell',
-                    ownershipPercentage: '% of ownership for the market',
+                    ownershipPercentage: '% of ownership to place on the market',
                     priceOfPercentage: 'Price of Percentage',
                     priceOfPercentageInfo: 'Price of each 1%',
-                    percentageMinimum: 'Percentage Minimum',
+                    percentageMinimum: 'Minimum Percentage Lot',
                     percentageMinimumInfo: 'The minimum % that a buyer can get',
                     validOfferDate: 'Valid Offer Date',
                     validOfferDateInfo: 'Date until when the offer is valid',
-
+                    percentageMinimumError: 'Minimum Percentage Lot has to be lower than Percentage To Sell',
                     percentageLeftForInvesting: 'Percentage Left For Investing',
                 },
                 wallet: {

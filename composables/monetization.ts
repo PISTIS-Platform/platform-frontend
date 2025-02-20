@@ -55,74 +55,84 @@ export const useMonetizationSchema = () => {
         ]),
     });
 
-    const investmentSchema = z.object({
-        type: z.literal('investment'),
-        percentageToSell: z.union([
-            z
-                .string()
-                .min(1, { message: t('required') })
-                .refine(
+    const investmentSchema = z
+        .object({
+            type: z.literal('investment'),
+            percentageToSell: z.union([
+                z
+                    .string()
+                    .min(1, { message: t('required') })
+                    .refine(
+                        (val) => {
+                            return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
+                        },
+                        {
+                            message: t('val.validNumber'),
+                        },
+                    ),
+                z.coerce
+                    .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
+                    .int({ message: t('val.integer') })
+                    .refine(
+                        (val) => {
+                            return val >= 1 && val <= 99;
+                        },
+                        {
+                            message: t('data.designer.percentageBetweenOneNinetyNine'),
+                        },
+                    ),
+            ]),
+            percentageMinimum: z.union([
+                z
+                    .string()
+                    .min(1, { message: t('required') })
+                    .refine(
+                        (val) => {
+                            return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
+                        },
+                        {
+                            message: t('val.validNumber'),
+                        },
+                    ),
+                z.coerce
+                    .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
+                    .int({ message: t('val.integer') })
+                    .refine(
+                        (val) => {
+                            return val >= 1 && val <= 99;
+                        },
+                        {
+                            message: t('data.designer.percentageBetweenOneNinetyNine'),
+                        },
+                    ),
+            ]),
+            percentagePrice: z.union([
+                z
+                    .string()
+                    .min(1, { message: t('required') })
+                    .refine(
+                        (val) => {
+                            return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
+                        },
+                        {
+                            message: t('val.validNumber'),
+                        },
+                    ),
+                z.coerce.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
                     (val) => {
-                        return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
+                        return val >= 10;
                     },
                     {
-                        message: t('val.validNumber'),
+                        message: t('data.designer.priceHigherThanTen'),
                     },
                 ),
-            z.coerce.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
-                (val) => {
-                    return val >= 1 && val <= 99;
-                },
-                {
-                    message: t('data.designer.percentageBetweenOneNinetyNine'),
-                },
-            ),
-        ]),
-        percentageMinimum: z.union([
-            z
-                .string()
-                .min(1, { message: t('required') })
-                .refine(
-                    (val) => {
-                        return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
-                    },
-                    {
-                        message: t('val.validNumber'),
-                    },
-                ),
-            z.coerce.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
-                (val) => {
-                    return val >= 1 && val <= 99;
-                },
-                {
-                    message: t('data.designer.percentageBetweenOneNinetyNine'),
-                },
-            ),
-        ]),
-        percentagePrice: z.union([
-            z
-                .string()
-                .min(1, { message: t('required') })
-                .refine(
-                    (val) => {
-                        return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
-                    },
-                    {
-                        message: t('val.validNumber'),
-                    },
-                ),
-            z.coerce.number({ required_error: t('required'), invalid_type_error: t('val.validNumber') }).refine(
-                (val) => {
-                    return val >= 10;
-                },
-                {
-                    message: t('data.designer.priceHigherThanTen'),
-                },
-            ),
-        ]),
-        validOfferDate: z.string().min(1, { message: t('required') }),
-        percentageLeft: z.number().optional(),
-    });
+            ]),
+            validOfferDate: z.string().min(1, { message: t('required') }),
+        })
+        .refine((data) => data.percentageMinimum < data.percentageToSell, {
+            message: t('data.designer.percentageMinimumError'),
+            path: ['percentageMinimum'],
+        });
 
     const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema, investmentSchema]);
 
