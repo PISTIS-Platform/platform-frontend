@@ -17,7 +17,8 @@ const submitSuccess = ref(false);
 const route = useRoute();
 const assetId = route.params.id;
 
-//TODO: Get ID and data to pass down to DatasetSelector from API call
+//TODO: Get percentage of offering remaining from investment plan endpoint.
+
 const selected = ref<
     { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
 >(undefined);

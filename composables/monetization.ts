@@ -121,6 +121,7 @@ export const useMonetizationSchema = () => {
             ),
         ]),
         validOfferDate: z.string().min(1, { message: t('required') }),
+        percentageLeft: z.number().optional(),
     });
 
     const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema, investmentSchema]);

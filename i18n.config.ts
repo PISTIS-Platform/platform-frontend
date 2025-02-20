@@ -217,13 +217,15 @@ export default defineI18nConfig(() => ({
                     percentageBetweenOneNinetyNine: 'Percentage needs to be between 1 and 99',
 
                     percentageToSell: 'Percentage To Sell',
-                    ownershipPercentage: '% of ownership to place on the market',
+                    ownershipPercentage: '% of ownership for the market',
                     priceOfPercentage: 'Price of Percentage',
                     priceOfPercentageInfo: 'Price of each 1%',
                     percentageMinimum: 'Percentage Minimum',
                     percentageMinimumInfo: 'The minimum % that a buyer can get',
                     validOfferDate: 'Valid Offer Date',
                     validOfferDateInfo: 'Date until when the offer is valid',
+
+                    percentageLeftForInvesting: 'Percentage Left For Investing',
                 },
                 wallet: {
                     title: 'Wallet',

@@ -56,6 +56,8 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             percentageMinimum: '',
             percentagePrice: '',
             validOfferDate: '',
+            //FIXME: This needs to be gotten by hitting an API endpoint
+            percentageLeft: 50,
         };
     } else if (monetizationType === 'nft') {
         //TODO: Do once we know what goes here
@@ -304,24 +306,34 @@ const customValidate = () => {
                         <div class="flex flex-row gap-4">
                             <div class="flex flex-col gap-6 w-full">
                                 <div class="flex-1 flex gap-4">
-                                    <UFormGroup
-                                        :label="$t('data.designer.percentageToSell')"
-                                        class="flex-1"
-                                        name="percentageToSell"
-                                        :ui="{ error: 'absolute -bottom-6' }"
-                                        required
-                                        eager-validation
-                                    >
-                                        <UInput
-                                            v-model.number="monetizationDetails.percentageToSell"
-                                            :placeholder="$t('data.designer.ownershipPercentage')"
-                                            type="numeric"
+                                    <div class="flex-1 flex gap-4">
+                                        <UFormGroup
+                                            :label="$t('data.designer.percentageToSell')"
+                                            class="flex-1"
+                                            name="percentageToSell"
+                                            :ui="{ error: 'absolute -bottom-6' }"
+                                            required
+                                            eager-validation
                                         >
-                                            <template #trailing>
-                                                <span class="text-gray-500 text-xs">%</span>
-                                            </template>
-                                        </UInput>
-                                    </UFormGroup>
+                                            <UInput
+                                                v-model.number="monetizationDetails.percentageToSell"
+                                                :placeholder="$t('data.designer.ownershipPercentage')"
+                                                type="numeric"
+                                            >
+                                                <template #trailing>
+                                                    <span class="text-gray-500 text-xs">%</span>
+                                                </template>
+                                            </UInput>
+                                        </UFormGroup>
+                                        <UFormGroup
+                                            :label="$t('data.designer.percentageLeftForInvesting')"
+                                            class="flex-1 max-w-1/2"
+                                        >
+                                            <div class="text-gray-400 text-sm mt-2.5">
+                                                {{ monetizationDetails.percentageLeft }}%
+                                            </div>
+                                        </UFormGroup>
+                                    </div>
                                     <UFormGroup
                                         :label="$t('data.designer.priceOfPercentage')"
                                         class="flex-1"
