@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
             'Content-type': 'application/json; charset=UTF-8',
             Authorization: `Bearer ${token!.access_token}`,
         },
-        body: JSON.stringify(body),
+        body,
     });
     const json = await response.json();
 

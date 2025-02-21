@@ -7,9 +7,11 @@ const {
 
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
-    const body = JSON.stringify({ walletAlias });
+    const body = { walletAlias };
     let result;
-    console.log(token);
+
+    if (!token) return;
+
     try {
         result = await $fetch<unknown>(
             `${factoryUrl}/srv/smart-contract-execution-engine/api/scee/getUser/${token?.sub ?? ''}`,
