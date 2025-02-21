@@ -10,8 +10,6 @@ export default defineEventHandler(async (event) => {
     const body = { walletAlias };
     let result;
 
-    console.log({ body });
-
     if (!token) throw createError({ statusCode: 401, message: 'Unauthorized' });
 
     try {
