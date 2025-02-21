@@ -25,7 +25,6 @@ export default defineEventHandler(async (event) => {
 
     if (!result?.walletAlias) {
         //If the user / wallet doesn't exist, create it
-        console.log('User not found');
         await $fetch<unknown>(`${factoryUrl}/srv/smart-contract-execution-engine/api/scee/setUser`, {
             method: 'POST',
             body,

@@ -59,7 +59,6 @@ const handleSubmit = async () => {
             responseContent.value = 'Unsupported response type';
         }
 
-        //console.log('Success:', responseContent.value);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         responseContent.value = `Error: ${error.message}`;

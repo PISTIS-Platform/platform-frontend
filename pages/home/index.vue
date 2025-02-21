@@ -39,8 +39,6 @@ const isHovered = ref();
 const checkWalletData = await $fetch(`/api/wallet/check-wallet`, {
     method: 'POST',
     async onResponse({ response }) {
-        // console.log({ response: response._data });
-        // console.log('Here first');
         userStore.setWalletAlias(response._data);
     },
 });
@@ -53,8 +51,6 @@ const { status: balanceStatus } = useLazyFetch(`/api/wallet`, {
         walletAlias: checkWalletData,
     },
     async onResponse({ response }) {
-        // console.log('Here next')
-        // console.log({checkWalletData})
         currentBalance.value = response._data;
         await useLazyFetch('/api/wallet/transactions-data', {
             method: 'post',
@@ -63,7 +59,6 @@ const { status: balanceStatus } = useLazyFetch(`/api/wallet`, {
             },
             async onResponse({ response }) {
                 const transactions = response._data;
-                // console.log('Here latest')
                 incoming.value = transactions.incoming.map((item) => {
                     return {
                         date: item.included_at,
