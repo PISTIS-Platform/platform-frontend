@@ -31,15 +31,15 @@ const navigation = ref([
     {
         name: 'catalog.catalog',
         to: config.public.factoryUrl + '/srv/catalog/datasets?locale=en',
-        target: '_blank',
+        target: '_self',
         icon: '',
         external: true,
     },
     {
         name: 'marketplace.marketplace',
         to: config.public.cloudUrl + '/srv/catalog/datasets?locale=en',
-        target: '_blank',
-        icon: 'heroicons:arrow-top-right-on-square-16-solid',
+        target: '_self',
+        icon: '',
         external: true,
     },
     { name: 'market.market', to: '/market', target: '_self', icon: '', external: false },
