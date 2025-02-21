@@ -90,6 +90,8 @@ await $fetch(`/api/wallet/check-wallet`, {
     },
 });
 
+status.value = 'success';
+
 const transactionsData = computed(() => [...outgoing.value, ...incoming.value]);
 
 //cards info data
