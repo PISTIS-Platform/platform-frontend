@@ -28,7 +28,7 @@ const callbackUrl = '/home';
                             <div class="sm:w-full md:w-auto">
                                 <NuxtLink :to="'/'" class="flex-shrink-0">
                                     <img
-                                        v-if="orgLogo"
+                                        v-if="orgLogo && orgLogo !== ''"
                                         class="h-12 sm:h-14"
                                         :src="`/img/${orgLogo}`"
                                         alt="Factory Logo"
