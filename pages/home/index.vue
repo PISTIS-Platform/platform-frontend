@@ -43,8 +43,6 @@ const checkWalletData = await $fetch(`/api/wallet/check-wallet`, {
     },
 });
 
-//TODO: Use found wallet alias from above to make calls below
-
 const { status: balanceStatus } = useLazyFetch(`/api/wallet`, {
     method: 'post',
     body: {
