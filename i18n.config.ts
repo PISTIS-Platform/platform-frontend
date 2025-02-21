@@ -117,6 +117,7 @@ export default defineI18nConfig(() => ({
                     },
                     changeLicense: 'Change License',
                     searchForACountry: 'Search for a country...',
+                    searchForALicense: 'Search for a license...',
                     licenseSelector: 'License Selector',
                     licenseSelectorInfo: 'Select the license you wish to use to publish your dataset',
                     noTitle: 'No Title Given',
@@ -228,6 +229,7 @@ export default defineI18nConfig(() => ({
                     validOfferDateInfo: 'Date until when the offer is valid',
                     percentageMinimumError: 'Minimum Percentage Lot has to be lower than Percentage To Sell',
                     percentageLeftForInvesting: 'Percentage Left For Investing',
+                    licenseLabel: 'License Label',
                 },
                 wallet: {
                     title: 'Wallet',

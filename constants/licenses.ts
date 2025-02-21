@@ -1,11 +1,9 @@
-export const licenses = {
-    pistis: 'PISTIS License',
-    ccBy: 'CC-BY',
-    mit: 'MIT',
-    cc0: 'CC0',
-};
-
-export const nonPistisLicenses = [
+export const licenses = [
+    {
+        code: 'PISTIS License',
+        label: 'PISTIS License - Custom PISTIS License',
+        description: '',
+    },
     {
         code: 'COM_REUSE',
         label: 'European Commission reuse notice',
@@ -903,4 +901,8 @@ export const nonPistisLicenses = [
         description:
             'Developed and maintained by the National Archives, the Non-Commercial Government Licence 2.0 may be used by public sector bodies that have a Delegation of Authority to licence Crown copyright material non-commercially. It may also be used by public sector bodies holding non-Crown copyright information in accordance with the PSI Regulations 2015. Version 2.0 is more in line with other open-access licenses.',
     },
-];
+].map((object: { code: string; label: string; description: string }) => ({
+    code: object.code,
+    label: object.code + ' - ' + object.label,
+    description: object.description,
+}));

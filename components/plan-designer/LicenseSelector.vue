@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import * as R from 'ramda';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 import { licenses } from '~/constants/licenses';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
+
+const codeSort = R.sortWith([R.ascend(R.prop('code'))]);
 
 const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
@@ -54,7 +57,17 @@ const { isWorldwide, isPerpetual, hasPersonalData, licenseSchema } = useLicenseS
 
 type licenseType = z.infer<typeof licenseSchema>;
 
-const licenseSelections = computed(() => (props.isFree ? Object.values(licenses) : [licenses.pistis]));
+const licenseSelections = computed(() =>
+    props.isFree
+        ? codeSort([...licenses])
+        : [
+              {
+                  code: 'PISTIS License',
+                  label: 'PISTIS License - Custom PISTIS License',
+                  description: '',
+              },
+          ],
+);
 
 const transferableSelections = [
     {
@@ -121,11 +134,19 @@ const updateContractTerms = (value: string) => {
 
 const isOpen = ref(false);
 
-const resetLicenseDetails = (license: string | undefined) => {
+const licenseRef = ref<{ code: string; label: string; description?: string }>({
+    code: 'PISTIS License',
+    label: 'Custom PISTIS License',
+    description: '',
+});
+
+const resetLicenseDetails = (license: { code: string; label: string; description?: string } | undefined) => {
     if (!license) return;
 
     isOpen.value = false;
-    if (license === 'PISTIS License') {
+    licenseRef.value = license;
+
+    if (license.code === 'PISTIS License') {
         licenseDetails.value = {
             license: 'PISTIS License',
             extraTerms: '',
@@ -143,12 +164,18 @@ const resetLicenseDetails = (license: string | undefined) => {
         };
     } else {
         licenseDetails.value = {
-            license,
+            license: license.code,
             limitNumber: 10,
             limitFrequency: DownloadFrequency.DAY,
         };
     }
 };
+
+resetLicenseDetails({
+    code: 'PISTIS License',
+    label: 'PISTIS License - Custom PISTIS License',
+    description: '',
+});
 
 const customValidate = () => {
     const errors = [];
@@ -184,9 +211,9 @@ async function onSubmit(): Promise<void> {
     }
 }
 
-const licenseToSwitchTo = ref('');
+const licenseToSwitchTo = ref<{ code: string; label: string; description?: string }>();
 
-const handleLicenseUpdate = (license: string) => {
+const handleLicenseUpdate = (license: { code: string; label: string; description?: string }) => {
     licenseToSwitchTo.value = license;
     isOpen.value = true;
 };
@@ -222,22 +249,21 @@ const handleLicenseUpdate = (license: string) => {
                             eager-validation
                         >
                             <USelectMenu
-                                :model-value="licenseDetails.license"
+                                :model-value="licenseRef"
                                 :ui="{
                                     option: { active: 'text-gray-200' },
                                     input: 'placeholder:text-gray-200 text-gray-200',
                                     button: 'text-gray-200',
                                 }"
+                                searchable
+                                :searchable-placeholder="$t('data.designer.searchForALicense')"
                                 :placeholder="$t('data.designer.selectLicense')"
                                 :options="licenseSelections"
-                                @update:model-value="(value: string) => handleLicenseUpdate(value)"
-                                ><template #label>
-                                    <span v-if="licenseDetails.license" class="truncate">{{
-                                        licenseDetails.license
-                                    }}</span>
-                                    <span v-else class="text-gray-400">Select license</span>
-                                </template></USelectMenu
-                            >
+                                @update:model-value="
+                                    (value) =>
+                                        value.code === licenseDetails.license ? null : handleLicenseUpdate(value)
+                                "
+                            ></USelectMenu>
                         </UFormGroup>
                     </div>
                     <div class="flex flex-row gap-4">
@@ -282,7 +308,7 @@ const handleLicenseUpdate = (license: string) => {
                             >
                         </UFormGroup>
                     </div>
-                    <div v-if="licenseDetails.license === licenses.pistis" class="flex flex-col space-y-6">
+                    <div v-if="licenseDetails.license === 'PISTIS License'" class="flex flex-col space-y-6">
                         <div class="flex flex-row gap-4">
                             <div class="flex flex-1 gap-4">
                                 <UFormGroup
@@ -518,11 +544,15 @@ const handleLicenseUpdate = (license: string) => {
                 <div v-show="licenseDetails.license">
                     <p class="font-semibold text-sm mt-5 mb-1.5">{{ $t('licenseDetails') }}</p>
                     <DataShareTerms
+                        v-if="licenseDetails.license === 'PISTIS License'"
                         :asset-offering-details="props.assetOfferingDetails"
                         :monetization-details="props.monetizationDetails"
                         :license-details="licenseDetails"
                         @update:contract-terms="(value: string) => updateContractTerms(value)"
                     />
+                    <div v-else class="border rounded-md p-4">
+                        {{ licenseRef.description }}
+                    </div>
                 </div>
 
                 <div class="w-full flex items-center justify-between mt-4">
