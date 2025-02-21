@@ -119,6 +119,37 @@ const updateContractTerms = (value: string) => {
     licenseDetails.value.contractTerms = value;
 };
 
+const isOpen = ref(false);
+
+const resetLicenseDetails = (license: string | undefined) => {
+    if (!license) return;
+
+    isOpen.value = false;
+    if (license === 'PISTIS License') {
+        licenseDetails.value = {
+            license: 'PISTIS License',
+            extraTerms: '',
+            contractTerms: '',
+            limitNumber: '',
+            limitFrequency: '',
+            isExclusive: false,
+            region: '',
+            transferable: '',
+            termDate: '',
+            additionalRenewalTerms: '',
+            nonRenewalDays: '',
+            contractBreachDays: '',
+            personalDataTerms: '',
+        };
+    } else {
+        licenseDetails.value = {
+            license,
+            limitNumber: 10,
+            limitFrequency: DownloadFrequency.DAY,
+        };
+    }
+};
+
 const customValidate = () => {
     const errors = [];
     emit('update:isAllValid', isAllValid.value);
@@ -152,6 +183,13 @@ async function onSubmit(): Promise<void> {
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
+
+const licenseToSwitchTo = ref('');
+
+const handleLicenseUpdate = (license: string) => {
+    licenseToSwitchTo.value = license;
+    isOpen.value = true;
+};
 </script>
 
 <template>
@@ -184,7 +222,7 @@ async function onSubmit(): Promise<void> {
                             eager-validation
                         >
                             <USelectMenu
-                                v-model="licenseDetails.license"
+                                :model-value="licenseDetails.license"
                                 :ui="{
                                     option: { active: 'text-gray-200' },
                                     input: 'placeholder:text-gray-200 text-gray-200',
@@ -192,6 +230,7 @@ async function onSubmit(): Promise<void> {
                                 }"
                                 :placeholder="$t('data.designer.selectLicense')"
                                 :options="licenseSelections"
+                                @update:model-value="(value: string) => handleLicenseUpdate(value)"
                                 ><template #label>
                                     <span v-if="licenseDetails.license" class="truncate">{{
                                         licenseDetails.license
@@ -495,4 +534,16 @@ async function onSubmit(): Promise<void> {
             </UForm>
         </div>
     </UCard>
+    <UModal v-model="isOpen" :ui="{ width: 'w-96' }">
+        <div class="p-4 flex flex-col gap-4 items-center">
+            <span class="font-bold text-gray-500 text-lg">{{ $t('data.designer.areYouSure') }}</span>
+            <span class="text-gray-500">{{ $t('data.designer.willReset') }}</span>
+            <div class="flex w-full items-center justify-between">
+                <UButton color="white" @click="isOpen = false">{{ t('cancel') }}</UButton>
+                <UButton @click="resetLicenseDetails(licenseToSwitchTo)">{{
+                    t('data.designer.changeLicense')
+                }}</UButton>
+            </div>
+        </div>
+    </UModal>
 </template>
