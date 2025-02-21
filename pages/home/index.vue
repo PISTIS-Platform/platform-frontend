@@ -36,50 +36,55 @@ const monthlyOutcome = ref(0);
 
 const isHovered = ref();
 
-const checkWalletData = await $fetch(`/api/wallet/check-wallet`, {
+const status = ref('pending');
+const walletAlias = ref('');
+
+//fetch wallet alias, then balance, then transactions
+await $fetch(`/api/wallet/check-wallet`, {
     method: 'POST',
     async onResponse({ response }) {
         userStore.setWalletAlias(response._data);
-    },
-});
+        walletAlias.value = response._data;
 
-const { status: balanceStatus } = useLazyFetch(`/api/wallet`, {
-    method: 'post',
-    body: {
-        walletAlias: checkWalletData,
-    },
-    async onResponse({ response }) {
-        currentBalance.value = response._data;
-        await useLazyFetch('/api/wallet/transactions-data', {
+        await $fetch(`/api/wallet`, {
             method: 'post',
             body: {
-                walletAlias: checkWalletData,
+                walletAlias: walletAlias.value,
             },
             async onResponse({ response }) {
-                const transactions = response._data;
-                incoming.value = transactions.incoming.map((item) => {
-                    return {
-                        date: item.included_at,
-                        id: item.transaction_id,
-                        amount: item.payload.Basic.amount,
-                        type: 'Incoming',
-                    };
-                });
+                currentBalance.value = response._data;
+                await $fetch('/api/wallet/transactions-data', {
+                    method: 'post',
+                    body: {
+                        walletAlias: walletAlias.value,
+                    },
+                    async onResponse({ response }) {
+                        const transactions = response._data;
+                        incoming.value = transactions.incoming.map((item) => {
+                            return {
+                                date: item.included_at,
+                                id: item.transaction_id,
+                                amount: item.payload.Basic.amount,
+                                type: 'Incoming',
+                            };
+                        });
 
-                outgoing.value = transactions.outgoing.map((item) => {
-                    return {
-                        date: item.included_at,
-                        id: item.transaction_id,
-                        amount: item.payload.Basic.amount,
-                        type: 'Outgoing',
-                    };
+                        outgoing.value = transactions.outgoing.map((item) => {
+                            return {
+                                date: item.included_at,
+                                id: item.transaction_id,
+                                amount: item.payload.Basic.amount,
+                                type: 'Outgoing',
+                            };
+                        });
+                        monthlyIncome.value = incoming.value.reduce((sum, transaction) => {
+                            return sum + transaction.amount;
+                        }, 0);
+                        monthlyOutcome.value = outgoing.value.reduce((sum, transaction) => {
+                            return sum + transaction.amount;
+                        }, 0);
+                    },
                 });
-                monthlyIncome.value = incoming.value.reduce((sum, transaction) => {
-                    return sum + transaction.amount;
-                }, 0);
-                monthlyOutcome.value = outgoing.value.reduce((sum, transaction) => {
-                    return sum + transaction.amount;
-                }, 0);
             },
         });
     },
@@ -165,7 +170,7 @@ const transactionsRows = computed(() => {
     <PageContainer>
         <div class="w-full h-full">
             <!-- Cards Info -->
-            <div v-if="balanceStatus === 'pending'" class="flex w-full gap-4 mt-8">
+            <div v-if="status === 'pending'" class="flex w-full gap-4 mt-8">
                 <USkeleton
                     v-for="item in new Array(3)"
                     :key="item"
@@ -186,11 +191,7 @@ const transactionsRows = computed(() => {
             </div>
             <!-- Transactions -->
             <div class="flex flex-col w-full mt-8">
-                <USkeleton
-                    v-if="balanceStatus === 'pending'"
-                    :ui="{ background: 'bg-gray-200' }"
-                    class="w-full h-96 mb-8"
-                />
+                <USkeleton v-if="status === 'pending'" :ui="{ background: 'bg-gray-200' }" class="w-full h-96 mb-8" />
                 <UCard v-else class="mb-8">
                     <template #header>
                         <SubHeading :title="$t('data.wallet.transactions.title')" />
