@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const body = { walletAlias };
     let result;
 
-    if (!token) return;
+    if (!token) throw createError({ statusCode: 401, message: 'Unauthorized' });
 
     try {
         result = await $fetch<unknown>(
