@@ -36,16 +36,13 @@ const monthlyOutcome = ref(0);
 
 const isHovered = ref();
 
-const status = ref('pending');
 const walletAlias = ref('');
 
-//fetch wallet alias, then balance, then transactions
-await $fetch(`/api/wallet/check-wallet`, {
+const { status } = useLazyFetch(`/api/wallet/check-wallet`, {
     method: 'POST',
     async onResponse({ response }) {
         userStore.setWalletAlias(response._data);
         walletAlias.value = response._data;
-
         await $fetch(`/api/wallet`, {
             method: 'post',
             body: {
@@ -89,8 +86,6 @@ await $fetch(`/api/wallet/check-wallet`, {
         });
     },
 });
-
-status.value = 'success';
 
 const transactionsData = computed(() => [...outgoing.value, ...incoming.value]);
 
