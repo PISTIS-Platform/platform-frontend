@@ -38,7 +38,7 @@ const { data: accountData, status: accountStatus } = useFetch<Record<string, any
                         <div class="w-full flex flex-col gap-6">
                             <div class="flex flex-col gap-2">
                                 <span class="font-semibold text-gray-400 text-sm">{{ $t('account.org.name') }}</span>
-                                <pre>{{ accountData.org.name }}</pre>
+                                <pre>{{ accountData.org.name.replace(/^\//, '') }}</pre>
                             </div>
                             <div class="flex flex-col gap-2">
                                 <span class="font-semibold text-gray-400 text-sm">{{ $t('account.org.country') }}</span>
