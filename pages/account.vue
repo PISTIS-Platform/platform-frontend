@@ -21,14 +21,8 @@ const { data: accountData, status: accountStatus } = useFetch<Record<string, any
                                 <span class="font-semibold text-gray-400 text-sm">{{ $t('account.user.email') }}</span>
                                 <span>{{ accountData.user.email }}</span>
                             </div>
-                            <div class="flex flex-col gap-2">
-                                <span class="font-semibold text-gray-400 text-sm">{{ $t('account.user.roles') }}</span>
-                                <div class="flex gap-2 flex-col">
-                                    <span v-for="(role, idx) in accountData.user.roles" :key="role"
-                                        >{{ role }}<span v-if="idx !== accountData.user.roles.length - 1">,</span></span
-                                    >
-                                </div>
-                            </div>
+                            <!-- TODO: Add badge if user is creator of org (when/if info is available)-->
+                            <!-- TODO: Add badge if user is an admin (if we don't log admins out as we do now)-->
                         </div>
                     </UCard>
                     <UCard class="w-full sm:w-1/2 flex flex-col">
