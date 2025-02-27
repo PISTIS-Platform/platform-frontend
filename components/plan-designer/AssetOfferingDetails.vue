@@ -96,7 +96,7 @@ async function onSubmit(): Promise<void> {
         <UCard>
             <template #header>
                 <div class="flex items-center gap-8">
-                    <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500" />
+                    <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500 -mr-4" />
                     <SubHeading
                         :title="$t('data.designer.assetOfferingDetails')"
                         :info="$t('data.designer.assetOfferingDetailsInfo')"

@@ -223,7 +223,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
     <UCard>
         <template #header>
             <div class="flex items-center gap-8">
-                <UIcon name="clarity:license-solid" class="w-10 h-10 text-gray-500" />
+                <UIcon name="clarity:license-solid" class="w-10 h-10 text-gray-500 -mr-4" />
                 <SubHeading
                     :title="$t('data.designer.licenseSelector')"
                     :info="$t('data.designer.licenseSelectorInfo')"

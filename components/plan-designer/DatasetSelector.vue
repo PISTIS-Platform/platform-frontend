@@ -39,7 +39,7 @@ const dataSetSelections = computed(() => [
     <UCard class="overflow-visible">
         <template #header>
             <div class="flex items-center gap-8">
-                <UIcon name="lsicon:data-filled" class="w-10 h-10 text-gray-500" />
+                <UIcon name="lsicon:data-filled" class="w-10 h-10 text-gray-500 -mr-4" />
                 <SubHeading
                     :title="$t('data.designer.datasetSelected')"
                     :info="$t('data.designer.datasetSelectedInfo')"

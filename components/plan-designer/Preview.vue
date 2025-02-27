@@ -54,7 +54,7 @@ const subscriptionMapping: Record<string, string> = {
         <UCard>
             <template #header>
                 <div class="flex items-center gap-8">
-                    <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500" />
+                    <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500 -mr-4" />
                     <SubHeading
                         :title="$t('data.designer.assetOfferingDetails') + ' - ' + $t('preview')"
                         :info="$t('data.designer.assetOfferingDetailsInfo')"
@@ -92,7 +92,7 @@ const subscriptionMapping: Record<string, string> = {
         <UCard>
             <template #header>
                 <div class="flex items-center gap-8">
-                    <UIcon name="material-symbols:monetization-on" class="w-10 h-10 text-gray-500" />
+                    <UIcon name="material-symbols:monetization-on" class="w-10 h-10 text-gray-500 -mr-4" />
                     <SubHeading
                         :title="$t('data.designer.monetizationMethod') + ' - ' + $t('preview')"
                         :info="$t('data.designer.monetizationMethodInfo')"
@@ -138,7 +138,7 @@ const subscriptionMapping: Record<string, string> = {
         <UCard>
             <template #header>
                 <div class="flex items-center gap-8">
-                    <UIcon name="clarity:license-solid" class="w-10 h-10 text-gray-500" />
+                    <UIcon name="clarity:license-solid" class="w-10 h-10 text-gray-500 -mr-4" />
                     <SubHeading
                         :title="$t('data.designer.licenseSelector') + ' - ' + $t('preview')"
                         :info="$t('data.designer.licenseSelectorInfo')"

@@ -145,7 +145,7 @@ const customValidate = () => {
         <UCard class="pb-2">
             <template #header>
                 <div class="flex items-center gap-8">
-                    <UIcon name="material-symbols:monetization-on" class="w-10 h-10 text-gray-500" />
+                    <UIcon name="material-symbols:monetization-on" class="w-10 h-10 text-gray-500 -mr-4" />
                     <SubHeading
                         :title="$t('data.designer.monetizationMethod')"
                         :info="$t('data.designer.monetizationMethodInfo')"

@@ -44,7 +44,7 @@ const computedColor = computed(() => {
         <template #header>
             <div class="flex justify-between gap-4 items-start">
                 <div class="flex items-center gap-8">
-                    <UIcon name="ri:price-tag-3-fill" class="w-10 h-10 text-gray-500" />
+                    <UIcon name="ri:price-tag-3-fill" class="w-10 h-10 text-gray-500 -mr-4" />
                     <SubHeading :title="$t('data.designer.fairTitle')" :info="$t('data.designer.fairInfo')" />
                 </div>
                 <a href="" class="text-xs text-primary-500 underline">{{ $t('learnMore') }}</a>
