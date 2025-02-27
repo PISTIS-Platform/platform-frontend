@@ -17,7 +17,8 @@ const submitSuccess = ref(false);
 const route = useRoute();
 const assetId = route.params.id;
 
-//TODO: Get ID and data to pass down to DatasetSelector from API call
+//TODO: Get percentage of offering remaining from investment plan endpoint.
+
 const selected = ref<
     { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
 >(undefined);
@@ -78,29 +79,70 @@ const assetOfferingDetails = ref<AssetOfferingDetails>({
     keywords: [],
 });
 
+const assetOfferingDetailsSchema = z.object({
+    title: z.string().min(1, t('required', { count: 1 })),
+    description: z.string().min(1, t('required', { count: 1 })),
+    selectedDistribution: z.object({
+        label: z.string(),
+        id: z.string(),
+        format: z
+            .object({
+                id: z.string(),
+                label: z.string().optional(),
+                resource: z.string().optional(),
+            })
+            .optional(),
+        access_url: z.array(z.string()).optional(),
+        title: z.object({
+            en: z.string(),
+        }),
+    }),
+});
+
+const isAssetOfferingDetailsValid = computed(() => {
+    return (
+        assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
+        assetOfferingDetails?.value.keywords.length > 0
+    );
+});
+
 // data for monetization selections
 
-const { isFree, isWorldwide, isPerpetual, hasPersonalData, monetizationSchema } = useMonetizationSchema();
+const { isFree, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
 const monetizationDetails = ref<Partial<monetizationType>>({
     type: 'one-off',
-    price: 0,
+    price: '',
+});
+
+const isMonetizationValid = computed(() => {
+    return monetizationSchema.safeParse(monetizationDetails.value).success;
+});
+
+const isLicenseValid = computed(() => {
+    return licenseSchema.safeParse(licenseDetails.value).success;
+});
+type licenseType = z.infer<typeof licenseSchema>;
+
+const licenseDetails = ref<Partial<licenseType>>({
     license: 'PISTIS License',
     extraTerms: '',
     contractTerms: '',
-    limitNumber: 0,
+    limitNumber: '',
     limitFrequency: '',
     isExclusive: false,
     region: '',
     transferable: '',
     termDate: '',
     additionalRenewalTerms: '',
-    nonRenewalDays: 0,
-    contractBreachDays: 0,
+    nonRenewalDays: '',
+    contractBreachDays: '',
     personalDataTerms: '',
 });
+
+const { isWorldwide, isPerpetual, hasPersonalData, licenseSchema } = useLicenseSchema();
 
 // access policies
 const policyData: Array<AccessPolicyDetails> = [];
@@ -127,8 +169,9 @@ const submitAll = async () => {
         organizationId: runtimeConfig.public?.orgId,
         organizationName: session.value?.orgName,
         ...assetOfferingDetails.value,
+        ...licenseDetails.value,
         ...monetizationDetails.value,
-        termDate: monetizationDetails.value.termDate ?? new Date(86400000000000),
+        termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
         distributionId: assetOfferingDetails.value.selectedDistribution.id,
         assetId: newAssetId,
         containsPersonalData: hasPersonalData.value,
@@ -176,16 +219,25 @@ const limitFrequencySelections = computed(() => [
 ]);
 
 const steps = computed(() => [
-    { name: t('data.designer.nav.selectDataset'), isActive: true },
-    { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value },
-    { name: t('data.designer.nav.accessPoliciesEditor'), isActive: selected.value && isAllValid.value },
-    //TODO: Add extra check for completed access policies info
-    { name: t('data.designer.nav.preview'), isActive: selected.value && isAllValid.value },
+    { name: t('data.designer.nav.selectDataset'), isActive: selected.value },
+    { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value && isAssetOfferingDetailsValid.value },
+    {
+        name: t('data.designer.nav.licenseSelector'),
+        isActive: selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value,
+    },
+    {
+        name: t('data.designer.nav.accessPoliciesEditor'),
+        isActive:
+            selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value && isLicenseValid.value,
+    },
+    {
+        name: t('data.designer.nav.preview'),
+        isActive:
+            selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value && isLicenseValid.value,
+    },
 ]);
 
-const isAllValid = ref(false);
-
-const selectedPage = ref(1);
+const selectedPage = ref(0);
 
 const handlePageSelectionBackwards = (value: number) => {
     selectedPage.value = value;
@@ -195,18 +247,19 @@ const handlePageSelectionBackwards = (value: number) => {
 
 const changeStep = async (stepNum: number) => {
     selectedPage.value = stepNum;
-    if (stepNum === 3) {
+    if (stepNum === 4) {
         //api call to contract template composer
+        //FIXME: Currently getting a 404 for API which this fetch calls
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
             body: {
                 assetId: newAssetId,
                 organizationId: runtimeConfig.public?.orgId,
-                terms: monetizationDetails.value.contractTerms,
+                terms: licenseDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
                 price: monetizationDetails.value.price,
-                limitNumber: monetizationDetails.value.limitNumber,
-                limitFrequency: monetizationDetails.value.limitFrequency,
+                limitNumber: licenseDetails.value.limitNumber,
+                limitFrequency: licenseDetails.value.limitFrequency,
                 subscriptionFrequency:
                     monetizationDetails.value.type === 'subscription'
                         ? monetizationDetails.value.subscriptionFrequency
@@ -223,7 +276,7 @@ const changeStep = async (stepNum: number) => {
 
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
+    <div v-show="selectedPage === 0 && selected" class="w-full h-full text-gray-700 space-y-8">
         <DatasetSelector
             v-if="selected"
             :selected="selected"
@@ -234,8 +287,11 @@ const changeStep = async (stepNum: number) => {
         <AssetOfferingDetails
             v-model:asset-details-prop="assetOfferingDetails"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
+            @change-page="changeStep"
         />
+    </div>
 
+    <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" />
 
         <MonetizationMethod
@@ -246,12 +302,24 @@ const changeStep = async (stepNum: number) => {
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
-            @update:is-all-valid="(value: boolean) => (isAllValid = value)"
+        />
+    </div>
+
+    <div v-show="selectedPage === 2" class="w-full h-full text-gray-700 space-y-8">
+        <LicenseSelector
+            v-model:license-details-prop="licenseDetails"
+            :monetization-details="monetizationDetails"
+            :asset-offering-details="assetOfferingDetails"
+            :is-free="isFree"
+            @change-page="changeStep"
+            @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
+            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
+            @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
 
     <template v-if="selected">
-        <div v-show="selectedPage === 2" class="w-full h-full text-gray-700 space-y-8">
+        <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">
             <AccessPolicyList
                 v-model:policy-data="policyData"
                 :selected="selected"
@@ -262,9 +330,11 @@ const changeStep = async (stepNum: number) => {
     </template>
 
     <Preview
-        v-if="isAllValid && selectedPage === 3 && completeOrQuery && selected?.title"
+        v-if="selectedPage === 4"
+        :policy-data="policyData"
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
+        :license-details="licenseDetails"
         :limit-frequency-selections="limitFrequencySelections"
         :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
