@@ -40,6 +40,7 @@ export default defineI18nConfig(() => ({
                 HEALTHCARE: 'Healthcare',
                 CONSUMER_FINANCE: 'Consumer Finance',
             },
+            administrator: 'Administrator',
             worldwide: 'Worldwide',
             select: 'Select',
             search: 'Search...',
