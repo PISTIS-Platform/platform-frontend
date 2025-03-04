@@ -166,10 +166,10 @@ const runJobConfigurator = async (services: [string]) => {
                             <li
                                 v-for="(srv, index) in workflowServices"
                                 :key="srv.id"
-                                class="p-4 mb-3 ml-20 mt-3 mr-20 flex justify-between items-center bg-pistis-400 shadow rounded-lg font-semibold cursor-move"
+                                class="p-4 mb-3 ml-20 mt-3 mr-20 flex text-center items-center bg-pistis-400 shadow rounded-lg font-semibold cursor-move"
                             >
                                 <Icon name="icon-park:arrow-down" size="2em" />
-                                Job {{ index + 1 }}: {{ srv.name }}
+                                <span class="ml-5">Job {{ index + 1 }}: {{ srv.name }}</span>
                             </li>
                         </draggable>
                         <div class="w-full h-full max-w-lg text-center mt-1 bg-primary-50">
