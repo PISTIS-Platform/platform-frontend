@@ -166,28 +166,42 @@ const submitAll = async () => {
     submitStatus.value = 'pending';
     let body = {
         originalAssetId: selected.value?.id,
-        organizationId: runtimeConfig.public?.orgId,
-        organizationName: session.value?.orgName,
-        ...assetOfferingDetails.value,
-        ...licenseDetails.value,
-        ...monetizationDetails.value,
-        termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
         distributionId: assetOfferingDetails.value.selectedDistribution.id,
-        assetId: newAssetId,
+        organizationId: runtimeConfig.public?.orgId,
+        sellerId: session.value?.user?.sub,
+        title: assetOfferingDetails.value.title,
+        description: assetOfferingDetails.value.description,
+        keywords: assetOfferingDetails.value.keywords,
+        saleType: monetizationDetails.value.type,
+        subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
+        price: monetizationDetails.value.price,
+        license: licenseDetails.value.license,
+        extraTerms: licenseDetails.value.extraTerms,
+        contractTerms: licenseDetails.value.contractTerms,
+        limitNumber: licenseDetails.value.limitNumber,
+        limitFrequency: licenseDetails.value.limitFrequency,
+        canEdit: false, //FIXME: Where do we get this?
+        region: licenseDetails.value.region?.join(', '),
+        isExclusive: licenseDetails.value.isExclusive,
+        transferable: licenseDetails.value.transferable,
+        numOfShare: 0,
+        numOfResell: 0,
+        termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
+        additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
+        nonRenewalTerms: licenseDetails.value.nonRenewalDays,
+        contractBreachDays: licenseDetails.value.contractBreachDays,
         containsPersonalData: hasPersonalData.value,
+        personalDataTerms: licenseDetails.value.personalDataTerms,
+        // assetId: newAssetId, //FIXME: Is this expected?
         accessPolicies: {
             assetId: newAssetId,
             assetTitle: assetOfferingDetails.value.title,
             assetDescription: assetOfferingDetails.value.description,
             policyData: policyData,
         },
-        sellerId: session.value?.user?.sub,
-        numOfResell: 0,
-        numOfShare: 0,
     };
-    delete body.distributions;
-    delete body.selectedDistribution;
 
+    console.log({ body });
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
