@@ -21,14 +21,22 @@ const { data: accountData, status: accountStatus } = useFetch<Record<string, any
                                 <span class="font-semibold text-gray-400 text-sm">{{ $t('account.user.email') }}</span>
                                 <span class="flex items-center gap-2"
                                     >{{ accountData.user.email }}
-                                    <UTooltip
+                                    <UBadge
                                         v-if="accountData.user.roles.includes('PISTIS_ADMIN')"
-                                        :text="$t('administrator')"
-                                        ><UIcon name="mdi:administrator" class="w-5 h-5" /></UTooltip
-                                ></span>
+                                        icon="mid:administrator"
+                                        size="sm"
+                                        color="white"
+                                        variant="solid"
+                                        :label="$t('administrator')"
+                                        :trailing="false"
+                                        class="flex gap-2 items-center"
+                                        ><UIcon name="mdi:administrator" class="w-4 h-4" /><span>{{
+                                            $t('administrator')
+                                        }}</span></UBadge
+                                    >
+                                </span>
                             </div>
                             <!-- TODO: Add badge if user is creator of org (when/if info is available)-->
-                            <!-- TODO: Add badge if user is an admin (if we don't log admins out as we do now)-->
                         </div>
                     </UCard>
                     <UCard class="w-full sm:w-1/2 flex flex-col">
