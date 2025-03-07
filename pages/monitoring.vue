@@ -44,7 +44,7 @@ const computedResourcesUsageStats = computed(() => {
     <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full">
         <PageContainer>
             <div class="flex flex-col w-full mt-8">
-                <div class="grid grid-cols-2 gap-8 place-items-stretch max-h-[600px] h-full">
+                <div class="grid grid-cols-2 gap-8 place-items-stretch">
                     <!-- Components statuses -->
                     <UCard :ui="{ base: 'w-full' }">
                         <template #header>
