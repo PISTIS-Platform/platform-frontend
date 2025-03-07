@@ -37,7 +37,7 @@ const navigation = ref([
     },
     {
         name: 'marketplace.marketplace',
-        to: config.public.cloudUrl + '/srv/catalog/datasets?locale=en',
+        to: config.public.cloudUrl + '/srv/catalog/datasets?locale=en&catalog=pistis&page=1',
         target: '_blank',
         icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
