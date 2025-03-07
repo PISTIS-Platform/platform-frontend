@@ -54,7 +54,7 @@ export default defineNuxtConfig({
             clientId: '',
             clientSecret: '',
         },
-
+        prometheusUrl: '',
         authSecret: '',
         catalogName: '',
         walletAlias: '',

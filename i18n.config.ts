@@ -51,6 +51,33 @@ export default defineI18nConfig(() => ({
             or: 'or',
             sortBy: 'Sort By',
             days: 'days',
+            dashboard: {
+                dashboard: 'Dashboard',
+                status: 'Status',
+                resources: {
+                    name: 'Resources',
+                    title: 'Resources & Activities Monitor',
+                    componentStatus: 'Component Status',
+                    resourceUsage: 'Resource Usage',
+                    usageStats: {
+                        disk: 'Disk Usage',
+                        cpu: 'CPU',
+                        memory: 'Memory',
+                        from: 'from',
+                        cores: 'cores',
+                        mongoDb: 'MongoDB',
+                        elasticSearchAvg: 'Elasticsearch',
+                        esInstance1: 'Instance 1',
+                        esInstance2: 'Instance 2',
+                        esInstance3: 'Instance 3',
+                        postgres: 'PostgreSQL',
+                        minio: 'MinIO',
+                        errorInRetrievingCpuAndMemoryStats:
+                            'Error occurred while retrieving CPU and Memory usage stats',
+                        errorInRetrievingDiskUsageStats: 'Error occurred while retrieving Disk usage stats',
+                    },
+                },
+            },
             sectors: {
                 aviation: 'Aviation',
                 energy: 'Energy',
