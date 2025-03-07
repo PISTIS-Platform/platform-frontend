@@ -1,7 +1,5 @@
 import { PrometheusDriver } from 'prometheus-query';
 
-import { getServerSession } from '#auth';
-
 const { prometheusUrl } = useRuntimeConfig();
 
 import UsageStatsData from '~/interfaces/usage-stats-data';
@@ -40,9 +38,7 @@ topk(1, kubelet_volume_stats_capacity_bytes{job="kubelet", metrics_path="/metric
     return getPrometheusResult(q, percentageMultiplier);
 };
 
-export default defineEventHandler(async (event) => {
-    const session = await getServerSession(event);
-    if (!session?.roles?.includes('PISTIS_ADMIN')) return [];
+export default defineEventHandler(async (_event) => {
     //CPU percentage
     const cpuQuery =
         'sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="default"}) / sum(kube_pod_container_resource_requests{job="kube-state-metrics", namespace="default", resource="cpu"})';
