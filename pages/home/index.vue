@@ -3,6 +3,8 @@ const R = useRamda();
 import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 
+import type { SortOptions } from '~/interfaces/table';
+
 const { t } = useI18n();
 const incoming = ref([
     {
@@ -21,7 +23,7 @@ const outgoing = ref([
     },
 ]);
 
-const sort = ref({
+const sort = ref<SortOptions>({
     column: 'date',
     direction: 'desc',
 });
@@ -126,14 +128,9 @@ const transactionsColumns: any = [
         class: 'w-1/5',
     },
 ];
-const page = ref<number>(1);
 const pageCount = 10;
 
-const transactionsRows = computed(() => {
-    return !R.isNil(transactionsData.value)
-        ? transactionsData.value.slice((page.value - 1) * pageCount, page.value * pageCount)
-        : [];
-});
+const { page, paginatedRows, sortBy } = useTable(transactionsData, pageCount, sort);
 
 // const fixedAmount = (item: number) => {
 //     return item.toFixed(2);
@@ -178,7 +175,7 @@ const transactionsRows = computed(() => {
                     <template #header>
                         <SubHeading :title="$t('data.wallet.transactions.title')" />
                     </template>
-                    <UTable :columns="transactionsColumns" :rows="transactionsRows" :sort="sort">
+                    <UTable v-model:sort="sortBy" :columns="transactionsColumns" :rows="paginatedRows">
                         <template #date-data="{ row }">
                             <span>{{ dayjs(row.date).format('DD/MM/YYYY') }}</span>
                         </template>
