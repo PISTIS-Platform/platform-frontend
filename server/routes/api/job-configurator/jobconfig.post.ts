@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body,
         headers: {
+            'Content-type': 'multipart/form-data',
             Authorization: `Bearer ${token?.access_token}`,
         },
     });
