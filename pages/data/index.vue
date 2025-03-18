@@ -19,13 +19,13 @@ const runJobConfigurator = async () => {
     formData.append('dataset_description', datasetDescription.value);
     formData.append('dataset_name', datasetName.value);
     if (fileUpload.value) {
-        if (fileUpload.value) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                console.log(e.target.result);
-            };
-            reader.readAsText(fileUpload.value);
-        }
+        console.log(' Reading uploaded file ...');
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            console.log(e.target.result);
+        };
+        reader.readAsText(fileUpload.value);
+
         formData.append('dataset', fileUpload.value);
     }
 
