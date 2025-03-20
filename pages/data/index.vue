@@ -19,7 +19,7 @@ const listServices = ref([
         id: 1,
         params: [
             {
-                name: 'file (supported CSV, TSV, Json and Parquet)',
+                name: 'file (supported CSV, TSV, Json, XML, XLSX and Parquet)',
                 type: 'source',
                 vue: 'file',
                 value: '"Upload Dataset" field',
