@@ -107,6 +107,11 @@ export default defineI18nConfig(() => ({
                 workflowStatus: 'Workflow Status:',
                 jobInputs: 'Jobs Inputs:',
                 jsonContent: 'Configuration (JSON)',
+                dataCheckIn: 'Data Check-In',
+                dataCheckInFileMethod: 'uploadFile',
+                dataCheckInFTPMethod: 'uploadDataFromFtpServer',
+                dataTransformationRunMethod: 'runTransformations',
+                insightsGeneratorGenerateMethod: 'generateInsights',
                 response: 'Response',
 
                 designer: {

@@ -1,30 +1,135 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
+import { useI18n } from 'vue-i18n';
+
+const i18n = useI18n();
+const DATA_CHECK_IN = i18n.t('data.dataCheckIn');
+const DATA_TRANSFORMATION = i18n.t('data.dataTransformation');
+const INSIGHTS_GENERATOR = i18n.t('data.insightGenerator');
+const DATA_CHECK_IN_FILE_METHOD = i18n.t('data.dataCheckInFileMethod');
+const DATA_CHECK_IN_FTP_METHOD = i18n.t('data.dataCheckInFTPMethod');
+const DATA_TRANSFORMATION_RUN_METHOD = i18n.t('data.dataTransformationRunMethod');
+const INSIGHTS_GENERATOR_GENERATE_METHOD = i18n.t('data.insightsGeneratorGenerateMethod');
+
+const dataset_format = ['CSV', 'JSON', 'TSV', 'Parquet'];
 const listServices = ref([
     {
-        name: 'Data Check-In',
+        name: DATA_CHECK_IN,
+        method: DATA_CHECK_IN_FILE_METHOD,
         id: 1,
         params: [
             {
-                name: 'file',
+                name: 'file (supported CSV, TSV, Json and Parquet)',
                 type: 'source',
+                vue: 'file',
                 value: '"Upload Dataset" field',
             },
         ],
     },
-    { name: 'Data Transformation', id: 2, params: [{ name: 'transformation_definition', type: 'json', value: '[]' }] },
-    { name: 'Insights Generator', id: 3, params: [] },
+    {
+        name: DATA_CHECK_IN,
+        method: DATA_CHECK_IN_FTP_METHOD,
+        id: 2,
+        params: [
+            {
+                name: 'ftp_server',
+                type: 'json',
+                vue: 'input',
+                value: 'ftp.dlptest.com',
+            },
+            {
+                name: 'ftp_user',
+                type: 'json',
+                vue: 'input',
+                value: 'user',
+            },
+            {
+                name: 'ftp_password',
+                type: 'json',
+                vue: 'input',
+                value: 'xxxx',
+            },
+            {
+                name: 'ftp_file_path',
+                type: 'json',
+                vue: 'input',
+                value: 'file.ext',
+            },
+            {
+                name: 'dataset_name',
+                type: 'json',
+                vue: 'input',
+                value: 'Test Dataset',
+            },
+            {
+                name: 'dataset_format',
+                type: 'json',
+                vue: 'select',
+                vue_val: dataset_format,
+                value: dataset_format[0],
+            },
+        ],
+    },
+    {
+        name: DATA_TRANSFORMATION,
+        method: DATA_TRANSFORMATION_RUN_METHOD,
+        id: 3,
+        params: [{ name: 'transformation_definition', type: 'json', vue: 'input', value: '[]' }],
+    },
+    { name: INSIGHTS_GENERATOR, method: INSIGHTS_GENERATOR_GENERATE_METHOD, id: 4, params: [] },
 ]);
 
 const workflowServices = ref([]);
 const datasetName = ref('');
 const datasetDescription = ref('');
-const fileUpload = ref<File | null>(null);
+let fileUpload = ref<File | null>(null);
 const runId = ref('None');
 
 const onDrag = () => {
     runId.value = 'None';
+
+    let keys = Object.keys(listServices.value);
+
+    for (let key in keys) {
+        let method = listServices.value[key]['method'];
+
+        if (method == DATA_CHECK_IN_FTP_METHOD) {
+            fileUpload.value = null;
+        }
+    }
 };
+
+const onDrop = () => {
+    let unique_srvs = [];
+
+    let keys = Object.keys(workflowServices.value);
+    let fileSelected = false;
+
+    for (let key in keys) {
+        let name = workflowServices.value[key]['name'];
+        let method = workflowServices.value[key]['method'];
+
+        if (unique_srvs.includes(name)) {
+            alert(' The workflow cannot contain two services of type: ' + name);
+            listServices.value.push(workflowServices.value[key]);
+            workflowServices.value.splice(key, 1);
+        } else {
+            unique_srvs.push(name);
+            if (method == DATA_CHECK_IN_FILE_METHOD) {
+                fileSelected = true;
+            } else if (method == DATA_CHECK_IN_FTP_METHOD) {
+                fileUpload.value = 'job';
+                fileSelected = true;
+            }
+        }
+
+        if (!fileSelected) {
+            fileUpload.value = null;
+        }
+    }
+    runId.value = 'None';
+};
+
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
@@ -39,26 +144,30 @@ const runJobConfigurator = async (services: [string]) => {
     formData.append('workflow', JSON.stringify(services));
     formData.append('dataset_description', datasetDescription.value);
     formData.append('dataset_name', datasetName.value);
+
     if (fileUpload.value) {
-        formData.append('dataset', fileUpload.value);
+        formData.append('dataset', fileUpload.value, fileUpload.value.name);
     }
 
     try {
-        if (!fileUpload.value) {
-            throw new Error('No dataset selected.');
-        } else if (!datasetName.value) {
+        if (!datasetName.value) {
             throw new Error('No dataset name provided.');
-        } else if (!datasetDescription.value) {
-            throw new Error('No dataset description provided.');
+            /* } else if (!datasetDescription.value) {
+            throw new Error('No dataset description provided.'); */
         } else if (services.length == 0) {
             throw new Error(
                 'No service has been selected for the workflow definition, please select at least one service.',
             );
         } else if (services.length > 0) {
-            if (services[0].id != 1)
+            if (services[0].name != DATA_CHECK_IN) {
                 throw new Error(
                     'The workflow definition must include the Data Check-In service as the first job of the workflow.',
                 );
+            } else if (!fileUpload.value) {
+                if (services[0].method != DATA_CHECK_IN_FTP_METHOD) {
+                    throw new Error('No dataset selected.');
+                }
+            }
         }
 
         const response = await $fetch.raw('/api/job-configurator/jobconfig', {
@@ -70,7 +179,8 @@ const runJobConfigurator = async (services: [string]) => {
             throw new Error('Network response was not ok');
         }
 
-        const responseContent = response._data;
+        const responseContent = await response._data;
+
         /*jsonResponse = JSON.stringify(data, null, 2);*/
 
         runId.value = responseContent.data.dag_run_id;
@@ -84,17 +194,14 @@ const runJobConfigurator = async (services: [string]) => {
 <template>
     <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md space-y-6">
         <div class="form-container rounded-md bg-neutral-100 border space-y-4 p-4">
-            <div class="rounded-md">
-                <label for="fileUpload" class="block text-sm font-medium text-neutral-700">{{
+            <!-- <div class="rounded-md" >
+                <label for="fileUpload" class="block text-sm font-medium text-neutral-700"  >{{
                     $t('data.uploadDataset')
                 }}</label>
-                <input
-                    id="fileUpload"
-                    type="file"
+                <input id="fileUpload" type="file"
                     class="mt-1 block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 mt-3"
-                    @change="handleFileChange"
-                />
-            </div>
+                    @change="handleFileChange" />
+            </div> -->
             <div class="rounded-md">
                 <label for="datasetName" class="block text-sm font-medium text-neutral-700">{{
                     $t('data.datasetName')
@@ -134,14 +241,15 @@ const runJobConfigurator = async (services: [string]) => {
                             class="w-full min-h-20 max-w-md mt-3 border bg-primary-50 text-sm"
                             :list="listServices"
                             :animation="200"
-                            @change="onDrag"
+                            @change="onDrag()"
                         >
                             <li
                                 v-for="srv in listServices"
                                 :key="srv.id"
-                                class="p-4 mb-3 ml-20 mt-3 mr-20 flex justify-between text-sm items-center bg-pistis-200 shadow rounded-lg cursor-move"
+                                class="p-4 mb-3 ml-20 mt-3 mr-20 flex justify-left text-sm items-center bg-pistis-200 shadow rounded-lg cursor-move"
                             >
-                                {{ srv.name }}
+                                <Icon name="icon-park:add-three" size="2em" />
+                                <span class="ml-5">{{ srv.name }}: {{ srv.method }}</span>
                             </li>
                         </draggable>
                     </div>
@@ -161,15 +269,15 @@ const runJobConfigurator = async (services: [string]) => {
                             class="w-full min-h-20 max-w-lg mt-1 border bg-primary-50 text-sm"
                             :list="workflowServices"
                             :animation="200"
-                            @change="onDrag"
+                            @change="onDrop()"
                         >
                             <li
                                 v-for="(srv, index) in workflowServices"
                                 :key="srv.id"
-                                class="p-4 mb-3 ml-20 mt-3 mr-20 flex text-center items-center bg-pistis-400 shadow rounded-lg font-semibold cursor-move"
+                                class="p-4 mb-3 ml-20 mt-3 mr-20 flex justify-left items-center bg-pistis-400 shadow rounded-lg font-semibold cursor-move"
                             >
                                 <Icon name="icon-park:arrow-down" size="2em" />
-                                <span class="ml-5">Job {{ index + 1 }}: {{ srv.name }}</span>
+                                <span class="ml-5">Job {{ index + 1 }} - {{ srv.name }}: {{ srv.method }}</span>
                             </li>
                         </draggable>
                         <div class="w-full h-full max-w-lg text-center mt-1 bg-primary-50">
@@ -191,39 +299,57 @@ const runJobConfigurator = async (services: [string]) => {
                             class="w-full mt-3 ml-3 mb-5 mr-3 bg-wwhite items-center border-2 border-pistis-200 shadow rounded-lg cursor-move text-sm font-medium text-blue-100"
                         >
                             <div class="rounded-m ml-3 mt-3 mb-2 mr-3 font-medium text-blue-900 font-semibold">
-                                {{ srv.name }}:
+                                {{ srv.name }}: {{ srv.method }}
 
-                                <ul class="w-full ml-3 mr-5 flex">
+                                <ul class="ml-3 mr-10 m-5">
                                     <li
                                         v-for="param in srv.params"
                                         :key="param.name"
-                                        class="w-full flex mt-3 ml-3 mb-5 mr-8 bg-wwhite items-center rounded-lg cursor-move text-sm font-medium text-blue-100"
+                                        class="w-full flex mt-3 ml-3 mb-5 mr-10 bg-wwhite items-center rounded-lg cursor-move text-sm font-medium text-blue-100"
                                     >
-                                        <label
-                                            v-if="param"
-                                            for="paramName"
-                                            class="block mt-2 ml-2 mr-2 mb-5 font-medium text-neutral-700 flex"
-                                        >
-                                            {{ param.name }}:
-                                        </label>
-                                        <input
-                                            v-if="param && param.type != 'source'"
-                                            id="paramValue"
-                                            v-model="param.value"
-                                            type="text"
-                                            :readonly="false"
-                                            class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md mt-2 ml-2 mb-5 text-black font-light"
-                                        />
-                                        <input
-                                            v-if="param && param.type == 'source'"
-                                            id="paramValue"
-                                            v-model="param.value"
-                                            type="text"
-                                            :readonly="true"
-                                            class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md mt-2 ml-2 mb-5 text-black font-light bg-primary-100"
-                                        />
-
-                                        <div class="ml-3 mb-3 flex">
+                                        <div class="rounded-md w-full flex">
+                                            <label
+                                                v-if="param"
+                                                for="paramName"
+                                                class="block w-48 mt-4 ml-1 mr-3 mb-5 font-medium text-neutral-700 flex"
+                                            >
+                                                {{ param.name }}:
+                                            </label>
+                                            <input
+                                                v-if="param && param.type == 'source' && param.vue == 'file'"
+                                                id="fileUpload"
+                                                type="file"
+                                                class="mt-1 boderblock text-sm text-neutral-500 file:mr-15 file:text-sm file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 mt-1"
+                                                accept=".csv,.json,.tsv,.parquet,.xlsx"
+                                                @change="handleFileChange"
+                                            />/>
+                                            <input
+                                                v-if="param && param.type != 'source' && param.vue == 'input'"
+                                                id="paramValue"
+                                                v-model="param.value"
+                                                type="text"
+                                                :readonly="false"
+                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-2 ml-2 mb-5 mr-5 text-black font-light"
+                                            />
+                                            <input
+                                                v-if="param && param.type == 'source' && param.vue == 'input'"
+                                                id="paramValue"
+                                                v-model="param.value"
+                                                type="text"
+                                                :readonly="true"
+                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-2 ml-2 mb-5 mr-5 text-black font-light bg-primary-100"
+                                            />
+                                            <USelectMenu
+                                                v-if="param && param.type != 'source' && param.vue == 'select'"
+                                                v-model="param.value"
+                                                size="lg"
+                                                :options="param.vue_val"
+                                                placeholder=" Select value ... "
+                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-2 mb-5 mr-5 text-black font-light bg-primary-100"
+                                            >
+                                            </USelectMenu>
+                                        </div>
+                                        <div class="ml-3 mb-3 flex mr-3">
                                             <Icon
                                                 v-if="param && param.type != 'source'"
                                                 name="icon-park:electronic-locks-open"
