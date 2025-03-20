@@ -311,7 +311,7 @@ const runJobConfigurator = async (services: [string]) => {
                                             <label
                                                 v-if="param"
                                                 for="paramName"
-                                                class="block w-48 mt-4 ml-1 mr-3 mb-5 font-medium text-neutral-700 flex"
+                                                class="block w-60 mt-2 ml-1 mr-3 mb-5 font-medium text-neutral-700 flex"
                                             >
                                                 {{ param.name }}:
                                             </label>
@@ -329,7 +329,7 @@ const runJobConfigurator = async (services: [string]) => {
                                                 v-model="param.value"
                                                 type="text"
                                                 :readonly="false"
-                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-2 ml-2 mb-5 mr-5 text-black font-light"
+                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-1 ml-2 mb-5 mr-5 text-black font-light"
                                             />
                                             <input
                                                 v-if="param && param.type == 'source' && param.vue == 'input'"
