@@ -115,12 +115,13 @@ const onDrop = () => {
             workflowServices.value.splice(key, 1);
         } else {
             unique_srvs.push(name);
-            if (method == DATA_CHECK_IN_FILE_METHOD) {
+            fileSelected = method == DATA_CHECK_IN_FILE_METHOD || method == DATA_CHECK_IN_FTP_METHOD;
+            /*if (method == DATA_CHECK_IN_FILE_METHOD) {
                 fileSelected = true;
             } else if (method == DATA_CHECK_IN_FTP_METHOD) {
                 fileUpload.value = 'job';
                 fileSelected = true;
-            }
+            }*/
         }
 
         if (!fileSelected) {
