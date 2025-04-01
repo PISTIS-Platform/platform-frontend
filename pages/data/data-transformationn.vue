@@ -1,119 +1,128 @@
 <template>
-    <div>
-        <h2>Edit Elements</h2>
-        <div v-if="elements && elements.length > 0" class="panels-container">
-            <div v-for="(element, index) in elements" :key="index" class="panel">
-                <h3 v-if="element.properties.id.const">{{ element.properties.id.const }}</h3>
-                <h3 v-else>Element {{ index + 1 }}</h3>
-                <div v-if="element.properties.params && element.properties.params.properties">
-                    <div
-                        v-for="(paramSchema, key) in element.properties.params.properties"
-                        :key="key"
-                        class="form-group"
-                    >
-                        <label :for="`input-${index}-${key}`"
-                            >{{ key }}
-                            <span
-                                v-if="
-                                    element.properties.params.required &&
-                                    element.properties.params.required.includes(key)
-                                "
-                                class="required"
-                                >*</span
-                            >:
-                        </label>
-                        <template v-if="paramSchema.type === 'string' && !paramSchema.enum">
-                            <input
-                                :id="`input-${index}-${key}`"
-                                type="text"
-                                class="form-control"
-                                :value="elementParams[index] && elementParams[index][key]"
-                                @input="updateParam(index, key, $event.target.value)"
-                            />
-                        </template>
-                        <template v-if="paramSchema.type === 'integer'">
-                            <input
-                                :id="`input-${index}-${key}`"
-                                type="number"
-                                class="form-control"
-                                :value="elementParams[index] && elementParams[index][key]"
-                                @input="updateParam(index, key, parseInt($event.target.value))"
-                            />
-                        </template>
-                        <template v-if="paramSchema.type === 'number'">
-                            <input
-                                :id="`input-${index}-${key}`"
-                                type="number"
-                                class="form-control"
-                                :value="elementParams[index] && elementParams[index][key]"
-                                @input="updateParam(index, key, parseFloat($event.target.value))"
-                            />
-                        </template>
-                        <template v-if="paramSchema.type === 'boolean'">
-                            <div class="form-check">
+    <div class="main-container">
+        <div class="editor-container">
+            <h2>Edit Elements</h2>
+            <div v-if="elements && elements.length > 0" class="panels-container">
+                <div v-for="(element, index) in elements" :key="index" class="panel">
+                    <h3 v-if="element.properties.id.const">{{ element.properties.id.const }}</h3>
+                    <h3 v-else>Element {{ index + 1 }}</h3>
+                    <div v-if="element.properties.params && element.properties.params.properties">
+                        <div
+                            v-for="(paramSchema, key) in element.properties.params.properties"
+                            :key="key"
+                            class="form-group"
+                        >
+                            <label :for="`input-${index}-${key}`"
+                                >{{ key }}
+                                <span
+                                    v-if="
+                                        element.properties.params.required &&
+                                        element.properties.params.required.includes(key)
+                                    "
+                                    class="required"
+                                    >*</span
+                                >:
+                            </label>
+                            <template v-if="paramSchema.type === 'string' && !paramSchema.enum">
                                 <input
                                     :id="`input-${index}-${key}`"
-                                    type="checkbox"
-                                    class="form-check-input"
-                                    :checked="elementParams[index] && elementParams[index][key]"
-                                    @change="updateParam(index, key, $event.target.checked)"
+                                    type="text"
+                                    class="form-control"
+                                    :value="elementParams[index] && elementParams[index][key]"
+                                    @input="updateParam(index, key, $event.target.value)"
                                 />
-                                <label class="form-check-label" :for="`input-${index}-${key}`"></label>
-                            </div>
-                        </template>
-                        <template
-                            v-if="
-                                paramSchema.type === 'array' && paramSchema.items && paramSchema.items.type === 'string'
-                            "
-                        >
-                            <textarea
-                                :id="`input-${index}-${key}`"
-                                class="form-control"
-                                :value="
-                                    elementParams[index] && elementParams[index][key]
-                                        ? elementParams[index][key].join(', ')
-                                        : ''
+                            </template>
+                            <template v-if="paramSchema.type === 'integer'">
+                                <input
+                                    :id="`input-${index}-${key}`"
+                                    type="number"
+                                    class="form-control"
+                                    :value="elementParams[index] && elementParams[index][key]"
+                                    @input="updateParam(index, key, parseInt($event.target.value))"
+                                />
+                            </template>
+                            <template v-if="paramSchema.type === 'number'">
+                                <input
+                                    :id="`input-${index}-${key}`"
+                                    type="number"
+                                    class="form-control"
+                                    :value="elementParams[index] && elementParams[index][key]"
+                                    @input="updateParam(index, key, parseFloat($event.target.value))"
+                                />
+                            </template>
+                            <template v-if="paramSchema.type === 'boolean'">
+                                <div class="form-check">
+                                    <input
+                                        :id="`input-${index}-${key}`"
+                                        type="checkbox"
+                                        class="form-check-input"
+                                        :checked="elementParams[index] && elementParams[index][key]"
+                                        @change="updateParam(index, key, $event.target.checked)"
+                                    />
+                                    <label class="form-check-label" :for="`input-${index}-${key}`"></label>
+                                </div>
+                            </template>
+                            <template
+                                v-if="
+                                    paramSchema.type === 'array' &&
+                                    paramSchema.items &&
+                                    paramSchema.items.type === 'string'
                                 "
-                                @input="
-                                    updateArrayParam(
-                                        index,
-                                        key,
-                                        $event.target.value.split(',').map((item) => item.trim()),
-                                    )
-                                "
-                            ></textarea>
-                            <small class="form-text text-muted">Enter comma-separated values.</small>
-                        </template>
-                        <template v-if="paramSchema.type === 'string' && paramSchema.enum">
-                            <select
-                                :id="`input-${index}-${key}`"
-                                class="form-control"
-                                :value="elementParams[index] && elementParams[index][key]"
-                                @change="updateParam(index, key, $event.target.value)"
                             >
-                                <option v-for="option in paramSchema.enum" :key="option" :value="option">
-                                    {{ option }}
-                                </option>
-                            </select>
-                        </template>
-                        <template
-                            v-else-if="
-                                paramSchema.type &&
-                                !['string', 'integer', 'number', 'boolean', 'array'].includes(paramSchema.type)
-                            "
-                        >
-                            <p class="text-warning">Unsupported type: {{ paramSchema.type }} for {{ key }}</p>
-                        </template>
+                                <textarea
+                                    :id="`input-${index}-${key}`"
+                                    class="form-control"
+                                    :value="
+                                        elementParams[index] && elementParams[index][key]
+                                            ? elementParams[index][key].join(', ')
+                                            : ''
+                                    "
+                                    @input="
+                                        updateArrayParam(
+                                            index,
+                                            key,
+                                            $event.target.value.split(',').map((item) => item.trim()),
+                                        )
+                                    "
+                                ></textarea>
+                                <small class="form-text text-muted">Enter comma-separated values.</small>
+                            </template>
+                            <template v-if="paramSchema.type === 'string' && paramSchema.enum">
+                                <select
+                                    :id="`input-${index}-${key}`"
+                                    class="form-control"
+                                    :value="elementParams[index] && elementParams[index][key]"
+                                    @change="updateParam(index, key, $event.target.value)"
+                                >
+                                    <option v-for="option in paramSchema.enum" :key="option" :value="option">
+                                        {{ option }}
+                                    </option>
+                                </select>
+                            </template>
+                            <template
+                                v-else-if="
+                                    paramSchema.type &&
+                                    !['string', 'integer', 'number', 'boolean', 'array'].includes(paramSchema.type)
+                                "
+                            >
+                                <p class="text-warning">Unsupported type: {{ paramSchema.type }} for {{ key }}</p>
+                            </template>
+                        </div>
                     </div>
+                    <div v-else>
+                        <p class="text-muted">No parameters defined for this element.</p>
+                    </div>
+                    <button @click="addTransformation(index)">Add Transformation</button>
                 </div>
-                <div v-else>
-                    <p class="text-muted">No parameters defined for this element.</p>
-                </div>
+                <button @click="saveChanges">Save Changes</button>
             </div>
-            <button @click="saveChanges">Save Changes</button>
+            <div v-else>
+                <p>No elements in the JSON array.</p>
+            </div>
         </div>
-        <div v-else>
-            <p>No elements in the JSON array.</p>
+        <div class="json-panel">
+            <h2>Transformation JSON</h2>
+            <pre>{{ JSON.stringify(transformations, null, 2) }}</pre>
         </div>
     </div>
 </template>
@@ -332,6 +341,7 @@ const jsonData = [
 
 const elements = ref([...jsonData]);
 const elementParams = ref(elements.value.map(() => ({})));
+const transformations = ref([]);
 
 const updateParam = (elementIndex, key, newValue) => {
     if (!elementParams.value[elementIndex]) {
@@ -351,6 +361,15 @@ const saveChanges = () => {
     }));
     console.log('Updated Data:', updatedData);
     alert('Changes saved (check console)!');
+};
+
+const addTransformation = (index) => {
+    const panelData = {
+        id: elements.value[index].properties.id.const,
+        params: elementParams.value[index] || {},
+    };
+    transformations.value.push(panelData);
+    console.log('Panel Data Added:', panelData);
 };
 
 onMounted(() => {
@@ -472,5 +491,38 @@ button:hover {
 .text-muted {
     color: #6c757d;
     font-size: 0.875rem;
+}
+
+.main-container {
+    display: flex;
+    gap: 20px;
+}
+
+.editor-container {
+    flex: 2;
+}
+
+.json-panel {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+.json-panel h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.json-panel pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    color: #333;
 }
 </style>
