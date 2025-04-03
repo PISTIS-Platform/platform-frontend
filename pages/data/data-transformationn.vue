@@ -122,7 +122,19 @@
         </div>
         <div class="json-panel">
             <h2>Transformation JSON</h2>
-            <pre>{{ JSON.stringify(transformations, null, 2) }}</pre>
+            <div v-for="(transformation, index) in transformations" :key="index" class="transformation-box">
+                <div
+                    class="transformation-content"
+                    @mouseover="hoveredTransformation = transformation"
+                    @mouseleave="hoveredTransformation = null"
+                >
+                    <p>Transformation {{ index + 1 }}</p>
+                    <button class="delete-button" @click="deleteTransformation(index)">×</button>
+                </div>
+            </div>
+            <div v-if="hoveredTransformation" class="hovered-json">
+                <pre>{{ JSON.stringify(hoveredTransformation, null, 2) }}</pre>
+            </div>
         </div>
     </div>
 </template>
@@ -342,6 +354,7 @@ const jsonData = [
 const elements = ref([...jsonData]);
 const elementParams = ref(elements.value.map(() => ({})));
 const transformations = ref([]);
+const hoveredTransformation = ref(null);
 
 const updateParam = (elementIndex, key, newValue) => {
     if (!elementParams.value[elementIndex]) {
@@ -370,6 +383,11 @@ const addTransformation = (index) => {
     };
     transformations.value.push(panelData);
     console.log('Panel Data Added:', panelData);
+};
+
+const deleteTransformation = (index) => {
+    transformations.value.splice(index, 1);
+    console.log(`Transformation at index ${index} deleted.`);
 };
 
 onMounted(() => {
@@ -520,6 +538,56 @@ button:hover {
 }
 
 .json-panel pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.transformation-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+}
+
+.transformation-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.transformation-content p {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.delete-button {
+    background: none;
+    border: none;
+    color: #ff0000;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    color: #cc0000;
+}
+
+.hovered-json {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.hovered-json pre {
     white-space: pre-wrap;
     word-wrap: break-word;
     font-size: 0.9rem;
