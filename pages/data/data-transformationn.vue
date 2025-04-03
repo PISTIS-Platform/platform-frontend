@@ -384,8 +384,14 @@ const addTransformation = (index) => {
 
     // Check if all required fields have a value
     for (const field of requiredFields) {
-        if (!currentParams[field] || (Array.isArray(currentParams[field]) && currentParams[field].length === 0)) {
-            alert(`The field "${field}" is required and must have a value.`);
+        const value = currentParams[field];
+        if (
+            value === undefined ||
+            value === null ||
+            (typeof value === 'string' && value.trim() === '') ||
+            (Array.isArray(value) && (value.length === 0 || value.every((item) => item.trim() === '')))
+        ) {
+            alert(`The field "${field}" is required and must have a non-empty value.`);
             return;
         }
     }
