@@ -377,10 +377,24 @@ const saveChanges = () => {
 };
 
 const addTransformation = (index) => {
-    const panelData = {
-        id: elements.value[index].properties.id.const,
-        params: elementParams.value[index] || {},
-    };
+    const element = elements.value[index];
+    const params = element.properties.params;
+    const requiredFields = params.required || [];
+    const currentParams = elementParams.value[index] || {};
+
+    // Check if all required fields have a value
+    for (const field of requiredFields) {
+        if (!currentParams[field] || (Array.isArray(currentParams[field]) && currentParams[field].length === 0)) {
+            alert(`The field "${field}" is required and must have a value.`);
+            return;
+        }
+    }
+    const panelData = JSON.parse(
+        JSON.stringify({
+            id: element.properties.id.const,
+            params: currentParams || {},
+        }),
+    );
     transformations.value.push(panelData);
     console.log('Panel Data Added:', panelData);
 };
