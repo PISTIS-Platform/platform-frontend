@@ -209,11 +209,12 @@ const jsonData = [
         required: ['id', 'params'],
     },
 ];
-
 const elements = ref([...jsonData]);
 const elementParams = ref(elements.value.map(() => ({})));
 const transformations = ref([]);
 const hoveredTransformation = ref(null);
+const fileUpload = ref<File | null>(null);
+const outputFormat = ref('application/json'); // Default value
 
 const updateParam = (elementIndex, key, newValue) => {
     if (!elementParams.value[elementIndex]) {
@@ -269,8 +270,6 @@ const deleteTransformation = (index) => {
     console.log(`Transformation at index ${index} deleted.`);
 };
 
-const fileUpload = ref<File | null>(null);
-
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
@@ -278,7 +277,16 @@ const handleFileChange = (event: Event) => {
     }
 };
 
-const transformFile = () => {
+const transformFile = async () => {
+    const allTransformations = transformations.value; // Get the entire JSON array
+    console.log('All Transformations:', allTransformations);
+
+    const formData = new FormData();
+    formData.append('transformation_definition', allTransformations);
+    if (fileUpload.value) {
+        formData.append('file', fileUpload.value);
+    }
+
     alert('Transform File button clicked!');
     // Logic for transforming a file goes here
 };
@@ -305,7 +313,7 @@ onMounted(() => {
 <template>
     <div class="main-container">
         <div class="editor-container">
-            <h2>Edit Elements</h2>
+            <h2>Transformation catalog</h2>
             <div v-if="elements && elements.length > 0" class="panels-container">
                 <div v-for="(element, index) in elements" :key="index" class="panel">
                     <h3 v-if="element.properties.id.const">{{ element.properties.id.const }}</h3>
@@ -424,21 +432,9 @@ onMounted(() => {
                 <p>No elements in the JSON array.</p>
             </div>
         </div>
-        <div class="right-panel">
-            <div class="button-container">
-                <div class="p-4 bg-neutral-100">
-                    <label for="fileUpload" class="block text-sm font-medium text-neutral-700">Upload Dataset:</label>
-                    <input
-                        id="fileUpload"
-                        type="file"
-                        class="mt-1 block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-                        @change="handleFileChange"
-                    />
-                </div>
-                <button @click="transformFile">Transform File</button>
-            </div>
+        <div class="middle-panel">
             <div class="json-panel">
-                <h2>Transformation JSON</h2>
+                <h2>Transformation Definition JSON</h2>
                 <div v-for="(transformation, index) in transformations" :key="index" class="transformation-box">
                     <div
                         class="transformation-content"
@@ -452,6 +448,36 @@ onMounted(() => {
                 <div v-if="hoveredTransformation" class="hovered-json">
                     <pre>{{ JSON.stringify(hoveredTransformation, null, 2) }}</pre>
                 </div>
+            </div>
+            <div class="execution-container bordered">
+                <div class="p-4 bg-neutral-100">
+                    <label for="fileUpload" class="block text-sm font-medium text-neutral-700">Upload Dataset:</label>
+                    <input
+                        id="fileUpload"
+                        type="file"
+                        class="mt-1 block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                        @change="handleFileChange"
+                    />
+                    <label for="outputFormat" class="block text-sm font-medium text-neutral-700">Output format:</label>
+                    <select
+                        id="outputFormat"
+                        v-model="outputFormat"
+                        class="mt-1 block w-full shadow-sm sm:text-sm border-neutral-300 rounded-md"
+                    >
+                        <option value="text/plain">CSV</option>
+                        <option value="application/vnd.ms-excel">Excel</option>
+                        <option value="text/xml">XML</option>
+                        <option value="application/json">JSON</option>
+                    </select>
+                </div>
+                <button @click="transformFile">Transform File</button>
+                <textarea
+                    id="responseContent"
+                    class="form-control"
+                    readonly
+                    rows="10"
+                    placeholder="Response content will appear here..."
+                ></textarea>
             </div>
         </div>
     </div>
@@ -568,14 +594,15 @@ button:hover {
     flex: 2;
 }
 
-.right-panel {
+.middle-panel {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.button-container {
+.execution-container {
     display: flex;
+    flex-direction: column;
     gap: 10px;
     margin-bottom: 10px;
 }
@@ -652,5 +679,11 @@ button:hover {
     word-wrap: break-word;
     font-size: 0.9rem;
     color: #333;
+}
+
+.bordered {
+    border: 2px solid #007bff;
+    padding: 10px;
+    border-radius: 5px;
 }
 </style>
