@@ -171,20 +171,22 @@ const runJobConfigurator = async (services: [string]) => {
             }
         }
 
-        const response = await $fetch.raw('/api/job-configurator/jobconfig', {
+        const response = await $fetch('/api/job-configurator/jobconfig', {
             method: 'POST',
             body: formData,
         });
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
+        const responseContent = response.data;
 
-        const responseContent = await response._data;
+        /*if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }*/
+
+        /*const responseContent = response.data;*/
 
         /*jsonResponse = JSON.stringify(data, null, 2);*/
 
-        runId.value = responseContent.data.dag_run_id;
+        runId.value = responseContent.dag_run_id;
     } catch (error: any) {
         console.error('Error:', error);
         alert(`Error: ${error.message}`);
