@@ -1,145 +1,4 @@
-<template>
-    <div class="main-container">
-        <div class="editor-container">
-            <h2>Edit Elements</h2>
-            <div v-if="elements && elements.length > 0" class="panels-container">
-                <div v-for="(element, index) in elements" :key="index" class="panel">
-                    <h3 v-if="element.properties.id.const">{{ element.properties.id.const }}</h3>
-                    <h3 v-else>Element {{ index + 1 }}</h3>
-                    <div v-if="element.properties.params && element.properties.params.properties">
-                        <div
-                            v-for="(paramSchema, key) in element.properties.params.properties"
-                            :key="key"
-                            class="form-group"
-                        >
-                            <label :for="`input-${index}-${key}`"
-                                >{{ key }}
-                                <span
-                                    v-if="
-                                        element.properties.params.required &&
-                                        element.properties.params.required.includes(key)
-                                    "
-                                    class="required"
-                                    >*</span
-                                >:
-                            </label>
-                            <template v-if="paramSchema.type === 'string' && !paramSchema.enum">
-                                <input
-                                    :id="`input-${index}-${key}`"
-                                    type="text"
-                                    class="form-control"
-                                    :value="elementParams[index] && elementParams[index][key]"
-                                    @input="updateParam(index, key, $event.target.value)"
-                                />
-                            </template>
-                            <template v-if="paramSchema.type === 'integer'">
-                                <input
-                                    :id="`input-${index}-${key}`"
-                                    type="number"
-                                    class="form-control"
-                                    :value="elementParams[index] && elementParams[index][key]"
-                                    @input="updateParam(index, key, parseInt($event.target.value))"
-                                />
-                            </template>
-                            <template v-if="paramSchema.type === 'number'">
-                                <input
-                                    :id="`input-${index}-${key}`"
-                                    type="number"
-                                    class="form-control"
-                                    :value="elementParams[index] && elementParams[index][key]"
-                                    @input="updateParam(index, key, parseFloat($event.target.value))"
-                                />
-                            </template>
-                            <template v-if="paramSchema.type === 'boolean'">
-                                <div class="form-check">
-                                    <input
-                                        :id="`input-${index}-${key}`"
-                                        type="checkbox"
-                                        class="form-check-input"
-                                        :checked="elementParams[index] && elementParams[index][key]"
-                                        @change="updateParam(index, key, $event.target.checked)"
-                                    />
-                                    <label class="form-check-label" :for="`input-${index}-${key}`"></label>
-                                </div>
-                            </template>
-                            <template
-                                v-if="
-                                    paramSchema.type === 'array' &&
-                                    paramSchema.items &&
-                                    paramSchema.items.type === 'string'
-                                "
-                            >
-                                <textarea
-                                    :id="`input-${index}-${key}`"
-                                    class="form-control"
-                                    :value="
-                                        elementParams[index] && elementParams[index][key]
-                                            ? elementParams[index][key].join(', ')
-                                            : ''
-                                    "
-                                    @input="
-                                        updateArrayParam(
-                                            index,
-                                            key,
-                                            $event.target.value.split(',').map((item) => item.trim()),
-                                        )
-                                    "
-                                ></textarea>
-                                <small class="form-text text-muted">Enter comma-separated values.</small>
-                            </template>
-                            <template v-if="paramSchema.type === 'string' && paramSchema.enum">
-                                <select
-                                    :id="`input-${index}-${key}`"
-                                    class="form-control"
-                                    :value="elementParams[index] && elementParams[index][key]"
-                                    @change="updateParam(index, key, $event.target.value)"
-                                >
-                                    <option v-for="option in paramSchema.enum" :key="option" :value="option">
-                                        {{ option }}
-                                    </option>
-                                </select>
-                            </template>
-                            <template
-                                v-else-if="
-                                    paramSchema.type &&
-                                    !['string', 'integer', 'number', 'boolean', 'array'].includes(paramSchema.type)
-                                "
-                            >
-                                <p class="text-warning">Unsupported type: {{ paramSchema.type }} for {{ key }}</p>
-                            </template>
-                        </div>
-                    </div>
-                    <div v-else>
-                        <p class="text-muted">No parameters defined for this element.</p>
-                    </div>
-                    <button @click="addTransformation(index)">Add Transformation</button>
-                </div>
-                <button @click="saveChanges">Save Changes</button>
-            </div>
-            <div v-else>
-                <p>No elements in the JSON array.</p>
-            </div>
-        </div>
-        <div class="json-panel">
-            <h2>Transformation JSON</h2>
-            <div v-for="(transformation, index) in transformations" :key="index" class="transformation-box">
-                <div
-                    class="transformation-content"
-                    @mouseover="hoveredTransformation = transformation"
-                    @mouseleave="hoveredTransformation = null"
-                >
-                    <p>Transformation {{ index + 1 }}</p>
-                    <button class="delete-button" @click="deleteTransformation(index)">×</button>
-                </div>
-            </div>
-            <div v-if="hoveredTransformation" class="hovered-json">
-                <pre>{{ JSON.stringify(hoveredTransformation, null, 2) }}</pre>
-            </div>
-        </div>
-    </div>
-</template>
-
-<script setup>
+<script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 
 const jsonData = [
@@ -410,6 +269,20 @@ const deleteTransformation = (index) => {
     console.log(`Transformation at index ${index} deleted.`);
 };
 
+const fileUpload = ref<File | null>(null);
+
+const handleFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+        fileUpload.value = target.files[0];
+    }
+};
+
+const transformFile = () => {
+    alert('Transform File button clicked!');
+    // Logic for transforming a file goes here
+};
+
 onMounted(() => {
     elements.value.forEach((element, index) => {
         if (element.properties.params && element.properties.params.properties) {
@@ -428,6 +301,161 @@ onMounted(() => {
     });
 });
 </script>
+
+<template>
+    <div class="main-container">
+        <div class="editor-container">
+            <h2>Edit Elements</h2>
+            <div v-if="elements && elements.length > 0" class="panels-container">
+                <div v-for="(element, index) in elements" :key="index" class="panel">
+                    <h3 v-if="element.properties.id.const">{{ element.properties.id.const }}</h3>
+                    <h3 v-else>Element {{ index + 1 }}</h3>
+                    <div v-if="element.properties.params && element.properties.params.properties">
+                        <div
+                            v-for="(paramSchema, key) in element.properties.params.properties"
+                            :key="key"
+                            class="form-group"
+                        >
+                            <label :for="`input-${index}-${key}`"
+                                >{{ key }}
+                                <span
+                                    v-if="
+                                        element.properties.params.required &&
+                                        element.properties.params.required.includes(key)
+                                    "
+                                    class="required"
+                                    >*</span
+                                >:
+                            </label>
+                            <template v-if="paramSchema.type === 'string' && !paramSchema.enum">
+                                <input
+                                    :id="`input-${index}-${key}`"
+                                    type="text"
+                                    class="form-control"
+                                    :value="elementParams[index] && elementParams[index][key]"
+                                    @input="updateParam(index, key, $event.target.value)"
+                                />
+                            </template>
+                            <template v-if="paramSchema.type === 'integer'">
+                                <input
+                                    :id="`input-${index}-${key}`"
+                                    type="number"
+                                    class="form-control"
+                                    :value="elementParams[index] && elementParams[index][key]"
+                                    @input="updateParam(index, key, parseInt($event.target.value))"
+                                />
+                            </template>
+                            <template v-if="paramSchema.type === 'number'">
+                                <input
+                                    :id="`input-${index}-${key}`"
+                                    type="number"
+                                    class="form-control"
+                                    :value="elementParams[index] && elementParams[index][key]"
+                                    @input="updateParam(index, key, parseFloat($event.target.value))"
+                                />
+                            </template>
+                            <template v-if="paramSchema.type === 'boolean'">
+                                <div class="form-check">
+                                    <input
+                                        :id="`input-${index}-${key}`"
+                                        type="checkbox"
+                                        class="form-check-input"
+                                        :checked="elementParams[index] && elementParams[index][key]"
+                                        @change="updateParam(index, key, $event.target.checked)"
+                                    />
+                                    <label class="form-check-label" :for="`input-${index}-${key}`"></label>
+                                </div>
+                            </template>
+                            <template
+                                v-if="
+                                    paramSchema.type === 'array' &&
+                                    paramSchema.items &&
+                                    paramSchema.items.type === 'string'
+                                "
+                            >
+                                <textarea
+                                    :id="`input-${index}-${key}`"
+                                    class="form-control"
+                                    :value="
+                                        elementParams[index] && elementParams[index][key]
+                                            ? elementParams[index][key].join(', ')
+                                            : ''
+                                    "
+                                    @input="
+                                        updateArrayParam(
+                                            index,
+                                            key,
+                                            $event.target.value.split(',').map((item) => item.trim()),
+                                        )
+                                    "
+                                ></textarea>
+                                <small class="form-text text-muted">Enter comma-separated values.</small>
+                            </template>
+                            <template v-if="paramSchema.type === 'string' && paramSchema.enum">
+                                <select
+                                    :id="`input-${index}-${key}`"
+                                    class="form-control"
+                                    :value="elementParams[index] && elementParams[index][key]"
+                                    @change="updateParam(index, key, $event.target.value)"
+                                >
+                                    <option v-for="option in paramSchema.enum" :key="option" :value="option">
+                                        {{ option }}
+                                    </option>
+                                </select>
+                            </template>
+                            <template
+                                v-else-if="
+                                    paramSchema.type &&
+                                    !['string', 'integer', 'number', 'boolean', 'array'].includes(paramSchema.type)
+                                "
+                            >
+                                <p class="text-warning">Unsupported type: {{ paramSchema.type }} for {{ key }}</p>
+                            </template>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <p class="text-muted">No parameters defined for this element.</p>
+                    </div>
+                    <button @click="addTransformation(index)">Add Transformation</button>
+                </div>
+                <button @click="saveChanges">Save Changes</button>
+            </div>
+            <div v-else>
+                <p>No elements in the JSON array.</p>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="button-container">
+                <div class="p-4 bg-neutral-100">
+                    <label for="fileUpload" class="block text-sm font-medium text-neutral-700">Upload Dataset:</label>
+                    <input
+                        id="fileUpload"
+                        type="file"
+                        class="mt-1 block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                        @change="handleFileChange"
+                    />
+                </div>
+                <button @click="transformFile">Transform File</button>
+            </div>
+            <div class="json-panel">
+                <h2>Transformation JSON</h2>
+                <div v-for="(transformation, index) in transformations" :key="index" class="transformation-box">
+                    <div
+                        class="transformation-content"
+                        @mouseover="hoveredTransformation = transformation"
+                        @mouseleave="hoveredTransformation = null"
+                    >
+                        <p>Transformation {{ index + 1 }}</p>
+                        <button class="delete-button" @click="deleteTransformation(index)">×</button>
+                    </div>
+                </div>
+                <div v-if="hoveredTransformation" class="hovered-json">
+                    <pre>{{ JSON.stringify(hoveredTransformation, null, 2) }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
 
 <style scoped>
 .panels-container {
@@ -538,6 +566,18 @@ button:hover {
 
 .editor-container {
     flex: 2;
+}
+
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .json-panel {
