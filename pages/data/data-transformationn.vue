@@ -214,6 +214,7 @@ const elementParams = ref(elements.value.map(() => ({})));
 const transformations = ref([]);
 const hoveredTransformation = ref(null);
 const fileUpload = ref<File | null>(null);
+const responseContent = ref('');
 const outputFormat = ref('application/json'); // Default value
 
 const updateParam = (elementIndex, key, newValue) => {
@@ -287,8 +288,52 @@ const transformFile = async () => {
         formData.append('file', fileUpload.value);
     }
 
-    alert('Transform File button clicked!');
-    // Logic for transforming a file goes here
+    try {
+        const contentType = outputFormat.value;
+
+        const response = await $fetch.raw('/api/data-transformation/transformation', {
+            method: 'POST',
+            body: formData,
+            query: {
+                Accept: outputFormat.value,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        // constcontentType = response.headers.get('Content-Type');
+        if (contentType === 'application/json') {
+            const data = response._data;
+            responseContent.value = JSON.stringify(data, null, 2);
+        } else if (contentType?.includes('text/plain')) {
+            const data = response._data;
+            responseContent.value = data as string;
+        } else if (contentType?.includes('text/xml')) {
+            const data = response._data;
+            responseContent.value = data as string;
+        } else if (contentType?.includes('application/vnd.ms-excel')) {
+            const blob = new Blob([response._data as string]);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'response.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            responseContent.value = 'Excel file downloaded.';
+        } else {
+            responseContent.value = 'Unsupported response type';
+        }
+
+        //console.log('Success:', responseContent.value);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+        responseContent.value = `Error: ${error.message}`;
+        console.error('Error:', error);
+    }
 };
 
 onMounted(() => {
@@ -451,6 +496,8 @@ onMounted(() => {
             </div>
             <div class="execution-container bordered">
                 <div class="p-4 bg-neutral-100">
+                    <h2>Transformation execution</h2>
+                    <br />
                     <label for="fileUpload" class="block text-sm font-medium text-neutral-700">Upload Dataset:</label>
                     <input
                         id="fileUpload"
