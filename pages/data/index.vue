@@ -141,12 +141,18 @@ const handleFileChange = (event: Event) => {
 
 const runJobConfigurator = async (services: [string]) => {
     const formData = new FormData();
+    let isoDateString = wfRunTimeSpecific.value;
+
+    if (isoDateString) {
+        const date = new Date(wfRunTimeSpecific.value);
+        isoDateString = date.toISOString();
+    }
 
     /*formData.append('workflow', jsonContent.value);*/
     formData.append('workflow', JSON.stringify(services));
     formData.append('dataset_description', datasetDescription.value);
     formData.append('dataset_name', datasetName.value);
-    formData.append('scheduled_execution_time', wfRunTimeSpecific.value);
+    formData.append('scheduled_execution_time', isoDateString);
 
     if (fileUpload.value) {
         formData.append('dataset', fileUpload.value, fileUpload.value.name);
