@@ -25,3 +25,8 @@ export interface AccessPolicies {
     assetDescription: string | undefined;
     policyData: AccessPolicyDetails[];
 }
+
+export interface OrganizationAttribute {
+    code: string;
+    title: string;
+}

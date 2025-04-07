@@ -415,6 +415,7 @@ export default defineI18nConfig(() => ({
                     defOrgPrompt: 'Search organizations',
                     defAttr: 'Organization attributes',
                     defAttrHelp: 'Select organizations by attributes to exclude for the selected scope(s)',
+                    defAttrPrompt: 'Search organization attributes',
                 },
                 errors: {
                     title: 'Title field is required and must be more than 5-characters!',

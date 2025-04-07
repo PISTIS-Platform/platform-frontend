@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { DialogWrapper } from 'vue3-promise-dialog';
 
 import { confirmation } from '~/composables/confirmation';
-import type { AccessPolicyDetails } from '~/interfaces/plan-designer';
+import type { AccessPolicyDetails, OrganizationAttribute } from '~/interfaces/plan-designer';
 
 const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
@@ -21,19 +21,18 @@ const props = defineProps({
     },
 });
 
-// const allGroups = await useFetch('/api/iam/get-groups');
-const allDomains = await useFetch<any>('/api/iam/get-domains');
-const allCountries = await useFetch<any>('/api/iam/get-countries');
-const allSizes = await useFetch<any>('/api/iam/get-sizes');
-const allTypes = await useFetch<any>('/api/iam/get-types');
+const domainOptions = await useFetch<any>('/api/iam/get-domains');
+const countryOptions = await useFetch<any>('/api/iam/get-countries');
+const sizeOptions = await useFetch<any>('/api/iam/get-sizes');
+const typeOptions = await useFetch<any>('/api/iam/get-types');
 const groupOptions = await useFetch<any>('/api/iam/get-organizations');
 
 const checkedScopes = ref<Array<boolean>>([]);
-const checkedGroups = ref<Array<boolean>>([]);
-const checkedCountries = ref<Array<boolean>>([]);
-const checkedSizes = ref<Array<boolean>>([]);
-const checkedDomains = ref<Array<boolean>>([]);
-const checkedTypes = ref<Array<boolean>>([]);
+const checkedGroups = ref<Array<string>>([]);
+const checkedCountries = ref<Array<string>>([]);
+const checkedSizes = ref<Array<string>>([]);
+const checkedDomains = ref<Array<string>>([]);
+const checkedTypes = ref<Array<string>>([]);
 
 const policyData = clone(props.policyData);
 const policiesCount = ref(props.policyData.length);
@@ -65,38 +64,10 @@ const handleEditPolicyClick = (row: any) => {
     }
 
     checkedGroups.value = accessPolicyDetails.value.groups;
-
-    for (let i = 0; i < allDomains.data.value.length; i++) {
-        if (accessPolicyDetails.value.domains.includes(allDomains.data.value[i].code)) {
-            checkedDomains.value[i] = true;
-        } else {
-            checkedDomains.value[i] = false;
-        }
-    }
-
-    for (let i = 0; i < allCountries.data.value.length; i++) {
-        if (accessPolicyDetails.value.countries.includes(allCountries.data.value[i].code)) {
-            checkedCountries.value[i] = true;
-        } else {
-            checkedCountries.value[i] = false;
-        }
-    }
-
-    for (let i = 0; i < allSizes.data.value.length; i++) {
-        if (accessPolicyDetails.value.sizes.includes(allSizes.data.value[i].code)) {
-            checkedSizes.value[i] = true;
-        } else {
-            checkedSizes.value[i] = false;
-        }
-    }
-
-    for (let i = 0; i < allTypes.data.value.length; i++) {
-        if (accessPolicyDetails.value.types.includes(allTypes.data.value[i].code)) {
-            checkedTypes.value[i] = true;
-        } else {
-            checkedTypes.value[i] = false;
-        }
-    }
+    checkedDomains.value = accessPolicyDetails.value.domains;
+    checkedCountries.value = accessPolicyDetails.value.countries;
+    checkedSizes.value = accessPolicyDetails.value.sizes;
+    checkedTypes.value = accessPolicyDetails.value.types;
 
     switchPolicyForm.value = true;
 };
@@ -171,33 +142,6 @@ watch(
     { immediate: true },
 );
 
-const tabItems = [
-    {
-        key: 'domain',
-        label: t('policies.tabs.domain.label'),
-        icon: 'i-heroicons-tag',
-        content: t('policies.tabs.domain.content'),
-    },
-    {
-        key: 'country',
-        label: t('policies.tabs.country.label'),
-        icon: 'i-heroicons-flag',
-        content: t('policies.tabs.country.content'),
-    },
-    {
-        key: 'size',
-        label: t('policies.tabs.size.label'),
-        icon: 'i-heroicons-briefcase',
-        content: t('policies.tabs.size.content'),
-    },
-    {
-        key: 'type',
-        label: t('policies.tabs.type.label'),
-        icon: 'i-heroicons-eye-dropper',
-        content: t('policies.tabs.type.content'),
-    },
-];
-
 const switchPolicyForm = ref(false);
 const handleNewPolicyClick = () => {
     accessPolicyDetails.value = {
@@ -215,18 +159,10 @@ const handleNewPolicyClick = () => {
     checkedScopes.value[0] = false;
     checkedScopes.value[1] = false;
     checkedGroups.value = [];
-    for (let i = 0; i < allDomains.data.value.length; i++) {
-        checkedDomains.value[i] = false;
-    }
-    for (let i = 0; i < allCountries.data.value.length; i++) {
-        checkedCountries.value[i] = false;
-    }
-    for (let i = 0; i < allSizes.data.value.length; i++) {
-        checkedSizes.value[i] = false;
-    }
-    for (let i = 0; i < allTypes.data.value.length; i++) {
-        checkedTypes.value[i] = false;
-    }
+    checkedDomains.value = [];
+    checkedCountries.value = [];
+    checkedSizes.value = [];
+    checkedTypes.value = [];
 
     switchPolicyForm.value = true;
 };
@@ -246,31 +182,23 @@ const handlePolicyForm = () => {
     }
 
     let countries = [];
-    for (let i = 0; i < allCountries.data.value.length; i++) {
-        if (checkedCountries.value[i] === true) {
-            countries.push(allCountries.data.value[i].code);
-        }
+    for (let i = 0; i < checkedCountries.value.length; i++) {
+        countries.push(checkedCountries.value[i]);
     }
 
     let sizes = [];
-    for (let i = 0; i < allSizes.data.value.length; i++) {
-        if (checkedSizes.value[i] === true) {
-            sizes.push(allSizes.data.value[i].code);
-        }
+    for (let i = 0; i < checkedSizes.value.length; i++) {
+        sizes.push(checkedSizes.value[i]);
     }
 
     let domains = [];
-    for (let i = 0; i < allDomains.data.value.length; i++) {
-        if (checkedDomains.value[i] === true) {
-            domains.push(allDomains.data.value[i].code);
-        }
+    for (let i = 0; i < checkedDomains.value.length; i++) {
+        domains.push(checkedDomains.value[i]);
     }
 
     let types = [];
-    for (let i = 0; i < allTypes.data.value.length; i++) {
-        if (checkedTypes.value[i] === true) {
-            types.push(allTypes.data.value[i].code);
-        }
+    for (let i = 0; i < checkedTypes.value.length; i++) {
+        types.push(checkedTypes.value[i]);
     }
 
     //console.log(accessPolicyDetails.value);
@@ -329,7 +257,7 @@ const handlePolicyForm = () => {
         //const updatedPolicyData = [...props.policyData, p];
         //props.policyData = updatedPolicyData;
         emit('update:policy-data', policyData);
-        //console.log(JSON.stringify(policyData));
+        console.log(JSON.stringify(policyData));
         switchPolicyForm.value = false;
         //console.log(policiesCount.value);
         page.value = Math.floor(policyData.length / pageCount) + 2;
@@ -390,6 +318,7 @@ async function onSubmit(): Promise<void> {
             </div>
         </UForm>
     </Transition>
+
     <!-- Modal -->
     <UModal v-model="switchPolicyForm" class="flex flex-grow">
         <UCard class="flex flex-col text-gray-700">
@@ -474,73 +403,149 @@ async function onSubmit(): Promise<void> {
                 </div>
             </div>
 
-            <UTabs :items="tabItems" class="w-full">
-                <template #item="{ item }">
-                    <UCard>
-                        <template #header>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                {{ item.content }}
-                            </p>
-                        </template>
+            <div class="flex items-start gap-8 mt-6">
+                <!--domains-->
+                <div class="flex flex-col w-1/2">
+                    <div class="flex items-center space-x-2">
+                        <UIcon name="i-heroicons-tag" class="text-black h-5 w-5" />
+                        <label class="block text-sm font-medium text-gray-700">{{
+                            t('policies.tabs.domain.label')
+                        }}</label>
+                    </div>
+                    <small class="mb-2">{{ t('policies.tabs.domain.content') }}</small>
 
-                        <div v-if="item.key === 'domain'" class="space-y-3">
-                            <div class="flex flex-col w-full">
-                                <div class="flex flex-row flex-wrap mb-2 gap-4">
-                                    <UCheckbox
-                                        v-for="(attr, index) in allDomains.data.value"
-                                        :key="attr.code"
-                                        v-model="checkedDomains[index]"
-                                        name="domains[]"
-                                        :label="attr.title"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                    <div class="flex flex-row flex-wrap mb-2 gap-4">
+                        <USelectMenu
+                            v-model="checkedDomains"
+                            searchable
+                            :searchable-placeholder="$t('policies.policyUI.defAttrPrompt')"
+                            :options="domainOptions.data.value"
+                            option-attribute="title"
+                            value-attribute="code"
+                            multiple
+                            :placeholder="$t('policies.policyUI.defAttrPrompt')"
+                            class="w-full"
+                        >
+                            <template #label>
+                                <span v-if="checkedDomains.length" class="truncate">{{
+                                    domainOptions.data.value
+                                        .filter((attr: OrganizationAttribute) => checkedDomains.includes(attr.code))
+                                        .map((attr: OrganizationAttribute) => attr.title)
+                                        .join(', ')
+                                }}</span>
+                                <span v-else>{{ t('policies.policyUI.defAttrPrompt') }}</span>
+                            </template>
+                        </USelectMenu>
+                    </div>
+                </div>
 
-                        <div v-else-if="item.key === 'country'" class="space-y-3">
-                            <div class="flex flex-col w-full">
-                                <div class="flex flex-row flex-wrap mb-2 gap-4">
-                                    <UCheckbox
-                                        v-for="(attr, index) in allCountries.data.value"
-                                        :key="attr.code"
-                                        v-model="checkedCountries[index]"
-                                        name="countries[]"
-                                        :label="attr.title"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                <!--countries-->
+                <div class="flex flex-col w-1/2">
+                    <div class="flex items-center space-x-2">
+                        <UIcon name="i-heroicons-flag" class="text-black h-5 w-5" />
+                        <label class="block text-sm font-medium text-gray-700">{{
+                            t('policies.tabs.country.label')
+                        }}</label>
+                    </div>
+                    <small class="mb-2">{{ t('policies.tabs.country.content') }}</small>
 
-                        <div v-else-if="item.key === 'size'" class="space-y-3">
-                            <div class="flex flex-col w-full">
-                                <div class="flex flex-row flex-wrap mb-2 gap-4">
-                                    <UCheckbox
-                                        v-for="(attr, index) in allSizes.data.value"
-                                        :key="attr.code"
-                                        v-model="checkedSizes[index]"
-                                        name="sizes[]"
-                                        :label="attr.title"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                    <div class="flex flex-row flex-wrap mb-2 gap-4">
+                        <USelectMenu
+                            v-model="checkedCountries"
+                            searchable
+                            :searchable-placeholder="$t('policies.policyUI.defAttrPrompt')"
+                            :options="countryOptions.data.value"
+                            option-attribute="title"
+                            value-attribute="code"
+                            multiple
+                            :placeholder="$t('policies.policyUI.defAttrPrompt')"
+                            class="w-full"
+                        >
+                            <template #label>
+                                <span v-if="checkedCountries.length" class="truncate">{{
+                                    countryOptions.data.value
+                                        .filter((attr: OrganizationAttribute) => checkedCountries.includes(attr.code))
+                                        .map((attr: OrganizationAttribute) => attr.title)
+                                        .join(', ')
+                                }}</span>
+                                <span v-else>{{ t('policies.policyUI.defAttrPrompt') }}</span>
+                            </template>
+                        </USelectMenu>
+                    </div>
+                </div>
+            </div>
 
-                        <div v-else-if="item.key === 'type'" class="space-y-3">
-                            <div class="flex flex-col w-full">
-                                <div class="flex flex-row flex-wrap mb-2 gap-4">
-                                    <UCheckbox
-                                        v-for="(attr, index) in allTypes.data.value"
-                                        :key="attr.code"
-                                        v-model="checkedTypes[index]"
-                                        name="types[]"
-                                        :label="attr.title"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </UCard>
-                </template>
-            </UTabs>
+            <div class="flex items-start gap-8 mt-6">
+                <!--sizes-->
+                <div class="flex flex-col w-1/2">
+                    <div class="flex items-center space-x-2">
+                        <UIcon name="i-heroicons-briefcase" class="text-black h-5 w-5" />
+                        <label class="block text-sm font-medium text-gray-700">{{
+                            t('policies.tabs.size.label')
+                        }}</label>
+                    </div>
+                    <small class="mb-2">{{ t('policies.tabs.size.content') }}</small>
+
+                    <div class="flex flex-row flex-wrap mb-2 gap-4">
+                        <USelectMenu
+                            v-model="checkedSizes"
+                            searchable
+                            :searchable-placeholder="$t('policies.policyUI.defAttrPrompt')"
+                            :options="sizeOptions.data.value"
+                            option-attribute="title"
+                            value-attribute="code"
+                            multiple
+                            :placeholder="$t('policies.policyUI.defAttrPrompt')"
+                            class="w-full"
+                        >
+                            <template #label>
+                                <span v-if="checkedSizes.length" class="truncate">{{
+                                    sizeOptions.data.value
+                                        .filter((attr: OrganizationAttribute) => checkedSizes.includes(attr.code))
+                                        .map((attr: OrganizationAttribute) => attr.title)
+                                        .join(', ')
+                                }}</span>
+                                <span v-else>{{ t('policies.policyUI.defAttrPrompt') }}</span>
+                            </template>
+                        </USelectMenu>
+                    </div>
+                </div>
+
+                <!--types-->
+                <div class="flex flex-col w-1/2">
+                    <div class="flex items-center space-x-2">
+                        <UIcon name="i-heroicons-eye-dropper" class="text-black h-5 w-5" />
+                        <label class="block text-sm font-medium text-gray-700">{{
+                            t('policies.tabs.type.label')
+                        }}</label>
+                    </div>
+                    <small class="mb-2">{{ t('policies.tabs.type.content') }}</small>
+
+                    <div class="flex flex-row flex-wrap mb-2 gap-4">
+                        <USelectMenu
+                            v-model="checkedTypes"
+                            searchable
+                            :searchable-placeholder="$t('policies.policyUI.defAttrPrompt')"
+                            :options="typeOptions.data.value"
+                            option-attribute="title"
+                            value-attribute="code"
+                            multiple
+                            :placeholder="$t('policies.policyUI.defAttrPrompt')"
+                            class="w-full"
+                        >
+                            <template #label>
+                                <span v-if="checkedTypes.length" class="truncate">{{
+                                    typeOptions.data.value
+                                        .filter((attr: OrganizationAttribute) => checkedTypes.includes(attr.code))
+                                        .map((attr: OrganizationAttribute) => attr.title)
+                                        .join(', ')
+                                }}</span>
+                                <span v-else>{{ t('policies.policyUI.defAttrPrompt') }}</span>
+                            </template>
+                        </USelectMenu>
+                    </div>
+                </div>
+            </div>
 
             <div class="flex gap-8 w-full justify-center mt-6">
                 <UButton color="white" class="w-20 flex justify-center" @click="switchPolicyForm = false">{{
