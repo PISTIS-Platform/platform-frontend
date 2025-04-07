@@ -228,15 +228,6 @@ const updateArrayParam = (elementIndex, key, newValue) => {
     updateParam(elementIndex, key, newValue);
 };
 
-const saveChanges = () => {
-    const updatedData = elements.value.map((element, index) => ({
-        id: element.properties.id.const,
-        params: elementParams.value[index] || {},
-    }));
-    console.log('Updated Data:', updatedData);
-    alert('Changes saved (check console)!');
-};
-
 const addTransformation = (index) => {
     const element = elements.value[index];
     const params = element.properties.params;
@@ -471,7 +462,6 @@ onMounted(() => {
                     </div>
                     <button @click="addTransformation(index)">Add Transformation</button>
                 </div>
-                <button @click="saveChanges">Save Changes</button>
             </div>
             <div v-else>
                 <p>No elements in the JSON array.</p>
