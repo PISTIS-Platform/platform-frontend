@@ -84,6 +84,7 @@ const datasetName = ref('');
 const datasetDescription = ref('');
 let fileUpload = ref<File | null>(null);
 const runId = ref('None');
+const wfRunTimeSpecific = ref('');
 
 const onDrag = () => {
     runId.value = 'None';
@@ -145,6 +146,7 @@ const runJobConfigurator = async (services: [string]) => {
     formData.append('workflow', JSON.stringify(services));
     formData.append('dataset_description', datasetDescription.value);
     formData.append('dataset_name', datasetName.value);
+    formData.append('scheduled_execution_time', wfRunTimeSpecific.value);
 
     if (fileUpload.value) {
         formData.append('dataset', fileUpload.value, fileUpload.value.name);
@@ -286,6 +288,17 @@ const runJobConfigurator = async (services: [string]) => {
                         <div class="w-full h-full max-w-lg text-center mt-1 bg-primary-50">
                             <p class="block text-sm font-medium text-black">End</p>
                             <Icon name="icon-park:s-turn-right" size="2em" />
+                        </div>
+                        <div class="w-full h-full max-w-lg text-center mt-6">
+                            <p class="block text-sm text-left font-medium text-blue-900">
+                                Set Specific Workflow Run Time:
+                            </p>
+                            <input
+                                v-model="wfRunTimeSpecific"
+                                type="datetime-local"
+                                class="form-control text-center mt-3 mb-4"
+                                title="Set Specific Event Time"
+                            />
                         </div>
                     </div>
                 </div>
