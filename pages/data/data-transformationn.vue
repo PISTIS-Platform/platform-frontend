@@ -1,215 +1,36 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { useFetch } from '@vueuse/core';
+import { computed, onMounted, ref } from 'vue';
 
-const jsonData = [
-    {
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        title: 'Generated schema for Root',
-        type: 'object',
-        properties: {
-            id: {
-                const: 'datetime_harmonizer',
-            },
-            params: {
-                type: 'object',
-                properties: {
-                    variables: {
-                        type: 'array',
-                        items: {
-                            type: 'string',
-                        },
-                    },
-                    output_format: {
-                        type: 'string',
-                    },
-                },
-                required: [],
-            },
-        },
-        required: ['id', 'params'],
-    },
-    {
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        title: 'Generated schema for Root',
-        type: 'object',
-        properties: {
-            id: {
-                const: 'numerical_normalization',
-            },
-            params: {
-                type: 'object',
-                properties: {
-                    variables: {
-                        type: 'array',
-                        items: {
-                            type: 'string',
-                        },
-                    },
-                    normalization_type: {
-                        type: 'string',
-                        enum: ['minmax', 'zscore'],
-                    },
-                    replace_column: {
-                        type: 'boolean',
-                    },
-                },
-                required: ['variables', 'normalization_type'],
-            },
-        },
-        required: ['id', 'params'],
-    },
-    {
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        title: 'Generated schema for Root',
-        type: 'object',
-        properties: {
-            id: {
-                const: 'outlier_management',
-            },
-            params: {
-                type: 'object',
-                properties: {
-                    variables: {
-                        type: 'array',
-                        items: {
-                            type: 'string',
-                        },
-                    },
-                    outlier_criteria: {
-                        type: 'string',
-                        enum: ['zscore', 'iqr'],
-                    },
-                    outlier_threshold: {
-                        type: 'number',
-                    },
-                    outlier_action: {
-                        type: 'string',
-                        enum: ['remove', 'replace'],
-                    },
-                    replacement: {
-                        type: 'string',
-                        enum: ['mean', 'closest_limit'],
-                    },
-                },
-                required: ['variables', 'outlier_criteria', 'outlier_action'],
-            },
-        },
-        required: ['id', 'params'],
-    },
-    {
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        title: 'Generated schema for Root',
-        type: 'object',
-        properties: {
-            id: {
-                const: 'remove_column',
-            },
-            params: {
-                type: 'object',
-                properties: {
-                    variables: {
-                        type: 'array',
-                        items: {
-                            type: 'string',
-                        },
-                    },
-                },
-                required: ['variables'],
-            },
-        },
-        required: ['id', 'params'],
-    },
-    {
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        title: 'Generated schema for Root',
-        type: 'object',
-        properties: {
-            id: {
-                const: 'remove_missing_registries',
-            },
-            params: {
-                type: 'object',
-                properties: {
-                    variables: {
-                        type: 'array',
-                        items: {
-                            type: 'string',
-                        },
-                    },
-                },
-            },
-        },
-        required: ['id', 'params'],
-    },
-    {
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        title: 'Generated schema for Root',
-        type: 'object',
-        properties: {
-            id: {
-                const: 'replace',
-            },
-            params: {
-                type: 'object',
-                properties: {
-                    variables: {
-                        type: 'array',
-                        items: {
-                            type: 'string',
-                        },
-                    },
-                    replacements: {
-                        type: 'array',
-                        items: {
-                            type: 'object',
-                            properties: {
-                                search: {
-                                    type: 'string',
-                                },
-                                replacement: {
-                                    type: 'string',
-                                },
-                                regex: {
-                                    type: 'boolean',
-                                },
-                            },
-                            required: ['search', 'replacement'],
-                        },
-                    },
-                },
-                required: ['replacements'],
-            },
-        },
-        required: ['id', 'params'],
-    },
-    {
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        title: 'Generated schema for Root',
-        type: 'object',
-        properties: {
-            id: {
-                const: 'replace_missing_registries_fixed',
-            },
-            params: {
-                type: 'object',
-                properties: {
-                    variables: {
-                        type: 'array',
-                        items: {
-                            type: 'string',
-                        },
-                    },
-                    value: {
-                        type: 'string',
-                    },
-                },
-                required: ['value'],
-            },
-        },
-        required: ['id', 'params'],
-    },
-];
-const elements = ref([...jsonData]);
+const { data } = useFetch<any[]>('/api/data-transformation/transformation');
+
+const jsonSchema = computed(() => {
+    if (!data.value) return null;
+
+    try {
+        // If the API returns a string, parse it
+        if (typeof data.value === 'string') {
+            return JSON.parse(data.value);
+        }
+        // If the API returns an object, return it directly
+        return data.value;
+    } catch (error) {
+        console.error('Error parsing JSON schema:', error);
+        return null;
+    }
+});
+
+const elements = computed(() => {
+    if (!jsonSchema.value) return [];
+
+    return jsonSchema.value.map((item) => ({
+        label: item.properties.id.const
+            .replace(/_/g, ' ')
+            .replace(/(^\w{1})|(\s+\w{1})/g, (letter: string) => letter.toUpperCase()),
+        content: item,
+    }));
+});
+
 const elementParams = ref(elements.value.map(() => ({})));
 const transformations = ref([]);
 const hoveredTransformation = ref(null);
@@ -230,7 +51,7 @@ const updateArrayParam = (elementIndex, key, newValue) => {
 
 const addTransformation = (index) => {
     const element = elements.value[index];
-    const params = element.properties.params;
+    const params = element.content.properties.params;
     const requiredFields = params.required || [];
     const currentParams = elementParams.value[index] || {};
 
@@ -249,7 +70,7 @@ const addTransformation = (index) => {
     }
     const panelData = JSON.parse(
         JSON.stringify({
-            id: element.properties.id.const,
+            id: element.content.properties.id.const,
             params: currentParams || {},
         }),
     );
@@ -329,10 +150,10 @@ const transformFile = async () => {
 
 onMounted(() => {
     elements.value.forEach((element, index) => {
-        if (element.properties.params && element.properties.params.properties) {
+        if (element.content.properties.params && element.content.properties.params.properties) {
             elementParams.value[index] = {};
-            for (const key in element.properties.params.properties) {
-                const type = element.properties.params.properties[key].type;
+            for (const key in element.content.properties.params.properties) {
+                const type = element.content.properties.params.properties[key].type;
                 if (type === 'boolean') {
                     elementParams.value[index][key] = false;
                 } else if (type === 'array') {
@@ -352,11 +173,11 @@ onMounted(() => {
             <h2>Transformation catalog</h2>
             <div v-if="elements && elements.length > 0" class="panels-container">
                 <div v-for="(element, index) in elements" :key="index" class="panel">
-                    <h3 v-if="element.properties.id.const">{{ element.properties.id.const }}</h3>
+                    <h3 v-if="element.content.properties.id.const">{{ element.content.properties.id.const }}</h3>
                     <h3 v-else>Element {{ index + 1 }}</h3>
-                    <div v-if="element.properties.params && element.properties.params.properties">
+                    <div v-if="element.content.properties.params && element.content.properties.params.properties">
                         <div
-                            v-for="(paramSchema, key) in element.properties.params.properties"
+                            v-for="(paramSchema, key) in element.content.properties.params.properties"
                             :key="key"
                             class="form-group"
                         >
@@ -364,8 +185,8 @@ onMounted(() => {
                                 >{{ key }}
                                 <span
                                     v-if="
-                                        element.properties.params.required &&
-                                        element.properties.params.required.includes(key)
+                                        element.content.properties.params.required &&
+                                        element.content.properties.params.required.includes(key)
                                     "
                                     class="required"
                                     >*</span
