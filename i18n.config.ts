@@ -112,6 +112,7 @@ export default defineI18nConfig(() => ({
                 dataCheckInFTPMethod: 'uploadDataFromFtpServer',
                 dataTransformationRunMethod: 'runTransformations',
                 insightsGeneratorGenerateMethod: 'generateInsights',
+                dataCheckInApiMethod: 'uploadDataFromAPI',
                 response: 'Response',
 
                 designer: {

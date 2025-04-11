@@ -10,8 +10,11 @@ const DATA_CHECK_IN_FILE_METHOD = i18n.t('data.dataCheckInFileMethod');
 const DATA_CHECK_IN_FTP_METHOD = i18n.t('data.dataCheckInFTPMethod');
 const DATA_TRANSFORMATION_RUN_METHOD = i18n.t('data.dataTransformationRunMethod');
 const INSIGHTS_GENERATOR_GENERATE_METHOD = i18n.t('data.insightsGeneratorGenerateMethod');
+const DATA_CHECK_IN_API_METHOD = i18n.t('data.dataCheckInApiMethod');
 
 const dataset_format = ['CSV', 'JSON', 'TSV', 'Parquet'];
+const http_methods = ['GET', 'POST'];
+
 const listServices = ref([
     {
         name: DATA_CHECK_IN,
@@ -77,6 +80,46 @@ const listServices = ref([
         params: [{ name: 'transformation_definition', type: 'json', vue: 'input', value: '[]' }],
     },
     { name: INSIGHTS_GENERATOR, method: INSIGHTS_GENERATOR_GENERATE_METHOD, id: 4, params: [] },
+    {
+        name: DATA_CHECK_IN,
+        method: DATA_CHECK_IN_API_METHOD,
+        id: 5,
+        params: [
+            {
+                name: 'api_url',
+                type: 'json',
+                vue: 'input',
+                value: 'http://test_api.com/data',
+            },
+            {
+                name: 'method',
+                type: 'json',
+                vue: 'select',
+                vue_val: http_methods,
+                value: http_methods[0],
+            },
+            {
+                name: 'headers',
+                type: 'json',
+                vue: 'aggregate',
+                vue_val: ['name', 'value'],
+                value: [],
+            },
+            {
+                name: 'query_params',
+                type: 'json',
+                vue: 'aggregate',
+                vue_val: ['name', 'value'],
+                value: [],
+            },
+            {
+                name: 'body',
+                type: 'json',
+                vue: 'textarea',
+                value: '',
+            },
+        ],
+    },
 ]);
 
 const workflowServices = ref([]);
@@ -94,7 +137,7 @@ const onDrag = () => {
     for (let key in keys) {
         let method = listServices.value[key]['method'];
 
-        if (method == DATA_CHECK_IN_FTP_METHOD) {
+        if (method == DATA_CHECK_IN_FTP_METHOD || method == DATA_CHECK_IN_API_METHOD) {
             fileUpload.value = null;
         }
     }
@@ -116,7 +159,10 @@ const onDrop = () => {
             workflowServices.value.splice(key, 1);
         } else {
             unique_srvs.push(name);
-            fileSelected = method == DATA_CHECK_IN_FILE_METHOD || method == DATA_CHECK_IN_FTP_METHOD;
+            fileSelected =
+                method == DATA_CHECK_IN_FILE_METHOD ||
+                method == DATA_CHECK_IN_FTP_METHOD ||
+                method == DATA_CHECK_IN_API_METHOD;
             /*if (method == DATA_CHECK_IN_FILE_METHOD) {
                 fileSelected = true;
             } else if (method == DATA_CHECK_IN_FTP_METHOD) {
@@ -130,6 +176,24 @@ const onDrop = () => {
         }
     }
     runId.value = 'None';
+};
+
+const aggregateElement = async (services: [string], param: string) => {
+    for (let service in services) {
+        if (services[service].method == DATA_CHECK_IN_API_METHOD) {
+            let index = services[service].params.findIndex((item) => item == param);
+            services[service].params[index].value.push({ name: '', value: '' });
+        }
+    }
+};
+
+const removeQueryParam = async (services: [string], param: string, index_values: string) => {
+    for (let service in services) {
+        if (services[service].method == DATA_CHECK_IN_API_METHOD) {
+            let index = services[service].params.findIndex((item) => item == param);
+            services[service].params[index].value.splice(index_values, 1);
+        }
+    }
 };
 
 const handleFileChange = (event: Event) => {
@@ -173,7 +237,7 @@ const runJobConfigurator = async (services: [string]) => {
                     'The workflow definition must include the Data Check-In service as the first job of the workflow.',
                 );
             } else if (!fileUpload.value) {
-                if (services[0].method != DATA_CHECK_IN_FTP_METHOD) {
+                if (services[0].method != DATA_CHECK_IN_FTP_METHOD && services[0].method != DATA_CHECK_IN_API_METHOD) {
                     throw new Error('No dataset selected.');
                 }
             }
@@ -257,7 +321,7 @@ const runJobConfigurator = async (services: [string]) => {
                             <li
                                 v-for="srv in listServices"
                                 :key="srv.id"
-                                class="p-4 mb-3 ml-20 mt-3 mr-20 flex justify-left text-sm items-center bg-pistis-200 shadow rounded-lg cursor-move"
+                                class="p-4 mb-3 ml-2 mt-3 mr-2 flex justify-left text-sm items-center bg-pistis-200 shadow rounded-lg cursor-move"
                             >
                                 <Icon name="icon-park:add-three" size="2em" />
                                 <span class="ml-5">{{ srv.name }}: {{ srv.method }}</span>
@@ -269,7 +333,7 @@ const runJobConfigurator = async (services: [string]) => {
                         <p class="block text-sm font-medium text-blue-900">Workflow Representation</p>
                         <div class="w-full h-full max-w-lg text-center mt-3 bg-primary-50">
                             <p class="block text-sm font-medium text-black">Start</p>
-                            <Icon name="icon-park:s-turn-left" size="2em" />
+                            <Icon name="icon-park:code-download" size="3em" />
                         </div>
 
                         <draggable
@@ -285,7 +349,7 @@ const runJobConfigurator = async (services: [string]) => {
                             <li
                                 v-for="(srv, index) in workflowServices"
                                 :key="srv.id"
-                                class="p-4 mb-3 ml-20 mt-3 mr-20 flex justify-left items-center bg-pistis-400 shadow rounded-lg font-semibold cursor-move"
+                                class="p-4 mb-3 ml-2 mt-3 mr-2 flex justify-left items-center bg-pistis-400 shadow rounded-lg font-semibold cursor-move"
                             >
                                 <Icon name="icon-park:arrow-down" size="2em" />
                                 <span class="ml-5">Job {{ index + 1 }} - {{ srv.name }}: {{ srv.method }}</span>
@@ -293,7 +357,7 @@ const runJobConfigurator = async (services: [string]) => {
                         </draggable>
                         <div class="w-full h-full max-w-lg text-center mt-1 bg-primary-50">
                             <p class="block text-sm font-medium text-black">End</p>
-                            <Icon name="icon-park:s-turn-right" size="2em" />
+                            <Icon name="icon-park:code" size="2.5em" />
                         </div>
                         <div class="w-full h-full max-w-lg text-center mt-6">
                             <p class="block text-sm text-left font-medium text-blue-900">
@@ -344,14 +408,14 @@ const runJobConfigurator = async (services: [string]) => {
                                                 class="mt-1 boderblock text-sm text-neutral-500 file:mr-15 file:text-sm file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 mt-1"
                                                 accept=".csv,.json,.tsv,.parquet,.xlsx"
                                                 @change="handleFileChange"
-                                            />/>
+                                            />
                                             <input
                                                 v-if="param && param.type != 'source' && param.vue == 'input'"
                                                 id="paramValue"
                                                 v-model="param.value"
                                                 type="text"
                                                 :readonly="false"
-                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-1 ml-2 mb-5 mr-5 text-black font-light"
+                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-1 ml-1 mb-5 mr-8 text-black font-light"
                                             />
                                             <input
                                                 v-if="param && param.type == 'source' && param.vue == 'input'"
@@ -359,33 +423,90 @@ const runJobConfigurator = async (services: [string]) => {
                                                 v-model="param.value"
                                                 type="text"
                                                 :readonly="true"
-                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-2 ml-2 mb-5 mr-5 text-black font-light bg-primary-100"
+                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-2 ml-2 mb-5 mr-8 text-black font-light bg-primary-100"
                                             />
+                                            <textarea
+                                                v-if="param && param.vue == 'textarea'"
+                                                id="paramValue"
+                                                v-model="param.value"
+                                                rows="10"
+                                                cols="50"
+                                                class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md text-black font-light ml-3 mr-7"
+                                            ></textarea>
+                                            <div
+                                                v-if="param && param.vue == 'aggregate'"
+                                                class="rounded-md w-full border-2 border-netral-300 ml-3 mr-3 bg-neutral-50"
+                                            >
+                                                <div
+                                                    v-for="(api_param, index_value) in param.value"
+                                                    :key="index_value"
+                                                    class="rounded-md w-full ml-3 mr-3 mt-1 mb-1 flex"
+                                                >
+                                                    <div
+                                                        v-for="json_field in Object.keys(api_param)"
+                                                        :key="json_field"
+                                                        class="rounded-md w-full ml-3 mr-3 mt-1 mb-1 flex"
+                                                    >
+                                                        <label
+                                                            class="block mt-2 ml-1 mr-3 mb-2 font-medium text-neutral-700"
+                                                        >
+                                                            {{ json_field }}:
+                                                        </label>
+                                                        <input
+                                                            id="{{ json_field }}{{ index_value }}"
+                                                            v-model="param.value[index_value][json_field]"
+                                                            type="text"
+                                                            :readonly="false"
+                                                            class="w-full flex mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-1 ml-2 mb-1 mr-0 text-black font-light"
+                                                        />
+                                                    </div>
+                                                    <div class="ml-1 mb-2 flex mr-5 mt-2">
+                                                        <Icon
+                                                            v-if="param && param.vue == 'aggregate'"
+                                                            name="icon-park:close-small"
+                                                            size="2em"
+                                                            mb-3
+                                                            ml-3
+                                                            @click="
+                                                                removeQueryParam(workflowServices, param, index_value)
+                                                            "
+                                                        >
+                                                        </Icon>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <USelectMenu
                                                 v-if="param && param.type != 'source' && param.vue == 'select'"
                                                 v-model="param.value"
                                                 size="lg"
                                                 :options="param.vue_val"
                                                 placeholder=" Select value ... "
-                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-2 mb-5 mr-5 text-black font-light bg-primary-100"
+                                                class="mt-1 block w-11/12 sm:text-sm border-neutral-300 rounded-md mt-2 mb-5 mr-8 text-black font-light bg-primary-100"
                                             >
                                             </USelectMenu>
                                         </div>
-                                        <div class="ml-3 mb-3 flex mr-3">
+                                        <div class="ml-3 mb-3 flex mr-3 items-center justify-right">
                                             <Icon
-                                                v-if="param && param.type != 'source'"
+                                                v-if="param && param.type != 'source' && param.vue != 'aggregate'"
                                                 name="icon-park:electronic-locks-open"
                                                 size="3em"
                                                 mb-3
                                                 ml-3
                                             />
                                             <Icon
-                                                v-if="param && param.type == 'source'"
+                                                v-if="param && param.type == 'source' && param.vue != 'aggregate'"
                                                 name="icon-park:electronic-locks-close"
                                                 size="3em"
                                                 mb-3
                                                 ml-3
                                             />
+                                            <button
+                                                v-if="param && param.vue == 'aggregate'"
+                                                class="w-full px-4 py-2 bg-primary-600 text-white text-sm rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                @click="aggregateElement(workflowServices, param)"
+                                            >
+                                                Add
+                                            </button>
                                         </div>
                                     </li>
                                     <label
