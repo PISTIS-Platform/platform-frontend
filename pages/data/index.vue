@@ -210,13 +210,13 @@ const runJobConfigurator = async (services: [string]) => {
     if (isoDateString) {
         const date = new Date(wfRunTimeSpecific.value);
         isoDateString = date.toISOString();
+        formData.append('scheduled_execution_time', isoDateString);
     }
 
     /*formData.append('workflow', jsonContent.value);*/
     formData.append('workflow', JSON.stringify(services));
     formData.append('dataset_description', datasetDescription.value);
     formData.append('dataset_name', datasetName.value);
-    formData.append('scheduled_execution_time', isoDateString);
 
     if (fileUpload.value) {
         formData.append('dataset', fileUpload.value, fileUpload.value.name);
@@ -248,7 +248,7 @@ const runJobConfigurator = async (services: [string]) => {
             body: formData,
         });
 
-        const responseContent = response.data;
+        const responseContent = await response.data;
 
         /*if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -526,9 +526,9 @@ const runJobConfigurator = async (services: [string]) => {
                 <label for="workflowExecutionResults" class="block text-sm font-medium text-neutral-700">{{
                     $t('data.workflowExecutionResults')
                 }}</label>
-                <div class="rounded-md border border-8 mt-3 mb-1 bg-white border-green-400">
+                <div class="rounded-md border border-8 mt-3 mb-1 bg-white border-pistis-500">
                     <div class="container mx-auto p-2 rounded-md ml-5 mr-10 flex w-full">
-                        <Icon name="icon-park:connection-point-two" size="2em" />
+                        <Icon name="icon-park:file-code-one" size="2.5em" />
                         <label for="workflowRunId" class="block text-sm mt-2 font-medium text-neutral-700">
                             {{ $t('data.workflowRunId') }}</label
                         >

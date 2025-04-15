@@ -20,7 +20,6 @@ export default defineEventHandler(async (event) => {
         } else {
             formData.append(field.name, field.data);
         }
-        formData.append(field.name, field.data);
     }
 
     const response = await axios.post(`${factoryUrl}/srv/job-configurator/workflow/simplifiedRun`, formData, {
@@ -29,7 +28,8 @@ export default defineEventHandler(async (event) => {
             Authorization: `Bearer ${token?.access_token}`,
         },
     });
-    const json_data = await response.data;
+    const json_data = response.data;
+
     console.error('Axios Response:' + JSON.stringify(json_data, null, 2));
     return json_data;
 });
