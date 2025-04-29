@@ -268,6 +268,38 @@ onMounted(() => {
                                     </option>
                                 </select>
                             </template>
+
+                            <template v-if="Array.isArray(paramSchema.type)">
+                                <div class="form-group">
+                                    <input
+                                        :id="`input-${index}-${key}`"
+                                        type="text"
+                                        class="form-control"
+                                        :value="elementParams[index] && elementParams[index][key]?.value"
+                                        @input="
+                                            updateParam(index, key, {
+                                                value: $event.target.value,
+                                                type: elementParams[index][key]?.type,
+                                            })
+                                        "
+                                    />
+                                    <select
+                                        :id="`select-${index}-${key}`"
+                                        class="form-control mt-2"
+                                        :value="elementParams[index] && elementParams[index][key]?.type"
+                                        @change="
+                                            updateParam(index, key, {
+                                                value: elementParams[index][key]?.value,
+                                                type: $event.target.value,
+                                            })
+                                        "
+                                    >
+                                        <option v-for="type in paramSchema.type" :key="type" :value="type">
+                                            {{ type }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </template>
                             <template
                                 v-else-if="
                                     paramSchema.type &&
