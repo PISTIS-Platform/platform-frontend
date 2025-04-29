@@ -2,6 +2,7 @@
 const fileUpload = ref<File | null>(null);
 const responseContent = ref('');
 const outputFormat = ref('application/json'); // Default value
+const reportType = ref('full'); // Default to "full report"
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -21,15 +22,20 @@ const handleSubmit = async () => {
         // Keeping the selected output format the moment of the query to use it below
         const contentType = outputFormat.value;
 
+        const queryParams: Record<string, string> = {
+            Accept: outputFormat.value,
+        };
+
+        // Add "lite_version" param if "quick report" is selected
+        if (reportType.value === 'quick') {
+            queryParams.lite_version = 'True';
+        }
+
         const response = await $fetch.raw('/api/insights-generator/insights', {
             method: 'POST',
             body: formData,
-            query: {
-                Accept: outputFormat.value,
-            },
+            query: queryParams,
         });
-
-        // console.log(response);
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -83,6 +89,18 @@ const handleSubmit = async () => {
                     >
                         <option value="text/html">HTML</option>
                         <option value="application/json">JSON</option>
+                    </select>
+                </div>
+
+                <div class="p-4 bg-neutral-100 rounded-md">
+                    <label for="reportType" class="block text-sm font-medium text-neutral-700">Report Type:</label>
+                    <select
+                        id="reportType"
+                        v-model="reportType"
+                        class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md"
+                    >
+                        <option value="full">Full Report</option>
+                        <option value="quick">Quick Report</option>
                     </select>
                 </div>
 
