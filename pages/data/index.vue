@@ -14,6 +14,7 @@ const DATA_CHECK_IN_API_METHOD = i18n.t('data.dataCheckInApiMethod');
 
 const dataset_format = ['CSV', 'JSON', 'TSV', 'Parquet'];
 const http_methods = ['GET', 'POST'];
+const periodicity = ['hourly', 'daily'];
 
 const listServices = ref([
     {
@@ -128,6 +129,7 @@ const datasetDescription = ref('');
 let fileUpload = ref<File | null>(null);
 const runId = ref('None');
 const wfRunTimeSpecific = ref('');
+const wfPeriodicity = ref('');
 
 const onDrag = () => {
     runId.value = 'None';
@@ -206,11 +208,16 @@ const handleFileChange = (event: Event) => {
 const runJobConfigurator = async (services: [string]) => {
     const formData = new FormData();
     let isoDateString = wfRunTimeSpecific.value;
+    let periodicity = wfPeriodicity.value;
 
     if (isoDateString) {
         const date = new Date(wfRunTimeSpecific.value);
         isoDateString = date.toISOString();
         formData.append('scheduled_execution_time', isoDateString);
+    }
+
+    if (periodicity) {
+        formData.append('periodicity', periodicity);
     }
 
     /*formData.append('workflow', jsonContent.value);*/
@@ -359,16 +366,27 @@ const runJobConfigurator = async (services: [string]) => {
                             <p class="block text-sm font-medium text-black">End</p>
                             <Icon name="icon-park:code" size="2.5em" />
                         </div>
-                        <div class="w-full h-full max-w-lg text-center mt-6">
-                            <p class="block text-sm text-left font-medium text-blue-900">
-                                Set Specific Workflow Run Time:
+                        <div class="w-full flex max-w-lg text-center mt-8">
+                            <p class="block text-sm text-left font-medium text-blue-900 mt-3">
+                                Specific Workflow Run Time:
                             </p>
                             <input
                                 v-model="wfRunTimeSpecific"
                                 type="datetime-local"
-                                class="form-control text-center mt-3 mb-4"
+                                class="form-control text-center ml-5 mt-1"
                                 title="Set Specific Event Time"
                             />
+                        </div>
+                        <div class="w-full flex max-w-lg text-center mt-6">
+                            <p class="block text-sm text-left font-medium text-blue-900 mt-3">Periodicity:</p>
+                            <USelectMenu
+                                v-model="wfPeriodicity"
+                                size="lg"
+                                :options="periodicity"
+                                placeholder=" Select periodicity ... "
+                                class="w-full w-2/3 mt-1 sm:text-sm border-black rounded-md mt-2 mb-5 ml-11 text-black bg-primary-100"
+                            >
+                            </USelectMenu>
                         </div>
                     </div>
                 </div>
