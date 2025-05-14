@@ -12,9 +12,9 @@ const DATA_TRANSFORMATION_RUN_METHOD = i18n.t('data.dataTransformationRunMethod'
 const INSIGHTS_GENERATOR_GENERATE_METHOD = i18n.t('data.insightsGeneratorGenerateMethod');
 const DATA_CHECK_IN_API_METHOD = i18n.t('data.dataCheckInApiMethod');
 
-const dataset_format = ['CSV', 'JSON', 'TSV', 'Parquet'];
+const dataset_format = ['csv', 'json', 'tsv', 'parquet', 'xml', 'xlsx'];
 const http_methods = ['GET', 'POST'];
-const periodicity = ['hourly', 'daily'];
+const periodicity = ['hourly', 'daily', 'monthly'];
 
 const listServices = ref([
     {
@@ -246,6 +246,11 @@ const runJobConfigurator = async (services: [string]) => {
             } else if (!fileUpload.value) {
                 if (services[0].method != DATA_CHECK_IN_FTP_METHOD && services[0].method != DATA_CHECK_IN_API_METHOD) {
                     throw new Error('No dataset selected.');
+                }
+            } else if (periodicity) {
+                if (services[0].method == DATA_CHECK_IN_FILE_METHOD) {
+                    wfPeriodicity.value = '';
+                    throw new Error('A periodicity type cannot be set for file upload data check-in');
                 }
             }
         }
