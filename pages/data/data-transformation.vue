@@ -348,7 +348,7 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
-            <div class="execution-container bordered">
+            <div class="execution-container">
                 <div class="p-4 bg-neutral-100">
                     <h2>Transformation execution</h2>
                     <br />
@@ -493,6 +493,9 @@ button:hover {
 
 .editor-container {
     flex: 2;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 5px;
 }
 
 .middle-panel {
@@ -506,12 +509,16 @@ button:hover {
     flex-direction: column;
     gap: 10px;
     margin-bottom: 10px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 5px;
 }
 
 .json-panel {
-    flex: 1;
+    max-height: calc(2 * var(--transformation-box-height));
+    overflow-y: auto;
     border: 1px solid #ccc;
-    padding: 15px;
+    padding: 8px;
     border-radius: 5px;
     background-color: #f9f9f9;
     overflow-y: auto;
@@ -553,6 +560,8 @@ button:hover {
 }
 
 .transformation-box {
+    --transformation-box-height: 150px; /* Example height, adjust as needed */
+    height: var(--transformation-box-height);
     display: flex;
     justify-content: space-between;
     align-items: center;
