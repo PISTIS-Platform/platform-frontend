@@ -323,18 +323,29 @@ onMounted(() => {
         <div class="middle-panel">
             <div class="json-panel">
                 <h2>Transformation Definition JSON</h2>
-                <div v-for="(transformation, index) in transformations" :key="index" class="transformation-box">
-                    <div
-                        class="transformation-content"
-                        @mouseover="hoveredTransformation = transformation"
-                        @mouseleave="hoveredTransformation = null"
-                    >
-                        <p>Transformation {{ index + 1 }}</p>
-                        <button class="delete-button" @click="deleteTransformation(index)">×</button>
+                <div class="json-panel-content">
+                    <!-- Left Section: Transformations -->
+                    <div class="json-panel-left">
+                        <div v-for="(transformation, index) in transformations" :key="index" class="transformation-box">
+                            <div
+                                class="transformation-content"
+                                @mouseover="hoveredTransformation = transformation"
+                                @mouseleave="hoveredTransformation = null"
+                            >
+                                <p>Transformation {{ index + 1 }}</p>
+                                <button class="delete-button" @click="deleteTransformation(index)">×</button>
+                            </div>
+                        </div>
+                        <div v-if="hoveredTransformation" class="hovered-json">
+                            <pre>{{ JSON.stringify(hoveredTransformation, null, 2) }}</pre>
+                        </div>
                     </div>
-                </div>
-                <div v-if="hoveredTransformation" class="hovered-json">
-                    <pre>{{ JSON.stringify(hoveredTransformation, null, 2) }}</pre>
+
+                    <!-- Right Section: Full JSON -->
+                    <div class="json-panel-right">
+                        <h3>Full Transformations JSON</h3>
+                        <pre>{{ JSON.stringify(transformations, null, 2) }}</pre>
+                    </div>
                 </div>
             </div>
             <div class="execution-container bordered">
@@ -508,6 +519,26 @@ button:hover {
 }
 
 .json-panel h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.json-panel-content {
+    display: flex;
+    gap: 20px;
+}
+
+.json-panel-left {
+    flex: 1;
+}
+
+.json-panel-right {
+    flex: 1;
+}
+
+.json-panel-right h3 {
     margin-top: 0;
     margin-bottom: 10px;
     border-bottom: 1px solid #eee;
