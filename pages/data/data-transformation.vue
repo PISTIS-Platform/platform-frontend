@@ -35,7 +35,7 @@ const elementParams = ref(elements.value.map(() => ({})));
 const transformations = ref([]);
 const hoveredTransformation = ref(null);
 const fileUpload = ref<File | null>(null);
-const responseContent = ref('');
+//const responseContent = ref('');
 const outputFormat = ref('application/json'); // Default value
 
 const updateParam = (elementIndex, key, newValue) => {
@@ -91,7 +91,7 @@ const handleFileChange = (event: Event) => {
 };
 
 const transformFile = async () => {
-    const allTransformations = transformations.value; // Get the entire JSON array
+    const allTransformations = JSON.stringify(transformations.value, null, 1); // Get the entire JSON array
     console.log('All Transformations:', allTransformations);
 
     const formData = new FormData();
