@@ -537,6 +537,7 @@ button:hover {
     gap: 20px;
 }
 
+
 .json-panel-left {
     flex: 1;
 }
