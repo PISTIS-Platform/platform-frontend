@@ -43,7 +43,8 @@ const handleSubmit = async () => {
 
         if (contentType === 'application/json') {
             const data = response._data;
-            responseContent.value = data as string;
+            console.log('Response data:', data);
+            responseContent.value = JSON.stringify(data, null, 2);
         } else if (contentType === 'text/html') {
             const blob = new Blob([response._data as string]);
             const url = window.URL.createObjectURL(blob);
