@@ -660,17 +660,28 @@ button:hover {
     margin-left: 4px;
 }
 
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
 .description-tooltip {
-    margin-left: 10px;
+    position: fixed;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    margin-left: 8px;
     background: #f9f9f9;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 4px 8px;
     font-size: 0.95em;
     color: #333;
-    position: absolute;
-    z-index: 10;
+    z-index: 1000;
     max-width: 300px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    white-space: normal;
+    transform: translateY(-50%);
 }
 </style>
