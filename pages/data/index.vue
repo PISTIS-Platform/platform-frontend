@@ -127,6 +127,7 @@ const workflowServices = ref([]);
 const datasetName = ref('');
 const datasetDescription = ref('');
 const datasetEncrytion = ref('false');
+const gdprChecking = ref('true');
 let fileUpload = ref<File | null>(null);
 const runId = ref('None');
 const wfRunTimeSpecific = ref('');
@@ -226,6 +227,7 @@ const runJobConfigurator = async (services: [string]) => {
     formData.append('dataset_description', datasetDescription.value);
     formData.append('dataset_name', datasetName.value);
     formData.append('encrytion', datasetEncrytion.value);
+    formData.append('gdpr_checker', gdprChecking.value);
 
     if (fileUpload.value) {
         formData.append('dataset', fileUpload.value, fileUpload.value.name);
@@ -318,11 +320,19 @@ const runJobConfigurator = async (services: [string]) => {
                         class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
                     />
                 </div>
-                <div class="rounded-md w-full flex">
-                    <label for="datasetEncrytion" class="block text-sm font-medium text-neutral-700 mt-4 w-40">{{
-                        $t('data.datasetEncrytion')
-                    }}</label>
-                    <input id="checkbox" v-model="datasetEncrytion" type="checkbox" class="mt-4 w-6 h-6" />
+                <div class="container w-full flex">
+                    <div class="container w-full flex">
+                        <label for="datasetEncrytion" class="text-sm font-medium text-neutral-700 mt-7 mr-7">{{
+                            $t('data.datasetEncrytion')
+                        }}</label>
+                        <input id="checkbox" v-model="datasetEncrytion" type="checkbox" class="mt-7 w-6 h-6 p-1" />
+                    </div>
+                    <div class="container w-full flex">
+                        <label for="gdprChecking" class="text-sm font-medium text-neutral-700 ml-15 mt-7 w-40">{{
+                            $t('data.gdprChecking')
+                        }}</label>
+                        <input id="checkbox" v-model="gdprChecking" type="checkbox" class="mt-7 w-6 h-6" />
+                    </div>
                 </div>
             </div>
 

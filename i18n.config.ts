@@ -102,6 +102,7 @@ export default defineI18nConfig(() => ({
                 datasetName: 'Dataset Name:',
                 datasetDescription: 'Dataset Description:',
                 datasetEncrytion: 'Encrypt Dataset:',
+                gdprChecking: 'GDPR Check:',
                 workflowDefinition: 'Workflow Definition:',
                 datasetDefinition: 'Dataset Definition:',
                 workflowExecutionResults: 'Workflow Execution Results:',
