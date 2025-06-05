@@ -126,6 +126,8 @@ const listServices = ref([
 const workflowServices = ref([]);
 const datasetName = ref('');
 const datasetDescription = ref('');
+const datasetEncrytion = ref('false');
+const gdprChecking = ref('true');
 let fileUpload = ref<File | null>(null);
 const runId = ref('None');
 const wfRunTimeSpecific = ref('');
@@ -224,6 +226,8 @@ const runJobConfigurator = async (services: [string]) => {
     formData.append('workflow', JSON.stringify(services));
     formData.append('dataset_description', datasetDescription.value);
     formData.append('dataset_name', datasetName.value);
+    formData.append('encrytion', datasetEncrytion.value);
+    formData.append('gdpr_checker', gdprChecking.value);
 
     if (fileUpload.value) {
         formData.append('dataset', fileUpload.value, fileUpload.value.name);
@@ -279,45 +283,65 @@ const runJobConfigurator = async (services: [string]) => {
 </script>
 
 <template>
-    <div class="container mx-auto p-4 bg-white border border-neutral-200 rounded-md space-y-6">
-        <div class="form-container rounded-md bg-neutral-100 border space-y-4 p-4">
-            <!-- <div class="rounded-md" >
-                <label for="fileUpload" class="block text-sm font-medium text-neutral-700"  >{{
-                    $t('data.uploadDataset')
-                }}</label>
-                <input id="fileUpload" type="file"
-                    class="mt-1 block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 mt-3"
-                    @change="handleFileChange" />
-            </div> -->
-            <div class="rounded-md">
-                <label for="datasetName" class="block text-sm font-medium text-neutral-700">{{
-                    $t('data.datasetName')
-                }}</label>
-                <input
-                    id="datasetName"
-                    v-model="datasetName"
-                    type="text"
-                    class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md mt-3 text-black bg-white"
-                />
-            </div>
-            <div class="rounded-md">
-                <label for="datasetDescription" class="block text-sm font-medium text-neutral-700">{{
-                    $t('data.datasetDescription')
-                }}</label>
-                <input
-                    id="datasetDescription"
-                    v-model="datasetDescription"
-                    type="text"
-                    class="mt-1 block w-full sm:text-sm border-neutral-300 rounded-md mt-3 text-black bg-white"
-                />
+    <div class="container mx-auto p-4 bg-white border-4 border-white rounded-md space-y-6">
+        <div class="form-container rounded-md bg-white space-y-4 p-4">
+            <label for="datasetDefinition" class="block text-sm font-extrabold text-neutral-700">{{
+                $t('data.datasetDefinition')
+            }}</label>
+
+            <div class="form-container mx-auto p-6 bg-white border-4 border-neutral-100 rounded-md mt-3">
+                <!-- <div class="rounded-md" >
+                    <label for="fileUpload" class="block text-sm font-medium text-neutral-700"  >{{
+                        $t('data.uploadDataset')
+                    }}</label>
+                    <input id="fileUpload" type="file"
+                        class="mt-1 block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 mt-3"
+                        @change="handleFileChange" />
+                </div> -->
+                <div class="rounded-md w-full flex">
+                    <label for="datasetName" class="mt-2 block text-sm font-medium text-neutral-700 w-40">{{
+                        $t('data.datasetName')
+                    }}</label>
+                    <input
+                        id="datasetName"
+                        v-model="datasetName"
+                        type="text"
+                        class="mt-1 w-full block sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
+                    />
+                </div>
+                <div class="rounded-md w-full flex">
+                    <label for="datasetDescription" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
+                        $t('data.datasetDescription')
+                    }}</label>
+                    <input
+                        id="datasetDescription"
+                        v-model="datasetDescription"
+                        type="text"
+                        class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
+                    />
+                </div>
+                <div class="container w-full flex">
+                    <div class="container w-full flex">
+                        <label for="datasetEncrytion" class="text-sm font-medium text-neutral-700 mt-7 mr-7">{{
+                            $t('data.datasetEncrytion')
+                        }}</label>
+                        <input id="checkbox" v-model="datasetEncrytion" type="checkbox" class="mt-7 w-6 h-6 p-1" />
+                    </div>
+                    <div class="container w-full flex">
+                        <label for="gdprChecking" class="text-sm font-medium text-neutral-700 ml-15 mt-7 w-40">{{
+                            $t('data.gdprChecking')
+                        }}</label>
+                        <input id="checkbox" v-model="gdprChecking" type="checkbox" class="mt-7 w-6 h-6" />
+                    </div>
+                </div>
             </div>
 
             <div class="rounded-md">
-                <label for="workflowDefinition" class="block text-sm font-medium text-neutral-700">{{
+                <label for="workflowDefinition" class="block text-sm font-extrabold text-neutral-700">{{
                     $t('data.workflowDefinition')
                 }}</label>
 
-                <div class="container mx-auto p-4 bg-white border rounded-md mt-3 mr-10">
+                <div class="container mx-auto p-4 bg-white border-4 border-neutral-100 rounded-md mt-3 mr-10">
                     <div class="w-full max-w-lg d text-left mt-3">
                         <p class="block text-sm font-medium text-blue-900">Services Available</p>
                         <draggable
@@ -397,10 +421,12 @@ const runJobConfigurator = async (services: [string]) => {
                 </div>
             </div>
             <div class="rounded-md">
-                <label for="jobInputs" class="block text-sm font-medium text-neutral-700">{{
+                <label for="jobInputs" class="block text-sm font-extrabold text-neutral-700">{{
                     $t('data.jobInputs')
                 }}</label>
-                <div class="container mx-auto p-4 bg-white border-2 rounded-md mt-3 mb-3 mr-3 border">
+                <div
+                    class="container mx-auto p-4 bg-white border border-4 border-neutral-100 rounded-md mt-3 mb-3 mr-3"
+                >
                     <ul class="w-full ml-3 mr-5">
                         <li
                             v-for="srv in workflowServices"
@@ -549,7 +575,7 @@ const runJobConfigurator = async (services: [string]) => {
                 <label for="workflowExecutionResults" class="block text-sm font-medium text-neutral-700">{{
                     $t('data.workflowExecutionResults')
                 }}</label>
-                <div class="rounded-md border border-8 mt-3 mb-1 bg-white border-pistis-500">
+                <div class="rounded-md border border-2 mt-3 mb-1 bg-white border-pistis-500">
                     <div class="container mx-auto p-2 rounded-md ml-5 mr-10 flex w-full">
                         <Icon name="icon-park:file-code-one" size="2.5em" />
                         <label for="workflowRunId" class="block text-sm mt-2 font-medium text-neutral-700">
