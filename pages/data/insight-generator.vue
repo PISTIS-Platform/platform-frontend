@@ -3,6 +3,7 @@ const fileUpload = ref<File | null>(null);
 const responseContent = ref('');
 const outputFormat = ref('application/json'); // Default value
 const reportType = ref('full'); // Default to "full report"
+const isLoading = ref(false);
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -12,6 +13,7 @@ const handleFileChange = (event: Event) => {
 };
 
 const handleSubmit = async () => {
+    isLoading.value = true;
     const formData = new FormData();
 
     if (fileUpload.value) {
@@ -63,6 +65,8 @@ const handleSubmit = async () => {
     } catch (error: any) {
         responseContent.value = `Error: ${error.message}`;
         console.error('Error:', error);
+    } finally {
+        isLoading.value = false;
     }
 };
 </script>
@@ -109,8 +113,9 @@ const handleSubmit = async () => {
                     <button
                         type="submit"
                         class="px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        :disabled="isLoading"
                     >
-                        Submit
+                        {{ isLoading ? 'Loading...' : 'Submit' }}
                     </button>
                 </div>
             </form>
@@ -143,5 +148,14 @@ const handleSubmit = async () => {
 
 .response-container {
     flex: 1;
+}
+
+button[disabled],
+.btn-disabled,
+.bg-primary-600:disabled {
+    background-color: #b0b0b0 !important;
+    color: #f5f5f5 !important;
+    cursor: not-allowed !important;
+    border-color: #b0b0b0 !important;
 }
 </style>
