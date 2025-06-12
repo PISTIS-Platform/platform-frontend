@@ -89,6 +89,7 @@ export default defineI18nConfig(() => ({
             },
             data: {
                 data: 'Data Ingestion',
+                gdpr: 'GPDR Checker Results:',
                 jobConfigurator: 'Job Configurator',
                 dataTransformation: 'Data Transformation',
                 transformationCatalogue: 'Transformations Catalogue',
@@ -96,10 +97,12 @@ export default defineI18nConfig(() => ({
                 anonymizer: 'Anonymizer',
                 selectedDistribution: 'Selected Distribution',
                 workflowExecution: 'Workflow Execution',
+                workflowExecutionList: 'Latest Workflow Executions',
                 runID: 'Run ID',
                 checkStatus: 'Check Status',
                 uploadDataset: 'Upload Dataset:',
                 datasetName: 'Dataset Name:',
+                workflowRealTimeData: 'Workflow Fetching Data: ',
                 datasetDescription: 'Dataset Description:',
                 workflowDefinition: 'Workflow Definition:',
                 workflowExecutionResults: 'Workflow Execution Results:',
@@ -115,6 +118,13 @@ export default defineI18nConfig(() => ({
                 dataCheckInApiMethod: 'uploadDataFromAPI',
                 response: 'Response',
 
+                workflow: {
+                    runId: 'Run ID',
+                    start_date: 'Start Date',
+                    end_date: 'End Date',
+                    run_type: 'Run Type',
+                    state: 'Status',
+                },
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',
