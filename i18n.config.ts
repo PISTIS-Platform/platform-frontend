@@ -91,6 +91,13 @@ export default defineI18nConfig(() => ({
                 data: 'Data Ingestion',
                 gdpr: 'GPDR Checker Results:',
                 jobConfigurator: 'Job Configurator',
+                streamingConfigurator: 'Streaming Configurator',
+                streaming: {
+                    details: 'Streaming Dataset Details',
+                    detailsDesc: 'The details of the dataset you will stream to customers',
+                    name: 'Dataset Name',
+                    description: 'Dataset Description',
+                },
                 dataTransformation: 'Data Transformation',
                 transformationCatalogue: 'Transformations Catalogue',
                 insightGenerator: 'Insights Generator',
