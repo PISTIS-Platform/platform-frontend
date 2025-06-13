@@ -13,7 +13,7 @@ const getWorkflowRun = async (id: string) => {
     formData.append('runId', id); // Add Run ID to the form data
     //console.log('runId:', runId.value);
     try {
-        const response = await $fetch.raw('/api/job-configurator/fetch', {
+        const response = await $fetch.raw('/api/job-configurator/fetchWorkflowRun', {
             method: 'POST',
             body: formData,
         });
@@ -40,7 +40,7 @@ const getWorkflowRunList = async () => {
 
     try {
         const response = await $fetch.raw(
-            'http://localhost:8297/workflow/gethWorkflowRunList?workflow_id=pistis_workflow_template',
+            '/api/job-configurator/workflow/getWorkflowRunList?workflow_id=pistis_workflow_template',
             {
                 method: 'POST',
             },
