@@ -2,6 +2,13 @@
 const { data: factorySettingsData, status: factorySettingsStatus } = useFetch<Record<string, any>>(
     `/api/settings/get-factory-settings`,
 );
+
+const streamingConsumerData = ref({
+    username: 'user-234987',
+    password: '123fdkfje4287dlfkj',
+});
+
+const revealPassword = ref(false);
 </script>
 
 <template>
@@ -34,6 +41,30 @@ const { data: factorySettingsData, status: factorySettingsStatus } = useFetch<Re
                     <div class="flex flex-col gap-2">
                         <span class="font-semibold text-gray-500">{{ $t('settings.organizationName') }}</span>
                         <span>{{ factorySettingsData.organizationName }}</span>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{
+                                $t('settings.streamingConsumerUsername')
+                            }}</span>
+                        </div>
+                        <span class="font-mono">{{ streamingConsumerData.username }}</span>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{
+                                $t('settings.streamingConsumerPassword')
+                            }}</span>
+                            <UButton
+                                class="flex items-center justify-center w-16"
+                                size="xs"
+                                @click="revealPassword = !revealPassword"
+                                >{{ revealPassword ? 'Hide' : 'Reveal' }}</UButton
+                            >
+                        </div>
+                        <span class="font-mono">{{
+                            revealPassword ? streamingConsumerData.password : '*********'
+                        }}</span>
                     </div>
                 </div>
                 <UAlert

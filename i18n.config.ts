@@ -84,6 +84,9 @@ export default defineI18nConfig(() => ({
                 accepted: 'Authorized',
                 notAccepted: 'Not Authorized',
                 organizationName: 'Organization Name',
+                streamingConsumerUsername: 'Streaming Consumer Username',
+                streamingConsumerPassword: 'Streaming Consumer Password',
+                reveal: 'Reveal',
             },
             account: {
                 title: 'User Account',
