@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { v4 as uuid } from 'uuid';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
@@ -17,32 +18,50 @@ const schema = z.object({
 const loading = ref(false);
 const loaded = ref(false);
 const showBox = ref(false);
+const id = ref<string | null>(null);
 
-const dummyData = reactive({
-    topic: 'Topic #234897',
-    username: 'Kafka-User-234987',
-    password: '$&DgoP*svcVfwcSw3*Pw',
-    assetId: '3000092b-b1af-41dd-b0da-cfeb72325c79',
-    name: undefined,
-    description: undefined,
-});
+const data = ref<Record<string, string | undefined>>({});
 
-const onSubmit = (event: unknown) => {
+const onSubmit = async () => {
     loading.value = true;
-    // if (schema.safeParse(state).success) {
-    //     loaded.value = true;
-    // }
-    dummyData.name = state.name;
-    dummyData.description = state.description;
+    id.value = uuid();
 
-    setTimeout(() => {
+    try {
+        const details = await $fetch<{ topic: string; kafkaUser: { name: string; secret: string } }>(
+            `/api/connector/get-streaming-details`,
+            {
+                method: 'POST',
+                body: {
+                    id: id.value,
+                },
+            },
+        );
+        data.value.id = id.value;
+        data.value.topic = details.topic;
+        data.value.username = details.kafkaUser.name;
+        data.value.password = details.kafkaUser.secret;
+        data.value.name = state.name;
+        data.value.description = state.description;
+        console.log({ details });
+
+        const publish = await $fetch<any>(`/api/connector/streaming-to-catalog`, {
+            method: 'POST',
+            body: {
+                id: id.value,
+                title: state.name,
+                description: state.description,
+            },
+        });
+        console.log({ publish });
+    } catch (err: any) {
+        //TODO: Display error
+    } finally {
         loaded.value = true;
         loading.value = false;
-    }, 3000);
-    setTimeout(() => {
-        showBox.value = true;
-    }, 3300);
-    console.log(event);
+        setTimeout(() => {
+            showBox.value = true;
+        }, 300);
+    }
 };
 </script>
 
@@ -80,8 +99,8 @@ const onSubmit = (event: unknown) => {
                 </UFormGroup>
                 <UButton
                     size="lg"
+                    type="submit"
                     :ui="{ base: 'absolute bottom-6 right-6 w-24 flex items-center justify-center' }"
-                    @click="onSubmit"
                     ><UIcon v-if="loading" name="eos-icons:loading" class="w-5 h-5" /><span v-else
                         >Submit</span
                     ></UButton
@@ -99,9 +118,9 @@ const onSubmit = (event: unknown) => {
                     v-show="showBox"
                     class="w-full border bg-gray-100 flex flex-col rounded-lg p-6 text-sm overflow-y-scroll gap-6"
                 >
-                    <div v-for="key in Object.keys(dummyData)" :key="key" class="flex items-center justify-start gap-4">
+                    <div v-for="key in Object.keys(data)" :key="key" class="flex items-center justify-start gap-4">
                         <span class="text-base font-semibold font-mono">{{ key }}:</span>
-                        <span class="font-mono">{{ dummyData[key] }}</span>
+                        <span class="font-mono">{{ data[key] }}</span>
                     </div>
                 </div>
             </transition>
