@@ -1,3 +1,5 @@
+import { countriesInEnglish } from '~/constants/org-constants';
+
 export default defineI18nConfig(() => ({
     legacy: false,
     numberFormats: {
@@ -18,6 +20,27 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            countries: countriesInEnglish,
+            companySizes: {
+                SMALL: 'Small',
+                MEDIUM: 'Medium',
+                LARGE: 'Large',
+            },
+            companyTypes: {
+                SME: 'Small Medium Enterprise',
+                ACADEMIC: 'Academic / Research',
+                PUBLIC_BODY: 'Public Body',
+            },
+            companyDomains: {
+                EDUCATION: 'Education',
+                TRANSPORTATION: 'Transportation',
+                CONSUMER_GOODS: 'Consumer Goods',
+                ELECTRICITY: 'Electricity',
+                OIL_AND_GAS: 'Oil and Gas',
+                HEALTHCARE: 'Healthcare',
+                CONSUMER_FINANCE: 'Consumer Finance',
+            },
+            administrator: 'Administrator',
             worldwide: 'Worldwide',
             select: 'Select',
             search: 'Search...',
@@ -51,6 +74,37 @@ export default defineI18nConfig(() => ({
             or: 'or',
             sortBy: 'Sort By',
             days: 'days',
+            settings: {
+                title: 'Factory Settings',
+                info: 'The settings of your unique factory',
+                noFactoryFound: 'No factory found for this user',
+                factoryUrl: 'Factory URL',
+                authorizationStatus: 'Authorization Status',
+                factory: 'Factory',
+                accepted: 'Authorized',
+                notAccepted: 'Not Authorized',
+                organizationName: 'Organization Name',
+            },
+            account: {
+                title: 'User Account',
+                info: 'The details of your user account',
+                noDetailsFound: 'No details found for this account',
+                userDetails: 'User Details',
+                orgDetails: 'Organization Details',
+                orgDetailsInfo: 'The details of your organization',
+                user: {
+                    name: 'Name',
+                    email: 'Email',
+                    roles: 'Roles',
+                },
+                org: {
+                    name: 'Name',
+                    country: 'Country',
+                    size: 'Size',
+                    domain: 'Domain',
+                    type: 'Type',
+                },
+            },
             sectors: {
                 aviation: 'Aviation',
                 energy: 'Energy',
@@ -470,6 +524,9 @@ export default defineI18nConfig(() => ({
                 settings: 'Settings',
                 signOut: 'Sign out',
                 signIn: 'Sign in',
+                account: 'Account',
+                factorySettings: 'Factory Settings',
+                systemMonitor: 'System Monitor',
             },
             admin: {
                 services: {
