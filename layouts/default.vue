@@ -48,15 +48,15 @@ const navigation = ref([
 const userNavigation: { name: string; href: string }[] = [
     {
         name: t('user.account'),
-        href: 'account',
+        href: '/account',
     },
     {
         name: t('user.factorySettings'),
-        href: 'settings',
+        href: '/settings',
     },
     {
         name: t('user.systemMonitor'),
-        href: 'monitor',
+        href: '/monitor',
     },
 ];
 
