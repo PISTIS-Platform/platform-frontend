@@ -13,7 +13,7 @@ const getWorkflowRun = async (id: string) => {
     formData.append('runId', id); // Add Run ID to the form data
     //console.log('runId:', runId.value);
     try {
-        const response = await $fetch.raw('/api/job-configurator/fetchWorkflowRun', {
+        const response = await $fetch.raw('/api/job-configurator/fetch', {
             method: 'POST',
             body: formData,
         });
@@ -39,12 +39,10 @@ const getWorkflowRunList = async () => {
     workflowList.value = [];
 
     try {
-        const response = await $fetch.raw(
-            '/api/job-configurator/workflow/getWorkflowRunList?workflow_id=pistis_workflow_template',
-            {
-                method: 'POST',
-            },
-        );
+        const response = await $fetch.raw('/api/job-configurator/workflow/getRunsList', {
+            method: 'POST',
+            body: {},
+        });
         //console.log('response:', response);
         if (!response.ok) {
             throw new Error('Network response was not ok');
