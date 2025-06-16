@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { v4 as uuid } from 'uuid';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
@@ -19,13 +18,11 @@ const schema = z.object({
 const loading = ref(false);
 const loaded = ref(false);
 const showBox = ref(false);
-const id = ref<string | null>(null);
 
 const data = ref<Record<string, string | undefined>>({});
 
 const onSubmit = async () => {
     loading.value = true;
-    id.value = uuid();
 
     try {
         const details = await $fetch<{ topic: string; kafkaUser: { name: string; secret: string } }>(
@@ -33,30 +30,16 @@ const onSubmit = async () => {
             {
                 method: 'POST',
                 body: {
-                    id: id.value,
+                    title: state.name,
+                    description: state.description,
                 },
             },
         );
-        data.value.id = id.value;
         data.value.topic = details.topic;
         data.value.username = details.kafkaUser.name;
         data.value.password = details.kafkaUser.secret;
         data.value.name = state.name;
         data.value.description = state.description;
-    } catch (err: any) {
-        showErrorMessage(`Error: ${err.status}: ${err.message}`);
-    }
-
-    try {
-        //FIXME: Confirm publishing works when ready in the BE
-        await $fetch<any>(`/api/connector/streaming-to-catalog`, {
-            method: 'POST',
-            body: {
-                id: id.value,
-                title: state.name,
-                description: state.description,
-            },
-        });
     } catch (err: any) {
         showErrorMessage(`Error: ${err.status}: ${err.message}`);
     } finally {
