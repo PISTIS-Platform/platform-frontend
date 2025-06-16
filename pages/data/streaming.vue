@@ -63,6 +63,26 @@ const onSubmit = async () => {
         }, 300);
     }
 };
+let timeout: ReturnType<typeof setTimeout>;
+const { copy, copied } = useClipboard();
+const keyBeingCopied = ref('');
+
+const copyItem = (key: string) => {
+    clearTimeout(timeout);
+    keyBeingCopied.value = key;
+    copy(JSON.stringify(data.value[key], null, 2));
+    timeout = setTimeout(() => {
+        keyBeingCopied.value = '';
+    }, 2000);
+};
+
+const clearForm = () => {
+    loaded.value = false;
+    showBox.value = false;
+    data.value = {};
+    state.name = undefined;
+    state.description = undefined;
+};
 </script>
 
 <template>
@@ -98,12 +118,21 @@ const onSubmit = async () => {
                     </template>
                 </UFormGroup>
                 <UButton
+                    v-if="!loaded"
                     size="lg"
                     type="submit"
                     :ui="{ base: 'absolute bottom-6 right-6 w-24 flex items-center justify-center' }"
                     ><UIcon v-if="loading" name="eos-icons:loading" class="w-5 h-5" /><span v-else
-                        >Submit</span
+                        >Create</span
                     ></UButton
+                >
+                <UButton
+                    v-if="loaded"
+                    size="lg"
+                    color="white"
+                    :ui="{ base: 'absolute bottom-6 right-6 w-24 flex items-center justify-center' }"
+                    @click="clearForm"
+                    >Clear</UButton
                 >
             </div>
             <transition
@@ -121,6 +150,15 @@ const onSubmit = async () => {
                     <div v-for="key in Object.keys(data)" :key="key" class="flex items-center justify-start gap-4">
                         <span class="text-base font-semibold font-mono">{{ key }}:</span>
                         <span class="font-mono">{{ data[key] }}</span>
+                        <UButton
+                            icon="i-heroicons-document-duplicate"
+                            size="sm"
+                            variant="ghost"
+                            square
+                            class="-ml-2"
+                            @click="copyItem(key)"
+                            >{{ copied && keyBeingCopied === key ? 'Copied' : '' }}</UButton
+                        >
                     </div>
                 </div>
             </transition>
