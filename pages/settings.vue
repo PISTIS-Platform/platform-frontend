@@ -10,6 +10,19 @@ const streamingConsumerData = ref({
 });
 
 const revealPassword = ref(false);
+
+let timeout: ReturnType<typeof setTimeout>;
+const { copy, copied } = useClipboard();
+const keyBeingCopied = ref('');
+
+const copyItem = (data: string, key: string) => {
+    clearTimeout(timeout);
+    keyBeingCopied.value = key;
+    copy(data);
+    timeout = setTimeout(() => {
+        keyBeingCopied.value = '';
+    }, 2000);
+};
 </script>
 
 <template>
@@ -24,7 +37,22 @@ const revealPassword = ref(false);
                     <div v-if="factorySettingsData" class="w-full flex flex-col gap-6">
                         <div class="flex flex-col gap-2">
                             <span class="font-semibold text-gray-500">{{ $t('settings.factoryUrl') }}</span>
-                            <pre>{{ `https://${factorySettingsData.factoryPrefix}.pistis-market.eu` }}</pre>
+                            <div class="flex items-center">
+                                <pre>{{ `https://${factorySettingsData.factoryPrefix}.pistis-market.eu` }}</pre>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="
+                                        copyItem(
+                                            `https://${factorySettingsData.factoryPrefix}.pistis-market.eu`,
+                                            'factoryURL',
+                                        )
+                                    "
+                                    >{{ copied && keyBeingCopied === 'factoryURL' ? 'Copied' : '' }}</UButton
+                                >
+                            </div>
                         </div>
                         <div class="flex flex-col gap-2">
                             <span class="font-semibold text-gray-500">{{ $t('settings.authorizationStatus') }}</span>
@@ -65,9 +93,19 @@ const revealPassword = ref(false);
                                 $t('settings.streamingConsumerUsername')
                             }}</span>
                         </div>
-                        <span class="font-mono">{{ streamingConsumerData.username }}</span>
+                        <span class="font-mono flex items-center"
+                            >{{ streamingConsumerData.username }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem(streamingConsumerData.username, 'consumerUsername')"
+                                >{{ copied && keyBeingCopied === 'consumerUsername' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
                     </div>
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-2 mt-6">
                         <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
                             <span class="font-semibold text-gray-500">{{
                                 $t('settings.streamingConsumerPassword')
@@ -79,9 +117,17 @@ const revealPassword = ref(false);
                                 >{{ revealPassword ? 'Hide' : 'Reveal' }}</UButton
                             >
                         </div>
-                        <span class="font-mono">{{
-                            revealPassword ? streamingConsumerData.password : '*********'
-                        }}</span>
+                        <span class="font-mono flex items-center"
+                            >{{ revealPassword ? streamingConsumerData.password : '*********' }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem(streamingConsumerData.password, 'consumerPassword')"
+                                >{{ copied && keyBeingCopied === 'consumerPassword' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
                     </div>
                 </UCard>
             </div>
