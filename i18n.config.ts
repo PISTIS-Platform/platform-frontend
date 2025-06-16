@@ -87,6 +87,8 @@ export default defineI18nConfig(() => ({
                 streamingConsumerUsername: 'Streaming Consumer Username',
                 streamingConsumerPassword: 'Streaming Consumer Password',
                 reveal: 'Reveal',
+                streamingSettings: 'Streaming Settings',
+                streamingInfo: 'The settings for the account which will consume your streaming data',
             },
             account: {
                 title: 'User Account',
