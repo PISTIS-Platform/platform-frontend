@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 const { t } = useI18n();
+const { showErrorMessage } = useAlertMessage();
 
 const state = reactive({
     name: undefined,
@@ -42,9 +43,13 @@ const onSubmit = async () => {
         data.value.password = details.kafkaUser.secret;
         data.value.name = state.name;
         data.value.description = state.description;
-        console.log({ details });
+    } catch (err: any) {
+        showErrorMessage(`Error: ${err.status}: ${err.message}`);
+    }
 
-        const publish = await $fetch<any>(`/api/connector/streaming-to-catalog`, {
+    try {
+        //FIXME: Confirm publishing works when ready in the BE
+        await $fetch<any>(`/api/connector/streaming-to-catalog`, {
             method: 'POST',
             body: {
                 id: id.value,
@@ -52,9 +57,8 @@ const onSubmit = async () => {
                 description: state.description,
             },
         });
-        console.log({ publish });
     } catch (err: any) {
-        //TODO: Display error
+        showErrorMessage(`Error: ${err.status}: ${err.message}`);
     } finally {
         loaded.value = true;
         loading.value = false;
