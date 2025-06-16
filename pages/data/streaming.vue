@@ -74,7 +74,7 @@ const keyBeingCopied = ref('');
 const copyItem = (key: string) => {
     clearTimeout(timeout);
     keyBeingCopied.value = key;
-    copy(JSON.stringify(data.value[key], null, 2));
+    copy(data.value[key]);
     timeout = setTimeout(() => {
         keyBeingCopied.value = '';
     }, 2000);
