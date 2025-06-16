@@ -7,7 +7,6 @@ import { SubscriptionFrequency } from '~/interfaces/subscription-frequency.enum'
 
 const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
-import dayjs from 'dayjs';
 
 const props = defineProps({
     monetizationDetailsProp: {
@@ -34,7 +33,7 @@ const { isFree, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
-const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'investment' | 'nft') => {
+const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'nft') => {
     isFree.value = false;
     emit('update:is-free', false);
 
@@ -48,14 +47,6 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'inves
             type: 'subscription',
             subscriptionFrequency: 'monthly',
             price: '',
-        };
-    } else if (monetizationType === 'investment') {
-        monetizationDetails.value = {
-            type: 'investment',
-            percentageToSell: '',
-            percentageMinimum: '',
-            percentagePrice: '',
-            validOfferDate: '',
         };
     } else if (monetizationType === 'nft') {
         //TODO: Do once we know what goes here
@@ -82,12 +73,6 @@ const monetizationSelections: CardSelection[] = [
         // info: t('data.designer.nftInfo'),
         value: 'nft',
         disabled: true,
-    },
-    {
-        title: t('data.designer.investmentPlan'),
-        // info: t('data.designer.investmentPlanInfo'),
-        value: 'investment',
-        disabled: false,
     },
 ];
 
@@ -292,110 +277,6 @@ const customValidate = () => {
                                             class="mt-2.5 flex-1 justify-center"
                                             @update:model-value="(value: boolean) => updateFree(value)"
                                         />
-                                    </UFormGroup>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-
-                <template v-if="monetizationDetails.type === 'investment'">
-                    <div class="flex flex-col space-y-5">
-                        <div class="flex flex-row gap-4">
-                            <div class="flex flex-col gap-6 w-full">
-                                <div class="flex-1 flex gap-4">
-                                    <div class="flex-1 flex gap-4">
-                                        <UFormGroup
-                                            :label="$t('data.designer.percentageToSell')"
-                                            class="flex-1"
-                                            name="percentageToSell"
-                                            :ui="{ error: 'absolute -bottom-6' }"
-                                            required
-                                            eager-validation
-                                        >
-                                            <UInput
-                                                v-model.number="monetizationDetails.percentageToSell"
-                                                :placeholder="$t('data.designer.ownershipPercentage')"
-                                                type="numeric"
-                                            >
-                                                <template #trailing>
-                                                    <span class="text-gray-500 text-xs">%</span>
-                                                </template>
-                                            </UInput>
-                                        </UFormGroup>
-                                    </div>
-                                    <UFormGroup
-                                        :label="$t('data.designer.priceOfPercentage')"
-                                        class="flex-1"
-                                        name="percentagePrice"
-                                        :ui="{ error: 'absolute -bottom-6' }"
-                                        required
-                                        eager-validation
-                                    >
-                                        <UInput
-                                            v-model.number="monetizationDetails.percentagePrice"
-                                            :placeholder="$t('data.designer.priceOfPercentageInfo')"
-                                            type="numeric"
-                                        >
-                                            <template #trailing>
-                                                <span class="text-gray-500 text-xs">EUR</span>
-                                            </template>
-                                        </UInput>
-                                    </UFormGroup>
-                                </div>
-                                <div class="flex-1 flex gap-4">
-                                    <UFormGroup
-                                        :label="$t('data.designer.percentageMinimum')"
-                                        class="flex-1"
-                                        required
-                                        name="percentageMinimum"
-                                        :ui="{ error: 'absolute -bottom-6' }"
-                                        eager-validation
-                                    >
-                                        <UInput
-                                            v-model.number="monetizationDetails.percentageMinimum"
-                                            :placeholder="$t('data.designer.percentageMinimumInfo')"
-                                            type="numeric"
-                                        >
-                                            <template #trailing>
-                                                <span class="text-gray-500 text-xs">%</span>
-                                            </template>
-                                        </UInput>
-                                    </UFormGroup>
-                                    <UFormGroup
-                                        :label="$t('data.designer.validOfferDate')"
-                                        name="validOfferDate"
-                                        class="text-gray-200 flex-1"
-                                        :ui="{ error: 'absolute -bottom-6' }"
-                                        eager-validation
-                                        required
-                                    >
-                                        <UPopover :popper="{ placement: 'bottom-start' }">
-                                            <UButton
-                                                color="white"
-                                                icon="i-heroicons-calendar-days-20-solid"
-                                                :label="
-                                                    monetizationDetails.validOfferDate
-                                                        ? dayjs(monetizationDetails.validOfferDate).format(
-                                                              'DD MMMM YYYY',
-                                                          )
-                                                        : $t('data.designer.validOfferDateInfo')
-                                                "
-                                                :class="[
-                                                    'w-full',
-                                                    monetizationDetails.validOfferDate
-                                                        ? 'text-gray-700'
-                                                        : 'text-gray-400 font-normal',
-                                                ]"
-                                            />
-                                            <template #panel="{ close }">
-                                                <DatePicker
-                                                    v-model="monetizationDetails.validOfferDate"
-                                                    is-required
-                                                    @close="close"
-                                                />
-                                            </template>
-                                        </UPopover>
                                     </UFormGroup>
                                 </div>
                             </div>
