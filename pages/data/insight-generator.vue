@@ -3,7 +3,10 @@ const fileUpload = ref<File | null>(null);
 const responseContent = ref('');
 const outputFormat = ref('application/json'); // Default value
 const reportType = ref('full'); // Default to "full report"
-const isLoading = ref(false);
+const forceColumnName = ref('');
+const forceColumnType = ref('');
+const forceColumnTypesList = ref<{ name: string; datatype: string }[]>([]);
+const datatypeOptions = ['int', 'float', 'string', 'bool', 'date', 'datetime'];
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -12,12 +15,28 @@ const handleFileChange = (event: Event) => {
     }
 };
 
+function addForceColumnType() {
+    if (forceColumnName.value && forceColumnType.value) {
+        forceColumnTypesList.value.push({
+            name: forceColumnName.value,
+            datatype: forceColumnType.value,
+        });
+        forceColumnName.value = '';
+        forceColumnType.value = '';
+    }
+}
+function removeForceColumnType(idx: number) {
+    forceColumnTypesList.value.splice(idx, 1);
+}
+
 const handleSubmit = async () => {
     isLoading.value = true;
     const formData = new FormData();
-
     if (fileUpload.value) {
         formData.append('file', fileUpload.value);
+    }
+    if (forceColumnTypesList.value.length > 0) {
+        formData.append('force_column_types', JSON.stringify(forceColumnTypesList.value));
     }
 
     try {
@@ -65,8 +84,6 @@ const handleSubmit = async () => {
     } catch (error: any) {
         responseContent.value = `Error: ${error.message}`;
         console.error('Error:', error);
-    } finally {
-        isLoading.value = false;
     }
 };
 </script>
@@ -109,13 +126,55 @@ const handleSubmit = async () => {
                     </select>
                 </div>
 
+                <div class="p-4 bg-neutral-100 rounded-md">
+                    <label class="block text-sm font-medium text-neutral-700">Force Column Types:</label>
+                    <div class="flex flex-col sm:flex-row sm:space-x-2 mt-2">
+                        <input
+                            v-model="forceColumnName"
+                            type="text"
+                            placeholder="Column Name"
+                            class="block w-full sm:w-1/2 p-2 border rounded-md sm:text-sm"
+                        />
+                        <select
+                            v-model="forceColumnType"
+                            class="mt-2 sm:mt-0 block w-full sm:w-1/2 p-2 border rounded-md sm:text-sm"
+                        >
+                            <option value="">Select Data Type</option>
+                            <option v-for="type in datatypeOptions" :key="type" :value="type">{{ type }}</option>
+                        </select>
+                        <button
+                            type="button"
+                            class="ml-0 sm:ml-2 mt-2 sm:mt-0 px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            @click="addForceColumnType"
+                        >
+                            Add
+                        </button>
+                    </div>
+                    <div class="mt-2">
+                        <div
+                            v-for="(item, idx) in forceColumnTypesList"
+                            :key="idx"
+                            class="inline-flex items-center bg-neutral-200 rounded px-2 py-1 mr-2 mb-2"
+                        >
+                            <span class="text-neutral-600 text-sm">{{ item.name }}: {{ item.datatype }}</span>
+                            <button
+                                type="button"
+                                class="ml-2 text-red-600 hover:text-red-800 font-bold"
+                                title="Remove"
+                                @click="removeForceColumnType(idx)"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="p-4 bg-neutral-100 rounded-md text-right">
                     <button
                         type="submit"
                         class="px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        :disabled="isLoading"
                     >
-                        {{ isLoading ? 'Loading...' : 'Submit' }}
+                        Submit
                     </button>
                 </div>
             </form>
@@ -148,14 +207,5 @@ const handleSubmit = async () => {
 
 .response-container {
     flex: 1;
-}
-
-button[disabled],
-.btn-disabled,
-.bg-primary-600:disabled {
-    background-color: #b0b0b0 !important;
-    color: #f5f5f5 !important;
-    cursor: not-allowed !important;
-    border-color: #b0b0b0 !important;
 }
 </style>
