@@ -6,7 +6,7 @@ const reportType = ref('full'); // Default to "full report"
 const forceColumnName = ref('');
 const forceColumnType = ref('');
 const forceColumnTypesList = ref<{ name: string; datatype: string }[]>([]);
-const datatypeOptions = ['int', 'float', 'string', 'bool', 'date', 'datetime'];
+const datatypeOptions = ['int', 'float', 'string', 'bool'];
 const isLoading = ref(false);
 
 const handleFileChange = (event: Event) => {
@@ -37,7 +37,7 @@ const handleSubmit = async () => {
         formData.append('file', fileUpload.value);
     }
     if (forceColumnTypesList.value.length > 0) {
-        formData.append('force_column_types', JSON.stringify(forceColumnTypesList.value));
+        formData.append('datatypes', JSON.stringify(forceColumnTypesList.value));
     }
 
     try {
@@ -130,7 +130,9 @@ const handleSubmit = async () => {
                 </div>
 
                 <div class="p-4 bg-neutral-100 rounded-md">
-                    <label class="block text-sm font-medium text-neutral-700">Force Column Types:</label>
+                    <label class="block text-sm font-medium text-neutral-700"
+                        >(Optional) Force Column Data Types:</label
+                    >
                     <div class="flex flex-col sm:flex-row sm:space-x-2 mt-2">
                         <input
                             v-model="forceColumnName"
