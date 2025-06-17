@@ -49,6 +49,8 @@ export default defineNuxtConfig({
             cloudUrl: '',
             orgId: '',
             orgLogo: '',
+            kafkaSecurityProtocol: '',
+            kafkaSaslMechanism: '',
         },
         keycloak: {
             issuer: '',
@@ -59,6 +61,7 @@ export default defineNuxtConfig({
         authSecret: '',
         catalogName: '',
         walletAlias: '',
+        prometheusUrl: '',
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/icon'],

@@ -2,6 +2,10 @@
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
+const {
+    public: { factoryUrl, kafkaSaslMechanism, kafkaSecurityProtocol },
+} = useRuntimeConfig();
+
 const { t } = useI18n();
 const { showErrorMessage } = useAlertMessage();
 
@@ -16,10 +20,14 @@ const schema = z.object({
 });
 
 const loading = ref(false);
-const loaded = ref(true);
-const showBox = ref(true);
+const loaded = ref(false);
+const showBox = ref(false);
 
 const data = ref<Record<string, string | undefined>>({});
+
+data.value.brokerUrl = `kafka.${factoryUrl.split('https://')[1]}:9094`;
+data.value.securityProtocol = kafkaSecurityProtocol;
+data.value.saslMechanism = kafkaSaslMechanism;
 
 const onSubmit = async () => {
     loading.value = true;
@@ -40,14 +48,15 @@ const onSubmit = async () => {
         data.value.password = details.kafkaUser.secret;
         data.value.title = state.title;
         data.value.description = state.description;
-    } catch (err: any) {
-        showErrorMessage(`Error: ${err.status}: ${err.message}`);
-    } finally {
+
         loaded.value = true;
-        loading.value = false;
         setTimeout(() => {
             showBox.value = true;
         }, 300);
+    } catch (err: any) {
+        showErrorMessage(`Error: ${err.status}: ${err.message}`);
+    } finally {
+        loading.value = false;
     }
 };
 let timeout: ReturnType<typeof setTimeout>;
@@ -115,25 +124,6 @@ const clearForm = () => {
                 leave-to-class="opacity-0"
                 leave-active-class="transition-opacity duration-300"
             >
-                <!-- <div
-                    v-show="showBox"
-                    class="w-full border bg-gray-100 flex flex-col rounded-lg p-6 text-sm overflow-y-scroll gap-6"
-                >
-                    <div v-for="key in Object.keys(data)" :key="key" class="flex items-center justify-start gap-4">
-                        <span class="text-base font-semibold font-mono">{{ key }}:</span>
-                        <span class="font-mono">{{ data[key] }}</span>
-                        <UButton
-                            icon="i-heroicons-document-duplicate"
-                            size="sm"
-                            variant="ghost"
-                            square
-                            class="-ml-2"
-                            @click="copyItem(key)"
-                            >{{ copied && keyBeingCopied === key ? 'Copied' : '' }}</UButton
-                        >
-                    </div>
-                </div> -->
-
                 <div v-show="showBox" class="w-full flex flex-col text-sm gap-6 text-gray-700">
                     <UCard :ui="{ background: 'bg-gray-50' }">
                         <template #header>
@@ -143,7 +133,7 @@ const clearForm = () => {
                         <div class="flex flex-col gap-4">
                             <span class="flex font-mono items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.datasetId') }}:
-                                <span class="font-normal">{{ '14ac7126-5460-4dcc-b9ad-595bbf25d5cf' }}</span>
+                                <span class="font-normal">{{ data.id }}</span>
                                 <UButton
                                     icon="i-heroicons-document-duplicate"
                                     size="sm"
@@ -156,7 +146,7 @@ const clearForm = () => {
 
                             <span class="flex font-mono items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.title') }}:
-                                <span class="font-normal">{{ 'Sample Title' }}</span>
+                                <span class="font-normal">{{ data.title }}</span>
                                 <UButton
                                     icon="i-heroicons-document-duplicate"
                                     size="sm"
@@ -169,7 +159,7 @@ const clearForm = () => {
 
                             <span class="flex font-mono items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.description') }}:
-                                <span class="font-normal">{{ 'Sample Description' }}</span>
+                                <span class="font-normal">{{ data.description }}</span>
                                 <UButton
                                     icon="i-heroicons-document-duplicate"
                                     size="sm"
@@ -189,7 +179,7 @@ const clearForm = () => {
                         <div class="flex flex-col gap-4">
                             <span class="flex font-mono items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.topic') }}:
-                                <span class="font-normal">{{ 'd-24323847sdkfj2' }}</span>
+                                <span class="font-normal">{{ data.topic }}</span>
                                 <UButton
                                     icon="i-heroicons-document-duplicate"
                                     size="sm"
@@ -202,7 +192,7 @@ const clearForm = () => {
 
                             <span class="flex font-mono items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.username') }}:
-                                <span class="font-normal">{{ 'kafka-user-1234' }}</span>
+                                <span class="font-normal">{{ data.username }}</span>
                                 <UButton
                                     icon="i-heroicons-document-duplicate"
                                     size="sm"
@@ -215,7 +205,7 @@ const clearForm = () => {
 
                             <span class="flex font-mono items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.password') }}:
-                                <span class="font-normal">{{ showPassword ? '1234+-sodfiuw' : '*********' }}</span>
+                                <span class="font-normal">{{ showPassword ? data.password : '*********' }}</span>
                                 <UButton size="xs">
                                     {{ showPassword ? 'Hide' : 'Reveal' }}
                                 </UButton>
@@ -226,6 +216,45 @@ const clearForm = () => {
                                     square
                                     @click="copyItem('password')"
                                     >{{ copied && keyBeingCopied === 'password' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.brokerUrl') }}:
+                                <span class="font-normal">{{ data.brokerUrl }}</span>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem('brokerUrl')"
+                                    >{{ copied && keyBeingCopied === 'brokerUrl' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.securityProtocol') }}:
+                                <span class="font-normal">{{ data.securityProtocol }}</span>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem('securityProtocol')"
+                                    >{{ copied && keyBeingCopied === 'securityProtocol' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.saslMechanism') }}:
+                                <span class="font-normal">{{ data.saslMechanism }}</span>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem('saslMechanism')"
+                                    >{{ copied && keyBeingCopied === 'saslMechanism' ? 'Copied' : '' }}</UButton
                                 ></span
                             >
                         </div>
