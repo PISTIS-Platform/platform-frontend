@@ -103,7 +103,7 @@ export default defineI18nConfig(() => ({
                     topic: 'Topic',
                     username: 'Username',
                     password: 'Password',
-                    brokerUrl: 'Broker URL',
+                    brokerUrl: 'Broker URL(s)',
                     securityProtocol: 'Security Protocol',
                     saslMechanism: 'SASL Mechanism',
                     id: 'ID',

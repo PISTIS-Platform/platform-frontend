@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import * as R from 'ramda';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
@@ -20,8 +21,8 @@ const schema = z.object({
 });
 
 const loading = ref(false);
-const loaded = ref(true);
-const showBox = ref(true);
+const loaded = ref(false);
+const showBox = ref(false);
 
 const data = ref<Record<string, string | string[] | undefined>>({});
 
@@ -64,10 +65,15 @@ let timeout: ReturnType<typeof setTimeout>;
 const { copy, copied } = useClipboard();
 const keyBeingCopied = ref('');
 
-const copyItem = (key: string) => {
+const copyItem = (key: string, index?: number) => {
     clearTimeout(timeout);
-    keyBeingCopied.value = key;
-    copy(data.value[key]);
+    if (!R.isNil(index)) {
+        copy(data.value[key][index]);
+        keyBeingCopied.value = key + index;
+    } else {
+        keyBeingCopied.value = key;
+        copy(data.value[key]);
+    }
     timeout = setTimeout(() => {
         keyBeingCopied.value = '';
     }, 2000);
@@ -201,18 +207,28 @@ const clearForm = () => {
                                 ></span
                             >
 
-                            <span class="flex font-mono items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.brokerUrl') }}:
-                                <span class="font-normal">{{ data.brokerUrl }}</span>
-                                <UButton
-                                    icon="i-heroicons-document-duplicate"
-                                    size="sm"
-                                    variant="ghost"
-                                    square
-                                    @click="copyItem('brokerUrl')"
-                                    >{{ copied && keyBeingCopied === 'brokerUrl' ? 'Copied' : '' }}</UButton
-                                ></span
-                            >
+                            <div class="flex font-mono items-start gap-2 font-bold">
+                                <span class="mt-[5px]">{{ $t('data.streaming.brokerUrl') }}:</span>
+                                <div class="flex flex-col gap-2">
+                                    <div
+                                        v-for="(url, index) in data.brokerUrls"
+                                        :key="url"
+                                        class="flex items-center gap-2"
+                                    >
+                                        <span class="font-normal">{{ url }}</span>
+                                        <UButton
+                                            icon="i-heroicons-document-duplicate"
+                                            size="sm"
+                                            variant="ghost"
+                                            square
+                                            @click="copyItem('brokerUrls', index)"
+                                            >{{
+                                                copied && keyBeingCopied === 'brokerUrls' + index ? 'Copied' : ''
+                                            }}</UButton
+                                        >
+                                    </div>
+                                </div>
+                            </div>
 
                             <span class="flex font-mono items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.securityProtocol') }}:
