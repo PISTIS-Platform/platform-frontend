@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 const {
-    public: { factoryUrl, kafkaSaslMechanism, kafkaSecurityProtocol },
+    public: { factoryUrl, kafkaSaslMechanism, kafkaSecurityProtocol, kafkaBrokers },
 } = useRuntimeConfig();
 
 const { t } = useI18n();
@@ -20,12 +20,12 @@ const schema = z.object({
 });
 
 const loading = ref(false);
-const loaded = ref(false);
-const showBox = ref(false);
+const loaded = ref(true);
+const showBox = ref(true);
 
-const data = ref<Record<string, string | undefined>>({});
+const data = ref<Record<string, string | string[] | undefined>>({});
 
-data.value.brokerUrl = `kafka.${factoryUrl.split('https://')[1]}:9094`;
+data.value.brokerUrls = kafkaBrokers.split(',');
 data.value.securityProtocol = kafkaSecurityProtocol;
 data.value.saslMechanism = kafkaSaslMechanism;
 
@@ -43,6 +43,7 @@ const onSubmit = async () => {
                 },
             },
         );
+        data.value.id = details.id;
         data.value.topic = details.topic;
         data.value.username = details.kafkaUser.name;
         data.value.password = details.kafkaUser.secret;
@@ -124,51 +125,32 @@ const clearForm = () => {
                 leave-to-class="opacity-0"
                 leave-active-class="transition-opacity duration-300"
             >
-                <div v-show="showBox" class="w-full flex flex-col text-sm gap-6 text-gray-700">
+                <div v-show="showBox" class="w-full flex flex-col text-sm gap-6 text-gray-700 mt-6">
                     <UCard :ui="{ background: 'bg-gray-50' }">
                         <template #header>
                             <span class="font-semibold">{{ $t('data.streaming.datasetDetails') }}</span>
                         </template>
-                        <!-- //FIXME: Fix for actual data -->
                         <div class="flex flex-col gap-4">
                             <span class="flex font-mono items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.datasetId') }}:
-                                <span class="font-normal">{{ data.id }}</span>
-                                <UButton
-                                    icon="i-heroicons-document-duplicate"
-                                    size="sm"
-                                    variant="ghost"
-                                    square
-                                    @click="copyItem('id')"
-                                    >{{ copied && keyBeingCopied === 'id' ? 'Copied' : '' }}</UButton
-                                ></span
-                            >
-
-                            <span class="flex font-mono items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.title') }}:
+                                >{{ $t('data.streaming.titlePlain') }}:
                                 <span class="font-normal">{{ data.title }}</span>
-                                <UButton
-                                    icon="i-heroicons-document-duplicate"
-                                    size="sm"
-                                    variant="ghost"
-                                    square
-                                    @click="copyItem('title')"
-                                    >{{ copied && keyBeingCopied === 'title' ? 'Copied' : '' }}</UButton
-                                ></span
-                            >
+                            </span>
 
                             <span class="flex font-mono items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.description') }}:
+                                >{{ $t('data.streaming.descriptionPlain') }}:
                                 <span class="font-normal">{{ data.description }}</span>
-                                <UButton
-                                    icon="i-heroicons-document-duplicate"
-                                    size="sm"
-                                    variant="ghost"
-                                    square
-                                    @click="copyItem('description')"
-                                    >{{ copied && keyBeingCopied === 'description' ? 'Copied' : '' }}</UButton
-                                ></span
-                            >
+                            </span>
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.catalogLink') }}:
+                                <span class="font-normal"
+                                    ><NuxtLink
+                                        class="text-primary-500"
+                                        :to="`${factoryUrl}/srv/catalog/datasets/${data.id}?locale=en`"
+                                        target="_blank"
+                                        >{{ `${factoryUrl}/srv/catalog/datasets/${data.id}?locale=en` }}</NuxtLink
+                                    ></span
+                                >
+                            </span>
                         </div>
                     </UCard>
 
