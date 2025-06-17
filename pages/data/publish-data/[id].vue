@@ -163,6 +163,7 @@ const submitStatus = ref();
 const submitAll = async () => {
     submitStatus.value = 'pending';
     let body = {
+        assetId: newAssetId,
         originalAssetId: selected.value?.id,
         distributionId: assetOfferingDetails.value.selectedDistribution.id,
         organizationId: runtimeConfig.public?.orgId,
@@ -170,7 +171,7 @@ const submitAll = async () => {
         title: assetOfferingDetails.value.title,
         description: assetOfferingDetails.value.description,
         keywords: assetOfferingDetails.value.keywords,
-        saleType: monetizationDetails.value.type,
+        type: monetizationDetails.value.type,
         subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
         price: monetizationDetails.value.price,
         license: licenseDetails.value.license,
@@ -190,7 +191,6 @@ const submitAll = async () => {
         contractBreachDays: licenseDetails.value.contractBreachDays,
         containsPersonalData: hasPersonalData.value,
         personalDataTerms: licenseDetails.value.personalDataTerms,
-        // assetId: newAssetId, //FIXME: Is this expected?
         accessPolicies: {
             assetId: newAssetId,
             assetTitle: assetOfferingDetails.value.title,
