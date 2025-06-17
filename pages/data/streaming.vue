@@ -97,7 +97,7 @@ const clearForm = () => {
                 <SubHeading :title="$t('data.streaming.details')" :info="$t('data.streaming.detailsDesc')" />
             </template>
 
-            <div class="flex flex-col space-y-6 transition-all duration-300 flex-1" :class="loaded ? 'pb-8' : 'pb-16'">
+            <div class="flex flex-col space-y-6 transition-all duration-300 flex-1">
                 <UFormGroup :label="$t('data.streaming.title')" name="title">
                     <UInput v-model="state.title" :disabled="loaded" :ui="{ base: 'disabled:opacity-40' }" />
 
