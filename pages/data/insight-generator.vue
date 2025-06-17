@@ -7,6 +7,7 @@ const forceColumnName = ref('');
 const forceColumnType = ref('');
 const forceColumnTypesList = ref<{ name: string; datatype: string }[]>([]);
 const datatypeOptions = ['int', 'float', 'string', 'bool', 'date', 'datetime'];
+const isLoading = ref(false);
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -84,6 +85,8 @@ const handleSubmit = async () => {
     } catch (error: any) {
         responseContent.value = `Error: ${error.message}`;
         console.error('Error:', error);
+    } finally {
+        isLoading.value = false;
     }
 };
 </script>
@@ -173,8 +176,9 @@ const handleSubmit = async () => {
                     <button
                         type="submit"
                         class="px-4 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        :disabled="isLoading"
                     >
-                        Submit
+                        {{ isLoading ? 'Loading...' : 'Submit' }}
                     </button>
                 </div>
             </form>
@@ -207,5 +211,14 @@ const handleSubmit = async () => {
 
 .response-container {
     flex: 1;
+}
+
+button[disabled],
+.btn-disabled,
+.bg-primary-600:disabled {
+    background-color: #b0b0b0 !important;
+    color: #f5f5f5 !important;
+    cursor: not-allowed !important;
+    border-color: #b0b0b0 !important;
 }
 </style>
