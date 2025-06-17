@@ -6,18 +6,18 @@ const { t } = useI18n();
 const { showErrorMessage } = useAlertMessage();
 
 const state = reactive({
-    name: undefined,
+    title: undefined,
     description: undefined,
 });
 
 const schema = z.object({
-    name: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
     description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
 });
 
 const loading = ref(false);
-const loaded = ref(false);
-const showBox = ref(false);
+const loaded = ref(true);
+const showBox = ref(true);
 
 const data = ref<Record<string, string | undefined>>({});
 
@@ -30,7 +30,7 @@ const onSubmit = async () => {
             {
                 method: 'POST',
                 body: {
-                    title: state.name,
+                    title: state.title,
                     description: state.description,
                 },
             },
@@ -38,7 +38,7 @@ const onSubmit = async () => {
         data.value.topic = details.topic;
         data.value.username = details.kafkaUser.name;
         data.value.password = details.kafkaUser.secret;
-        data.value.name = state.name;
+        data.value.title = state.title;
         data.value.description = state.description;
     } catch (err: any) {
         showErrorMessage(`Error: ${err.status}: ${err.message}`);
@@ -63,11 +63,13 @@ const copyItem = (key: string) => {
     }, 2000);
 };
 
+const showPassword = ref(false);
+
 const clearForm = () => {
     loaded.value = false;
     showBox.value = false;
     data.value = {};
-    state.name = undefined;
+    state.title = undefined;
     state.description = undefined;
 };
 </script>
@@ -87,8 +89,8 @@ const clearForm = () => {
             </template>
 
             <div class="flex flex-col space-y-6 transition-all duration-300 flex-1" :class="loaded ? 'pb-8' : 'pb-16'">
-                <UFormGroup :label="$t('data.streaming.name')" name="name">
-                    <UInput v-model="state.name" :disabled="loaded" :ui="{ base: 'disabled:opacity-40' }" />
+                <UFormGroup :label="$t('data.streaming.title')" name="title">
+                    <UInput v-model="state.title" :disabled="loaded" :ui="{ base: 'disabled:opacity-40' }" />
 
                     <template #error="{ error }">
                         <div class="absolute left-0 -bottom-6">
@@ -104,23 +106,6 @@ const clearForm = () => {
                         </div>
                     </template>
                 </UFormGroup>
-                <UButton
-                    v-if="!loaded"
-                    size="lg"
-                    type="submit"
-                    :ui="{ base: 'absolute bottom-6 right-6 w-24 flex items-center justify-center' }"
-                    ><UIcon v-if="loading" name="eos-icons:loading" class="w-5 h-5" /><span v-else
-                        >Create</span
-                    ></UButton
-                >
-                <UButton
-                    v-if="loaded"
-                    size="lg"
-                    color="white"
-                    :ui="{ base: 'absolute bottom-6 right-6 w-24 flex items-center justify-center' }"
-                    @click="clearForm"
-                    >Clear</UButton
-                >
             </div>
             <transition
                 enter-from-class="opacity-0"
@@ -130,7 +115,7 @@ const clearForm = () => {
                 leave-to-class="opacity-0"
                 leave-active-class="transition-opacity duration-300"
             >
-                <div
+                <!-- <div
                     v-show="showBox"
                     class="w-full border bg-gray-100 flex flex-col rounded-lg p-6 text-sm overflow-y-scroll gap-6"
                 >
@@ -147,8 +132,121 @@ const clearForm = () => {
                             >{{ copied && keyBeingCopied === key ? 'Copied' : '' }}</UButton
                         >
                     </div>
+                </div> -->
+
+                <div v-show="showBox" class="w-full flex flex-col text-sm gap-6 text-gray-700">
+                    <UCard :ui="{ background: 'bg-gray-50' }">
+                        <template #header>
+                            <span class="font-semibold">{{ $t('data.streaming.datasetDetails') }}</span>
+                        </template>
+                        <!-- //FIXME: Fix for actual data -->
+                        <div class="flex flex-col gap-4">
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.datasetId') }}:
+                                <span class="font-normal">{{ '14ac7126-5460-4dcc-b9ad-595bbf25d5cf' }}</span>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem('id')"
+                                    >{{ copied && keyBeingCopied === 'id' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.title') }}:
+                                <span class="font-normal">{{ 'Sample Title' }}</span>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem('title')"
+                                    >{{ copied && keyBeingCopied === 'title' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.description') }}:
+                                <span class="font-normal">{{ 'Sample Description' }}</span>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem('description')"
+                                    >{{ copied && keyBeingCopied === 'description' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+                        </div>
+                    </UCard>
+
+                    <UCard :ui="{ background: 'bg-gray-50' }">
+                        <template #header>
+                            <span class="font-semibold">{{ $t('data.streaming.streamingDetails') }}</span>
+                        </template>
+                        <div class="flex flex-col gap-4">
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.topic') }}:
+                                <span class="font-normal">{{ 'd-24323847sdkfj2' }}</span>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem('topic')"
+                                    >{{ copied && keyBeingCopied === 'topic' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.username') }}:
+                                <span class="font-normal">{{ 'kafka-user-1234' }}</span>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem('username')"
+                                    >{{ copied && keyBeingCopied === 'username' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+
+                            <span class="flex font-mono items-center gap-2 font-bold"
+                                >{{ $t('data.streaming.password') }}:
+                                <span class="font-normal">{{ showPassword ? '1234+-sodfiuw' : '*********' }}</span>
+                                <UButton size="xs">
+                                    {{ showPassword ? 'Hide' : 'Reveal' }}
+                                </UButton>
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem('password')"
+                                    >{{ copied && keyBeingCopied === 'password' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+                        </div>
+                    </UCard>
                 </div>
             </transition>
+            <div class="flex items-center justify-end w-full mt-6">
+                <UButton v-if="!loaded" size="lg" type="submit" :ui="{ base: 'w-24 flex items-center justify-center' }"
+                    ><UIcon v-if="loading" name="eos-icons:loading" class="w-5 h-5" /><span v-else
+                        >Create</span
+                    ></UButton
+                >
+                <UButton
+                    v-if="loaded"
+                    size="lg"
+                    color="white"
+                    :ui="{ base: 'w-24 flex items-center justify-center' }"
+                    @click="clearForm"
+                    >Clear</UButton
+                >
+            </div>
         </UCard>
     </UForm>
 </template>
