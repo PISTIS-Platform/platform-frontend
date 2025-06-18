@@ -6,7 +6,7 @@ const { data: factorySettingsData, status: factorySettingsStatus } = useFetch<Re
 const { data: streamingConsumerData, status: streamingConsumerStatus } = useFetch<{
     username: string;
     password: string;
-    brokerUrl: string | string[];
+    brokerUrl: string;
     mechanismProtocol: string;
     saslMechanism: string;
 }>(`/api/account/get-kafka-details`);
@@ -88,7 +88,7 @@ const copyItem = (data: string, key: string) => {
                     />
                 </UCard>
 
-                <UCard>
+                <UCard v-if="streamingConsumerData">
                     <template #header>
                         <SubHeading :title="$t('settings.streamingSettings')" :info="$t('settings.streamingInfo')" />
                     </template>
@@ -131,6 +131,54 @@ const copyItem = (data: string, key: string) => {
                                 square
                                 @click="copyItem(streamingConsumerData.password, 'consumerPassword')"
                                 >{{ copied && keyBeingCopied === 'consumerPassword' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
+                    </div>
+                    <div class="flex flex-col gap-2 mt-6">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{ $t('settings.brokerUrl') }}</span>
+                        </div>
+                        <span class="font-mono flex items-center"
+                            >{{ streamingConsumerData.brokerUrl }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem(streamingConsumerData.brokerUrl, 'brokerUrl')"
+                                >{{ copied && keyBeingCopied === 'brokerUrl' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
+                    </div>
+                    <div class="flex flex-col gap-2 mt-6">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{ $t('settings.mechanismProtocol') }}</span>
+                        </div>
+                        <span class="font-mono flex items-center"
+                            >{{ streamingConsumerData.mechanismProtocol }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem(streamingConsumerData.mechanismProtocol, 'mechanismProtocol')"
+                                >{{ copied && keyBeingCopied === 'mechanismProtocol' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
+                    </div>
+                    <div class="flex flex-col gap-2 mt-6">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{ $t('settings.saslMechanism') }}</span>
+                        </div>
+                        <span class="font-mono flex items-center"
+                            >{{ streamingConsumerData.saslMechanism }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem(streamingConsumerData.saslMechanism, 'saslMechanism')"
+                                >{{ copied && keyBeingCopied === 'saslMechanism' ? 'Copied' : '' }}</UButton
                             ></span
                         >
                     </div>
