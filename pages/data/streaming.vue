@@ -21,8 +21,8 @@ const schema = z.object({
 });
 
 const loading = ref(false);
-const loaded = ref(true);
-const showBox = ref(true);
+const loaded = ref(false);
+const showBox = ref(false);
 
 const data = ref<Record<string, string | string[] | undefined>>({});
 
