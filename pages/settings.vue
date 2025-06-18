@@ -3,11 +3,13 @@ const { data: factorySettingsData, status: factorySettingsStatus } = useFetch<Re
     `/api/settings/get-factory-settings`,
 );
 
-//TODO: Get from API, set loading status in template
-const streamingConsumerData = ref({
-    username: 'user-234987',
-    password: '123fdkfje4287dlfkj',
-});
+const { data: streamingConsumerData, status: streamingConsumerStatus } = useFetch<{
+    username: string;
+    password: string;
+    brokerUrl: string | string[];
+    mechanismProtocol: string;
+    saslMechanism: string;
+}>(`/api/account/get-kafka-details`);
 
 const revealPassword = ref(false);
 
@@ -28,7 +30,10 @@ const copyItem = (data: string, key: string) => {
 <template>
     <PageContainer>
         <div class="w-full mt-4">
-            <UProgress v-if="factorySettingsStatus === 'pending'" animation="carousel" />
+            <UProgress
+                v-if="factorySettingsStatus === 'pending' || streamingConsumerStatus === 'pending'"
+                animation="carousel"
+            />
             <div v-else class="flex flex-col gap-6">
                 <UCard>
                     <template #header>
