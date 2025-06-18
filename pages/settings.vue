@@ -138,15 +138,18 @@ const copyItem = (data: string, key: string) => {
                         <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
                             <span class="font-semibold text-gray-500">{{ $t('settings.brokerUrl') }}</span>
                         </div>
-                        <span class="font-mono flex items-center"
-                            >{{ streamingConsumerData.brokerUrl }}
+                        <span
+                            v-for="url in streamingConsumerData.brokerUrl.split(',')"
+                            :key="url"
+                            class="font-mono flex items-center"
+                            >{{ url }}
                             <UButton
                                 icon="i-heroicons-document-duplicate"
                                 size="sm"
                                 variant="ghost"
                                 square
-                                @click="copyItem(streamingConsumerData.brokerUrl, 'brokerUrl')"
-                                >{{ copied && keyBeingCopied === 'brokerUrl' ? 'Copied' : '' }}</UButton
+                                @click="copyItem(url, url)"
+                                >{{ copied && keyBeingCopied === url ? 'Copied' : '' }}</UButton
                             ></span
                         >
                     </div>
