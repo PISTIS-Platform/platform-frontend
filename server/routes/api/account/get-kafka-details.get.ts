@@ -7,7 +7,7 @@ const {
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
 
-    const results = await $fetch(`${connectorUrl}/api/provider`, {
+    const results = await $fetch(`${connectorUrl}/api/consumer`, {
         method: 'GET',
         headers: {
             Authorization: `Bearer ${token?.access_token}`,
