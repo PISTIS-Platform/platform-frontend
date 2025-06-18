@@ -22,7 +22,6 @@ const schema = z.object({
 
 const loading = ref(false);
 const loaded = ref(false);
-const showBox = ref(false);
 
 const data = ref<Record<string, string | string[] | undefined>>({});
 
@@ -52,9 +51,6 @@ const onSubmit = async () => {
         data.value.description = state.description;
 
         loaded.value = true;
-        setTimeout(() => {
-            showBox.value = true;
-        }, 300);
     } catch (err: any) {
         showErrorMessage(`Error: ${err.status}: ${err.message}`);
     } finally {
@@ -83,7 +79,6 @@ const showPassword = ref(false);
 
 const clearForm = () => {
     loaded.value = false;
-    showBox.value = false;
     data.value = {};
     state.title = undefined;
     state.description = undefined;
@@ -91,20 +86,17 @@ const clearForm = () => {
 </script>
 
 <template>
-    <UForm :schema="schema" :state="state" class="flex flex-col flex-1" @submit="onSubmit">
+    <UForm :schema="schema" :state="state" class="flex flex-col" @submit="onSubmit">
         <UCard
             :ui="{
-                base: [
-                    'w-full flex flex-col transition-[flex-grow] duration-300 ease-in-out relative',
-                    loaded ? 'flex-1 h-full' : 'flex-none',
-                ],
+                base: ['w-full flex flex-col transition-[flex-grow] duration-300 ease-in-out relative'],
             }"
         >
             <template #header>
                 <SubHeading :title="$t('data.streaming.details')" :info="$t('data.streaming.detailsDesc')" />
             </template>
 
-            <div class="flex flex-col space-y-6 transition-all duration-300 flex-1">
+            <div v-if="!loaded" class="flex flex-col space-y-6 transition-all duration-300">
                 <UFormGroup :label="$t('data.streaming.title')" name="title">
                     <UInput v-model="state.title" :disabled="loaded" :ui="{ base: 'disabled:opacity-40' }" />
 
@@ -123,144 +115,129 @@ const clearForm = () => {
                     </template>
                 </UFormGroup>
             </div>
-            <transition
-                enter-from-class="opacity-0"
-                enter-to-class="opacity-100"
-                enter-active-class="transition-opacity duration-300 delay-200"
-                leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
-                leave-active-class="transition-opacity duration-300"
-            >
-                <div v-show="showBox" class="w-full flex flex-col text-sm gap-6 text-gray-700 mt-6">
-                    <UCard :ui="{ background: 'bg-gray-50' }">
-                        <template #header>
-                            <span class="font-semibold">{{ $t('data.streaming.datasetDetails') }}</span>
-                        </template>
-                        <div class="flex flex-col gap-4">
-                            <span class="flex items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.titlePlain') }}:
-                                <span class="font-normal font-mono">{{ data.title }}</span>
-                            </span>
+            <div v-show="loaded" class="w-full flex flex-col text-sm gap-6 text-gray-700">
+                <UCard :ui="{ background: 'bg-gray-50' }">
+                    <template #header>
+                        <span class="font-semibold">{{ $t('data.streaming.datasetDetails') }}</span>
+                    </template>
+                    <div class="flex flex-col gap-4">
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.titlePlain') }}:
+                            <span class="font-normal font-mono">{{ data.title }}</span>
+                        </span>
 
-                            <span class="flex items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.descriptionPlain') }}:
-                                <span class="font-normal font-mono">{{ data.description }}</span>
-                            </span>
-                            <span class="flex items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.catalogLink') }}:
-                                <span class="font-normal font-mono"
-                                    ><NuxtLink
-                                        class="text-primary-500"
-                                        :to="`${factoryUrl}/srv/catalog/datasets/${data.id}?locale=en`"
-                                        target="_blank"
-                                        >{{ `${factoryUrl}/srv/catalog/datasets/${data.id}?locale=en` }}</NuxtLink
-                                    ></span
-                                >
-                            </span>
-                        </div>
-                    </UCard>
-
-                    <UCard :ui="{ background: 'bg-gray-50' }">
-                        <template #header>
-                            <span class="font-semibold">{{ $t('data.streaming.streamingDetails') }}</span>
-                        </template>
-                        <div class="flex flex-col gap-4">
-                            <span class="flex items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.topic') }}:
-                                <span class="font-normal font-mono">{{ data.topic }}</span>
-                                <UButton
-                                    icon="i-heroicons-document-duplicate"
-                                    size="sm"
-                                    variant="ghost"
-                                    square
-                                    @click="copyItem('topic')"
-                                    >{{ copied && keyBeingCopied === 'topic' ? 'Copied' : '' }}</UButton
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.descriptionPlain') }}:
+                            <span class="font-normal font-mono">{{ data.description }}</span>
+                        </span>
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.catalogLink') }}:
+                            <span class="font-normal font-mono"
+                                ><NuxtLink
+                                    class="text-primary-500"
+                                    :to="`${factoryUrl}/srv/catalog/datasets/${data.id}?locale=en`"
+                                    target="_blank"
+                                    >{{ `${factoryUrl}/srv/catalog/datasets/${data.id}?locale=en` }}</NuxtLink
                                 ></span
                             >
+                        </span>
+                    </div>
+                </UCard>
 
-                            <span class="flex items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.username') }}:
-                                <span class="font-normal font-mono">{{ data.username }}</span>
-                                <UButton
-                                    icon="i-heroicons-document-duplicate"
-                                    size="sm"
-                                    variant="ghost"
-                                    square
-                                    @click="copyItem('username')"
-                                    >{{ copied && keyBeingCopied === 'username' ? 'Copied' : '' }}</UButton
-                                ></span
-                            >
+                <UCard :ui="{ background: 'bg-gray-50' }">
+                    <template #header>
+                        <span class="font-semibold">{{ $t('data.streaming.streamingDetails') }}</span>
+                    </template>
+                    <div class="flex flex-col gap-4">
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.topic') }}:
+                            <span class="font-normal font-mono">{{ data.topic }}</span>
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('topic')"
+                                >{{ copied && keyBeingCopied === 'topic' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
 
-                            <span class="flex items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.password') }}:
-                                <span class="font-normal font-mono">{{
-                                    showPassword ? data.password : '*********'
-                                }}</span>
-                                <UButton size="xs">
-                                    {{ showPassword ? 'Hide' : 'Reveal' }}
-                                </UButton>
-                                <UButton
-                                    icon="i-heroicons-document-duplicate"
-                                    size="sm"
-                                    variant="ghost"
-                                    square
-                                    @click="copyItem('password')"
-                                    >{{ copied && keyBeingCopied === 'password' ? 'Copied' : '' }}</UButton
-                                ></span
-                            >
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.username') }}:
+                            <span class="font-normal font-mono">{{ data.username }}</span>
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('username')"
+                                >{{ copied && keyBeingCopied === 'username' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
 
-                            <div class="flex items-start gap-2 font-bold">
-                                <span class="mt-[5px] font-bold">{{ $t('data.streaming.brokerUrl') }}:</span>
-                                <div class="flex flex-col gap-2">
-                                    <div
-                                        v-for="(url, index) in data.brokerUrls"
-                                        :key="url"
-                                        class="flex items-center gap-2"
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.password') }}:
+                            <span class="font-normal font-mono">{{ showPassword ? data.password : '*********' }}</span>
+                            <UButton size="xs">
+                                {{ showPassword ? 'Hide' : 'Reveal' }}
+                            </UButton>
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('password')"
+                                >{{ copied && keyBeingCopied === 'password' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
+
+                        <div class="flex items-start gap-2 font-bold">
+                            <span class="mt-[5px] font-bold">{{ $t('data.streaming.brokerUrl') }}:</span>
+                            <div class="flex flex-col gap-2">
+                                <div v-for="(url, index) in data.brokerUrls" :key="url" class="flex items-center gap-2">
+                                    <span class="font-normal font-mono">{{ url }}</span>
+                                    <UButton
+                                        icon="i-heroicons-document-duplicate"
+                                        size="sm"
+                                        variant="ghost"
+                                        square
+                                        @click="copyItem('brokerUrls', index)"
+                                        >{{
+                                            copied && keyBeingCopied === 'brokerUrls' + index ? 'Copied' : ''
+                                        }}</UButton
                                     >
-                                        <span class="font-normal font-mono">{{ url }}</span>
-                                        <UButton
-                                            icon="i-heroicons-document-duplicate"
-                                            size="sm"
-                                            variant="ghost"
-                                            square
-                                            @click="copyItem('brokerUrls', index)"
-                                            >{{
-                                                copied && keyBeingCopied === 'brokerUrls' + index ? 'Copied' : ''
-                                            }}</UButton
-                                        >
-                                    </div>
                                 </div>
                             </div>
-
-                            <span class="flex items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.securityProtocol') }}:
-                                <span class="font-normal font-mono">{{ data.securityProtocol }}</span>
-                                <UButton
-                                    icon="i-heroicons-document-duplicate"
-                                    size="sm"
-                                    variant="ghost"
-                                    square
-                                    @click="copyItem('securityProtocol')"
-                                    >{{ copied && keyBeingCopied === 'securityProtocol' ? 'Copied' : '' }}</UButton
-                                ></span
-                            >
-
-                            <span class="flex items-center gap-2 font-bold"
-                                >{{ $t('data.streaming.saslMechanism') }}:
-                                <span class="font-normal font-mono">{{ data.saslMechanism }}</span>
-                                <UButton
-                                    icon="i-heroicons-document-duplicate"
-                                    size="sm"
-                                    variant="ghost"
-                                    square
-                                    @click="copyItem('saslMechanism')"
-                                    >{{ copied && keyBeingCopied === 'saslMechanism' ? 'Copied' : '' }}</UButton
-                                ></span
-                            >
                         </div>
-                    </UCard>
-                </div>
-            </transition>
+
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.securityProtocol') }}:
+                            <span class="font-normal font-mono">{{ data.securityProtocol }}</span>
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('securityProtocol')"
+                                >{{ copied && keyBeingCopied === 'securityProtocol' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
+
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.saslMechanism') }}:
+                            <span class="font-normal font-mono">{{ data.saslMechanism }}</span>
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('saslMechanism')"
+                                >{{ copied && keyBeingCopied === 'saslMechanism' ? 'Copied' : '' }}</UButton
+                            ></span
+                        >
+                    </div>
+                </UCard>
+            </div>
             <div class="flex items-center justify-end w-full mt-6">
                 <UButton v-if="!loaded" size="lg" type="submit" :ui="{ base: 'w-24 flex items-center justify-center' }"
                     ><UIcon v-if="loading" name="eos-icons:loading" class="w-5 h-5" /><span v-else
@@ -268,7 +245,7 @@ const clearForm = () => {
                     ></UButton
                 >
                 <UButton
-                    v-if="loaded"
+                    v-if="loaded && !loading"
                     size="lg"
                     color="white"
                     :ui="{ base: 'w-24 flex items-center justify-center' }"
