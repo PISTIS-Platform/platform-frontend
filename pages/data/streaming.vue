@@ -21,8 +21,8 @@ const schema = z.object({
 });
 
 const loading = ref(false);
-const loaded = ref(false);
-const showBox = ref(false);
+const loaded = ref(true);
+const showBox = ref(true);
 
 const data = ref<Record<string, string | string[] | undefined>>({});
 
@@ -137,18 +137,18 @@ const clearForm = () => {
                             <span class="font-semibold">{{ $t('data.streaming.datasetDetails') }}</span>
                         </template>
                         <div class="flex flex-col gap-4">
-                            <span class="flex font-mono items-center gap-2 font-bold"
+                            <span class="flex items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.titlePlain') }}:
-                                <span class="font-normal">{{ data.title }}</span>
+                                <span class="font-normal font-mono">{{ data.title }}</span>
                             </span>
 
-                            <span class="flex font-mono items-center gap-2 font-bold"
+                            <span class="flex items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.descriptionPlain') }}:
-                                <span class="font-normal">{{ data.description }}</span>
+                                <span class="font-normal font-mono">{{ data.description }}</span>
                             </span>
-                            <span class="flex font-mono items-center gap-2 font-bold"
+                            <span class="flex items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.catalogLink') }}:
-                                <span class="font-normal"
+                                <span class="font-normal font-mono"
                                     ><NuxtLink
                                         class="text-primary-500"
                                         :to="`${factoryUrl}/srv/catalog/datasets/${data.id}?locale=en`"
@@ -165,9 +165,9 @@ const clearForm = () => {
                             <span class="font-semibold">{{ $t('data.streaming.streamingDetails') }}</span>
                         </template>
                         <div class="flex flex-col gap-4">
-                            <span class="flex font-mono items-center gap-2 font-bold"
+                            <span class="flex items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.topic') }}:
-                                <span class="font-normal">{{ data.topic }}</span>
+                                <span class="font-normal font-mono">{{ data.topic }}</span>
                                 <UButton
                                     icon="i-heroicons-document-duplicate"
                                     size="sm"
@@ -178,9 +178,9 @@ const clearForm = () => {
                                 ></span
                             >
 
-                            <span class="flex font-mono items-center gap-2 font-bold"
+                            <span class="flex items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.username') }}:
-                                <span class="font-normal">{{ data.username }}</span>
+                                <span class="font-normal font-mono">{{ data.username }}</span>
                                 <UButton
                                     icon="i-heroicons-document-duplicate"
                                     size="sm"
@@ -191,9 +191,11 @@ const clearForm = () => {
                                 ></span
                             >
 
-                            <span class="flex font-mono items-center gap-2 font-bold"
+                            <span class="flex items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.password') }}:
-                                <span class="font-normal">{{ showPassword ? data.password : '*********' }}</span>
+                                <span class="font-normal font-mono">{{
+                                    showPassword ? data.password : '*********'
+                                }}</span>
                                 <UButton size="xs">
                                     {{ showPassword ? 'Hide' : 'Reveal' }}
                                 </UButton>
@@ -207,15 +209,15 @@ const clearForm = () => {
                                 ></span
                             >
 
-                            <div class="flex font-mono items-start gap-2 font-bold">
-                                <span class="mt-[5px]">{{ $t('data.streaming.brokerUrl') }}:</span>
+                            <div class="flex items-start gap-2 font-bold">
+                                <span class="mt-[5px] font-bold">{{ $t('data.streaming.brokerUrl') }}:</span>
                                 <div class="flex flex-col gap-2">
                                     <div
                                         v-for="(url, index) in data.brokerUrls"
                                         :key="url"
                                         class="flex items-center gap-2"
                                     >
-                                        <span class="font-normal">{{ url }}</span>
+                                        <span class="font-normal font-mono">{{ url }}</span>
                                         <UButton
                                             icon="i-heroicons-document-duplicate"
                                             size="sm"
@@ -230,9 +232,9 @@ const clearForm = () => {
                                 </div>
                             </div>
 
-                            <span class="flex font-mono items-center gap-2 font-bold"
+                            <span class="flex items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.securityProtocol') }}:
-                                <span class="font-normal">{{ data.securityProtocol }}</span>
+                                <span class="font-normal font-mono">{{ data.securityProtocol }}</span>
                                 <UButton
                                     icon="i-heroicons-document-duplicate"
                                     size="sm"
@@ -243,9 +245,9 @@ const clearForm = () => {
                                 ></span
                             >
 
-                            <span class="flex font-mono items-center gap-2 font-bold"
+                            <span class="flex items-center gap-2 font-bold"
                                 >{{ $t('data.streaming.saslMechanism') }}:
-                                <span class="font-normal">{{ data.saslMechanism }}</span>
+                                <span class="font-normal font-mono">{{ data.saslMechanism }}</span>
                                 <UButton
                                     icon="i-heroicons-document-duplicate"
                                     size="sm"
