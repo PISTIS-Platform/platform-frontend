@@ -45,9 +45,13 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             factoryUrl: '',
+            connectorUrl: '',
             cloudUrl: '',
             orgId: '',
             orgLogo: '',
+            kafkaBrokers: '',
+            kafkaSecurityProtocol: '',
+            kafkaSaslMechanism: '',
         },
         keycloak: {
             issuer: '',
