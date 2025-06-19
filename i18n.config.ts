@@ -87,7 +87,7 @@ export default defineI18nConfig(() => ({
                 streamingConsumerUsername: 'Streaming Consumer Username',
                 streamingConsumerPassword: 'Streaming Consumer Password',
                 brokerUrl: 'Broker URL(s)',
-                mechanismProtocol: 'Mechanism Protocol',
+                securityProtocol: 'Security Protocol',
                 saslMechanism: 'SASL Mechanism',
                 reveal: 'Reveal',
                 streamingSettings: 'Streaming Settings',
