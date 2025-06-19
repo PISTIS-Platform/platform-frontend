@@ -117,13 +117,15 @@ const updateSelectedOptions = (id: string | number, isSelected: boolean) => {
                         :model-value="answer.text"
                         :placeholder="$t('usageAnalytics.answerTextInfo')"
                         class="w-full flex-1"
+                        :ui="{ error: 'absolute -bottom-6' }"
+                        eager-validation
                         @update:model-value="(value: string) => emit('update:text', value)"
                     />
                 </UFormGroup>
             </div>
 
             <div v-else-if="props.answer.questionType === QuestionType.CHECKBOX">
-                <UFormGroup name="selectedOptions">
+                <UFormGroup name="selectedOptions" :ui="{ error: 'absolute -bottom-6' }" eager-validation>
                     <div class="flex gap-6">
                         <div v-for="option in selectedOptions" :key="option.id">
                             <UCheckbox
@@ -137,7 +139,7 @@ const updateSelectedOptions = (id: string | number, isSelected: boolean) => {
             </div>
 
             <div v-else>
-                <UFormGroup name="selectedOptions">
+                <UFormGroup name="selectedOptions" :ui="{ error: 'absolute -bottom-6' }" eager-validation>
                     <div class="flex gap-6">
                         <URadio
                             v-for="option of selectedOptions"
