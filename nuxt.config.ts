@@ -45,9 +45,13 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             factoryUrl: '',
+            connectorUrl: '',
             cloudUrl: '',
             orgId: '',
             orgLogo: '',
+            kafkaBrokers: '',
+            kafkaSecurityProtocol: '',
+            kafkaSaslMechanism: '',
         },
         keycloak: {
             issuer: '',
@@ -58,6 +62,7 @@ export default defineNuxtConfig({
         authSecret: '',
         catalogName: '',
         walletAlias: '',
+        prometheusUrl: '',
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/icon'],
