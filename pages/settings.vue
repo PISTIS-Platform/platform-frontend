@@ -28,7 +28,6 @@ const copyItem = (data: string, key: string) => {
 </script>
 
 <template>
-    {{ streamingConsumerData }}
     <PageContainer>
         <div class="w-full mt-4">
             <UProgress
