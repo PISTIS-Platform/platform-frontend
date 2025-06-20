@@ -92,6 +92,7 @@ export default defineI18nConfig(() => ({
                 reveal: 'Reveal',
                 streamingSettings: 'Streaming Settings',
                 streamingInfo: 'The settings for the account which will consume your streaming data',
+                bootstrapServers: 'Bootstrap Servers',
             },
             account: {
                 title: 'User Account',

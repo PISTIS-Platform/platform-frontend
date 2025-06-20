@@ -6,7 +6,7 @@ const { data: factorySettingsData, status: factorySettingsStatus } = useFetch<Re
 const { data: streamingConsumerData, status: streamingConsumerStatus } = useFetch<{
     username: string;
     password: string;
-    brokerUrl: string;
+    bootstrapServers: string;
     securityProtocol: string;
     saslMechanism: string;
 }>(`/api/account/get-kafka-details`);
@@ -28,6 +28,7 @@ const copyItem = (data: string, key: string) => {
 </script>
 
 <template>
+    {{ streamingConsumerData }}
     <PageContainer>
         <div class="w-full mt-4">
             <UProgress
@@ -136,10 +137,10 @@ const copyItem = (data: string, key: string) => {
                     </div>
                     <div class="flex flex-col gap-2 mt-6">
                         <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
-                            <span class="font-semibold text-gray-500">{{ $t('settings.brokerUrl') }}</span>
+                            <span class="font-semibold text-gray-500">{{ $t('settings.bootstrapServers') }}</span>
                         </div>
                         <span
-                            v-for="url in streamingConsumerData?.brokerUrl?.split(',')"
+                            v-for="url in streamingConsumerData?.bootstrapServers?.split(',')"
                             :key="url"
                             class="font-mono flex items-center"
                             >{{ url }}
