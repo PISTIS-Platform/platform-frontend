@@ -76,13 +76,6 @@ const copyItem = (key: string, index?: number) => {
 };
 
 const showPassword = ref(false);
-
-const clearForm = () => {
-    loaded.value = false;
-    data.value = {};
-    state.title = undefined;
-    state.description = undefined;
-};
 </script>
 
 <template>
@@ -243,14 +236,6 @@ const clearForm = () => {
                     ><UIcon v-if="loading" name="eos-icons:loading" class="w-5 h-5" /><span v-else
                         >Create</span
                     ></UButton
-                >
-                <UButton
-                    v-if="loaded && !loading"
-                    size="lg"
-                    color="white"
-                    :ui="{ base: 'w-24 flex items-center justify-center' }"
-                    @click="clearForm"
-                    >Clear</UButton
                 >
             </div>
         </UCard>
