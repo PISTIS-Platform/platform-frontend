@@ -45,7 +45,6 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             factoryUrl: '',
-            connectorUrl: '',
             cloudUrl: '',
             orgId: '',
             orgLogo: '',
