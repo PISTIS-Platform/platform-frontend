@@ -203,7 +203,7 @@ const noKafkaData = computed(() => {
                         icon="mingcute:alert-line"
                         color="red"
                         variant="subtle"
-                        :description="$t('settings.noKafkaDataFound')"
+                        :description="$t('settings.noStreamingDataFound')"
                         class="w-full max-w-xl"
                     />
                 </UCard>

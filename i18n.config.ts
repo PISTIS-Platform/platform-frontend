@@ -93,7 +93,7 @@ export default defineI18nConfig(() => ({
                 streamingSettings: 'Streaming Settings',
                 streamingInfo: 'The settings for the account which will consume your streaming data',
                 bootstrapServers: 'Bootstrap Servers',
-                noKafkaDataFound: 'No data found for a Kafka Consumer User',
+                noStreamingDataFound: 'No streaming user data found for this account',
             },
             account: {
                 title: 'User Account',
