@@ -25,6 +25,17 @@ const copyItem = (data: string, key: string) => {
         keyBeingCopied.value = '';
     }, 2000);
 };
+
+const noKafkaData = computed(() => {
+    if (!streamingConsumerData.value) {
+        return true;
+    }
+    Object.keys(streamingConsumerData).forEach((key: string) => {
+        if (!streamingConsumerData.value[key]) return true;
+    });
+
+    return false;
+});
 </script>
 
 <template>
@@ -88,103 +99,113 @@ const copyItem = (data: string, key: string) => {
                     />
                 </UCard>
 
-                <UCard v-if="streamingConsumerData">
+                <UCard>
                     <template #header>
                         <SubHeading :title="$t('settings.streamingSettings')" :info="$t('settings.streamingInfo')" />
                     </template>
-                    <div class="flex flex-col gap-2">
-                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
-                            <span class="font-semibold text-gray-500">{{
-                                $t('settings.streamingConsumerUsername')
-                            }}</span>
-                        </div>
-                        <span class="font-mono flex items-center"
-                            >{{ streamingConsumerData.username }}
-                            <UButton
-                                icon="i-heroicons-document-duplicate"
-                                size="sm"
-                                variant="ghost"
-                                square
-                                @click="copyItem(streamingConsumerData.username, 'consumerUsername')"
-                                >{{ copied && keyBeingCopied === 'consumerUsername' ? 'Copied' : '' }}</UButton
-                            ></span
-                        >
-                    </div>
-                    <div class="flex flex-col gap-2 mt-6">
-                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
-                            <span class="font-semibold text-gray-500">{{
-                                $t('settings.streamingConsumerPassword')
-                            }}</span>
-                            <UButton
-                                class="flex items-center justify-center w-16"
-                                size="xs"
-                                @click="revealPassword = !revealPassword"
-                                >{{ revealPassword ? 'Hide' : 'Reveal' }}</UButton
+                    <div v-if="!noKafkaData" class="flex flex-col">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                                <span class="font-semibold text-gray-500">{{
+                                    $t('settings.streamingConsumerUsername')
+                                }}</span>
+                            </div>
+                            <span class="font-mono flex items-center"
+                                >{{ streamingConsumerData.username }}
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem(streamingConsumerData.username, 'consumerUsername')"
+                                    >{{ copied && keyBeingCopied === 'consumerUsername' ? 'Copied' : '' }}</UButton
+                                ></span
                             >
                         </div>
-                        <span class="font-mono flex items-center"
-                            >{{ revealPassword ? streamingConsumerData.password : '*********' }}
-                            <UButton
-                                icon="i-heroicons-document-duplicate"
-                                size="sm"
-                                variant="ghost"
-                                square
-                                @click="copyItem(streamingConsumerData.password, 'consumerPassword')"
-                                >{{ copied && keyBeingCopied === 'consumerPassword' ? 'Copied' : '' }}</UButton
-                            ></span
-                        >
-                    </div>
-                    <div class="flex flex-col gap-2 mt-6">
-                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
-                            <span class="font-semibold text-gray-500">{{ $t('settings.bootstrapServers') }}</span>
+                        <div class="flex flex-col gap-2 mt-6">
+                            <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                                <span class="font-semibold text-gray-500">{{
+                                    $t('settings.streamingConsumerPassword')
+                                }}</span>
+                                <UButton
+                                    class="flex items-center justify-center w-16"
+                                    size="xs"
+                                    @click="revealPassword = !revealPassword"
+                                    >{{ revealPassword ? 'Hide' : 'Reveal' }}</UButton
+                                >
+                            </div>
+                            <span class="font-mono flex items-center"
+                                >{{ revealPassword ? streamingConsumerData.password : '*********' }}
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem(streamingConsumerData.password, 'consumerPassword')"
+                                    >{{ copied && keyBeingCopied === 'consumerPassword' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
                         </div>
-                        <span
-                            v-for="url in streamingConsumerData?.bootstrapServers?.split(',')"
-                            :key="url"
-                            class="font-mono flex items-center"
-                            >{{ url }}
-                            <UButton
-                                icon="i-heroicons-document-duplicate"
-                                size="sm"
-                                variant="ghost"
-                                square
-                                @click="copyItem(url, url)"
-                                >{{ copied && keyBeingCopied === url ? 'Copied' : '' }}</UButton
-                            ></span
-                        >
-                    </div>
-                    <div class="flex flex-col gap-2 mt-6">
-                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
-                            <span class="font-semibold text-gray-500">{{ $t('settings.securityProtocol') }}</span>
+                        <div class="flex flex-col gap-2 mt-6">
+                            <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                                <span class="font-semibold text-gray-500">{{ $t('settings.bootstrapServers') }}</span>
+                            </div>
+                            <span
+                                v-for="url in streamingConsumerData?.bootstrapServers?.split(',')"
+                                :key="url"
+                                class="font-mono flex items-center"
+                                >{{ url }}
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem(url, url)"
+                                    >{{ copied && keyBeingCopied === url ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
                         </div>
-                        <span class="font-mono flex items-center"
-                            >{{ streamingConsumerData.securityProtocol }}
-                            <UButton
-                                icon="i-heroicons-document-duplicate"
-                                size="sm"
-                                variant="ghost"
-                                square
-                                @click="copyItem(streamingConsumerData.securityProtocol, 'securityProtocol')"
-                                >{{ copied && keyBeingCopied === 'securityProtocol' ? 'Copied' : '' }}</UButton
-                            ></span
-                        >
-                    </div>
-                    <div class="flex flex-col gap-2 mt-6">
-                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
-                            <span class="font-semibold text-gray-500">{{ $t('settings.saslMechanism') }}</span>
+                        <div class="flex flex-col gap-2 mt-6">
+                            <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                                <span class="font-semibold text-gray-500">{{ $t('settings.securityProtocol') }}</span>
+                            </div>
+                            <span class="font-mono flex items-center"
+                                >{{ streamingConsumerData.securityProtocol }}
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem(streamingConsumerData.securityProtocol, 'securityProtocol')"
+                                    >{{ copied && keyBeingCopied === 'securityProtocol' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
                         </div>
-                        <span class="font-mono flex items-center"
-                            >{{ streamingConsumerData.saslMechanism }}
-                            <UButton
-                                icon="i-heroicons-document-duplicate"
-                                size="sm"
-                                variant="ghost"
-                                square
-                                @click="copyItem(streamingConsumerData.saslMechanism, 'saslMechanism')"
-                                >{{ copied && keyBeingCopied === 'saslMechanism' ? 'Copied' : '' }}</UButton
-                            ></span
-                        >
+                        <div class="flex flex-col gap-2 mt-6">
+                            <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                                <span class="font-semibold text-gray-500">{{ $t('settings.saslMechanism') }}</span>
+                            </div>
+                            <span class="font-mono flex items-center"
+                                >{{ streamingConsumerData.saslMechanism }}
+                                <UButton
+                                    icon="i-heroicons-document-duplicate"
+                                    size="sm"
+                                    variant="ghost"
+                                    square
+                                    @click="copyItem(streamingConsumerData.saslMechanism, 'saslMechanism')"
+                                    >{{ copied && keyBeingCopied === 'saslMechanism' ? 'Copied' : '' }}</UButton
+                                ></span
+                            >
+                        </div>
                     </div>
+                    <UAlert
+                        v-else
+                        icon="mingcute:alert-line"
+                        color="red"
+                        variant="subtle"
+                        :description="$t('settings.noKafkaDataFound')"
+                        class="w-full max-w-xl"
+                    />
                 </UCard>
             </div>
         </div>
