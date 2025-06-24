@@ -14,7 +14,10 @@ const {
     data: usageStatsData,
     status: usageStatsStatus,
     error: usageStatsError,
-} = useLazyFetch<UsageStatsData[]>('/api/monitoring/resource-usage');
+} = useLazyFetch<UsageStatsData[]>('/api/monitoring/resource-usage', {
+    retry: false,
+    server: false,
+});
 
 const computedResourcesUsageStats = computed(() => {
     const iconsMapping: Record<string, string> = {
@@ -80,10 +83,15 @@ const computedResourcesUsageStats = computed(() => {
                         <template #header>
                             <SubHeading :title="t('dashboard.resources.resourceUsage')" />
                         </template>
-                        <div
-                            v-if="usageStatsStatus !== 'pending' && !usageStatsError"
-                            class="grid grid-cols-2 w-full gap-6 mt-4"
-                        >
+                        <div v-if="usageStatsStatus === 'pending'" class="grid grid-cols-2 w-full gap-6 mt-4">
+                            <USkeleton
+                                v-for="item in new Array(6)"
+                                :key="item"
+                                :ui="{ background: 'bg-gray-200' }"
+                                class="h-20"
+                            />
+                        </div>
+                        <div v-else-if="!usageStatsError" class="grid grid-cols-2 w-full gap-6 mt-4">
                             <UsageCard
                                 v-for="item in computedResourcesUsageStats"
                                 :key="item.title"
@@ -93,20 +101,12 @@ const computedResourcesUsageStats = computed(() => {
                                 :tooltip-info="item.tooltipInfo"
                             />
                         </div>
-                        <div v-else-if="usageStatsStatus !== 'pending' && usageStatsError">
+                        <div v-else>
                             <ErrorCard
                                 :error-msg="
                                     usageStatsError?.statusMessage ??
                                     t('dashboard.resources.usageStats.errorInRetrievingCpuAndMemoryStats')
                                 "
-                            />
-                        </div>
-                        <div v-else class="grid grid-cols-2 w-full gap-6 mt-4">
-                            <USkeleton
-                                v-for="item in new Array(6)"
-                                :key="item"
-                                :ui="{ background: 'bg-gray-200' }"
-                                class="h-20"
                             />
                         </div>
                     </UCard>
