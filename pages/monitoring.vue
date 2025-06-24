@@ -9,6 +9,8 @@ const { data: componentStatusData, status: componentStatusStatus } = useLazyFetc
     '/api/monitoring/component-status',
 );
 
+const halfItems = computed(() => Math.round((componentStatusData.value?.length || 0) / 2));
+
 //data for usage stats
 const {
     data: usageStatsData,
@@ -53,16 +55,25 @@ const computedResourcesUsageStats = computed(() => {
                         <template #header>
                             <SubHeading :title="t('dashboard.resources.componentStatus')" />
                         </template>
-                        <div
-                            v-if="componentStatusStatus !== 'pending'"
-                            class="flex w-full flex-col gap-4 overflow-y-scroll"
-                        >
-                            <StatusCard
-                                v-for="item in componentStatusData"
-                                :key="item.title"
-                                :title="item.title"
-                                :active="item.active"
-                            />
+                        <div v-if="componentStatusStatus !== 'pending'" class="flex w-full overflow-y-scroll">
+                            <div class="flex divide-x-2 w-full">
+                                <div class="flex flex-col gap-1 w-full">
+                                    <StatusCard
+                                        v-for="item in componentStatusData?.slice(0, halfItems)"
+                                        :key="item.title"
+                                        :title="item.title"
+                                        :active="item.active"
+                                    />
+                                </div>
+                                <div class="flex flex-col gap-1 w-full pl-4">
+                                    <StatusCard
+                                        v-for="item in componentStatusData?.slice(halfItems)"
+                                        :key="item.title"
+                                        :title="item.title"
+                                        :active="item.active"
+                                    />
+                                </div>
+                            </div>
                         </div>
                         <!--FIXME: Currently using fixed number of skeleton elements based on number of components-->
                         <div

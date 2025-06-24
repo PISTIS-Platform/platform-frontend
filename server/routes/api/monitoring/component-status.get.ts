@@ -9,77 +9,43 @@ import ComponentStatusData from '~/interfaces/component-status-data';
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
 
-    const services = await $fetch(`${config.public.cloudUrl}/srv/factories-registry/api/factories/services-mapping`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token?.access_token}`,
+    const services = await $fetch<Record<string, string>>(
+        `${config.public.cloudUrl}/srv/factories-registry/api/factories/services-mapping`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token?.access_token}`,
+            },
         },
-    });
+    );
 
-    const componentStatuses: ComponentStatusData[] = [];
-
-    Object.keys(services).forEach(async (key: string) => {
+    const componentStatusPromises = Object.keys(services).map(async (key: string) => {
         let active = false;
-
+        const url = `${config.public.factoryUrl}${services[key]}/api/health`.replace('//', '/');
         try {
-            const result = await $fetch(`${config.public.cloudUrl}${services[key]}/api/health`, {
+            const result = await $fetch(url, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${token?.access_token}`,
                 },
             });
 
-            if (result.status === 'ok') {
+            if (result?.status === 'ok') {
                 active = true;
             }
-        } catch {
-            //TODO: Do something more advanced with errors here
+        } catch (error) {
+            console.error(`Error fetching health for ${key}:`, error);
+        } finally {
+            return {
+                title: key,
+                active,
+            };
         }
-
-        componentStatuses.push({
-            title: key,
-            active,
-        });
     });
 
-    // const componentStatuses: ComponentStatusData[] = [
-    //     {
-    //         title: 'Data Exchange Governance',
-    //         active: true,
-    //     },
-    //     {
-    //         title: 'Data Explorer',
-    //         active: false,
-    //     },
-    //     {
-    //         title: 'Monetary Transactions Facility',
-    //         active: true,
-    //     },
-    //     {
-    //         title: 'Asset Offering Designer',
-    //         active: true,
-    //     },
-    //     {
-    //         title: 'Monetization XAI Engine',
-    //         active: false,
-    //     },
-    //     {
-    //         title: 'Models Repository',
-    //         active: true,
-    //     },
-    //     {
-    //         title: 'System Services',
-    //         active: false,
-    //     },
-    //     {
-    //         title: 'Identity Manager',
-    //         active: false,
-    //     },
-    // ];
+    const componentStatuses: ComponentStatusData[] = await Promise.all(componentStatusPromises);
 
     const sortByTitle = R.sortBy(R.compose(R.toLower, R.prop('title')));
-
-    console.log(componentStatuses);
 
     return sortByTitle(componentStatuses);
 });
