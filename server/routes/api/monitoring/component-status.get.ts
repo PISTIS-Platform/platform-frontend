@@ -1,8 +1,23 @@
 import * as R from 'ramda';
 
+import { getToken } from '#auth';
+
+const config = useRuntimeConfig();
+
 import ComponentStatusData from '~/interfaces/component-status-data';
 
-export default defineEventHandler(async (_event) => {
+export default defineEventHandler(async (event) => {
+    const token = await getToken({ event });
+
+    const results = await $fetch(`${config.public.cloudUrl}/srv/factories-registry/api/factories/services-mapping`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token?.access_token}`,
+        },
+    });
+
+    console.log({ results });
+
     const componentStatuses: ComponentStatusData[] = [
         {
             title: 'Data Exchange Governance',
