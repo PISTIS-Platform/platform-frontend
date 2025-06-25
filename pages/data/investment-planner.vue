@@ -136,6 +136,22 @@ const assetOfferingsSchema = z.object({
 });
 
 const isAssetOfferingDetailsValid = computed(() => assetOfferingsSchema.safeParse(assetOfferingDetails.value).success);
+
+//Policy Data
+const policyData: Array<AccessPolicyDetails> = [];
+const defaultPolicy: AccessPolicyDetails = {
+    countries: [],
+    domains: [],
+    groups: [],
+    scopes: [],
+    sizes: [],
+    types: [],
+    id: t('policies.publicationDefaults.id'),
+    title: t('policies.publicationDefaults.title'),
+    description: t('policies.publicationDefaults.description'),
+    default: true,
+};
+policyData.push(defaultPolicy);
 </script>
 
 <template>
@@ -300,7 +316,7 @@ const isAssetOfferingDetailsValid = computed(() => assetOfferingsSchema.safePars
                                 <span class="font-bold">{{ monetizationDetails.sharePrice || '__' }} EUR</span>.<br />
                                 The maximum shares a user can buy is
                                 <span class="font-bold"
-                                    >{{ monetizationDetails.maximumSharesToBuy || '__' }} shares.</span
+                                    >{{ monetizationDetails.maximumSharesToBuy || '__' }} shares</span
                                 >. The offer is valid until
                                 <span class="font-bold">{{
                                     monetizationDetails.validOfferDate
@@ -322,12 +338,20 @@ const isAssetOfferingDetailsValid = computed(() => assetOfferingsSchema.safePars
                 </div>
             </UForm>
         </UCard>
+        <div v-show="selectedPage === 2" class="w-full">
+            <AccessPolicyList
+                v-model:policy-data="policyData"
+                :selected="selected"
+                hide-buttons
+                @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
+            />
+        </div>
     </div>
     <div v-if="datasetsStatus !== 'pending'" class="relative w-full items-center justify-between flex mt-6">
         <UButton color="white" size="lg" :disabled="selectedPage === 0" @click="changeStep(selectedPage - 1)"
             >Previous</UButton
         >
-        <UButton size="lg" :disabled="!steps[selectedPage + 1].isActive" @click="changeStep(selectedPage + 1)"
+        <UButton size="lg" :disabled="!steps[selectedPage + 1]?.isActive" @click="changeStep(selectedPage + 1)"
             >Next</UButton
         >
     </div>

@@ -23,6 +23,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    hideButtons: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 // const allGroups = await useFetch('/api/iam/get-groups');
@@ -384,7 +388,7 @@ async function onSubmit(): Promise<void> {
 
             <UButton v-if="!preview" @click="handleNewPolicyClick()">{{ $t('policies.actions.add') }}</UButton>
         </UCard>
-        <div v-if="!preview" class="w-full flex items-center justify-between mt-4">
+        <div v-if="!preview && !hideButtons" class="w-full flex items-center justify-between mt-4">
             <UButton size="lg" color="gray" variant="outline" @click="emit('changePage', 2)">
                 {{ $t('back') }}
             </UButton>
