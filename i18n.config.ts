@@ -130,6 +130,7 @@ export default defineI18nConfig(() => ({
                     datasetSelectorPlaceholder: 'Click here to select or search for a published dataset',
                     termsAndConditions: 'Terms and Conditions',
                     termsAndConditionsPlaceholder: 'Type out the terms and conditions for your offering here.',
+                    summary: 'Summary',
                     errors: {
                         percentageMin: 'Percentage cannot be negative',
                         percentageMax: 'Percentage cannot exceed 49%',

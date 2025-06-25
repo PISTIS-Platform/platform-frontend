@@ -117,7 +117,7 @@ const steps = computed(() => [
     },
     {
         name: t('data.investmentPlanner.steps.preview'),
-        isActive: true,
+        isActive: isMonetizationValid.value,
     },
 ]);
 
@@ -346,13 +346,133 @@ policyData.push(defaultPolicy);
                 @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
             />
         </div>
+        <div v-show="selectedPage === 3" class="w-full">
+            <UCard>
+                <template #header>
+                    <div class="flex items-center gap-4">
+                        <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500" />
+                        <SubHeading
+                            :title="$t('data.designer.assetOfferingDetails')"
+                            :info="$t('data.designer.assetOfferingDetailsInfo')"
+                        />
+                    </div>
+                </template>
+                <div>
+                    <div class="flex flex-col gap-8">
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{ $t('title') }}</span>
+                            <span>{{ assetOfferingDetails?.title }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{ $t('description') }}</span>
+                            <span>{{ assetOfferingDetails?.description }}</span>
+                        </div>
+                        <div class="flex gap-2 flex-col">
+                            <span class="text-sm font-semibold text-gray-400">{{ $t('keywords') }}</span>
+                            <div class="flex items-center gap-2">
+                                <div
+                                    v-for="keyword in assetOfferingDetails.keywords"
+                                    :key="keyword"
+                                    class="bg-gray-100 text-gray-500 p-1 rounded-md"
+                                >
+                                    {{ keyword }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </UCard>
+            <UCard class="mt-6 mb-6">
+                <template #header>
+                    <div class="flex items-center gap-4">
+                        <UIcon name="streamline:investment-selection" class="w-10 h-10 text-gray-500" />
+                        <SubHeading
+                            :title="$t('data.investmentPlanner.title')"
+                            :info="$t('data.investmentPlanner.info')"
+                        />
+                    </div>
+                </template>
+                <div class="flex flex-col gap-8">
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.investmentPlanner.validOfferDate')
+                        }}</span>
+                        <span>{{ dayjs(monetizationDetails.validOfferDate).format('DD MMMM YYYY') }}</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.investmentPlanner.percentageToOfferSharesFor')
+                        }}</span>
+                        <span>{{ monetizationDetails.percentageToOfferSharesFor }}%</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.investmentPlanner.numberOfShares')
+                        }}</span>
+                        <span>{{ monetizationDetails.numberOfShares }} shares</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.investmentPlanner.sharePrice')
+                        }}</span>
+                        <span>{{ monetizationDetails.sharePrice }} EUR</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.investmentPlanner.maximumSharesToBuy')
+                        }}</span>
+                        <span>{{ monetizationDetails.maximumSharesToBuy }} shares</span>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.investmentPlanner.termsAndConditions')
+                        }}</span>
+                        <p>{{ monetizationDetails.termsAndConditions }}</p>
+                    </div>
+                    <div class="flex gap-2 flex-col">
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.investmentPlanner.summary')
+                        }}</span>
+                        <div class="flex-1">
+                            You are offering
+                            <span class="font-bold">{{ monetizationDetails.percentageToOfferSharesFor || '__' }}%</span>
+                            in
+                            <span class="font-bold">{{ monetizationDetails.numberOfShares || '__' }} shares</span>. Each
+                            share is <span class="font-bold">{{ percentageOfShare || '__' }}% </span>of the total priced
+                            at <span class="font-bold">{{ monetizationDetails.sharePrice || '__' }} EUR</span>.<br />
+                            The maximum shares a user can buy is
+                            <span class="font-bold">{{ monetizationDetails.maximumSharesToBuy || '__' }} shares</span>.
+                            The offer is valid until
+                            <span class="font-bold">{{
+                                monetizationDetails.validOfferDate
+                                    ? dayjs(monetizationDetails.validOfferDate).format('DD/MM/YY')
+                                    : '__'
+                            }}</span
+                            >.
+                        </div>
+                    </div>
+                </div>
+            </UCard>
+            <AccessPolicyList preview :policy-data="policyData" />
+        </div>
     </div>
     <div v-if="datasetsStatus !== 'pending'" class="relative w-full items-center justify-between flex mt-6">
         <UButton color="white" size="lg" :disabled="selectedPage === 0" @click="changeStep(selectedPage - 1)"
             >Previous</UButton
         >
-        <UButton size="lg" :disabled="!steps[selectedPage + 1]?.isActive" @click="changeStep(selectedPage + 1)"
+        <UButton
+            v-if="selectedPage !== 3"
+            size="lg"
+            :disabled="!steps[selectedPage + 1]?.isActive"
+            @click="changeStep(selectedPage + 1)"
             >Next</UButton
+        >
+        <UButton
+            v-if="selectedPage === 3"
+            size="lg"
+            :disabled="!steps[selectedPage + 1]?.isActive"
+            @click="changeStep(selectedPage + 1)"
+            >Submit</UButton
         >
     </div>
 </template>
