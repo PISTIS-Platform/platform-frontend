@@ -467,12 +467,6 @@ policyData.push(defaultPolicy);
             @click="changeStep(selectedPage + 1)"
             >Next</UButton
         >
-        <UButton
-            v-if="selectedPage === 3"
-            size="lg"
-            :disabled="!steps[selectedPage + 1]?.isActive"
-            @click="changeStep(selectedPage + 1)"
-            >Submit</UButton
-        >
+        <UButton v-if="selectedPage === 3" size="lg">Submit</UButton>
     </div>
 </template>
