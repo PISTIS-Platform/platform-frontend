@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
         });
 
         results.push(assetResult.result as Record<string, any>);
+        break; //TODO: Remove after dev
     }
 
     return results;
