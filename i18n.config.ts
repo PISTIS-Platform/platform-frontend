@@ -132,6 +132,7 @@ export default defineI18nConfig(() => ({
                     termsAndConditionsPlaceholder: 'Type out the terms and conditions for your offering here.',
                     summary: 'Summary',
                     errors: {
+                        number: 'Please enter a valid number',
                         percentageMin: 'Percentage cannot be negative',
                         percentageMax: 'Percentage cannot exceed 49%',
                         sharesInt: 'Total number of shares must be a whole number',
@@ -141,7 +142,8 @@ export default defineI18nConfig(() => ({
                         sharePriceMin: 'Share price cannot be negative or zero',
                         maxSharesInt: 'Maximum shares per investor must be a whole number',
                         maxSharesMin: 'Maximum shares per investor cannot be negative or zero',
-                        maxSharesExceed: 'Maximum shares per investor cannot exceed the total number of shares',
+                        maxSharesExceed:
+                            'Maximum shares per investor cannot exceed or equal the total number of shares',
                         termsMin: 'Terms and conditions must be at least 10 characters long',
                         termsMax: 'Terms and conditions cannot exceed 10,000 characters',
                     },

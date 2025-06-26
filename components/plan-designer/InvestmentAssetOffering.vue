@@ -58,8 +58,7 @@ const isAssetOfferingDetailsValid = computed(() => {
     return schema.safeParse(assetOfferingDetails.value).success && assetOfferingDetails?.value.keywords.length > 0;
 });
 
-//FIXME: Use this to change page and return internal buttons for validation
-async function _onSubmit(): Promise<void> {
+async function onSubmit(): Promise<void> {
     if (isAssetOfferingDetailsValid.value) {
         emit('changePage', 1);
     } else {
@@ -78,6 +77,7 @@ async function _onSubmit(): Promise<void> {
         :state="assetOfferingDetails"
         :schema="schema"
         :validate="customValidate"
+        @submit="onSubmit"
     >
         <UCard>
             <template #header>
@@ -130,6 +130,10 @@ async function _onSubmit(): Promise<void> {
                 </UFormGroup>
             </div>
         </UCard>
+        <div class="relative w-full items-center justify-between flex mt-6">
+            <UButton color="white" size="lg">Previous</UButton>
+            <UButton size="lg" type="submit">Next</UButton>
+        </div>
     </UForm>
 </template>
 

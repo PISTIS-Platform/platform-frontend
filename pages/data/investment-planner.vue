@@ -4,12 +4,12 @@ import dayjs from 'dayjs';
 import { z } from 'zod';
 
 const monetizationDetails = ref({
-    validOfferDate: '',
-    percentageToOfferSharesFor: '',
-    numberOfShares: '',
-    sharePrice: '',
-    maximumSharesToBuy: '',
-    termsAndConditions: '',
+    validOfferDate: undefined,
+    percentageToOfferSharesFor: undefined,
+    numberOfShares: undefined,
+    sharePrice: undefined,
+    maximumSharesToBuy: undefined,
+    termsAndConditions: undefined,
 });
 
 const allBasicFieldsFilledIn = computed(
@@ -27,11 +27,11 @@ const monetizationSchema = z
     .object({
         validOfferDate: z.string().min(1, t('required')),
         percentageToOfferSharesFor: z.coerce
-            .number()
+            .number({ invalid_type_error: t('data.investmentPlanner.errors.number') })
             .min(10, t('data.investmentPlanner.errors.percentageMin'))
             .max(49, t('data.investmentPlanner.errors.percentageMax')),
         numberOfShares: z.coerce
-            .number()
+            .number({ invalid_type_error: t('data.investmentPlanner.errors.number') })
             .int(t('data.investmentPlanner.errors.sharesInt'))
             .min(10, t('data.investmentPlanner.errors.sharesMin'))
             .max(1000, t('data.investmentPlanner.errors.sharesMax'))
@@ -39,15 +39,14 @@ const monetizationSchema = z
                 message: t('required'),
             }),
         sharePrice: z.coerce
-            .number()
+            .number({ invalid_type_error: t('data.investmentPlanner.errors.number') })
             .int(t('data.investmentPlanner.errors.sharePriceInt'))
             .min(1, t('data.investmentPlanner.errors.sharePriceMin'))
             .refine((val) => val !== null && val !== undefined, { message: t('required') }),
         maximumSharesToBuy: z.coerce
-            .number()
+            .number({ invalid_type_error: t('data.investmentPlanner.errors.number') })
             .int(t('data.investmentPlanner.errors.maxSharesInt'))
-            .min(1, t('data.investmentPlanner.errors.maxSharesMin'))
-            .refine((val) => val !== null && val !== undefined, { message: t('required') }),
+            .min(1, t('data.investmentPlanner.errors.maxSharesMin')),
         termsAndConditions: z
             .string()
             .min(10, t('data.investmentPlanner.errors.termsMin'))
@@ -63,6 +62,20 @@ const monetizationSchema = z
             });
         }
     });
+
+const customValidate = () => {
+    const errors = [];
+    const totalErrors = monetizationSchema.safeParse(monetizationDetails.value).error?.issues;
+    if (totalErrors?.length) {
+        for (const error of totalErrors) {
+            errors.push({ path: error.path[0], message: error.message });
+        }
+    }
+    if (monetizationDetails.value.maximumSharesToBuy >= monetizationDetails.value.numberOfShares) {
+        errors.push({ path: 'maximumSharesToBuy', message: t('data.investmentPlanner.errors.maxSharesExceed') });
+    }
+    return errors;
+};
 
 const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
@@ -162,6 +175,10 @@ const defaultPolicy: AccessPolicyDetails = {
     default: true,
 };
 policyData.push(defaultPolicy);
+
+const onInvestmentSubmit = () => {
+    changeStep(2);
+};
 </script>
 
 <template>
@@ -187,176 +204,197 @@ policyData.push(defaultPolicy);
             />
         </UCard>
         <InvestmentAssetOffering
-            v-show="selectedPage === 0"
+            v-show="selectedPage === 0 && selected"
             :asset-details-prop="assetOfferingDetails"
             class="mt-6"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
+            @change-page="changeStep(1)"
         />
-        <UCard v-show="selectedPage === 1">
-            <template #header>
-                <div class="flex items-center gap-4">
-                    <UIcon name="streamline:investment-selection" class="w-10 h-10 text-gray-500" />
-                    <SubHeading :title="$t('data.investmentPlanner.title')" :info="$t('data.investmentPlanner.info')" />
-                </div>
-            </template>
-            <UForm :schema="monetizationSchema" :state="monetizationDetails" class="flex flex-col space-y-5">
-                <div class="flex flex-row gap-4">
-                    <div class="flex flex-col gap-6 w-full">
-                        <div class="flex-1 flex gap-4">
+
+        <UForm
+            :schema="monetizationSchema"
+            :state="monetizationDetails"
+            :validate="customValidate"
+            class="flex flex-col space-y-5"
+            @submit="onInvestmentSubmit"
+        >
+            <UCard v-show="selectedPage === 1">
+                <template #header>
+                    <div class="flex items-center gap-4">
+                        <UIcon name="streamline:investment-selection" class="w-10 h-10 text-gray-500" />
+                        <SubHeading
+                            :title="$t('data.investmentPlanner.title')"
+                            :info="$t('data.investmentPlanner.info')"
+                        />
+                    </div>
+                </template>
+                <div class="flex flex-col space-y-5">
+                    <div class="flex flex-row gap-4">
+                        <div class="flex flex-col gap-6 w-full">
+                            <div class="flex-1 flex gap-4">
+                                <div class="flex-1 flex gap-4">
+                                    <UFormGroup
+                                        :label="$t('data.investmentPlanner.validOfferDate')"
+                                        name="validOfferDate"
+                                        class="text-gray-200 flex-1"
+                                        :ui="{ error: 'absolute -bottom-6' }"
+                                        eager-validation
+                                        required
+                                    >
+                                        <UPopover :popper="{ placement: 'bottom-start' }">
+                                            <UButton
+                                                color="white"
+                                                icon="i-heroicons-calendar-days-20-solid"
+                                                :label="
+                                                    monetizationDetails.validOfferDate
+                                                        ? dayjs(monetizationDetails.validOfferDate).format(
+                                                              'DD MMMM YYYY',
+                                                          )
+                                                        : $t('data.investmentPlanner.validOfferDatePlaceholder')
+                                                "
+                                                :class="[
+                                                    'w-full',
+                                                    monetizationDetails.validOfferDate
+                                                        ? 'text-gray-700'
+                                                        : 'text-gray-400 font-normal',
+                                                ]"
+                                            />
+                                            <template #panel="{ close }">
+                                                <DatePicker
+                                                    v-model="monetizationDetails.validOfferDate"
+                                                    is-required
+                                                    @close="close"
+                                                />
+                                            </template>
+                                        </UPopover>
+                                    </UFormGroup>
+                                    <UFormGroup
+                                        :label="$t('data.investmentPlanner.percentageToOfferSharesFor')"
+                                        class="flex-1"
+                                        name="percentageToOfferSharesFor"
+                                        :ui="{ error: 'absolute -bottom-6' }"
+                                        required
+                                        eager-validation
+                                    >
+                                        <UInput
+                                            v-model.number="monetizationDetails.percentageToOfferSharesFor"
+                                            :placeholder="$t('data.investmentPlanner.percentageOfOwnership')"
+                                            type="number"
+                                        >
+                                            <template #trailing>
+                                                <span class="text-gray-500 text-xs">%</span>
+                                            </template>
+                                        </UInput>
+                                    </UFormGroup>
+                                </div>
+                            </div>
                             <div class="flex-1 flex gap-4">
                                 <UFormGroup
-                                    :label="$t('data.investmentPlanner.validOfferDate')"
-                                    name="validOfferDate"
-                                    class="text-gray-200 flex-1"
+                                    :label="$t('data.investmentPlanner.numberOfShares')"
+                                    class="flex-1"
+                                    required
+                                    name="numberOfShares"
                                     :ui="{ error: 'absolute -bottom-6' }"
                                     eager-validation
-                                    required
                                 >
-                                    <UPopover :popper="{ placement: 'bottom-start' }">
-                                        <UButton
-                                            color="white"
-                                            icon="i-heroicons-calendar-days-20-solid"
-                                            :label="
-                                                monetizationDetails.validOfferDate
-                                                    ? dayjs(monetizationDetails.validOfferDate).format('DD MMMM YYYY')
-                                                    : $t('data.investmentPlanner.validOfferDatePlaceholder')
-                                            "
-                                            :class="[
-                                                'w-full',
-                                                monetizationDetails.validOfferDate
-                                                    ? 'text-gray-700'
-                                                    : 'text-gray-400 font-normal',
-                                            ]"
-                                        />
-                                        <template #panel="{ close }">
-                                            <DatePicker
-                                                v-model="monetizationDetails.validOfferDate"
-                                                is-required
-                                                @close="close"
-                                            />
+                                    <UInput
+                                        v-model.number="monetizationDetails.numberOfShares"
+                                        :placeholder="$t('data.investmentPlanner.numberOfSharesPlaceholder')"
+                                        type="number"
+                                    >
+                                        <template #trailing>
+                                            <span class="text-gray-500 text-xs">shares</span>
                                         </template>
-                                    </UPopover>
+                                    </UInput>
                                 </UFormGroup>
                                 <UFormGroup
-                                    :label="$t('data.investmentPlanner.percentageToOfferSharesFor')"
+                                    :label="$t('data.investmentPlanner.sharePrice')"
                                     class="flex-1"
-                                    name="percentageToSell"
+                                    name="sharePrice"
                                     :ui="{ error: 'absolute -bottom-6' }"
                                     required
                                     eager-validation
                                 >
                                     <UInput
-                                        v-model.number="monetizationDetails.percentageToOfferSharesFor"
-                                        :placeholder="$t('data.investmentPlanner.percentageOfOwnership')"
-                                        type="numeric"
+                                        v-model.number="monetizationDetails.sharePrice"
+                                        :placeholder="$t('data.investmentPlanner.sharePricePlaceholder')"
+                                        type="number"
                                     >
                                         <template #trailing>
-                                            <span class="text-gray-500 text-xs">%</span>
+                                            <span class="text-gray-500 text-xs">EUR</span>
                                         </template>
                                     </UInput>
                                 </UFormGroup>
                             </div>
-                        </div>
-                        <div class="flex-1 flex gap-4">
-                            <UFormGroup
-                                :label="$t('data.investmentPlanner.numberOfShares')"
-                                class="flex-1"
-                                required
-                                name="percentageMinimum"
-                                :ui="{ error: 'absolute -bottom-6' }"
-                                eager-validation
-                            >
-                                <UInput
-                                    v-model.number="monetizationDetails.numberOfShares"
-                                    :placeholder="$t('data.investmentPlanner.numberOfSharesPlaceholder')"
-                                    type="numeric"
+                            <div class="flex-1 flex gap-4 items-center">
+                                <UFormGroup
+                                    :label="$t('data.investmentPlanner.maximumSharesToBuy')"
+                                    class="flex-1"
+                                    required
+                                    name="maximumSharesToBuy"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
                                 >
-                                    <template #trailing>
-                                        <span class="text-gray-500 text-xs">shares</span>
-                                    </template>
-                                </UInput>
-                            </UFormGroup>
-                            <UFormGroup
-                                :label="$t('data.investmentPlanner.sharePrice')"
-                                class="flex-1"
-                                name="percentagePrice"
-                                :ui="{ error: 'absolute -bottom-6' }"
-                                required
-                                eager-validation
-                            >
-                                <UInput
-                                    v-model.number="monetizationDetails.sharePrice"
-                                    :placeholder="$t('data.investmentPlanner.sharePricePlaceholder')"
-                                    type="numeric"
+                                    <UInput
+                                        v-model.number="monetizationDetails.maximumSharesToBuy"
+                                        :placeholder="$t('data.investmentPlanner.maximumSharesToBuyPlaceholder')"
+                                        type="number"
+                                    >
+                                        <template #trailing>
+                                            <span class="text-gray-500 text-xs">shares</span>
+                                        </template>
+                                    </UInput>
+                                </UFormGroup>
+                                <div
+                                    class="flex-1 text-[13px] mt-5"
+                                    :class="allBasicFieldsFilledIn ? 'opacity-100' : 'opacity-0'"
                                 >
-                                    <template #trailing>
-                                        <span class="text-gray-500 text-xs">EUR</span>
-                                    </template>
-                                </UInput>
-                            </UFormGroup>
-                        </div>
-                        <div class="flex-1 flex gap-4 items-center">
-                            <UFormGroup
-                                :label="$t('data.investmentPlanner.maximumSharesToBuy')"
-                                class="flex-1"
-                                required
-                                name="percentageMinimum"
-                                :ui="{ error: 'absolute -bottom-6' }"
-                                eager-validation
-                            >
-                                <UInput
-                                    v-model.number="monetizationDetails.maximumSharesToBuy"
-                                    :placeholder="$t('data.investmentPlanner.maximumSharesToBuyPlaceholder')"
-                                    type="numeric"
-                                >
-                                    <template #trailing>
-                                        <span class="text-gray-500 text-xs">shares</span>
-                                    </template>
-                                </UInput>
-                            </UFormGroup>
-                            <div
-                                class="flex-1 text-[13px] mt-5"
-                                :class="allBasicFieldsFilledIn ? 'opacity-100' : 'opacity-0'"
-                            >
-                                You are making
-                                <span class="font-bold"
-                                    >{{ monetizationDetails.percentageToOfferSharesFor || '__' }}%</span
-                                >
-                                of the dataset's future sales income available for investment, distributed across
-                                <span class="font-bold">{{ monetizationDetails.numberOfShares || '__' }} shares</span>.
-                                Each share entitles the owner to
-                                <span class="font-bold">{{ percentageOfShare || '__' }}% </span>of the total revenue.
-                                Investors can purchase shares for
-                                <span class="font-bold">{{ monetizationDetails.sharePrice || '__' }} EUR</span> each,
-                                with a maximum of
-                                <span class="font-bold"
-                                    >{{ monetizationDetails.maximumSharesToBuy || '__' }} shares</span
-                                >
-                                per person. The offer is valid until
-                                <span class="font-bold">{{
-                                    monetizationDetails.validOfferDate
-                                        ? dayjs(monetizationDetails.validOfferDate).format('DD/MM/YY')
-                                        : '__'
-                                }}</span
-                                >.
+                                    You are making
+                                    <span class="font-bold"
+                                        >{{ monetizationDetails.percentageToOfferSharesFor || '__' }}%</span
+                                    >
+                                    of the dataset's future sales income available for investment, distributed across
+                                    <span class="font-bold"
+                                        >{{ monetizationDetails.numberOfShares || '__' }} shares</span
+                                    >. Each share entitles the owner to
+                                    <span class="font-bold">{{ percentageOfShare || '__' }}% </span>of the total
+                                    revenue. Investors can purchase shares for
+                                    <span class="font-bold">{{ monetizationDetails.sharePrice || '__' }} EUR</span>
+                                    each, with a maximum of
+                                    <span class="font-bold"
+                                        >{{ monetizationDetails.maximumSharesToBuy || '__' }} shares</span
+                                    >
+                                    per person. The offer is valid until
+                                    <span class="font-bold">{{
+                                        monetizationDetails.validOfferDate
+                                            ? dayjs(monetizationDetails.validOfferDate).format('DD/MM/YY')
+                                            : '__'
+                                    }}</span
+                                    >.
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex flex-col w-full">
-                            <UFormGroup
-                                :label="$t('data.investmentPlanner.termsAndConditions')"
-                                eager-validation
-                                required
-                            >
-                                <UTextarea
-                                    v-model="monetizationDetails.termsAndConditions"
-                                    :placeholder="$t('data.investmentPlanner.termsAndConditions')"
-                                />
-                            </UFormGroup>
+                            <div class="flex flex-col w-full">
+                                <UFormGroup
+                                    :label="$t('data.investmentPlanner.termsAndConditions')"
+                                    name="termsAndConditions"
+                                    eager-validation
+                                    required
+                                >
+                                    <UTextarea
+                                        v-model="monetizationDetails.termsAndConditions"
+                                        :placeholder="$t('data.investmentPlanner.termsAndConditions')"
+                                    />
+                                </UFormGroup>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </UForm>
-        </UCard>
+            </UCard>
+            <div v-if="selectedPage === 1" class="relative w-full items-center justify-between flex mt-6">
+                <UButton color="white" size="lg" @click="changeStep(selectedPage - 1)">Previous</UButton>
+                <UButton size="lg" type="submit">Next</UButton>
+            </div>
+        </UForm>
         <div v-show="selectedPage === 2" class="w-full">
             <AccessPolicyList
                 v-model:policy-data="policyData"
@@ -364,6 +402,18 @@ policyData.push(defaultPolicy);
                 hide-buttons
                 @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
             />
+            <div class="relative w-full items-center justify-between flex mt-6">
+                <UButton color="white" size="lg" :disabled="selectedPage === 0" @click="changeStep(selectedPage - 1)"
+                    >Previous</UButton
+                >
+                <UButton
+                    v-if="selectedPage !== 3"
+                    size="lg"
+                    :disabled="!steps[selectedPage + 1]?.isActive"
+                    @click="changeStep(selectedPage + 1)"
+                    >Next</UButton
+                >
+            </div>
         </div>
         <div v-show="selectedPage === 3" class="w-full">
             <UCard>
@@ -453,7 +503,10 @@ policyData.push(defaultPolicy);
             <AccessPolicyList preview :policy-data="policyData" />
         </div>
     </div>
-    <div v-if="datasetsStatus !== 'pending'" class="relative w-full items-center justify-between flex mt-6">
+    <div
+        v-if="datasetsStatus !== 'pending' && selectedPage === 3"
+        class="relative w-full items-center justify-between flex mt-6"
+    >
         <UButton color="white" size="lg" :disabled="selectedPage === 0" @click="changeStep(selectedPage - 1)"
             >Previous</UButton
         >
