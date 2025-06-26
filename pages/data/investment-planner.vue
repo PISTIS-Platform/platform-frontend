@@ -51,7 +51,8 @@ const monetizationSchema = z
         termsAndConditions: z
             .string()
             .min(10, t('data.investmentPlanner.errors.termsMin'))
-            .max(10000, t('data.investmentPlanner.errors.termsMax')),
+            .max(10000, t('data.investmentPlanner.errors.termsMax'))
+            .refine((val) => val !== null && val !== undefined, { message: t('required') }),
     })
     .superRefine((data, ctx) => {
         if (data.maximumSharesToBuy > data.numberOfShares) {
@@ -313,7 +314,10 @@ policyData.push(defaultPolicy);
                                     </template>
                                 </UInput>
                             </UFormGroup>
-                            <div v-show="allBasicFieldsFilledIn" class="flex-1 text-[13px] mt-5">
+                            <div
+                                class="flex-1 text-[13px] mt-5"
+                                :class="allBasicFieldsFilledIn ? 'opacity-100' : 'opacity-0'"
+                            >
                                 You are making
                                 <span class="font-bold"
                                     >{{ monetizationDetails.percentageToOfferSharesFor || '__' }}%</span
@@ -443,28 +447,6 @@ policyData.push(defaultPolicy);
                             $t('data.investmentPlanner.termsAndConditions')
                         }}</span>
                         <p>{{ monetizationDetails.termsAndConditions }}</p>
-                    </div>
-                    <div class="flex gap-2 flex-col">
-                        <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.investmentPlanner.summary')
-                        }}</span>
-                        <div class="flex-1">
-                            You are offering
-                            <span class="font-bold">{{ monetizationDetails.percentageToOfferSharesFor || '__' }}%</span>
-                            in
-                            <span class="font-bold">{{ monetizationDetails.numberOfShares || '__' }} shares</span>. Each
-                            share is <span class="font-bold">{{ percentageOfShare || '__' }}% </span>of the total priced
-                            at <span class="font-bold">{{ monetizationDetails.sharePrice || '__' }} EUR</span>.<br />
-                            The maximum shares a user can buy is
-                            <span class="font-bold">{{ monetizationDetails.maximumSharesToBuy || '__' }} shares</span>.
-                            The offer is valid until
-                            <span class="font-bold">{{
-                                monetizationDetails.validOfferDate
-                                    ? dayjs(monetizationDetails.validOfferDate).format('DD/MM/YY')
-                                    : '__'
-                            }}</span
-                            >.
-                        </div>
                     </div>
                 </div>
             </UCard>
