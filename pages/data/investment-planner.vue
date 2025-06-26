@@ -12,6 +12,15 @@ const monetizationDetails = ref({
     termsAndConditions: '',
 });
 
+const allBasicFieldsFilledIn = computed(
+    () =>
+        monetizationDetails.value.validOfferDate &&
+        monetizationDetails.value.percentageToOfferSharesFor &&
+        monetizationDetails.value.numberOfShares &&
+        monetizationDetails.value.sharePrice &&
+        monetizationDetails.value.maximumSharesToBuy,
+);
+
 //FIXME: Create separate validations for each step/form to make sure user sees errors that exist
 
 const monetizationSchema = z
@@ -304,20 +313,22 @@ policyData.push(defaultPolicy);
                                     </template>
                                 </UInput>
                             </UFormGroup>
-                            <div class="flex-1 text-[13px] mt-5">
-                                You are offering
+                            <div v-show="allBasicFieldsFilledIn" class="flex-1 text-[13px] mt-5">
+                                You are making
                                 <span class="font-bold"
                                     >{{ monetizationDetails.percentageToOfferSharesFor || '__' }}%</span
                                 >
-                                in
+                                of the dataset's future sales income available for investment, distributed across
                                 <span class="font-bold">{{ monetizationDetails.numberOfShares || '__' }} shares</span>.
-                                Each share is <span class="font-bold">{{ percentageOfShare || '__' }}% </span>of the
-                                total priced at
-                                <span class="font-bold">{{ monetizationDetails.sharePrice || '__' }} EUR</span>.<br />
-                                The maximum shares a user can buy is
+                                Each share entitles the owner to
+                                <span class="font-bold">{{ percentageOfShare || '__' }}% </span>of the total revenue.
+                                Investors can purchase shares for
+                                <span class="font-bold">{{ monetizationDetails.sharePrice || '__' }} EUR</span> each,
+                                with a maximum of
                                 <span class="font-bold"
                                     >{{ monetizationDetails.maximumSharesToBuy || '__' }} shares</span
-                                >. The offer is valid until
+                                >
+                                per person. The offer is valid until
                                 <span class="font-bold">{{
                                     monetizationDetails.validOfferDate
                                         ? dayjs(monetizationDetails.validOfferDate).format('DD/MM/YY')
@@ -327,7 +338,11 @@ policyData.push(defaultPolicy);
                             </div>
                         </div>
                         <div class="flex flex-col w-full">
-                            <UFormGroup :label="$t('data.investmentPlanner.termsAndConditions')" eager-validation>
+                            <UFormGroup
+                                :label="$t('data.investmentPlanner.termsAndConditions')"
+                                eager-validation
+                                required
+                            >
                                 <UTextarea
                                     v-model="monetizationDetails.termsAndConditions"
                                     :placeholder="$t('data.investmentPlanner.termsAndConditions')"
