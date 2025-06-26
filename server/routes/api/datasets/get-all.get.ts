@@ -32,7 +32,6 @@ export default defineEventHandler(async (event) => {
         });
 
         results.push(assetResult.result as Record<string, any>);
-        break;
     }
 
     return results;
