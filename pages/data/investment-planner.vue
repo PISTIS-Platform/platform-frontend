@@ -21,8 +21,6 @@ const allBasicFieldsFilledIn = computed(
         monetizationDetails.value.maximumSharesToBuy,
 );
 
-//FIXME: Create separate validations for each step/form to make sure user sees errors that exist
-
 const monetizationSchema = z
     .object({
         validOfferDate: z.string().min(1, t('required')),
