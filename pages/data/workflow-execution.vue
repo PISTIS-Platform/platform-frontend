@@ -39,7 +39,7 @@ const getWorkflowRunList = async () => {
     workflowList.value = [];
 
     try {
-        const response = await $fetch.raw('/api/job-configurator/workflow/getRunsList', {
+        const response = await $fetch.raw('/api/job-configurator/getRunsList', {
             method: 'POST',
             body: {},
         });
