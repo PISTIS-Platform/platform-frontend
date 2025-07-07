@@ -48,6 +48,9 @@ export default defineNuxtConfig({
             cloudUrl: '',
             orgId: '',
             orgLogo: '',
+            kafkaBrokers: '',
+            kafkaSecurityProtocol: '',
+            kafkaSaslMechanism: '',
         },
         keycloak: {
             issuer: '',
