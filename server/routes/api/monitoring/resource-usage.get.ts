@@ -25,29 +25,39 @@ const getPrometheusResult = async (q: string, percentageMultiplier = 100) => {
 };
 
 const getDiskUsageByVolume = async (volume: string, percentageMultiplier: number = 100) => {
-    const q = `max without(instance,node) (
-(
-  topk(1, kubelet_volume_stats_capacity_bytes{job="kubelet", metrics_path="/metrics", namespace="default", persistentvolumeclaim="${volume}"})
-  -
-  topk(1, kubelet_volume_stats_available_bytes{job="kubelet", metrics_path="/metrics", namespace="default", persistentvolumeclaim="${volume}"})
-)
-/
-topk(1, kubelet_volume_stats_capacity_bytes{job="kubelet", metrics_path="/metrics", namespace="default", persistentvolumeclaim="${volume}"})
-* 100)`;
+    const q = `max without (instance, node) (
+      (
+        (
+            topk(1, otel_k8s_volume_capacity{k8s_namespace_name="default",k8s_persistentvolumeclaim_name="${volume}"})
+          -
+            topk(1, otel_k8s_volume_available{k8s_namespace_name="default",k8s_persistentvolumeclaim_name="${volume}"})
+        )
+      )
+    /
+      topk(1, otel_k8s_volume_capacity{k8s_namespace_name="default",k8s_persistentvolumeclaim_name="${volume}"})
+  *
+    100
+)`;
 
     return getPrometheusResult(q, percentageMultiplier);
 };
 
 export default defineEventHandler(async (_event) => {
     //CPU percentage
-    const cpuQuery =
-        'sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="default"}) / sum(kube_pod_container_resource_requests{job="kube-state-metrics", namespace="default", resource="cpu"})';
+    const cpuQuery = `(
+  sum(otel_k8s_node_cpu_utilization{k8s_cluster_name='cloud', k8s_node_name=~'.*agent.*'})
+  /
+  sum(kube_node_status_capacity{resource='cpu', node=~'.*agent.*'})
+)`;
 
     const cpuPercentage = await getPrometheusResult(cpuQuery);
 
     //Memory utilisation percentage
-    const memoryUtilisationQuery =
-        'sum(container_memory_working_set_bytes{job="kubelet", metrics_path="/metrics/cadvisor", namespace="default",container!="", image!=""}) / sum(kube_pod_container_resource_requests{job="kube-state-metrics", namespace="default", resource="memory"})';
+    const memoryUtilisationQuery = `(
+  sum(otel_k8s_node_memory_usage{k8s_cluster_name='cloud', k8s_node_name=~'.*agent.*'})
+  /
+  sum(kube_node_status_capacity{resource='memory', node=~'.*agent.*'})
+)`;
 
     const memoryUtilisationPercentage = await getPrometheusResult(memoryUtilisationQuery);
 
