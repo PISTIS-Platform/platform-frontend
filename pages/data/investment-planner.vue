@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { t } = useI18n();
 import dayjs from 'dayjs';
+import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 const monetizationDetails = ref({
@@ -87,6 +88,7 @@ const percentageOfShare = computed(() => {
 });
 
 const assetOfferingDetails = ref({
+    id: '',
     title: '',
     description: '',
     keywords: [],
@@ -100,6 +102,7 @@ watch(selected, () => {
     if (!selected.value) return;
     assetOfferingDetails.value.title = selected.value.title;
     assetOfferingDetails.value.description = selected.value.description;
+    assetOfferingDetails.value.id = selected.value.id;
 });
 
 //TODO: Display alert with error
@@ -176,6 +179,34 @@ policyData.push(defaultPolicy);
 
 const onInvestmentSubmit = () => {
     changeStep(2);
+};
+
+const submitAll = async () => {
+    const objToSend: {
+        cloudAssetId: string;
+        dueDate: string;
+        percentageOffer: number;
+        totalShares: number;
+        maxShares: number;
+        price: number;
+        status: boolean;
+        terms: string;
+    } = {
+        cloudAssetId: uuidV4(),
+        assetId: assetOfferingDetails.value.id,
+        dueDate: monetizationDetails.value.validOfferDate,
+        percentageOffer: monetizationDetails.value.percentageToOfferSharesFor,
+        totalShares: monetizationDetails.value.numberOfShares,
+        maxShares: monetizationDetails.value.maximumSharesToBuy,
+        price: monetizationDetails.value.sharePrice,
+        status: true,
+        terms: monetizationDetails.value.termsAndConditions,
+    };
+
+    await $fetch(`/api/investment/submit-investment`, {
+        method: 'POST',
+        body: objToSend,
+    });
 };
 </script>
 
@@ -515,6 +546,6 @@ const onInvestmentSubmit = () => {
             @click="changeStep(selectedPage + 1)"
             >Next</UButton
         >
-        <UButton v-if="selectedPage === 3" size="lg">Submit</UButton>
+        <UButton v-if="selectedPage === 3" size="lg" @click="submitAll">Submit</UButton>
     </div>
 </template>
