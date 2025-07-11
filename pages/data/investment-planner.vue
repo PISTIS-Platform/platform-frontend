@@ -197,6 +197,7 @@ const submitAll = async () => {
         terms: string;
         title: string;
         description: string;
+        keywords: string[];
     } = {
         cloudAssetId: uuidV4(),
         assetId: assetOfferingDetails.value.id,
@@ -209,6 +210,7 @@ const submitAll = async () => {
         terms: monetizationDetails.value.termsAndConditions,
         title: assetOfferingDetails.value.title,
         description: assetOfferingDetails.value.description,
+        keywords: assetOfferingDetails.value.keywords,
     };
 
     try {
