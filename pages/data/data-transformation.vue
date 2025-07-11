@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Icon } from '@iconify/vue';
 import { useFetch } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
 
@@ -37,6 +38,8 @@ const hoveredTransformation = ref(null);
 const fileUpload = ref<File | null>(null);
 //const responseContent = ref('');
 const outputFormat = ref('application/json'); // Default value
+const hoveredTitleIndex = ref<number | null>(null);
+const hoveredParamIndex = ref<number | null>(null);
 
 const updateParam = (elementIndex, key, newValue) => {
     if (!elementParams.value[elementIndex]) {
@@ -173,16 +176,51 @@ onMounted(() => {
             <h2>Transformation catalog</h2>
             <div v-if="elements && elements.length > 0" class="panels-container">
                 <div v-for="(element, index) in elements" :key="index" class="panel">
-                    <h3 v-if="element.content.properties.id.const">{{ element.content.properties.id.const }}</h3>
-                    <h3 v-else>Element {{ index + 1 }}</h3>
+                    <div style="display: flex; align-items: center">
+                        <h3 v-if="element.content.title" style="margin-right: 8px; display: flex; align-items: center">
+                            {{ element.content.title }}
+                            <Icon
+                                v-if="element.content.description"
+                                icon="heroicons:information-circle"
+                                class="info-icon"
+                                style="cursor: pointer; font-size: 1.3em; margin-left: 6px"
+                                @mouseover="hoveredTitleIndex = index"
+                                @mouseleave="hoveredTitleIndex = null"
+                            />
+                            <span
+                                v-if="hoveredTitleIndex === index && element.content.description"
+                                class="description-tooltip"
+                            >
+                                {{ element.content.description }}
+                            </span>
+                        </h3>
+                        <h3 v-else-if="element.content.properties.id.const">
+                            {{ element.content.properties.id.const }}
+                        </h3>
+                        <h3 v-else>Element {{ index + 1 }}</h3>
+                    </div>
                     <div v-if="element.content.properties.params && element.content.properties.params.properties">
                         <div
                             v-for="(paramSchema, key) in element.content.properties.params.properties"
                             :key="key"
                             class="form-group"
                         >
-                            <label :for="`input-${index}-${key}`"
-                                >{{ key }}
+                            <label :for="`input-${index}-${key}`" style="display: flex; align-items: center">
+                                {{ key }}
+                                <Icon
+                                    v-if="paramSchema.description"
+                                    icon="heroicons:information-circle"
+                                    class="info-icon"
+                                    style="cursor: pointer; font-size: 1.1em; margin-left: 4px; margin-right: 4px"
+                                    @mouseover="hoveredParamIndex = `${index}-${key}`"
+                                    @mouseleave="hoveredParamIndex = null"
+                                />
+                                <span
+                                    v-if="hoveredParamIndex === `${index}-${key}` && paramSchema.description"
+                                    class="description-tooltip"
+                                >
+                                    {{ paramSchema.description }}
+                                </span>
                                 <span
                                     v-if="
                                         element.content.properties.params.required &&
@@ -616,5 +654,35 @@ button:hover {
     border: 2px solid #007bff;
     padding: 10px;
     border-radius: 5px;
+}
+
+.info-icon {
+    color: #007bff;
+    margin-left: 4px;
+}
+
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.description-tooltip {
+    position: fixed;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    margin-left: 8px;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.95em;
+    color: #333;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    white-space: normal;
+    transform: translateY(-50%);
 }
 </style>
