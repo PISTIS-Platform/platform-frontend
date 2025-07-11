@@ -108,11 +108,11 @@ watch(selected, () => {
     assetOfferingDetails.value.id = selected.value.id;
 });
 
-//TODO: Display alert with error
+//FIXME: Get available datasets (one-off and subscription) from marketplace, not local catalog
 const {
     data: datasetsData,
     status: datasetsStatus,
-    error: _datasetsError,
+    error: datasetsError,
 } = useFetch(`/api/datasets/get-all`, {
     server: false,
     async onResponse({ response }) {
@@ -227,6 +227,12 @@ const submitAll = async () => {
 
 <template>
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
+    <UAlert
+        v-else-if="datasetsError"
+        variant="subtle"
+        :title="t('data.investmentPlanner.errors.couldNotRetrieveDatasets')"
+        color="red"
+    />
     <div v-else class="w-full text-gray-700 h-full relative">
         <NavigationSteps :steps="steps" :selected-page="selectedPage" @select-page="changeStep" />
         <UCard v-show="selectedPage === 0">

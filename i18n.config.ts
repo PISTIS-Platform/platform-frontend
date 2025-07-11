@@ -148,6 +148,8 @@ export default defineI18nConfig(() => ({
                         termsMin: 'Terms and conditions must be at least 10 characters long',
                         termsMax: 'Terms and conditions cannot exceed 10,000 characters',
                         couldNotCreateInvestmentPlan: 'Could not create investment plan. An error has occurred.',
+                        couldNotRetrieveDatasets:
+                            'Could not retrieve datasets available for investment. An error has occurred.',
                     },
                 },
 
