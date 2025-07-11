@@ -4,6 +4,9 @@ import dayjs from 'dayjs';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
+const { showErrorMessage, showSuccessMessage } = useAlertMessage();
+import { navigateTo } from '#app';
+
 const monetizationDetails = ref({
     validOfferDate: undefined,
     percentageToOfferSharesFor: undefined,
@@ -184,6 +187,7 @@ const onInvestmentSubmit = () => {
 const submitAll = async () => {
     const objToSend: {
         cloudAssetId: string;
+        assetId: string;
         dueDate: string;
         percentageOffer: number;
         totalShares: number;
@@ -191,6 +195,8 @@ const submitAll = async () => {
         price: number;
         status: boolean;
         terms: string;
+        title: string;
+        description: string;
     } = {
         cloudAssetId: uuidV4(),
         assetId: assetOfferingDetails.value.id,
@@ -201,12 +207,21 @@ const submitAll = async () => {
         price: monetizationDetails.value.sharePrice,
         status: true,
         terms: monetizationDetails.value.termsAndConditions,
+        title: assetOfferingDetails.value.title,
+        description: assetOfferingDetails.value.description,
     };
 
-    await $fetch(`/api/investment/submit-investment`, {
-        method: 'POST',
-        body: objToSend,
-    });
+    try {
+        await $fetch(`/api/investment/submit-investment`, {
+            method: 'POST',
+            body: objToSend,
+        });
+        showSuccessMessage(t('data.investmentPlanner.success'));
+        await delay(2);
+        navigateTo(`https://pistis-market.eu/srv/catalog/datasets/${objToSend.assetId}?locale=en`, { external: true });
+    } catch {
+        showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlan'));
+    }
 };
 </script>
 

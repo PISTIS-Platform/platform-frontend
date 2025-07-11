@@ -131,6 +131,7 @@ export default defineI18nConfig(() => ({
                     termsAndConditions: 'Terms and Conditions',
                     termsAndConditionsPlaceholder: 'Type out the terms and conditions for your offering here.',
                     summary: 'Summary',
+                    success: 'Investment plan successfully created',
                     errors: {
                         number: 'Please enter a valid number',
                         percentageMin: 'Percentage cannot be negative',
@@ -146,6 +147,7 @@ export default defineI18nConfig(() => ({
                             'Maximum shares per investor cannot exceed or equal the total number of shares',
                         termsMin: 'Terms and conditions must be at least 10 characters long',
                         termsMax: 'Terms and conditions cannot exceed 10,000 characters',
+                        couldNotCreateInvestmentPlan: 'Could not create investment plan. An error has occurred.',
                     },
                 },
 
