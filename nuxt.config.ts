@@ -48,6 +48,7 @@ export default defineNuxtConfig({
             cloudUrl: '',
             orgId: '',
             orgLogo: '',
+            catalogName: '',
         },
         keycloak: {
             issuer: '',

@@ -42,23 +42,30 @@ const { status: balanceStatus } = await useLazyFetch(`/api/wallet`, {
             method: 'post',
             async onResponse({ response }) {
                 const transactions = response._data;
-                incoming.value = transactions.incoming.map((item) => {
-                    return {
-                        date: item.included_at,
-                        id: item.transaction_id,
-                        amount: item.payload.Basic.amount,
-                        type: 'Incoming',
-                    };
-                });
+                console.log({ transactions });
+                //FIXME: In the future we might show NFTs but not now
+                incoming.value = transactions.incoming
+                    .filter((item) => item.payload.Basic)
+                    .map((item) => {
+                        return {
+                            date: item.included_at,
+                            id: item.transaction_id,
+                            amount: item.payload.Basic.amount,
+                            type: 'Incoming',
+                        };
+                    });
 
-                outgoing.value = transactions.outgoing.map((item) => {
-                    return {
-                        date: item.included_at,
-                        id: item.transaction_id,
-                        amount: item.payload.Basic.amount,
-                        type: 'Outgoing',
-                    };
-                });
+                //FIXME: In the future we might show NFTs but not now
+                outgoing.value = transactions.outgoing
+                    .filter((item) => item.payload.Basic)
+                    .map((item) => {
+                        return {
+                            date: item.included_at,
+                            id: item.transaction_id,
+                            amount: item.payload.Basic.amount,
+                            type: 'Outgoing',
+                        };
+                    });
                 monthlyIncome.value = incoming.value.reduce((sum, transaction) => {
                     return sum + transaction.amount;
                 }, 0);
