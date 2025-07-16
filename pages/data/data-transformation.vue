@@ -179,19 +179,21 @@ onMounted(() => {
                     <div style="display: flex; align-items: center">
                         <h3 v-if="element.content.title" style="margin-right: 8px; display: flex; align-items: center">
                             {{ element.content.title }}
-                            <Icon
-                                v-if="element.content.description"
-                                icon="heroicons:information-circle"
-                                class="info-icon"
-                                style="cursor: pointer; font-size: 1.3em; margin-left: 6px"
-                                @mouseover="hoveredTitleIndex = index"
-                                @mouseleave="hoveredTitleIndex = null"
-                            />
-                            <span
-                                v-if="hoveredTitleIndex === index && element.content.description"
-                                class="description-tooltip"
-                            >
-                                {{ element.content.description }}
+                            <span class="tooltip-container">
+                                <Icon
+                                    v-if="element.content.description"
+                                    icon="heroicons:information-circle"
+                                    class="info-icon"
+                                    style="cursor: pointer; font-size: 1.3em; margin-left: 6px"
+                                    @mouseover="hoveredTitleIndex = index"
+                                    @mouseleave="hoveredTitleIndex = null"
+                                />
+                                <span
+                                    v-if="hoveredTitleIndex === index && element.content.description"
+                                    class="description-tooltip"
+                                >
+                                    {{ element.content.description }}
+                                </span>
                             </span>
                         </h3>
                         <h3 v-else-if="element.content.properties.id.const">
@@ -207,19 +209,21 @@ onMounted(() => {
                         >
                             <label :for="`input-${index}-${key}`" style="display: flex; align-items: center">
                                 {{ key }}
-                                <Icon
-                                    v-if="paramSchema.description"
-                                    icon="heroicons:information-circle"
-                                    class="info-icon"
-                                    style="cursor: pointer; font-size: 1.1em; margin-left: 4px; margin-right: 4px"
-                                    @mouseover="hoveredParamIndex = `${index}-${key}`"
-                                    @mouseleave="hoveredParamIndex = null"
-                                />
-                                <span
-                                    v-if="hoveredParamIndex === `${index}-${key}` && paramSchema.description"
-                                    class="description-tooltip"
-                                >
-                                    {{ paramSchema.description }}
+                                <span class="tooltip-container">
+                                    <Icon
+                                        v-if="paramSchema.description"
+                                        icon="heroicons:information-circle"
+                                        class="info-icon"
+                                        style="cursor: pointer; font-size: 1.1em; margin-left: 4px; margin-right: 4px"
+                                        @mouseover="hoveredParamIndex = `${index}-${key}`"
+                                        @mouseleave="hoveredParamIndex = null"
+                                    />
+                                    <span
+                                        v-if="hoveredParamIndex === `${index}-${key}` && paramSchema.description"
+                                        class="description-tooltip"
+                                    >
+                                        {{ paramSchema.description }}
+                                    </span>
                                 </span>
                                 <span
                                     v-if="
@@ -575,7 +579,6 @@ button:hover {
     gap: 20px;
 }
 
-
 .json-panel-left {
     flex: 1;
 }
@@ -667,7 +670,7 @@ button:hover {
 }
 
 .description-tooltip {
-    position: fixed;
+    position: absolute;
     left: auto;
     right: auto;
     top: auto;
