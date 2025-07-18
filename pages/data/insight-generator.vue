@@ -65,7 +65,7 @@ const handleSubmit = async () => {
 
         if (contentType === 'application/json') {
             const data = response._data;
-            console.log('Response data:', data);
+            // console.log('Response data:', data);
             responseContent.value = JSON.stringify(data, null, 2);
         } else if (contentType === 'text/html') {
             const blob = new Blob([response._data as string]);

@@ -78,12 +78,12 @@ const addTransformation = (index) => {
         }),
     );
     transformations.value.push(panelData);
-    console.log('Panel Data Added:', panelData);
+    // console.log('Panel Data Added:', panelData);
 };
 
 const deleteTransformation = (index) => {
     transformations.value.splice(index, 1);
-    console.log(`Transformation at index ${index} deleted.`);
+    // console.log(`Transformation at index ${index} deleted.`);
 };
 
 const handleFileChange = (event: Event) => {
@@ -95,7 +95,7 @@ const handleFileChange = (event: Event) => {
 
 const transformFile = async () => {
     const allTransformations = JSON.stringify(transformations.value, null, 1); // Get the entire JSON array
-    console.log('All Transformations:', allTransformations);
+    // console.log('All Transformations:', allTransformations);
 
     const formData = new FormData();
     formData.append('transformation_definition', allTransformations);
@@ -574,7 +574,6 @@ button:hover {
     display: flex;
     gap: 20px;
 }
-
 
 .json-panel-left {
     flex: 1;
