@@ -42,7 +42,6 @@ const { status: balanceStatus } = await useLazyFetch(`/api/wallet`, {
             method: 'post',
             async onResponse({ response }) {
                 const transactions = response._data;
-                console.log({ transactions });
                 //FIXME: In the future we might show NFTs but not now
                 incoming.value = transactions.incoming
                     .filter((item) => item.payload.Basic)
