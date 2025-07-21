@@ -83,6 +83,14 @@ const addTransformation = (index) => {
 
 const deleteTransformation = (index) => {
     transformations.value.splice(index, 1);
+    if (transformations.value.length === 0) {
+        hoveredTransformation.value = null;
+    } else if (
+        hoveredTransformation.value &&
+        JSON.stringify(hoveredTransformation.value) === JSON.stringify(transformations.value[index])
+    ) {
+        hoveredTransformation.value = null;
+    }
     console.log(`Transformation at index ${index} deleted.`);
 };
 
