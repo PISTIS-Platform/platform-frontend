@@ -23,10 +23,10 @@ const props = defineProps({
 });
 
 const percentageColorClasses = computed(() => {
-    if (props.percentage >= 0 && props.percentage < 50) {
+    if (props.percentage >= 0 && props.percentage < 60) {
         return 'text-green-600';
     }
-    if (props.percentage >= 50 && props.percentage < 90) {
+    if (props.percentage >= 50 && props.percentage < 80) {
         return 'text-yellow-600';
     }
     return 'text-red-600';
