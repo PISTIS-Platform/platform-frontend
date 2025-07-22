@@ -4,6 +4,10 @@ import dayjs from 'dayjs';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
+const {
+    public: { cloudUrl },
+} = useRuntimeConfig();
+
 import type { AccessPolicyDetails } from '~/interfaces/plan-designer';
 
 const { showErrorMessage, showSuccessMessage } = useAlertMessage();
@@ -224,7 +228,7 @@ const submitAll = async () => {
         });
         showSuccessMessage(t('data.investmentPlanner.success'));
         await delay(2);
-        navigateTo(`https://pistis-market.eu/srv/catalog/datasets/${objToSend.assetId}?locale=en`, { external: true });
+        navigateTo(`${cloudUrl}/srv/catalog/datasets/${objToSend.assetId}?locale=en`, { external: true });
     } catch {
         showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlan'));
     }
