@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
+import type { AccessPolicyDetails } from '~/interfaces/plan-designer';
+
 const { showErrorMessage, showSuccessMessage } = useAlertMessage();
 import { navigateTo } from '#app';
 
@@ -198,6 +200,7 @@ const submitAll = async () => {
         title: string;
         description: string;
         keywords: string[];
+        accessPolicy: AccessPolicyDetails[];
     } = {
         cloudAssetId: uuidV4(),
         assetId: assetOfferingDetails.value.id,
@@ -211,6 +214,7 @@ const submitAll = async () => {
         title: assetOfferingDetails.value.title,
         description: assetOfferingDetails.value.description,
         keywords: assetOfferingDetails.value.keywords,
+        accessPolicy: policyData,
     };
 
     try {
