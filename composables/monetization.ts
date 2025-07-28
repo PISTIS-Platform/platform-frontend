@@ -32,6 +32,7 @@ export const useMonetizationSchema = () => {
     const subscriptionSchema = z.object({
         type: z.literal('subscription'),
         subscriptionFrequency: z.string().min(1, t('val.required')),
+        updateFrequency: z.string().min(1, t('val.required')),
         price: z.union([
             z
                 .string()

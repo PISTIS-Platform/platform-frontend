@@ -50,7 +50,7 @@ const newAssetId = uuidV4();
 // FAIR data valuation suggestions data
 //TODO: Will probably receive data from the component with its own API call
 
-const fairValuationInfo = ref<{
+const _fairValuationInfo = ref<{
     overallRating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
     dataQuality: number;
     technical: number;
@@ -66,7 +66,7 @@ const fairValuationInfo = ref<{
     privacy: 30,
 });
 
-const loadingValuation = ref(false);
+const _loadingValuation = ref(false);
 
 // data for asset offering details
 
@@ -174,6 +174,7 @@ const submitAll = async () => {
         keywords: assetOfferingDetails.value.keywords,
         type: monetizationDetails.value.type,
         subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
+        updateFrequency: monetizationDetails.value.updateFrequency,
         price: monetizationDetails.value.price,
         license: licenseDetails.value.license,
         extraTerms: licenseDetails.value.extraTerms,
@@ -277,6 +278,10 @@ const changeStep = async (stepNum: number) => {
                     monetizationDetails.value.type === 'subscription'
                         ? monetizationDetails.value.subscriptionFrequency
                         : null,
+                updateFrequency:
+                    monetizationDetails.value.type === 'subscription'
+                        ? monetizationDetails.value.updateFrequency
+                        : null,
             },
         });
         //TODO:: use returned compose contract for other pistis components
@@ -304,7 +309,7 @@ const changeStep = async (stepNum: number) => {
     </div>
 
     <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
-        <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" />
+        <!-- <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" /> -->
 
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"

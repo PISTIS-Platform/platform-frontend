@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import type CardSelection from '~/interfaces/card-selection';
 import { SubscriptionFrequency } from '~/interfaces/subscription-frequency.enum';
+import { UpdateFrequency } from '~/interfaces/update-frequency.enum';
 
 const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
@@ -33,6 +34,25 @@ const { isFree, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
 
+const updateFrequencySelections = [
+    {
+        label: t('data.designer.hourly'),
+        value: UpdateFrequency.HOURLY,
+    },
+    {
+        label: t('data.designer.daily'),
+        value: UpdateFrequency.DAILY,
+    },
+    {
+        label: t('data.designer.weekly'),
+        value: UpdateFrequency.WEEKLY,
+    },
+    {
+        label: t('data.designer.monthly'),
+        value: UpdateFrequency.MONTHLY,
+    },
+];
+
 const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'nft') => {
     isFree.value = false;
     emit('update:is-free', false);
@@ -45,8 +65,9 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'nft')
     } else if (monetizationType === 'subscription') {
         monetizationDetails.value = {
             type: 'subscription',
-            subscriptionFrequency: 'monthly',
+            subscriptionFrequency: '',
             price: '',
+            updateFrequency: '',
         };
     } else if (monetizationType === 'nft') {
         //TODO: Do once we know what goes here
@@ -149,8 +170,7 @@ const customValidate = () => {
                         <div class="flex flex-row gap-4">
                             <div class="flex-1 flex gap-4">
                                 <UFormGroup
-                                    :label="$t('data.designer.oneOffPrice')"
-                                    class="flex-1"
+                                    :label="$t('data.designer.price')"
                                     :required="!isFree"
                                     name="price"
                                     :ui="{ error: 'absolute -bottom-6' }"
@@ -158,9 +178,9 @@ const customValidate = () => {
                                 >
                                     <UInput
                                         v-model.number="monetizationDetails.price"
-                                        :class="isFree ? 'opacity-50' : ''"
+                                        :class="isFree ? 'opacity-50' : 'w-[328px]'"
                                         :disabled="isFree"
-                                        :placeholder="$t('data.designer.oneOffPrice')"
+                                        :placeholder="$t('data.designer.price')"
                                         type="numeric"
                                     >
                                         <template #trailing>
@@ -201,52 +221,19 @@ const customValidate = () => {
                     <div class="flex flex-col space-y-5">
                         <div class="flex flex-row gap-4">
                             <div class="flex gap-4 w-full">
-                                <UFormGroup
-                                    :label="$t('data.designer.subscriptionFrequency')"
-                                    required
-                                    name="subscriptionFrequency"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <div class="flex items-start justify-start flex-row gap-4 mt-2.5">
-                                        <URadio
-                                            v-model="monetizationDetails.subscriptionFrequency"
-                                            :label="$t('data.designer.monthly')"
-                                            :value="SubscriptionFrequency.MONTHLY"
-                                            selected
-                                        />
-                                        <URadio
-                                            v-model="monetizationDetails.subscriptionFrequency"
-                                            :label="$t('data.designer.annual')"
-                                            :value="SubscriptionFrequency.ANNUAL"
-                                        />
-                                    </div>
-                                    <template #error="{ error }">
-                                        <span
-                                            :class="[
-                                                error
-                                                    ? 'text-red-500 dark:text-red-400'
-                                                    : 'text-primary-500 dark:text-primary-400',
-                                            ]"
-                                        >
-                                            {{ monetizationDetails.subscriptionFrequency ? '' : error }}
-                                        </span>
-                                    </template>
-                                </UFormGroup>
-                                <div class="flex-1 flex gap-4">
+                                <div class="flex gap-4">
                                     <UFormGroup
-                                        :label="$t('data.designer.subscriptionPrice')"
-                                        class="flex-1"
+                                        :label="$t('data.designer.price')"
                                         :required="!isFree"
                                         name="price"
-                                        :ui="{ error: 'absolute -bottom-6' }"
+                                        :ui="{ error: 'absolute -bottom-6 flex' }"
                                         eager-validation
                                     >
                                         <UInput
                                             v-model.number="monetizationDetails.price"
                                             :class="isFree ? 'opacity-50' : ''"
                                             :disabled="isFree"
-                                            :placeholder="$t('data.designer.subscriptionPricePH')"
+                                            :placeholder="$t('data.designer.price')"
                                             type="numeric"
                                         >
                                             <template #trailing>
@@ -265,21 +252,74 @@ const customValidate = () => {
                                             </span>
                                         </template>
                                     </UFormGroup>
-                                    <UFormGroup
-                                        :label="$t('data.designer.free')"
-                                        name="free"
-                                        :ui="{ error: 'absolute -bottom-6' }"
-                                        eager-validation
-                                    >
-                                        <UCheckbox
-                                            :model-value="isFree"
-                                            name="subscriptionFree"
-                                            class="mt-2.5 flex-1 justify-center"
-                                            @update:model-value="(value: boolean) => updateFree(value)"
-                                        />
-                                    </UFormGroup>
+                                    <span class="mt-7 text-sm">per</span>
                                 </div>
+                                <UFormGroup
+                                    :label="$t('data.designer.subscriptionFrequency')"
+                                    required
+                                    name="subscriptionFrequency"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
+                                >
+                                    <USelectMenu
+                                        v-model="monetizationDetails.subscriptionFrequency"
+                                        :options="[
+                                            { label: $t('data.designer.month'), value: SubscriptionFrequency.MONTHLY },
+                                            { label: $t('data.designer.year'), value: SubscriptionFrequency.ANNUAL },
+                                        ]"
+                                        :placeholder="`${$t('data.designer.per')} ${$t('data.designer.month')} / ${$t('data.designer.year')}`"
+                                    ></USelectMenu>
+                                    <template #error="{ error }">
+                                        <span
+                                            :class="[
+                                                error
+                                                    ? 'text-red-500 dark:text-red-400'
+                                                    : 'text-primary-500 dark:text-primary-400',
+                                            ]"
+                                        >
+                                            {{ monetizationDetails.subscriptionFrequency ? '' : error }}
+                                        </span>
+                                    </template>
+                                </UFormGroup>
+                                <UFormGroup
+                                    :label="$t('data.designer.free')"
+                                    name="free"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
+                                >
+                                    <UCheckbox
+                                        :model-value="isFree"
+                                        name="subscriptionFree"
+                                        class="mt-2.5 flex-1 justify-center"
+                                        @update:model-value="(value: boolean) => updateFree(value)"
+                                    />
+                                </UFormGroup>
                             </div>
+                        </div>
+
+                        <div>
+                            <UFormGroup
+                                :label="$t('data.designer.dataUpdated')"
+                                name="updateFrequency"
+                                required
+                                eager-validation
+                            >
+                                <!-- <USelectMenu
+                                    :options="updateFrequencySelections"
+                                    v-model="monetizationDetails.updateFrequency"
+                                    class="w-[250px]"
+                                >
+                                </USelectMenu> -->
+                                <div class="flex items-center gap-2">
+                                    <URadio
+                                        v-for="selection in updateFrequencySelections"
+                                        :key="selection.label"
+                                        v-model="monetizationDetails.updateFrequency"
+                                        :label="selection.label"
+                                    >
+                                    </URadio>
+                                </div>
+                            </UFormGroup>
                         </div>
                     </div>
                 </template>
