@@ -254,22 +254,27 @@ const customValidate = () => {
                                     </UFormGroup>
                                     <span class="mt-7 text-sm">per</span>
                                 </div>
-                                <UFormGroup
-                                    :label="$t('data.designer.subscriptionFrequency')"
-                                    required
-                                    name="subscriptionFrequency"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <USelectMenu
-                                        v-model="monetizationDetails.subscriptionFrequency"
-                                        :options="[
-                                            { label: $t('data.designer.month'), value: SubscriptionFrequency.MONTHLY },
-                                            { label: $t('data.designer.year'), value: SubscriptionFrequency.ANNUAL },
-                                        ]"
-                                        :placeholder="`${$t('data.designer.per')} ${$t('data.designer.month')} / ${$t('data.designer.year')}`"
-                                    ></USelectMenu>
-                                    <template #error="{ error }">
+                                <UFormGroup required name="subscriptionFrequency" eager-validation>
+                                    <div class="flex gap-2 mt-7">
+                                        <URadio
+                                            v-for="selection in [
+                                                {
+                                                    label: $t('data.designer.month'),
+                                                    value: SubscriptionFrequency.MONTHLY,
+                                                },
+                                                {
+                                                    label: $t('data.designer.year'),
+                                                    value: SubscriptionFrequency.ANNUAL,
+                                                },
+                                            ]"
+                                            :key="selection.label"
+                                            v-model="monetizationDetails.subscriptionFrequency"
+                                            :label="selection.label"
+                                        >
+                                        </URadio>
+                                    </div>
+
+                                    <!-- <template #error="{ error }">
                                         <span
                                             :class="[
                                                 error
@@ -279,8 +284,9 @@ const customValidate = () => {
                                         >
                                             {{ monetizationDetails.subscriptionFrequency ? '' : error }}
                                         </span>
-                                    </template>
+                                    </template> -->
                                 </UFormGroup>
+                                <UDivider orientation="vertical" class="mx-5"></UDivider>
                                 <UFormGroup
                                     :label="$t('data.designer.free')"
                                     name="free"
@@ -304,12 +310,6 @@ const customValidate = () => {
                                 required
                                 eager-validation
                             >
-                                <!-- <USelectMenu
-                                    :options="updateFrequencySelections"
-                                    v-model="monetizationDetails.updateFrequency"
-                                    class="w-[250px]"
-                                >
-                                </USelectMenu> -->
                                 <div class="flex items-center gap-2">
                                     <URadio
                                         v-for="selection in updateFrequencySelections"
