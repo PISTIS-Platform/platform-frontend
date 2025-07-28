@@ -24,6 +24,7 @@ const selected = ref<
 const { data: dataset, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
     $fetch('/api/datasets/get-specific', { query: { id: assetId } }),
 );
+
 watch(dataset, () => {
     if (!dataset.value) return;
     selected.value = {
@@ -187,7 +188,7 @@ const submitAll = async () => {
         numOfResell: 0,
         termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
         additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
-        nonRenewalTerms: licenseDetails.value.nonRenewalDays,
+        nonRenewalDays: licenseDetails.value.nonRenewalDays,
         contractBreachDays: licenseDetails.value.contractBreachDays,
         containsPersonalData: hasPersonalData.value,
         personalDataTerms: licenseDetails.value.personalDataTerms,
@@ -285,7 +286,6 @@ const changeStep = async (stepNum: number) => {
 
 <template>
     <NavigationSteps :steps="steps" :selected-page="selectedPage" @select-page="changeStep" />
-
     <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
 
     <div v-show="selectedPage === 0 && selected" class="w-full h-full text-gray-700 space-y-8">
