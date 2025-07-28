@@ -199,18 +199,18 @@ const customValidate = () => {
                                         </span>
                                     </template>
                                 </UFormGroup>
-                                <UFormGroup
-                                    :label="$t('data.designer.free')"
-                                    name="free"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <UCheckbox
-                                        :model-value="isFree"
-                                        name="oneOffFree"
-                                        class="mt-2.5 flex-1 justify-center"
-                                        @update:model-value="(value: boolean) => updateFree(value)"
-                                    />
+
+                                <UDivider orientation="vertical" class="mx-5 mt-6"></UDivider>
+                                <UFormGroup name="free" :ui="{ error: 'absolute -bottom-6' }" eager-validation>
+                                    <div class="flex gap-2 items-center text-sm mt-[30px]">
+                                        <span class="font-semibold">{{ $t('data.designer.free') }}</span>
+                                        <UCheckbox
+                                            :model-value="isFree"
+                                            name="subscriptionFree"
+                                            class="flex-1 justify-center"
+                                            @update:model-value="(value: boolean) => updateFree(value)"
+                                        />
+                                    </div>
                                 </UFormGroup>
                             </div>
                         </div>
@@ -286,19 +286,17 @@ const customValidate = () => {
                                         </span>
                                     </template> -->
                                 </UFormGroup>
-                                <UDivider orientation="vertical" class="mx-5"></UDivider>
-                                <UFormGroup
-                                    :label="$t('data.designer.free')"
-                                    name="free"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <UCheckbox
-                                        :model-value="isFree"
-                                        name="subscriptionFree"
-                                        class="mt-2.5 flex-1 justify-center"
-                                        @update:model-value="(value: boolean) => updateFree(value)"
-                                    />
+                                <UDivider orientation="vertical" class="mx-5 mt-6"></UDivider>
+                                <UFormGroup name="free" :ui="{ error: 'absolute -bottom-6' }" eager-validation>
+                                    <div class="flex gap-2 items-center text-sm mt-7">
+                                        <span class="font-semibold">{{ $t('data.designer.free') }}</span>
+                                        <UCheckbox
+                                            :model-value="isFree"
+                                            name="subscriptionFree"
+                                            class="flex-1 justify-center"
+                                            @update:model-value="(value: boolean) => updateFree(value)"
+                                        />
+                                    </div>
                                 </UFormGroup>
                             </div>
                         </div>
