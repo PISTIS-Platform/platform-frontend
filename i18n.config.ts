@@ -18,6 +18,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            monitoring: 'Monitoring',
             worldwide: 'Worldwide',
             select: 'Select',
             search: 'Search...',

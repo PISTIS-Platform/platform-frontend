@@ -27,6 +27,7 @@ useHead({
 
 const navigation = ref([
     { name: 'home.home', to: '/home', target: '_self', icon: '', external: false },
+    { name: 'monitoring', to: '/monitoring', target: '_self', icon: '', external: false },
     { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
     {
         name: 'catalog.catalog',
