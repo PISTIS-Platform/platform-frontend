@@ -28,19 +28,13 @@ const computedResourcesUsageStats = computed(() => {
         minio: 'simple-icons:minio',
         mongoDb: 'tabler:brand-mongodb',
         postgres: 'carbon:database-postgresql',
-        elasticSearchAvg: 'tabler:brand-elastic',
+        esInstance: 'tabler:brand-elastic',
     };
 
     return (usageStatsData?.value || []).map((item: UsageStatsData) => ({
         title: t(`dashboard.resources.usageStats.${item.key}`),
         percentage: item.percentage,
         icon: iconsMapping[item.key],
-        tooltipInfo: item.extraInfo
-            ? item.extraInfo.map((item: { key: string; value: number }) => ({
-                  label: t(`dashboard.resources.usageStats.${item.key}`),
-                  value: `${item.value} %`,
-              }))
-            : [],
     }));
 });
 </script>
@@ -109,7 +103,6 @@ const computedResourcesUsageStats = computed(() => {
                                 :title="item.title || ''"
                                 :icon="item.icon"
                                 :percentage="item.percentage"
-                                :tooltip-info="item.tooltipInfo"
                             />
                         </div>
                         <div v-else>

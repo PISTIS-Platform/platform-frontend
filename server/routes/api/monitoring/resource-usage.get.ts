@@ -78,7 +78,7 @@ export default defineEventHandler(async (_event) => {
     const postgresUsagePercentage = await getDiskUsageByVolume('postgresql-1', 1);
 
     //  Elasticsearch Instances
-    const esInstance1Percentage = await getDiskUsageByVolume('elasticsearch-data-eck-elasticsearch-es-default-0', 1);
+    const esInstancePercentage = await getDiskUsageByVolume('elasticsearch-data-eck-elasticsearch-es-default-0', 1);
 
     //  General usage stats
     const usageStatsData: UsageStatsData[] = [
@@ -103,8 +103,8 @@ export default defineEventHandler(async (_event) => {
             percentage: postgresUsagePercentage,
         },
         {
-            key: 'elasticSearchAvg',
-            percentage: esInstance1Percentage,
+            key: 'esInstance',
+            percentage: esInstancePercentage,
         },
     ];
 
