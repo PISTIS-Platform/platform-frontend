@@ -9,7 +9,11 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return event.$fetch(`${factoryUrl}/srv/insights-generator/insights/`, {
+    if (query.lite_version === undefined) {
+        query.lite_version = 'true';
+    }
+
+    return event.$fetch(`${factoryUrl}/srv/insights-generator/insights/?lite_version=${query.lite_version}`, {
         method: 'POST',
         body,
         headers: {

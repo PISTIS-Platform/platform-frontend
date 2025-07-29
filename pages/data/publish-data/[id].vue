@@ -103,7 +103,7 @@ const monetizationDetails = ref<Partial<monetizationType>>({
 });
 
 // access policies
-const policyData: Array<AccessPolicyDetails> = [];
+let policyData: Array<AccessPolicyDetails> = [];
 const defaultPolicy: AccessPolicyDetails = {
     countries: [],
     domains: [],

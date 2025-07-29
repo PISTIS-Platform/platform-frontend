@@ -34,7 +34,7 @@ const navigation = ref([
     },
     {
         name: 'marketplace.marketplace',
-        to: config.public.cloudUrl + '/srv/catalog/datasets?locale=en',
+        to: `${config.public.cloudUrl}/srv/catalog/datasets?locale=en&catalog=${config.public.catalogName}&page=1`,
         target: '_blank',
         icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
@@ -237,7 +237,7 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                 </div>
             </DisclosurePanel>
         </Disclosure>
-        <main class="flex flex-col flex-1 overflow-y-auto text-gray-700">
+        <main v-if="status === 'authenticated'" class="flex flex-col flex-1 overflow-y-auto text-gray-700">
             <slot />
         </main>
         <footer class="bg-primary-900 flex p-4 text-xs justify-center align-center">
