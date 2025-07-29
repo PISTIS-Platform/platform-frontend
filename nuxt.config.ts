@@ -58,6 +58,7 @@ export default defineNuxtConfig({
         authSecret: '',
         catalogName: '',
         walletAlias: '',
+        factoryName: '',
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],

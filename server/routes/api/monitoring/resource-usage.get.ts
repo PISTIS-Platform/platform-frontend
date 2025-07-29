@@ -1,8 +1,17 @@
 import { PrometheusDriver } from 'prometheus-query';
 
-const { prometheusUrl } = useRuntimeConfig();
+const { prometheusUrl, factoryName } = useRuntimeConfig();
 
 import UsageStatsData from '~/interfaces/usage-stats-data';
+
+const resourceMap: Record<string, Record<string, string>> = {
+    develop: {
+        nodeName: 'agent',
+    },
+    acme: {
+        nodeName: 'workers',
+    },
+};
 
 const getPrometheusResult = async (q: string, percentageMultiplier = 100) => {
     const prom = new PrometheusDriver({
@@ -26,59 +35,52 @@ const getPrometheusResult = async (q: string, percentageMultiplier = 100) => {
 
 const getDiskUsageByVolume = async (volume: string, percentageMultiplier: number = 100) => {
     const q = `max without (instance, node) (
-      (
-        (
-            topk(1, otel_k8s_volume_capacity{k8s_namespace_name="default",k8s_persistentvolumeclaim_name="${volume}"})
-          -
-            topk(1, otel_k8s_volume_available{k8s_namespace_name="default",k8s_persistentvolumeclaim_name="${volume}"})
+            (
+                (
+                    topk(1, otel_k8s_volume_capacity_bytes{k8s_namespace_name="default", k8s_persistentvolumeclaim_name="${volume}"})
+                -
+                    topk(1, otel_k8s_volume_available_bytes{k8s_namespace_name="default", k8s_persistentvolumeclaim_name="${volume}"})
+                )
+            )
+            /
+            topk(1, otel_k8s_volume_capacity_bytes{k8s_namespace_name="default", k8s_persistentvolumeclaim_name="${volume}"})
+        *
+            100
         )
-      )
-    /
-      topk(1, otel_k8s_volume_capacity{k8s_namespace_name="default",k8s_persistentvolumeclaim_name="${volume}"})
-  *
-    100
-)`;
+    `;
 
     return getPrometheusResult(q, percentageMultiplier);
 };
 
 export default defineEventHandler(async (_event) => {
-    //CPU percentage
-    const cpuQuery = `(
-  sum(otel_k8s_node_cpu_utilization{k8s_cluster_name='cloud', k8s_node_name=~'.*agent.*'})
-  /
-  sum(kube_node_status_capacity{resource='cpu', node=~'.*agent.*'})
-)`;
+    const nodeName = resourceMap[factoryName].nodeName;
 
+    // CPU percentage
+    const cpuQuery = `
+        sum(otel_k8s_node_cpu_usage{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
+        /
+        sum(otel_k8s_node_allocatable_cpu{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
+    `;
     const cpuPercentage = await getPrometheusResult(cpuQuery);
 
-    //Memory utilisation percentage
-    const memoryUtilisationQuery = `(
-  sum(otel_k8s_node_memory_usage{k8s_cluster_name='cloud', k8s_node_name=~'.*agent.*'})
-  /
-  sum(kube_node_status_capacity{resource='memory', node=~'.*agent.*'})
-)`;
+    // Memory utilisation percentage
+    const memoryUtilisationQuery = `
+        sum(otel_k8s_node_memory_usage_bytes{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'}) 
+        / 
+        sum(otel_k8s_node_allocatable_memory_bytes{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
+    `;
 
     const memoryUtilisationPercentage = await getPrometheusResult(memoryUtilisationQuery);
 
-    //Disk Usage Stats
-
-    //Minio & Postgres
+    // Minio & Postgres
     const minioUsagePercentage = await getDiskUsageByVolume('minio', 1);
     const mongoDbUsagePercentage = await getDiskUsageByVolume('datadir-mongodb-0', 1);
     const postgresUsagePercentage = await getDiskUsageByVolume('postgresql-1', 1);
 
-    //Elasticsearch Instances
-    const esInstance1Percentage = await getDiskUsageByVolume('elasticsearch-data-elasticsearch-es-default-0', 1);
-    const esInstance2Percentage = await getDiskUsageByVolume('elasticsearch-data-elasticsearch-es-default-1', 1);
-    const esInstance3Percentage = await getDiskUsageByVolume('elasticsearch-data-elasticsearch-es-default-2', 1);
+    //  Elasticsearch Instances
+    const esInstance1Percentage = await getDiskUsageByVolume('elasticsearch-data-eck-elasticsearch-es-default-0', 1);
 
-    //Elasticsearch average percentage
-    const elasticSearchAvgPercentage = Number(
-        ((esInstance1Percentage + esInstance2Percentage + esInstance3Percentage) / 3).toFixed(2),
-    );
-
-    //General disk usage stats
+    //  General usage stats
     const usageStatsData: UsageStatsData[] = [
         {
             key: 'cpu',
@@ -102,21 +104,7 @@ export default defineEventHandler(async (_event) => {
         },
         {
             key: 'elasticSearchAvg',
-            percentage: elasticSearchAvgPercentage,
-            extraInfo: [
-                {
-                    key: 'esInstance1',
-                    value: esInstance1Percentage,
-                },
-                {
-                    key: 'esInstance2',
-                    value: esInstance2Percentage,
-                },
-                {
-                    key: 'esInstance3',
-                    value: esInstance3Percentage,
-                },
-            ],
+            percentage: esInstance1Percentage,
         },
     ];
 
