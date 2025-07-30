@@ -14,6 +14,8 @@ const messagesStore = useMessagesStore();
 
 const config = useRuntimeConfig();
 
+const { t } = useI18n();
+
 const { status, signIn, signOut, data: session } = useAuth();
 
 useHead({
@@ -53,7 +55,7 @@ const userNavigation: { name: string; href: string }[] = [
     },
     {
         name: t('user.systemMonitor'),
-        href: '/monitor',
+        href: '/monitoring',
     },
 ];
 
