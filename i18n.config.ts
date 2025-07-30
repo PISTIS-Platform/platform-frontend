@@ -20,6 +20,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            monitoring: 'Monitoring',
             countries: countriesInEnglish,
             companySizes: {
                 SMALL: 'Small',
@@ -115,6 +116,30 @@ export default defineI18nConfig(() => ({
                     type: 'Type',
                 },
             },
+            dashboard: {
+                dashboard: 'Dashboard',
+                status: 'Status',
+                resources: {
+                    name: 'Resources',
+                    title: 'Resources & Activities Monitor',
+                    componentStatus: 'Component Status',
+                    resourceUsage: 'Resource Usage',
+                    usageStats: {
+                        disk: 'Disk Usage',
+                        cpu: 'CPU',
+                        memory: 'Memory',
+                        from: 'from',
+                        cores: 'cores',
+                        mongoDb: 'MongoDB',
+                        esInstance: 'Elasticsearch',
+                        postgres: 'PostgreSQL',
+                        minio: 'MinIO',
+                        errorInRetrievingCpuAndMemoryStats:
+                            'Error occurred while retrieving CPU and Memory usage stats',
+                        errorInRetrievingDiskUsageStats: 'Error occurred while retrieving Disk usage stats',
+                    },
+                },
+            },
             sectors: {
                 aviation: 'Aviation',
                 energy: 'Energy',
@@ -153,6 +178,7 @@ export default defineI18nConfig(() => ({
             },
             data: {
                 data: 'Data Ingestion',
+                gdpr: 'GPDR Checker Results:',
                 jobConfigurator: 'Job Configurator',
                 dataTransformation: 'Data Transformation',
                 transformationCatalogue: 'Transformations Catalogue',
@@ -160,15 +186,37 @@ export default defineI18nConfig(() => ({
                 anonymizer: 'Anonymizer',
                 selectedDistribution: 'Selected Distribution',
                 workflowExecution: 'Workflow Execution',
+                workflowExecutionList: 'Latest Workflow Executions',
                 runID: 'Run ID',
-                workflowStatus: 'Workflow Status',
                 checkStatus: 'Check Status',
-                uploadDataset: 'Upload Dataset',
-                datasetName: 'Name',
-                datasetDescription: 'Description',
+                uploadDataset: 'Upload Dataset:',
+                datasetName: 'Dataset Name:',
+                workflowRealTimeData: 'Workflow Fetching Data: ',
+                datasetDescription: 'Dataset Description:',
+                datasetEncrytion: 'Encrypt Dataset:',
+                gdprChecking: 'GDPR Check:',
+                workflowDefinition: 'Workflow Definition:',
+                datasetDefinition: 'Dataset Definition:',
+                workflowExecutionResults: 'Workflow Execution Results:',
+                workflowRunId: 'Run ID:',
+                workflowStatus: 'Workflow Status:',
+                jobInputs: 'Jobs Inputs:',
                 jsonContent: 'Configuration (JSON)',
+                dataCheckIn: 'Data Check-In',
+                dataCheckInFileMethod: 'uploadFile',
+                dataCheckInFTPMethod: 'uploadDataFromFtpServer',
+                dataTransformationRunMethod: 'runTransformations',
+                insightsGeneratorGenerateMethod: 'generateInsights',
+                dataCheckInApiMethod: 'uploadDataFromAPI',
                 response: 'Response',
 
+                workflow: {
+                    runId: 'Run ID',
+                    start_date: 'Start Date',
+                    end_date: 'End Date',
+                    run_type: 'Run Type',
+                    state: 'Status',
+                },
                 designer: {
                     nav: {
                         selectDataset: 'Select Dataset',

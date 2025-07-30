@@ -9,7 +9,7 @@ const { status, signIn } = useAuth();
 
 const runtimeConfig = useRuntimeConfig();
 
-const orgLogo = computed(() => runtimeConfig.public?.orgLogo || '');
+const orgLogo = computed(() => runtimeConfig.public?.orgLogo);
 
 const callbackUrl = '/home';
 </script>
@@ -28,11 +28,12 @@ const callbackUrl = '/home';
                             <div class="sm:w-full md:w-auto">
                                 <NuxtLink :to="'/'" class="flex-shrink-0">
                                     <img
-                                        v-if="orgLogo"
+                                        v-if="orgLogo && orgLogo !== ''"
                                         class="h-12 sm:h-14"
                                         :src="`/img/${orgLogo}`"
                                         alt="Factory Logo"
                                     />
+                                    <img v-else class="h-12" src="/img/PISTIS_logo_white.png" alt="PISTIS Logo" />
                                 </NuxtLink>
                             </div>
                             <NuxtLink
@@ -44,7 +45,7 @@ const callbackUrl = '/home';
                         </div>
                         <!-- Right Menu - Pistis logo -->
                         <div class="flex justify-center items-center">
-                            <img class="h-12" src="/img/PISTIS_logo_white.png" alt="PISTIS Logo" />
+                            <img v-if="orgLogo" class="h-12" src="/img/PISTIS_logo_white.png" alt="PISTIS Logo" />
                         </div>
                     </nav>
                     <!-- Central Section/Main Content -->
