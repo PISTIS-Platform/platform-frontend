@@ -135,7 +135,7 @@ export const useMonetizationSchema = () => {
     //         path: ['percentageMinimum'],
     //     });
 
-    const monetizationSchema = z.union([oneOffSaleSchema, subscriptionSchema]);
+    const monetizationSchema = z.discriminatedUnion('type', [oneOffSaleSchema, subscriptionSchema]);
 
     return {
         isFree,

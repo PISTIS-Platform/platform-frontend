@@ -124,6 +124,7 @@ async function onSubmit(): Promise<void> {
     if (isMonetizationValid.value) {
         emit('changePage', 2);
     } else {
+        console.log(monetizationSchema.safeParse(monetizationDetails.value));
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
@@ -267,9 +268,9 @@ const customValidate = () => {
                                                     value: SubscriptionFrequency.ANNUAL,
                                                 },
                                             ]"
-                                            :key="selection.label"
+                                            :key="selection.value"
                                             v-model="monetizationDetails.subscriptionFrequency"
-                                            :label="selection.label"
+                                            v-bind="selection"
                                         >
                                         </URadio>
                                     </div>
@@ -311,9 +312,9 @@ const customValidate = () => {
                                 <div class="flex items-center gap-2">
                                     <URadio
                                         v-for="selection in updateFrequencySelections"
-                                        :key="selection.label"
+                                        :key="selection.value"
                                         v-model="monetizationDetails.updateFrequency"
-                                        :label="selection.label"
+                                        v-bind="selection"
                                     >
                                     </URadio>
                                 </div>
