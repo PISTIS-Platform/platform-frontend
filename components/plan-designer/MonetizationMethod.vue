@@ -124,7 +124,6 @@ async function onSubmit(): Promise<void> {
     if (isMonetizationValid.value) {
         emit('changePage', 2);
     } else {
-        console.log(monetizationSchema.safeParse(monetizationDetails.value));
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
@@ -274,18 +273,6 @@ const customValidate = () => {
                                         >
                                         </URadio>
                                     </div>
-
-                                    <!-- <template #error="{ error }">
-                                        <span
-                                            :class="[
-                                                error
-                                                    ? 'text-red-500 dark:text-red-400'
-                                                    : 'text-primary-500 dark:text-primary-400',
-                                            ]"
-                                        >
-                                            {{ monetizationDetails.subscriptionFrequency ? '' : error }}
-                                        </span>
-                                    </template> -->
                                 </UFormGroup>
                                 <UDivider orientation="vertical" class="mx-5 mt-6"></UDivider>
                                 <UFormGroup name="free" :ui="{ error: 'absolute -bottom-6' }" eager-validation>

@@ -201,7 +201,6 @@ const submitAll = async () => {
         },
     };
 
-    console.log({ body });
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',

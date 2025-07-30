@@ -121,8 +121,8 @@ const {
     error: datasetsError,
 } = useFetch(`/api/datasets/get-all`, {
     server: false,
-    async onResponse({ response }) {
-        console.log({ response });
+    async onResponse({ _response }) {
+        // console.log({ response });
     },
 });
 
