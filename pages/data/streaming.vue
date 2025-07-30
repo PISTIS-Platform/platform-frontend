@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 const {
-    public: { factoryUrl, kafkaSaslMechanism, kafkaSecurityProtocol, kafkaBrokers },
+    public: { factoryUrl },
 } = useRuntimeConfig();
 
 const { t } = useI18n();
@@ -25,30 +25,33 @@ const loaded = ref(false);
 
 const data = ref<Record<string, string | string[] | undefined>>({});
 
-data.value.brokerUrls = kafkaBrokers.split(',');
-data.value.securityProtocol = kafkaSecurityProtocol;
-data.value.saslMechanism = kafkaSaslMechanism;
-
 const onSubmit = async () => {
     loading.value = true;
 
     try {
-        const details = await $fetch<{ topic: string; kafkaUser: { name: string; secret: string } }>(
-            `/api/connector/get-streaming-details`,
-            {
-                method: 'POST',
-                body: {
-                    title: state.title,
-                    description: state.description,
-                },
+        const details = await $fetch<{
+            id: string;
+            topic: string;
+            kafkaUser: { name: string; secret: string };
+            bootstrapServers: string;
+            securityProtocol: string;
+            saslMechanism: string;
+        }>(`/api/connector/get-streaming-details`, {
+            method: 'POST',
+            body: {
+                title: state.title,
+                description: state.description,
             },
-        );
+        });
         data.value.id = details.id;
         data.value.topic = details.topic;
         data.value.username = details.kafkaUser.name;
         data.value.password = details.kafkaUser.secret;
         data.value.title = state.title;
         data.value.description = state.description;
+        data.value.brokerUrls = details.bootstrapServers;
+        data.value.securityProtocol = details.securityProtocol;
+        data.value.saslMechanism = details.saslMechanism;
 
         loaded.value = true;
     } catch (err: any) {
@@ -171,7 +174,7 @@ const showPassword = ref(false);
                         <span class="flex items-center gap-2 font-bold"
                             >{{ $t('data.streaming.password') }}:
                             <span class="font-normal font-mono">{{ showPassword ? data.password : '*********' }}</span>
-                            <UButton size="xs">
+                            <UButton size="xs" @click="showPassword = !showPassword">
                                 {{ showPassword ? 'Hide' : 'Reveal' }}
                             </UButton>
                             <UButton
@@ -187,17 +190,15 @@ const showPassword = ref(false);
                         <div class="flex items-start gap-2 font-bold">
                             <span class="mt-[5px] font-bold">{{ $t('data.streaming.brokerUrl') }}:</span>
                             <div class="flex flex-col gap-2">
-                                <div v-for="(url, index) in data.brokerUrls" :key="url" class="flex items-center gap-2">
-                                    <span class="font-normal font-mono">{{ url }}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-normal font-mono">{{ data.brokerUrls }}</span>
                                     <UButton
                                         icon="i-heroicons-document-duplicate"
                                         size="sm"
                                         variant="ghost"
                                         square
-                                        @click="copyItem('brokerUrls', index)"
-                                        >{{
-                                            copied && keyBeingCopied === 'brokerUrls' + index ? 'Copied' : ''
-                                        }}</UButton
+                                        @click="copyItem('brokerUrls')"
+                                        >{{ copied && keyBeingCopied === 'brokerUrls' ? 'Copied' : '' }}</UButton
                                     >
                                 </div>
                             </div>
