@@ -17,7 +17,7 @@ export default defineNuxtConfig({
         cookie: 'cookie',
     },
 
-    plugins: ['~/plugins/vue3-tags.js', '~/plugins/vue3-chartjs'],
+    plugins: ['~/plugins/vue3-tags.js', '~/plugins/vue3-chartjs.js'],
     devtools: { enabled: true },
 
     ui: {
@@ -48,19 +48,21 @@ export default defineNuxtConfig({
             cloudUrl: '',
             orgId: '',
             orgLogo: '',
+            catalogName: '',
         },
         keycloak: {
             issuer: '',
             clientId: '',
             clientSecret: '',
         },
-
+        prometheusUrl: '',
         authSecret: '',
         catalogName: '',
         walletAlias: '',
+        factoryName: '',
     },
 
-    modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui'],
+    modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/icon'],
 
     // Modules Configuration
     i18n: {
@@ -75,11 +77,11 @@ export default defineNuxtConfig({
             defaultProvider: 'keycloak',
         },
         session: {
-            enableRefreshPeriodically: false,
+            enableRefreshPeriodically: true,
             enableRefreshOnWindowFocus: true,
         },
         globalAppMiddleware: {
-            isEnabled: true,
+            isEnabled: false,
         },
     },
 

@@ -14,7 +14,18 @@
     "editor.quickSuggestions": {
         "strings": true
     },
+    "css.lint.unknownAtRules": "ignore",
     "tailwindCSS.experimental.configFile": "tailwind.config.ts",
-    "tailwindCSS.experimental.classRegex": [["ui:\\s*{([^)]*)\\s*}", "[\"'`]([^\"'`]*).*?[\"'`]"]],
-    "tailwindCSS.classAttributes": ["class", "className", "ngClass", "ui"]
+    "tailwindCSS.experimental.classRegex": [
+        [
+            "ui:\\s*{([^)]*)\\s*}",
+            "[\"'`]([^\"'`]*).*?[\"'`]"
+        ]
+    ],
+    "tailwindCSS.classAttributes": [
+        "class",
+        "className",
+        "ngClass",
+        "ui"
+    ]
 }

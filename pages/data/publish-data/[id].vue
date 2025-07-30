@@ -144,7 +144,7 @@ const licenseDetails = ref<Partial<licenseType>>({
 const { isWorldwide, isPerpetual, hasPersonalData, licenseSchema } = useLicenseSchema();
 
 // access policies
-const policyData: Array<AccessPolicyDetails> = [];
+let policyData: Array<AccessPolicyDetails> = [];
 const defaultPolicy: AccessPolicyDetails = {
     countries: [],
     domains: [],

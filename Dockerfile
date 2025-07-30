@@ -2,7 +2,7 @@ FROM node:20-slim AS builder
 WORKDIR /app
 COPY package.json /app/
 COPY pnpm-lock.yaml /app/
-RUN corepack enable && corepack prepare pnpm@latest-8 --activate
+RUN corepack enable && corepack prepare pnpm@latest-10 --activate
 RUN pnpm install
 COPY . /app
 RUN pnpm run build
