@@ -14,10 +14,6 @@ const messagesStore = useMessagesStore();
 
 const config = useRuntimeConfig();
 
-const route = useRoute();
-
-const firstLevelRoutePath = route.fullPath.split('/')[1];
-
 const { status, signIn, signOut, data: session } = useAuth();
 
 useHead({
@@ -27,6 +23,7 @@ useHead({
 
 const navigation = ref([
     { name: 'home.home', to: '/home', target: '_self', icon: '', external: false },
+    { name: 'monitoring', to: '/monitoring', target: '_self', icon: '', external: false },
     { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
     {
         name: 'catalog.catalog',
@@ -91,10 +88,6 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                     <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
                                 </NuxtLink>
                             </div>
-                        </div>
-                        <div class="mt-1 md:hidden flex gap-4 justify-center items-center ml-4 text-white">
-                            <span> • </span>
-                            {{ $t(`${firstLevelRoutePath}.${firstLevelRoutePath}`) }}
                         </div>
                     </div>
                     <div class="hidden md:block">

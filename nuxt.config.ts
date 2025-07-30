@@ -55,10 +55,11 @@ export default defineNuxtConfig({
             clientId: '',
             clientSecret: '',
         },
-
+        prometheusUrl: '',
         authSecret: '',
         catalogName: '',
         walletAlias: '',
+        factoryName: '',
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/icon'],
