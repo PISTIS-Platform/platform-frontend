@@ -39,12 +39,10 @@ const getWorkflowRunList = async () => {
     workflowList.value = [];
 
     try {
-        const response = await $fetch.raw(
-            'http://localhost:8297/workflow/gethWorkflowRunList?workflow_id=pistis_workflow_template',
-            {
-                method: 'POST',
-            },
-        );
+        const response = await $fetch.raw('/api/job-configurator/getRunsList', {
+            method: 'POST',
+            body: {},
+        });
         //console.log('response:', response);
         if (!response.ok) {
             throw new Error('Network response was not ok');
