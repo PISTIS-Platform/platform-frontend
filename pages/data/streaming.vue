@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import * as R from 'ramda';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
@@ -23,7 +22,7 @@ const schema = z.object({
 const loading = ref(false);
 const loaded = ref(false);
 
-const data = ref<Record<string, string | string[] | undefined>>({});
+const data = ref<Record<string, string | undefined>>({});
 
 const onSubmit = async () => {
     loading.value = true;
@@ -64,15 +63,12 @@ let timeout: ReturnType<typeof setTimeout>;
 const { copy, copied } = useClipboard();
 const keyBeingCopied = ref('');
 
-const copyItem = (key: string, index?: number) => {
+const copyItem = (key: string) => {
     clearTimeout(timeout);
-    if (!R.isNil(index)) {
-        copy(data.value[key][index]);
-        keyBeingCopied.value = key + index;
-    } else {
-        keyBeingCopied.value = key;
-        copy(data.value[key]);
-    }
+
+    keyBeingCopied.value = key;
+    copy(data.value[key] || '');
+
     timeout = setTimeout(() => {
         keyBeingCopied.value = '';
     }, 2000);
@@ -111,7 +107,7 @@ const showPassword = ref(false);
                     </template>
                 </UFormGroup>
             </div>
-            <div v-show="loaded" class="w-full flex flex-col text-sm gap-6 text-gray-700">
+            <div v-else class="w-full flex flex-col text-sm gap-6 text-gray-700">
                 <UCard :ui="{ background: 'bg-gray-50' }">
                     <template #header>
                         <span class="font-semibold">{{ $t('data.streaming.datasetDetails') }}</span>
