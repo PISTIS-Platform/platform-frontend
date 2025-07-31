@@ -1,4 +1,4 @@
-export const countriesInEnglish: Record<string, string> = {
+export const countries: Record<string, string> = {
     AF: 'Afghanistan',
     AX: 'Åland Islands',
     AL: 'Albania',

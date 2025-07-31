@@ -1,4 +1,4 @@
-import { countriesInEnglish } from '~/constants/org-constants';
+import { countries } from '~/constants/countries';
 
 export default defineI18nConfig(() => ({
     legacy: false,
@@ -21,7 +21,7 @@ export default defineI18nConfig(() => ({
     messages: {
         en: {
             monitoring: 'Monitoring',
-            countries: countriesInEnglish,
+            countries: countries,
             companySizes: {
                 SMALL: 'Small',
                 MEDIUM: 'Medium',
