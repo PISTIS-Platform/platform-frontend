@@ -49,7 +49,7 @@ export default defineNuxtConfig({
             orgId: '',
             orgLogo: '',
             catalogName: '',
-        },
+       },
         keycloak: {
             issuer: '',
             clientId: '',
@@ -59,6 +59,7 @@ export default defineNuxtConfig({
         authSecret: '',
         catalogName: '',
         walletAlias: '',
+        prometheusUrl: '',
         factoryName: '',
     },
 
