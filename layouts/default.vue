@@ -14,6 +14,8 @@ const messagesStore = useMessagesStore();
 
 const config = useRuntimeConfig();
 
+const { t } = useI18n();
+
 const { status, signIn, signOut, data: session } = useAuth();
 
 useHead({
@@ -28,7 +30,7 @@ const navigation = ref([
     {
         name: 'catalog.catalog',
         to: config.public.factoryUrl + '/srv/catalog/datasets?locale=en',
-        target: '_blank',
+        target: '_self',
         icon: '',
         external: true,
     },
@@ -42,7 +44,20 @@ const navigation = ref([
     { name: 'market.market', to: '/market', target: '_self', icon: '', external: false },
 ]);
 
-const userNavigation: { name: 'string'; href: 'string' }[] = [];
+const userNavigation: { name: string; href: string }[] = [
+    {
+        name: t('user.account'),
+        href: '/account',
+    },
+    {
+        name: t('user.factorySettings'),
+        href: '/settings',
+    },
+    {
+        name: t('user.systemMonitor'),
+        href: '/monitoring',
+    },
+];
 
 const notificationCount = ref(0);
 

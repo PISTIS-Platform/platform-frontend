@@ -12,9 +12,9 @@ const codeSort = R.sortWith([R.ascend(R.prop('code'))]);
 const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
-import { countriesInEnglish } from '~/constants/countries';
+import { countries } from '~/constants/countries';
 
-const listOfCountries = Object.values(countriesInEnglish);
+const listOfCountries = Object.values(countries);
 
 const props = defineProps({
     licenseDetailsProp: {
