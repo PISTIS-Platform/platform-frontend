@@ -108,14 +108,14 @@ const subscriptionMapping: Record<string, string> = {
                         <span>{{ subscriptionMapping[monetizationDetails.type] }}</span>
                     </div>
                     <div v-if="monetizationDetails.type === 'one-off'" class="flex gap-2 flex-col w-1/2">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.oneOffPrice') }}</span>
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.price') }}</span>
                         <span>{{
                             monetizationDetails.price ? monetizationDetails.price + ' EUR' : $t('data.designer.free')
                         }}</span>
                     </div>
                     <div v-if="monetizationDetails.type === 'subscription'" class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.subscriptionPrice') + ' & ' + $t('data.designer.subscriptionFrequency')
+                            $t('data.designer.price') + ' & ' + $t('data.designer.subscriptionFrequency')
                         }}</span>
                         <span>{{
                             monetizationDetails.price
@@ -177,7 +177,7 @@ const subscriptionMapping: Record<string, string> = {
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.availability') }}</span>
                         <span class="flex items-center gap-2 flex-wrap">
                             <span v-for="(country, idx) in licenseDetails.region" :key="country">
-                                <span>{{ country }}</span>
+                                <span>{{ $t(`countries.${country}`) }}</span>
                                 <span v-if="idx !== licenseDetails.region.length - 1">,</span>
                             </span>
                         </span>

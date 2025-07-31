@@ -14,7 +14,11 @@ const { t } = useI18n();
 
 import { countries } from '~/constants/countries';
 
-const listOfCountries = Object.values(countries);
+//NOTE: Value will be the shorthand, label is translatable
+const listOfCountries = Object.keys(countries).map((countryShorthand: string) => ({
+    label: t(`countries.${countryShorthand}`),
+    value: countryShorthand,
+}));
 
 const props = defineProps({
     licenseDetailsProp: {
@@ -339,6 +343,8 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                                         :placeholder="$t('data.designer.regionCountry')"
                                         multiple
                                         :disabled="isWorldwide"
+                                        value-attribute="value"
+                                        option-attribute="label"
                                         class="disabled:opacity-50"
                                     />
 
