@@ -28,7 +28,7 @@ const navigation = ref([
     {
         name: 'catalog.catalog',
         to: config.public.factoryUrl + '/srv/catalog/datasets?locale=en',
-        target: '_blank',
+        target: '_self',
         icon: '',
         external: true,
     },
