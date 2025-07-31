@@ -79,19 +79,16 @@ const monetizationToSend = ref();
 const monetizationSelections: CardSelection[] = [
     {
         title: t('data.designer.oneOffSale'),
-        // info: t('data.designer.oneOffSaleInfo'),
         value: 'one-off',
         disabled: false,
     },
     {
         title: t('data.designer.subscription'),
-        // info: t('data.designer.subscriptionInfo'),
         value: 'subscription',
         disabled: false,
     },
     {
         title: t('data.designer.nft'),
-        // info: t('data.designer.nftInfo'),
         value: 'nft',
         disabled: true,
     },
