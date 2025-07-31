@@ -1,7 +1,7 @@
 import { getToken } from '#auth';
 
 const {
-    public: { _factoryUrl },
+    public: { factoryUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
 
     //FIXME: Change URL with deployed version
-    return $fetch(`http://localhost:3030/api/investment-planner`, {
+    return $fetch(`${factoryUrl}/srv/investment-planner/api/investment-planner`, {
         method: 'POST',
         body,
         headers: {
