@@ -1,25 +1,3 @@
-export const companySizesInEnglish: Record<string, string> = {
-    SMALL: 'Small',
-    MEDIUM: 'Medium',
-    LARGE: 'Large',
-};
-
-export const typesInEnglish: Record<string, string> = {
-    SME: 'Small Medium Enterprise',
-    ACADEMIC: 'Academic / Research',
-    PUBLIC_BODY: 'Public Body',
-};
-
-export const domainsInEnglish: Record<string, string> = {
-    EDUCATION: 'Education',
-    TRANSPORTATION: 'Transportation',
-    CONSUMER_GOODS: 'Consumer Goods',
-    ELECTRICITY: 'Electricity',
-    OIL_AND_GAS: 'Oil and Gas',
-    HEALTHCARE: 'Healthcare',
-    CONSUMER_FINANCE: 'Consumer Finance',
-};
-
 export const countriesInEnglish: Record<string, string> = {
     AF: 'Afghanistan',
     AX: 'Åland Islands',
