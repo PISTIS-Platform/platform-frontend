@@ -121,9 +121,6 @@ const {
     error: datasetsError,
 } = useFetch(`/api/datasets/get-all`, {
     server: false,
-    async onResponse({ _response }) {
-        // console.log({ response });
-    },
 });
 
 const transformedDatasets = computed(() => {
