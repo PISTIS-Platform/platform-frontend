@@ -127,7 +127,7 @@ const noKafkaData = computed(() => {
                 />
 
                 <div v-if="streamingConsumerData" class="flex flex-wrap sm:flex-nowrap gap-8 mt-6 w-full">
-                    <UCard class="w-full sm:w-1/2">
+                    <UCard class="w-full sm:w-1/2 mb-6">
                         <template #header>
                             <SubHeading
                                 :title="$t('settings.streamingSettings')"
