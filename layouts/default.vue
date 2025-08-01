@@ -50,10 +50,6 @@ const userNavigation: { name: string; href: string }[] = [
         href: '/account',
     },
     {
-        name: t('user.factorySettings'),
-        href: '/settings',
-    },
-    {
         name: t('user.systemMonitor'),
         href: '/monitoring',
     },

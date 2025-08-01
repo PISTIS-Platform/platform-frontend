@@ -199,6 +199,8 @@ export default defineI18nConfig(() => ({
                     titlePlain: 'Title',
                     descriptionPlain: 'Description',
                     catalogLink: 'Catalog Link',
+                    warning: 'Warning',
+                    pleaseSave: 'Please save your credentials below as you will not be able to recover them otherwise.',
                 },
                 dataTransformation: 'Data Transformation',
                 transformationCatalogue: 'Transformations Catalogue',
