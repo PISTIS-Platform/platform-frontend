@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
         user: {
             name: token.name,
             email: token.email,
-            roles: token.pistis.user.role,
+            roles: token.roles,
         },
         org: {
             name: token.orgName,
