@@ -189,6 +189,7 @@ const onInvestmentSubmit = () => {
 
 const submitAll = async () => {
     const objToSend: {
+        type: string;
         cloudAssetId: string;
         assetId: string;
         dueDate: string;
@@ -203,6 +204,7 @@ const submitAll = async () => {
         keywords: string[];
         accessPolicy: AccessPolicyDetails[];
     } = {
+        type: 'investment',
         cloudAssetId: uuidV4(),
         assetId: assetOfferingDetails.value.id,
         dueDate: monetizationDetails.value.validOfferDate,
