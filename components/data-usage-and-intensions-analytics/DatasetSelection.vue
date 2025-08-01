@@ -93,53 +93,29 @@ function toggleTable() {
 
             <div>
                 <div v-if="!selected && displayTable">
-                    <Transition
-                        enter-active-class="duration-300 ease-out"
-                        enter-from-class="transform opacity-0"
-                        enter-to-class="opacity-100"
-                    >
-                        <FileBrowser
-                            :model-value="selected"
-                            :files="filteredSelections"
-                            @update:model-value="(value: string) => emit('update:selected', value)"
-                        />
-                    </Transition>
+                    <FileBrowser
+                        :model-value="selected"
+                        :files="filteredSelections"
+                        @update:model-value="(value: string) => emit('update:selected', value)"
+                    />
                 </div>
                 <div v-if="selected" class="space-y-5">
-                    <Transition
-                        enter-active-class="duration-300 ease-out"
-                        enter-from-class="transform opacity-0"
-                        enter-to-class="opacity-100"
-                        leave-active-class="duration-300 ease-in"
-                        leave-from-class="opacity-100"
-                        leave-to-class="transform opacity-0"
-                    >
-                        <div class="flex gap-4 w-full">
-                            <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
-                                <p>{{ $t('data.designer.assetTitle') }}:</p>
-                                <p>{{ $t('data.designer.assetDescription') }}:</p>
-                            </div>
-                            <div class="flex flex-col items-start justify-start gap-4">
-                                <p class="font-bold">{{ selected }}</p>
-                                <p>{{ dummyData[selected].description }}</p>
-                            </div>
+                    <div class="flex gap-4 w-full">
+                        <div class="flex flex-col items-start justify-start gap-4 whitespace-nowrap">
+                            <p>{{ $t('data.designer.assetTitle') }}:</p>
+                            <p>{{ $t('data.designer.assetDescription') }}:</p>
                         </div>
-                    </Transition>
-                    <Transition
-                        enter-active-class="duration-300 ease-out"
-                        enter-from-class="transform opacity-0"
-                        enter-to-class="opacity-100"
-                        leave-active-class="duration-300 ease-in"
-                        leave-from-class="opacity-100"
-                        leave-to-class="transform opacity-0"
-                    >
-                        <SelectionCards
-                            :model-value="questionnaireOrDashboard"
-                            class="gap-4"
-                            :selections="dataSetSelections"
-                            @update:model-value="(value: string) => emit('update:questionnaire-or-dashboard', value)"
-                        />
-                    </Transition>
+                        <div class="flex flex-col items-start justify-start gap-4">
+                            <p class="font-bold">{{ selected }}</p>
+                            <p>{{ dummyData[selected].description }}</p>
+                        </div>
+                    </div>
+                    <SelectionCards
+                        :model-value="questionnaireOrDashboard"
+                        class="gap-4"
+                        :selections="dataSetSelections"
+                        @update:model-value="(value: string) => emit('update:questionnaire-or-dashboard', value)"
+                    />
                 </div>
             </div>
         </div>
