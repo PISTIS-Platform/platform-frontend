@@ -30,8 +30,6 @@ export default defineEventHandler(async (event) => {
                 },
             });
 
-            console.log({ result: result.info });
-
             if (result?.status === 'ok') {
                 active = true;
             }
