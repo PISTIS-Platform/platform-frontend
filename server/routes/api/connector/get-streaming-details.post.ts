@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
     const body = await readBody(event);
 
-    return $fetch(`${factoryUrl}/srv/sctc/api/sctc/compose`, {
+    return $fetch(`${factoryUrl}/srv/data-connector/api/provider/streaming`, {
         method: 'POST',
         body,
         headers: {

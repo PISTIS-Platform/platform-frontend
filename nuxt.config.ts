@@ -48,16 +48,19 @@ export default defineNuxtConfig({
             cloudUrl: '',
             orgId: '',
             orgLogo: '',
-        },
+            catalogName: '',
+       },
         keycloak: {
             issuer: '',
             clientId: '',
             clientSecret: '',
         },
-
+        prometheusUrl: '',
         authSecret: '',
         catalogName: '',
         walletAlias: '',
+        prometheusUrl: '',
+        factoryName: '',
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/icon'],

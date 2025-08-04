@@ -14,9 +14,7 @@ const messagesStore = useMessagesStore();
 
 const config = useRuntimeConfig();
 
-const route = useRoute();
-
-const firstLevelRoutePath = route.fullPath.split('/')[1];
+const { t } = useI18n();
 
 const { status, signIn, signOut, data: session } = useAuth();
 
@@ -27,17 +25,18 @@ useHead({
 
 const navigation = ref([
     { name: 'home.home', to: '/home', target: '_self', icon: '', external: false },
+    { name: 'monitoring', to: '/monitoring', target: '_self', icon: '', external: false },
     { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
     {
         name: 'catalog.catalog',
         to: config.public.factoryUrl + '/srv/catalog/datasets?locale=en',
-        target: '_blank',
+        target: '_self',
         icon: '',
         external: true,
     },
     {
         name: 'marketplace.marketplace',
-        to: config.public.cloudUrl + '/srv/catalog/datasets?locale=en&catalog=pistis&page=1',
+        to: `${config.public.cloudUrl}/srv/catalog/datasets?locale=en&catalog=${config.public.catalogName}&page=1`,
         target: '_blank',
         icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
@@ -45,7 +44,16 @@ const navigation = ref([
     { name: 'market.market', to: '/market', target: '_self', icon: '', external: false },
 ]);
 
-const userNavigation: { name: 'string'; href: 'string' }[] = [];
+const userNavigation: { name: string; href: string }[] = [
+    {
+        name: t('user.account'),
+        href: '/account',
+    },
+    {
+        name: t('user.systemMonitor'),
+        href: '/monitoring',
+    },
+];
 
 const notificationCount = ref(0);
 
@@ -92,10 +100,6 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                 </NuxtLink>
                             </div>
                         </div>
-                        <div class="mt-1 md:hidden flex gap-4 justify-center items-center ml-4 text-white">
-                            <span> • </span>
-                            {{ $t(`${firstLevelRoutePath}.${firstLevelRoutePath}`) }}
-                        </div>
                     </div>
                     <div class="hidden md:block">
                         <div class="ml-4 flex items-center md:ml-6">
@@ -139,7 +143,7 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                     leave-to-class="transform opacity-0 scale-95"
                                 >
                                     <MenuItems
-                                        class="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                        class="absolute right-0 mt-2 w-52 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                                     >
                                         <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
                                             <a
