@@ -17,21 +17,6 @@ const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 
 const schema = z.object({
     title: z.string().min(1, t('required', { count: 1 })),
     description: z.string().min(1, t('required', { count: 1 })),
-    selectedDistribution: z.object({
-        label: z.string(),
-        id: z.string(),
-        format: z
-            .object({
-                id: z.string(),
-                label: z.string().optional(),
-                resource: z.string().optional(),
-            })
-            .optional(),
-        access_url: z.array(z.string()).optional(),
-        title: z.object({
-            en: z.string(),
-        }),
-    }),
 });
 
 //use computed getter and setter to avoid prop mutation
@@ -92,6 +77,7 @@ async function onSubmit(): Promise<void> {
         :state="assetOfferingDetails"
         :schema="schema"
         :validate="customValidate"
+        @submit="onSubmit"
     >
         <UCard>
             <template #header>
@@ -128,19 +114,6 @@ async function onSubmit(): Promise<void> {
                     />
                 </UFormGroup>
                 <UFormGroup
-                    :label="$t('data.selectedDistribution')"
-                    required
-                    name="selectedDistribution"
-                    :ui="{ error: 'absolute -bottom-6' }"
-                    eager-validation
-                >
-                    <USelectMenu
-                        v-model="assetOfferingDetails.selectedDistribution"
-                        :options="assetOfferingDetails.distributions"
-                    >
-                    </USelectMenu>
-                </UFormGroup>
-                <UFormGroup
                     :label="$t('keywords')"
                     required
                     name="keywords"
@@ -157,8 +130,9 @@ async function onSubmit(): Promise<void> {
                 </UFormGroup>
             </div>
         </UCard>
-        <div class="w-full flex items-center justify-end gap-4">
-            <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
+        <div class="relative w-full items-center justify-between flex mt-6">
+            <UButton color="white" size="lg">Previous</UButton>
+            <UButton size="lg" type="submit">Next</UButton>
         </div>
     </UForm>
 </template>

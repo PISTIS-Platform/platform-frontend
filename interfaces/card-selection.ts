@@ -1,6 +1,6 @@
 export default interface CardSelection {
     title: string;
-    info: string;
+    info?: string;
     value: any;
     disabled: boolean;
 }
