@@ -8,7 +8,10 @@ import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/pla
 
 const runtimeConfig = useRuntimeConfig();
 
-const { data: session } = useAuth();
+const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`, {
+    query: { page: '' },
+});
+
 // const { showSuccessMessage } = useAlertMessage();
 const router = useRouter();
 const { t } = useI18n();
@@ -125,7 +128,7 @@ const submitAll = async () => {
     let body = {
         originalAssetId: selected.value?.id,
         organizationId: runtimeConfig.public?.orgId,
-        organizationName: session.value?.orgName,
+        organizationName: accountData.value?.user.orgName,
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         termDate: monetizationDetails.value.termDate ?? new Date(86400000000000),
@@ -138,7 +141,7 @@ const submitAll = async () => {
             assetDescription: assetOfferingDetails.value.description,
             policyData: policyData,
         },
-        sellerId: session.value?.user?.sub,
+        sellerId: accountData.value?.user.sub,
         numOfResell: 0,
         numOfShare: 0,
     };

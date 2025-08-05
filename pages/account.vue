@@ -1,5 +1,10 @@
 <script setup lang="ts">
-const { data: accountData, status: accountStatus } = useFetch<Record<string, any>>(`/api/account/get-account-details`);
+const { data: accountData, status: accountStatus } = await useFetch<Record<string, any>>(
+    `/api/account/get-account-details`,
+    {
+        query: { page: 'profile' },
+    },
+);
 
 const { data: streamingConsumerData, status: streamingConsumerStatus } = useFetch<{
     username: string;
@@ -67,10 +72,11 @@ const noKafkaData = computed(() => {
                                         :label="$t('administrator')"
                                         :trailing="false"
                                         class="flex gap-2 items-center"
-                                        ><UIcon name="mdi:administrator" class="w-4 h-4" /><span>{{
-                                            $t('administrator')
-                                        }}</span></UBadge
                                     >
+                                        <UIcon name="mdi:administrator" class="w-4 h-4" /><span>{{
+                                            $t('administrator')
+                                        }}</span>
+                                    </UBadge>
                                 </span>
                             </div>
                             <!-- TODO: Add badge if user is creator of org (when/if info is available)-->
@@ -86,7 +92,7 @@ const noKafkaData = computed(() => {
                                     <span class="font-semibold text-gray-400 text-sm">{{
                                         $t('account.org.name')
                                     }}</span>
-                                    <pre>{{ accountData.org.name.replace(/^\//, '') }}</pre>
+                                    <pre>{{ accountData.org.name }}</pre>
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <span class="font-semibold text-gray-400 text-sm">{{
@@ -150,8 +156,8 @@ const noKafkaData = computed(() => {
                                         square
                                         @click="copyItem(streamingConsumerData.username, 'consumerUsername')"
                                         >{{ copied && keyBeingCopied === 'consumerUsername' ? 'Copied' : '' }}</UButton
-                                    ></span
-                                >
+                                    >
+                                </span>
                             </div>
                             <div class="flex flex-col gap-2 mt-6">
                                 <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
@@ -174,8 +180,8 @@ const noKafkaData = computed(() => {
                                         square
                                         @click="copyItem(streamingConsumerData.password, 'consumerPassword')"
                                         >{{ copied && keyBeingCopied === 'consumerPassword' ? 'Copied' : '' }}</UButton
-                                    ></span
-                                >
+                                    >
+                                </span>
                             </div>
                             <div class="flex flex-col gap-2 mt-6">
                                 <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
@@ -195,8 +201,8 @@ const noKafkaData = computed(() => {
                                         square
                                         @click="copyItem(url, url)"
                                         >{{ copied && keyBeingCopied === url ? 'Copied' : '' }}</UButton
-                                    ></span
-                                >
+                                    >
+                                </span>
                             </div>
                             <div class="flex flex-col gap-2 mt-6">
                                 <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
@@ -213,8 +219,8 @@ const noKafkaData = computed(() => {
                                         square
                                         @click="copyItem(streamingConsumerData.securityProtocol, 'securityProtocol')"
                                         >{{ copied && keyBeingCopied === 'securityProtocol' ? 'Copied' : '' }}</UButton
-                                    ></span
-                                >
+                                    >
+                                </span>
                             </div>
                             <div class="flex flex-col gap-2 mt-6">
                                 <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
@@ -229,8 +235,8 @@ const noKafkaData = computed(() => {
                                         square
                                         @click="copyItem(streamingConsumerData.saslMechanism, 'saslMechanism')"
                                         >{{ copied && keyBeingCopied === 'saslMechanism' ? 'Copied' : '' }}</UButton
-                                    ></span
-                                >
+                                    >
+                                </span>
                             </div>
                         </div>
                     </UCard>
