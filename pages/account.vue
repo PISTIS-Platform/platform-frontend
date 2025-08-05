@@ -98,7 +98,11 @@ const noKafkaData = computed(() => {
                                     <span class="font-semibold text-gray-400 text-sm">{{
                                         $t('account.org.country')
                                     }}</span>
-                                    <span>{{ $t(`countries.${accountData.org.country}`) }}</span>
+                                    <span>{{
+                                        !!accountData?.org?.country
+                                            ? $t(`countries.${accountData.org.country}`)
+                                            : $t('account.notFound')
+                                    }}</span>
                                 </div>
                             </div>
                             <div class="flex flex-col gap-6">
@@ -106,19 +110,31 @@ const noKafkaData = computed(() => {
                                     <span class="font-semibold text-gray-400 text-sm">{{
                                         $t('account.org.size')
                                     }}</span>
-                                    <span>{{ $t(`companySizes.${accountData.org.size}`) }}</span>
+                                    <span>{{
+                                        !!accountData?.org?.size
+                                            ? $t(`companySizes.${accountData.org.size}`)
+                                            : $t('account.notFound')
+                                    }}</span>
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <span class="font-semibold text-gray-400 text-sm">{{
                                         $t('account.org.domain')
                                     }}</span>
-                                    <span>{{ $t(`companyDomains.${accountData.org.domain}`) }}</span>
+                                    <span>{{
+                                        !!accountData?.org?.domain
+                                            ? $t(`companyDomains.${accountData.org.domain}`)
+                                            : $t('account.notFound')
+                                    }}</span>
                                 </div>
                             </div>
 
                             <div class="flex flex-col gap-2">
                                 <span class="font-semibold text-gray-400 text-sm">{{ $t('account.org.type') }}</span>
-                                <span>{{ $t(`companyTypes.${accountData.org.type}`) }}</span>
+                                <span>{{
+                                    !!accountData?.org?.type
+                                        ? $t(`companyTypes.${accountData.org.type}`)
+                                        : $t('account.notFound')
+                                }}</span>
                             </div>
                         </div>
                     </UCard>
