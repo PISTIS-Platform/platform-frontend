@@ -49,7 +49,6 @@ const assetOfferingDetailsSchema = z.object({
 });
 
 const isAssetOfferingDetailsValid = computed(() => {
-    // console.log({ assetOfferingDetailsSchema: assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value) });
     return (
         assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success &&
         props.assetOfferingDetails?.keywords.length > 0
@@ -57,7 +56,6 @@ const isAssetOfferingDetailsValid = computed(() => {
 });
 
 const isMonetizationValid = computed(() => {
-    // console.log({ monetizationSchema: monetizationSchema.safeParse(monetizationDetails.value) });
     return monetizationSchema.safeParse(monetizationDetails.value).success;
 });
 

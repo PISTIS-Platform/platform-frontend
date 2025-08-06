@@ -103,6 +103,7 @@ export default defineI18nConfig(() => ({
                 userDetails: 'User Details',
                 orgDetails: 'Organization Details',
                 orgDetailsInfo: 'The details of your organization',
+                notFound: 'Not found',
                 user: {
                     name: 'Name',
                     email: 'Email',

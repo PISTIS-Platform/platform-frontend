@@ -11,13 +11,13 @@ const getWorkflowRun = async (id: string) => {
     workflowStatus.value = {};
     const formData = new FormData();
     formData.append('runId', id); // Add Run ID to the form data
-    //console.log('runId:', runId.value);
+
     try {
         const response = await $fetch.raw('/api/job-configurator/fetch', {
             method: 'POST',
             body: formData,
         });
-        //console.log('response:', response);
+
         if (!response.ok) {
             const data = await response.json();
             workflowStatus.value = data;
@@ -25,7 +25,7 @@ const getWorkflowRun = async (id: string) => {
         }
         //const data = await response.json();
         const data = response._data;
-        //console.log('Data:', data);
+
         //workflowStatus.value = data;
         workflowStatus.value = JSON.stringify(data);
         workflowStatus.value = JSON.parse(workflowStatus.value);
@@ -43,7 +43,7 @@ const getWorkflowRunList = async () => {
             method: 'POST',
             body: {},
         });
-        //console.log('response:', response);
+
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -51,7 +51,6 @@ const getWorkflowRunList = async () => {
         const data = response._data;
         let json_data = JSON.stringify(data);
         workflowList.value = JSON.parse(json_data)['dag_runs'];
-        //console.log(' WF RUN LIST:', JSON.stringify(workflowList.value));
     } catch (error) {
         console.error('Error:', error);
     }
