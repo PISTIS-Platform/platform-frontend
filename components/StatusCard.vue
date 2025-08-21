@@ -5,7 +5,7 @@ const props = defineProps({
         required: true,
     },
     active: {
-        type: Boolean,
+        type: String,
         required: true,
     },
 });
@@ -15,9 +15,11 @@ const props = defineProps({
     <div class="py-1 pr-6">
         <div class="w-full flex justify-between items-center">
             <span class="text-sm text-gray-500">{{ props.title }}</span>
+            <div v-if="props.active === 'N/A'" class="text-xs text-gray-500">{{ 'N/A' }}</div>
             <div
+                v-else
                 :class="[
-                    props.active ? 'bg-green-300 border-green-500' : 'bg-red-300 border-red-500',
+                    props.active === 'true' ? 'bg-green-300 border-green-500 ' : 'bg-red-300 border-red-500 ',
                     'border w-4 h-4 rounded-full',
                 ]"
             ></div>
