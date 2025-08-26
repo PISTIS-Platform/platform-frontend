@@ -6,6 +6,8 @@ const routes = ref([
     { name: 'data.dataTransformation', to: '/data/data-transformation' },
     { name: 'data.transformationCatalogue', to: '/data/transformation-catalogue' },
     { name: 'data.insightGenerator', to: '/data/insight-generator' },
+    { name: 'data.analyticsEngine', to: '/srv/analytics-engine' },
+    { name: 'data.mlModelEditor', to: '/srv/ml-model-editor' },
     // { name: 'data.anonymizer', to: '/data/anonymizer' },
     // { name: 'data.designer.title', to: '/data/publish-data' },
 ]);
