@@ -23,6 +23,9 @@ const props = defineProps({
 });
 
 const percentageColorClasses = computed(() => {
+    if (props.percentage === null) {
+        return 'text-gray-600';
+    }
     if (props.percentage >= 0 && props.percentage < 60) {
         return 'text-green-600';
     }
@@ -31,12 +34,26 @@ const percentageColorClasses = computed(() => {
     }
     return 'text-red-600';
 });
+
+const tooltipContent = computed(() => {
+    if (props.percentage === null) {
+        return `Service "${props.title}" is not responding.`;
+    }
+    // Return original tooltipInfo if it exists and percentage is not null
+    return props.tooltipInfo.length > 0 ? props.tooltipInfo : null;
+});
+
+const shouldPreventTooltip = computed(() => {
+    // If percentage is null, always show the tooltip.
+    // Otherwise, show it only if there is tooltipInfo.
+    return props.percentage !== null && props.tooltipInfo.length === 0;
+});
 </script>
 
 <template>
     <UTooltip
-        :prevent="!tooltipInfo.length"
-        :class="tooltipInfo.length ? 'cursor-pointer' : ''"
+        :prevent="shouldPreventTooltip"
+        :class="shouldPreventTooltip ? '' : 'cursor-pointer'"
         :ui="{ width: 'max-w-2xl', base: 'text-wrap p-2 h-24' }"
     >
         <div
@@ -46,11 +63,14 @@ const percentageColorClasses = computed(() => {
                 <UIcon v-if="icon" :name="icon" class="h-6 w-6" aria-hidden="true" />
                 <dt class="truncate text-sm font-semibold text-gray-500">{{ title }}</dt>
             </div>
-            <dd :class="`mt-1 text-2xl font-semibold tracking-tight ${percentageColorClasses}`">{{ percentage }} %</dd>
+            <dd :class="`mt-1 text-2xl font-semibold tracking-tight ${percentageColorClasses}`">
+                {{ percentage === null ? 'N/A' : percentage + '%' }}
+            </dd>
         </div>
         <template #text>
             <div class="flex flex-col gap-4">
-                <p v-for="infoItem in tooltipInfo" :key="infoItem.label">
+                <p v-if="percentage === null">{{ tooltipContent }}</p>
+                <p v-for="infoItem in tooltipInfo" v-else :key="infoItem.label">
                     {{ infoItem.label }}: <span class="font-semibold">{{ infoItem.value }}</span>
                 </p>
             </div>
