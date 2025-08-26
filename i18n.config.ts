@@ -206,6 +206,8 @@ export default defineI18nConfig(() => ({
                 dataTransformation: 'Data Transformation',
                 transformationCatalogue: 'Transformations Catalogue',
                 insightGenerator: 'Insights Generator',
+                analyticsEngine: 'Analytics Engine',
+                mlModelEditor: 'ML Model Editor',
                 anonymizer: 'Anonymizer',
                 selectedDistribution: 'Selected Distribution',
                 workflowExecution: 'Workflow Execution',
