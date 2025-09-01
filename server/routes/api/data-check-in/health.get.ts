@@ -1,17 +1,18 @@
 import { getToken } from '#auth';
 
 const {
-    public: { cloudUrl },
+    public: { factoryUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
+    const body = await readBody(event);
     const token = await getToken({ event });
 
-    const result = await $fetch(`${cloudUrl}/srv/factories-registry/api/factories/user-factory`, {
+    return event.$fetch(`${factoryUrl}/srv/data-check-in/data/health`, {
+        method: 'GET',
+        body,
         headers: {
             Authorization: `Bearer ${token?.access_token}`,
         },
     });
-
-    return result;
 });

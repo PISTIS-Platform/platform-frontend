@@ -104,6 +104,7 @@ export default defineI18nConfig(() => ({
                 userDetails: 'User Details',
                 orgDetails: 'Organization Details',
                 orgDetailsInfo: 'The details of your organization',
+                notFound: 'Not found',
                 user: {
                     name: 'Name',
                     email: 'Email',
@@ -201,6 +202,8 @@ export default defineI18nConfig(() => ({
                     titlePlain: 'Title',
                     descriptionPlain: 'Description',
                     catalogLink: 'Catalog Link',
+                    warning: 'Warning',
+                    pleaseSave: 'Please save your credentials below as you will not be able to recover them otherwise.',
                 },
                 dataTransformation: 'Data Transformation',
                 transformationCatalogue: 'Transformations Catalogue',

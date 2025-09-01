@@ -140,6 +140,15 @@ const showPassword = ref(false);
                     <template #header>
                         <span class="font-semibold">{{ $t('data.streaming.streamingDetails') }}</span>
                     </template>
+                    <UAlert
+                        icon="i-heroicons-command-line"
+                        color="yellow"
+                        variant="subtle"
+                        :title="$t('data.streaming.warning')"
+                        :description="$t('data.streaming.pleaseSave')"
+                        class="mb-6"
+                    />
+
                     <div class="flex flex-col gap-4">
                         <span class="flex items-center gap-2 font-bold"
                             >{{ $t('data.streaming.topic') }}:

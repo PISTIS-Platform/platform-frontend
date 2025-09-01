@@ -24,10 +24,7 @@ const getPrometheusResult = async (q: string, percentageMultiplier = 100) => {
     });
 
     if (!result || !result.length) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'An error occurred, no resource usage stats were found',
-        });
+        return null;
     }
 
     return Number((result[0].value.value * percentageMultiplier).toFixed(2));
