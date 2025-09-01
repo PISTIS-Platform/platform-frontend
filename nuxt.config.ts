@@ -49,7 +49,7 @@ export default defineNuxtConfig({
             orgId: '',
             orgLogo: '',
             catalogName: '',
-       },
+        },
         keycloak: {
             issuer: '',
             clientId: '',
