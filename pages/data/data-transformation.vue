@@ -78,7 +78,6 @@ const addTransformation = (index) => {
         }),
     );
     transformations.value.push(panelData);
-    console.log('Panel Data Added:', panelData);
 };
 
 const deleteTransformation = (index) => {
@@ -103,7 +102,6 @@ const handleFileChange = (event: Event) => {
 
 const transformFile = async () => {
     const allTransformations = JSON.stringify(transformations.value, null, 1); // Get the entire JSON array
-    console.log('All Transformations:', allTransformations);
 
     const formData = new FormData();
     formData.append('transformation_definition', allTransformations);
@@ -151,7 +149,6 @@ const transformFile = async () => {
             responseContent.value = 'Unsupported response type';
         }
 
-        //console.log('Success:', responseContent.value);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         responseContent.value = `Error: ${error.message}`;
@@ -437,7 +434,8 @@ onMounted(() => {
 <style scoped>
 .panels-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjust minmax as needed */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    /* Adjust minmax as needed */
     gap: 20px;
     margin-bottom: 20px;
 }
@@ -468,7 +466,8 @@ onMounted(() => {
 }
 
 .form-control {
-    width: calc(100% - 12px); /* Adjust for padding */
+    width: calc(100% - 12px);
+    /* Adjust for padding */
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 3px;
@@ -504,7 +503,8 @@ onMounted(() => {
 }
 
 select.form-control {
-    appearance: none; /* Remove default arrow */
+    appearance: none;
+    /* Remove default arrow */
     background-image: url('data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E');
     background-repeat: no-repeat;
     background-position-x: calc(100% - 10px);
@@ -610,7 +610,8 @@ button:hover {
 }
 
 .transformation-box {
-    --transformation-box-height: 150px; /* Example height, adjust as needed */
+    --transformation-box-height: 150px;
+    /* Example height, adjust as needed */
     height: var(--transformation-box-height);
     display: flex;
     justify-content: space-between;
