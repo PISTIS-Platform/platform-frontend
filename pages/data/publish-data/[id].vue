@@ -173,10 +173,8 @@ const submitAll = async () => {
         organizationName: accountData.value?.user.orgName,
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
-        termDate: monetizationDetails.value.termDate ?? new Date(86400000000000),
         distributionId: assetOfferingDetails.value.selectedDistribution.id,
-        organizationId: runtimeConfig.public?.orgId,
-        sellerId: session.value?.user?.sub,
+        // sellerId: session.value?.user?.sub,
         title: assetOfferingDetails.value.title,
         description: assetOfferingDetails.value.description,
         keywords: assetOfferingDetails.value.keywords,
@@ -193,8 +191,6 @@ const submitAll = async () => {
         region: licenseDetails.value.region?.join(', '),
         isExclusive: licenseDetails.value.isExclusive,
         transferable: licenseDetails.value.transferable,
-        numOfShare: 0,
-        numOfResell: 0,
         termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
         additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
         nonRenewalDays: licenseDetails.value.nonRenewalDays,
@@ -213,6 +209,7 @@ const submitAll = async () => {
     };
 
     try {
+        console.log({ body });
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
             body,
@@ -273,7 +270,7 @@ const changeStep = async (stepNum: number) => {
     selectedPage.value = stepNum;
     if (stepNum === 4) {
         //api call to contract template composer
-        //FIXME: Currently getting a 404 for API which this fetch calls
+        //FIXME: Currently getting a 403 for API which this fetch calls
         const _data = await $fetch(`/api/datasets/get-composed-contract`, {
             method: 'post',
             body: {
