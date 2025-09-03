@@ -207,8 +207,8 @@ const resetLicenseDetails = (license: { code: string; label: string; description
     } else if (license.code === 'NFT License') {
         licenseDetails.value = {
             license: 'NFT License',
-            limitNumber: '',
-            limitFrequencey: '',
+            limitNumber: 10,
+            limitFrequency: DownloadFrequency.DAY,
         };
     } else {
         licenseDetails.value = {
@@ -307,7 +307,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                             ></USelectMenu>
                         </UFormGroup>
                     </div>
-                    <div class="flex flex-row gap-4">
+                    <div v-show="licenseDetails.license !== 'NFT License'" class="flex flex-row gap-4">
                         <UFormGroup
                             :label="$t('data.designer.downloadLimit')"
                             required
