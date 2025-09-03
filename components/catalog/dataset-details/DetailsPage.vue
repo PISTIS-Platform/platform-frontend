@@ -304,9 +304,9 @@ const truncatedEllipsedDescription = computed(() => {
                     <template v-if="catalog === 'my-data'">
                         <div class="btn_holder flex gap-5 flex-wrap">
                             <!-- Data Lineage -->
-                            <a to="/data-lineage" class="">
+                            <NuxtLink to="/catalog/dataset-details/data-lineage" class="">
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                            </a>
+                            </NuxtLink>
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
@@ -318,9 +318,9 @@ const truncatedEllipsedDescription = computed(() => {
                     <template v-if="catalog === 'acquired-data'">
                         <div class="btn_holder flex gap-5 flex-wrap">
                             <!-- Data Lineage -->
-                            <a to="/data-lineage" class="">
+                            <NuxtLink to="/catalog/dataset-details/data-lineage" class="">
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                            </a>
+                            </NuxtLink>
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
