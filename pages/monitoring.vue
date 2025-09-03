@@ -49,7 +49,7 @@ const computedResourcesUsageStats = computed(() => {
                         <template #header>
                             <SubHeading :title="t('dashboard.resources.componentStatus')" />
                         </template>
-                        <div v-if="componentStatusStatus !== 'pending'" class="flex w-full overflow-y-scroll">
+                        <div v-if="componentStatusStatus !== 'pending'" class="flex w-full overflow-y-auto">
                             <div class="flex divide-x-2 w-full">
                                 <div class="flex flex-col gap-1 w-full">
                                     <StatusCard
@@ -72,7 +72,7 @@ const computedResourcesUsageStats = computed(() => {
                         <!--FIXME: Currently using fixed number of skeleton elements based on number of components-->
                         <div
                             v-if="componentStatusStatus === 'pending'"
-                            class="flex w-full flex-col gap-4 overflow-y-scroll"
+                            class="flex w-full flex-col gap-4 overflow-y-auto"
                         >
                             <USkeleton
                                 v-for="item in new Array(10)"
