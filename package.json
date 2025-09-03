@@ -10,10 +10,7 @@
         "generate": "nuxt generate",
         "preview": "nuxt preview",
         "postinstall": "nuxt prepare",
-        "lint": "eslint --ext .js,.ts,.vue .",
-        "setup-submodules": "cd pv-sdk && pnpm build",
-        "setup-pv-sdk-core": "cd pv-sdk/packages/sdk-core && pnpm install",
-        "setup-pv-sdk-vue": "cd pv-sdk/packages/sdk-vue && pnpm install"
+        "lint": "eslint --ext .js,.ts,.vue ."
     },
     "lint-staged": {
         "**/*.{js,ts,vue,json,html}": [
