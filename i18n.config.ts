@@ -204,7 +204,6 @@ export default defineI18nConfig(() => ({
                     pleaseSave: 'Please save your credentials below as you will not be able to recover them otherwise.',
                 },
                 dataTransformation: 'Data Transformation',
-                transformationCatalogue: 'Transformations Catalogue',
                 insightGenerator: 'Insights Generator',
                 analyticsEngine: 'Analytics Engine',
                 mlModelEditor: 'ML Model Editor',
