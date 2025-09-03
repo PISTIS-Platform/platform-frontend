@@ -166,49 +166,68 @@ const submitStatus = ref();
 
 const submitAll = async () => {
     submitStatus.value = 'pending';
-
+    let body;
     //TODO: Different body if it's an NFT. Maintains original assetId also.
 
-    let body = {
-        assetId: newAssetId,
-        originalAssetId: selected.value?.id,
-        organizationId: runtimeConfig.public?.orgId,
-        organizationName: accountData.value?.user.orgName,
-        ...assetOfferingDetails.value,
-        ...monetizationDetails.value,
-        distributionId: assetOfferingDetails.value.selectedDistribution.id,
-        title: assetOfferingDetails.value.title,
-        description: assetOfferingDetails.value.description,
-        keywords: assetOfferingDetails.value.keywords,
-        type: monetizationDetails.value.type,
-        subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
-        updateFrequency: monetizationDetails.value.updateFrequency,
-        price: monetizationDetails.value.price,
-        license: licenseDetails.value.license,
-        extraTerms: licenseDetails.value.extraTerms,
-        contractTerms: licenseDetails.value.contractTerms,
-        limitNumber: licenseDetails.value.limitNumber,
-        limitFrequency: licenseDetails.value.limitFrequency,
-        canEdit: false, //FIXME: Where do we get this?
-        region: licenseDetails.value.region?.join(', '),
-        isExclusive: licenseDetails.value.isExclusive,
-        transferable: licenseDetails.value.transferable,
-        termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
-        additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
-        nonRenewalDays: licenseDetails.value.nonRenewalDays,
-        contractBreachDays: licenseDetails.value.contractBreachDays,
-        containsPersonalData: hasPersonalData.value,
-        personalDataTerms: licenseDetails.value.personalDataTerms,
-        accessPolicies: {
+    if (monetizationDetails.value.type === 'nft') {
+        body = {
+            type: 'nft',
+            price: monetizationDetails.value.price,
+            assetId, //(same as dataset ID?)
+            seller: accountData.value?.user.sub,
+            //FIXME: Do we need to send the below or is it generated?
+            nftDetails: {
+                dataset_id: assetId,
+                factory_name: 'develop',
+                name: 'Name of NFT',
+                description: 'Description of NFT',
+                issuerName: constant('PISTIS MARKET'),
+                nft_license: 'https://pistis-market.eu/...',
+                nft_license_hash: 'abc123def456...',
+            },
+        };
+    } else {
+        body = {
             assetId: newAssetId,
-            assetTitle: assetOfferingDetails.value.title,
-            assetDescription: assetOfferingDetails.value.description,
-            policyData: policyData,
-        },
-        sellerId: accountData.value?.user.sub,
-        numOfResell: 0,
-        numOfShare: 0,
-    };
+            originalAssetId: selected.value?.id,
+            organizationId: runtimeConfig.public?.orgId,
+            organizationName: accountData.value?.user.orgName,
+            ...assetOfferingDetails.value,
+            ...monetizationDetails.value,
+            distributionId: assetOfferingDetails.value.selectedDistribution.id,
+            title: assetOfferingDetails.value.title,
+            description: assetOfferingDetails.value.description,
+            keywords: assetOfferingDetails.value.keywords,
+            type: monetizationDetails.value.type,
+            subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
+            updateFrequency: monetizationDetails.value.updateFrequency,
+            price: monetizationDetails.value.price,
+            license: licenseDetails.value.license,
+            extraTerms: licenseDetails.value.extraTerms,
+            contractTerms: licenseDetails.value.contractTerms,
+            limitNumber: licenseDetails.value.limitNumber,
+            limitFrequency: licenseDetails.value.limitFrequency,
+            canEdit: false, //FIXME: Where do we get this?
+            region: licenseDetails.value.region?.join(', '),
+            isExclusive: licenseDetails.value.isExclusive,
+            transferable: licenseDetails.value.transferable,
+            termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
+            additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
+            nonRenewalDays: licenseDetails.value.nonRenewalDays,
+            contractBreachDays: licenseDetails.value.contractBreachDays,
+            containsPersonalData: hasPersonalData.value,
+            personalDataTerms: licenseDetails.value.personalDataTerms,
+            accessPolicies: {
+                assetId: newAssetId,
+                assetTitle: assetOfferingDetails.value.title,
+                assetDescription: assetOfferingDetails.value.description,
+                policyData: policyData,
+            },
+            sellerId: accountData.value?.user.sub,
+            numOfResell: 0,
+            numOfShare: 0,
+        };
+    }
 
     try {
         await $fetch(`/api/datasets/publish-data`, {
