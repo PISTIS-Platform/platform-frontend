@@ -5,11 +5,15 @@
     "scripts": {
         "prepare": "husky install",
         "build": "nuxt build",
+        "build-with-piveau": "run-p \"build-only {@}\" -- --mode production",
         "dev": "nuxt dev -p 8080",
         "generate": "nuxt generate",
         "preview": "nuxt preview",
         "postinstall": "nuxt prepare",
-        "lint": "eslint --ext .js,.ts,.vue ."
+        "lint": "eslint --ext .js,.ts,.vue .",
+        "setup-submodules": "cd pv-sdk && pnpm build",
+        "setup-pv-sdk-core": "cd pv-sdk/packages/sdk-core && pnpm install",
+        "setup-pv-sdk-vue": "cd pv-sdk/packages/sdk-vue && pnpm install"
     },
     "lint-staged": {
         "**/*.{js,ts,vue,json,html}": [
@@ -17,6 +21,7 @@
         ]
     },
     "devDependencies": {
+        "@iconify/json": "^2.2.379",
         "@nuxt/devtools": "latest",
         "@nuxtjs/eslint-config-typescript": "^12.1.0",
         "@nuxtjs/i18n": "8.0.0-rc.4",
@@ -36,8 +41,10 @@
         "husky": "^8.0.0",
         "lint-staged": "^14.0.1",
         "nuxt": "^3.16.0",
+        "postcss": "^8.5.1",
         "prettier": "^3.0.3",
         "typescript": "^5.2.2",
+        "unplugin-icons": "^22.2.0",
         "vue-tsc": "^1.8.10"
     },
     "dependencies": {
@@ -47,14 +54,23 @@
         "@iconify-json/formkit": "^1.1.2",
         "@nuxt/ui": "^2.10.0",
         "@pinia/nuxt": "^0.4.11",
+        "@piveau/sdk-core": "0.0.0-beta.0",
+        "@piveau/sdk-vue": "1.0.0-beta.5",
+        "@tanstack/vue-query": "^5.24.1",
         "@types/uuid": "^10.0.0",
         "axios": "1.8.4",
         "chart.js": "^4.4.1",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.0",
+        "cors": "^2.8.5",
         "date-fns": "^4.1.0",
         "dayjs": "^1.11.13",
+        "isomorphic-dompurify": "^2.20.0",
         "jwt-decode": "^4.0.0",
+        "marked": "^15.0.6",
         "next-auth": "4.21.1",
         "pinia": "^2.1.6",
+        "primevue": "^3.53.0",
         "prometheus-query": "^3.5.0",
         "ramda": "^0.29.0",
         "socket.io-client": "^4.7.5",
