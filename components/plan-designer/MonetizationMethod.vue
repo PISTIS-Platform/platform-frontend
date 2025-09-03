@@ -109,7 +109,7 @@ const formRef = ref();
 const updateFree = (value: boolean) => {
     isFree.value = value;
     emit('update:is-free', value);
-    monetizationDetails.value.price = '';
+    monetizationDetails.value.price = 0;
 };
 
 const handleMonetizationClick = (value: string) => {
