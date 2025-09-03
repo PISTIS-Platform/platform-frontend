@@ -1,0 +1,43 @@
+# Git and version control
+.git
+.gitignore
+
+# Node.js dependencies
+# These will be installed inside the container
+node_modules
+
+# Nuxt 3 build artifacts and caches
+# These are generated during the 'docker build' process
+.nuxt
+.output
+dist
+
+# Environment variables and secrets
+# These should be passed to the container at runtime, not built into the image
+.env
+.env.*
+!/.env.production
+
+# IDE and editor configuration
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Log files and local data
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Docker files
+Dockerfile
+.dockerignore
