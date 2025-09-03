@@ -4,7 +4,6 @@ const routes = ref([
     { name: 'data.streamConfigurator', to: '/data/streaming' },
     { name: 'data.workflowExecution', to: '/data/workflow-execution' },
     { name: 'data.dataTransformation', to: '/data/data-transformation' },
-    { name: 'data.transformationCatalogue', to: '/data/transformation-catalogue' },
     { name: 'data.insightGenerator', to: '/data/insight-generator' },
     { name: 'data.analyticsEngine', to: '/srv/analytics-engine' },
     { name: 'data.mlModelEditor', to: '/srv/ml-model-editor' },
