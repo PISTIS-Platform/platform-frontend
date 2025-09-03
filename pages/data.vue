@@ -6,7 +6,7 @@ const routes = ref([
     { name: 'data.dataTransformation', to: '/data/data-transformation' },
     { name: 'data.transformationCatalogue', to: '/data/transformation-catalogue' },
     { name: 'data.insightGenerator', to: '/data/insight-generator' },
-    { name: 'data.investmentPlanner.title', to: '' },
+    { name: 'data.investmentPlanner.title', to: 'data/investment-planner' },
     // { name: 'data.anonymizer', to: '/data/anonymizer' },
     // { name: 'data.designer.title', to: '/data/publish-data' },
 ]);
