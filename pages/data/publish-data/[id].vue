@@ -129,7 +129,7 @@ const isLicenseValid = computed(() => {
 type licenseType = z.infer<typeof licenseSchema>;
 
 const licenseDetails = ref<Partial<licenseType>>({
-    license: 'PISTIS License',
+    license: '',
     extraTerms: '',
     contractTerms: '',
     limitNumber: '',
@@ -174,7 +174,6 @@ const submitAll = async () => {
         ...assetOfferingDetails.value,
         ...monetizationDetails.value,
         distributionId: assetOfferingDetails.value.selectedDistribution.id,
-        // sellerId: session.value?.user?.sub,
         title: assetOfferingDetails.value.title,
         description: assetOfferingDetails.value.description,
         keywords: assetOfferingDetails.value.keywords,
@@ -293,6 +292,11 @@ const changeStep = async (stepNum: number) => {
         //TODO:: use returned compose contract for other pistis components
     }
 };
+
+//NFT Functionality
+
+//TODO: Make call to see if dataset already exists in the marketplace (not allowed to make NFT)
+//TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
 <template>

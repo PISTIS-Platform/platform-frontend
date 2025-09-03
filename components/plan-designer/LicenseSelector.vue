@@ -38,6 +38,36 @@ const props = defineProps({
     },
 });
 
+const monetizationPropComputed = computed(() => props.monetizationDetails);
+
+watch(
+    monetizationPropComputed,
+    () => {
+        if (monetizationPropComputed.value.type === 'nft') {
+            resetLicenseDetails({
+                code: 'NFT License',
+                label: 'NFT License',
+                description: `Consequat deserunt consectetur magna consequat proident. Elit non cupidatat aliqua aute. Commodo commodo sit duis excepteur eiusmod incididunt proident nisi minim tempor consequat aliquip duis deserunt ad. Voluptate fugiat incididunt fugiat anim ipsum sint Lorem exercitation irure qui aliquip dolore elit et dolore.
+
+Labore fugiat pariatur aute. Deserunt sunt qui adipisicing occaecat dolore et culpa nulla aliquip sunt ullamco voluptate consequat. Irure consequat in tempor velit ipsum ullamco exercitation excepteur ut ex fugiat. Ullamco nisi aute culpa dolor consectetur labore aliquip sit anim commodo aliquip. Cillum do quis aute id excepteur exercitation minim voluptate sint irure occaecat.
+
+Labore laborum tempor mollit mollit nostrud esse dolor fugiat. Fugiat eiusmod occaecat minim consectetur irure non magna et culpa adipisicing eu sunt anim in. Proident anim proident eiusmod eu exercitation. Quis nostrud nisi officia consequat pariatur ipsum esse esse labore eu deserunt dolore eiusmod occaecat.`,
+            });
+        } else {
+            if (!props.isFree) {
+                resetLicenseDetails({
+                    code: 'PISTIS License',
+                    label: 'PISTIS License - Custom PISTIS License',
+                    description: '',
+                });
+            } else {
+                resetLicenseDetails(licenses[0]);
+            }
+        }
+    },
+    { deep: true },
+);
+
 const { monetizationSchema } = useMonetizationSchema();
 type monetizationType = z.infer<typeof monetizationSchema>;
 
@@ -64,13 +94,25 @@ type licenseType = z.infer<typeof licenseSchema>;
 const licenseSelections = computed(() =>
     props.isFree
         ? codeSort([...licenses])
-        : [
-              {
-                  code: 'PISTIS License',
-                  label: 'PISTIS License - Custom PISTIS License',
-                  description: '',
-              },
-          ],
+        : props.monetizationDetails.type === 'nft'
+          ? [
+                {
+                    code: 'NFT License',
+                    label: 'NFT License',
+                    description: `Consequat deserunt consectetur magna consequat proident. Elit non cupidatat aliqua aute. Commodo commodo sit duis excepteur eiusmod incididunt proident nisi minim tempor consequat aliquip duis deserunt ad. Voluptate fugiat incididunt fugiat anim ipsum sint Lorem exercitation irure qui aliquip dolore elit et dolore.
+
+Labore fugiat pariatur aute. Deserunt sunt qui adipisicing occaecat dolore et culpa nulla aliquip sunt ullamco voluptate consequat. Irure consequat in tempor velit ipsum ullamco exercitation excepteur ut ex fugiat. Ullamco nisi aute culpa dolor consectetur labore aliquip sit anim commodo aliquip. Cillum do quis aute id excepteur exercitation minim voluptate sint irure occaecat.
+
+Labore laborum tempor mollit mollit nostrud esse dolor fugiat. Fugiat eiusmod occaecat minim consectetur irure non magna et culpa adipisicing eu sunt anim in. Proident anim proident eiusmod eu exercitation. Quis nostrud nisi officia consequat pariatur ipsum esse esse labore eu deserunt dolore eiusmod occaecat.`,
+                },
+            ]
+          : [
+                {
+                    code: 'PISTIS License',
+                    label: 'PISTIS License - Custom PISTIS License',
+                    description: '',
+                },
+            ],
 );
 
 const transferableSelections = [
@@ -138,11 +180,7 @@ const updateContractTerms = (value: string) => {
 
 const isOpen = ref(false);
 
-const licenseRef = ref<{ code: string; label: string; description?: string }>({
-    code: 'PISTIS License',
-    label: 'Custom PISTIS License',
-    description: '',
-});
+const licenseRef = ref<{ code: string; label: string; description?: string } | null>(null);
 
 const resetLicenseDetails = (license: { code: string; label: string; description?: string } | undefined) => {
     if (!license) return;
@@ -166,6 +204,12 @@ const resetLicenseDetails = (license: { code: string; label: string; description
             contractBreachDays: '',
             personalDataTerms: '',
         };
+    } else if (license.code === 'NFT License') {
+        licenseDetails.value = {
+            license: 'NFT License',
+            limitNumber: '',
+            limitFrequencey: '',
+        };
     } else {
         licenseDetails.value = {
             license: license.code,
@@ -175,16 +219,9 @@ const resetLicenseDetails = (license: { code: string; label: string; description
     }
 };
 
-resetLicenseDetails({
-    code: 'PISTIS License',
-    label: 'PISTIS License - Custom PISTIS License',
-    description: '',
-});
-
 const customValidate = () => {
     const errors = [];
     emit('update:isAllValid', isAllValid.value);
-    //TODO: Somehow get to AssetOfferingDetails component
     const licenseTotalErrors = licenseSchema.safeParse(licenseDetails.value).error?.issues;
     if (licenseTotalErrors?.length) {
         for (const error of licenseTotalErrors) {
@@ -557,7 +594,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                         @update:contract-terms="(value: string) => updateContractTerms(value)"
                     />
                     <div v-else class="border rounded-md p-4">
-                        {{ licenseRef.description }}
+                        {{ licenseRef?.description }}
                     </div>
                 </div>
 

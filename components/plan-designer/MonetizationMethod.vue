@@ -70,7 +70,10 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'nft')
             updateFrequency: '',
         };
     } else if (monetizationType === 'nft') {
-        //TODO: Do once we know what goes here
+        monetizationDetails.value = {
+            type: 'nft',
+            price: '',
+        };
     }
 };
 
@@ -90,7 +93,7 @@ const monetizationSelections: CardSelection[] = [
     {
         title: t('data.designer.nft'),
         value: 'nft',
-        disabled: true,
+        disabled: false,
     },
 ];
 
@@ -135,6 +138,11 @@ const customValidate = () => {
     }
     return monetizationErrors;
 };
+
+//NFT Functionality
+
+//TODO: Make call to see if dataset already exists in the marketplace (not allowed to make NFT)
+//TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
 <template>
@@ -175,7 +183,7 @@ const customValidate = () => {
                                 >
                                     <UInput
                                         v-model.number="monetizationDetails.price"
-                                        :class="isFree ? 'opacity-50' : 'w-[328px]'"
+                                        :class="isFree ? 'opacity-50 w-[328px]' : 'w-[328px]'"
                                         :disabled="isFree"
                                         :placeholder="$t('data.designer.price')"
                                         type="numeric"
@@ -307,8 +315,52 @@ const customValidate = () => {
                     </div>
                 </template>
 
-                <!-- <template v-if="monetizationDetails.type === 'nft'">
-                        </template> -->
+                <template v-if="monetizationDetails.type === 'nft'">
+                    <div class="flex flex-col space-y-5">
+                        <UAlert
+                            class="p-6 border border-red-200"
+                            icon="material-symbols:warning-outline-rounded"
+                            :title="$t('data.designer.nftWarning')"
+                            :description="$t('data.designer.nftWarningText')"
+                            color="yellow"
+                            variant="soft"
+                        />
+                        <div class="flex flex-row gap-4">
+                            <div class="flex-1 flex gap-4">
+                                <UFormGroup
+                                    :label="$t('data.designer.price')"
+                                    required
+                                    name="price"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
+                                >
+                                    <UInput
+                                        v-model.number="monetizationDetails.price"
+                                        :class="'w-[328px]'"
+                                        :disabled="isFree"
+                                        :placeholder="$t('data.designer.price')"
+                                        type="numeric"
+                                    >
+                                        <template #trailing>
+                                            <span class="text-gray-500 text-xs">EUR</span>
+                                        </template>
+                                    </UInput>
+                                    <template #error="{ error }">
+                                        <span
+                                            :class="[
+                                                error
+                                                    ? 'text-red-500 dark:text-red-400'
+                                                    : 'text-primary-500 dark:text-primary-400',
+                                            ]"
+                                        >
+                                            {{ error }}
+                                        </span>
+                                    </template>
+                                </UFormGroup>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
         </UCard>
         <div class="w-full flex items-center justify-between mt-4">
