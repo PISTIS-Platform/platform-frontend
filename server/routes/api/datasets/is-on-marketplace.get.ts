@@ -1,11 +1,15 @@
 import { defineEventHandler, getQuery } from 'h3';
 import { $fetch } from 'ofetch';
 
+const {
+    public: { cloudUrl },
+} = useRuntimeConfig();
+
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const sparqlQuery = query.query;
 
-    const targetUrl = `https://pistis-market.eu/srv/virtuoso/sparql?query=${encodeURIComponent(sparqlQuery)}`;
+    const targetUrl = `${cloudUrl}/srv/virtuoso/sparql?query=${encodeURIComponent(sparqlQuery)}`;
 
     try {
         const response = await $fetch(targetUrl, {
