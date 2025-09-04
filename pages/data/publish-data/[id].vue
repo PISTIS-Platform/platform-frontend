@@ -28,6 +28,14 @@ const { data: dataset, status: datasetsStatus } = useAsyncData<Record<string, an
     $fetch('/api/datasets/get-specific', { query: { id: assetId } }),
 );
 
+const { data: isAssetOnMarketplace } = useFetch(`api/datasets/is-on-marketplace`, {
+    query: {
+        query: encodeURIComponent(
+            `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX pst: <https://www.pistis-project.eu/ns/voc#> ASK { ?offer rdf:type pst:Offer ; pst:originalId "${assetId}" .}`,
+        ),
+    },
+});
+
 watch(dataset, () => {
     if (!dataset.value) return;
     selected.value = {
@@ -317,7 +325,6 @@ const changeStep = async (stepNum: number) => {
 
 //NFT Functionality
 
-//TODO: Make call to see if dataset already exists in the marketplace (not allowed to make NFT)
 //TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
@@ -345,7 +352,7 @@ const changeStep = async (stepNum: number) => {
 
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
-            :asset-offering-details="assetOfferingDetails"
+            :asset-on-marketplace="!!isAssetOnMarketplace"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"

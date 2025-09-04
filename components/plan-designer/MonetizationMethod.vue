@@ -14,6 +14,10 @@ const props = defineProps({
         type: Object as PropType<Partial<monetizationType>>,
         required: true,
     },
+    assetOnMarketplace: {
+        type: Boolean,
+        required: true,
+    },
 });
 
 //use computed getter and setter to avoid prop mutation
@@ -123,6 +127,8 @@ const handleMonetizationClick = (value: string) => {
 async function onSubmit(): Promise<void> {
     if (isMonetizationValid.value) {
         emit('changePage', 2);
+    } else if (monetizationDetails.value.type === 'nft' && props.assetOnMarketplace) {
+        showErrorMessage(t('data.designer.nftNotPossible'));
     } else {
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
@@ -141,7 +147,6 @@ const customValidate = () => {
 
 //NFT Functionality
 
-//TODO: Make call to see if dataset already exists in the marketplace (not allowed to make NFT)
 //TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
@@ -318,7 +323,15 @@ const customValidate = () => {
                 <template v-if="monetizationDetails.type === 'nft'">
                     <div class="flex flex-col space-y-5">
                         <UAlert
+                            v-if="$props.assetOnMarketplace"
+                            icon="nimbus:forbidden"
                             class="p-6 border border-red-200"
+                            :description="$t('data.designer.nftNotPossible')"
+                            color="red"
+                            variant="soft"
+                        />
+                        <UAlert
+                            class="p-6 border border-yellow-200"
                             icon="material-symbols:warning-outline-rounded"
                             :title="$t('data.designer.nftWarning')"
                             :description="$t('data.designer.nftWarningText')"

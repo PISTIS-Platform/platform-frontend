@@ -296,6 +296,8 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    nftNotPossible:
+                        'This asset is already on the marketplace and therefore cannot be sold as an NFT. Please select a different monetization method.',
                     annual: 'per year',
                     monthly: 'per month',
                     nftWarning: 'NFT Warning',
