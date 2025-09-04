@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { LicenseCode } from '~/constants/licenses';
+
 export const useLicenseSchema = () => {
     const { t } = useI18n();
     const isWorldwide = ref(false);
@@ -99,7 +101,7 @@ export const useLicenseSchema = () => {
             personalDataTerms: z.string().optional(),
         })
         .superRefine((data, ctx) => {
-            if (data.license === 'PISTIS License') {
+            if (data.license === LicenseCode.PISTIS) {
                 if (!data.region?.length && !isWorldwide.value) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,

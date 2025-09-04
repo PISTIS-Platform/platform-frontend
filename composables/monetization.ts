@@ -83,8 +83,14 @@ export const useMonetizationSchema = () => {
 
     const monetizationSchema = z.discriminatedUnion('type', [oneOffSaleSchema, subscriptionSchema, NFTSchema]);
 
+    enum MonetizationType {
+        ONEOFF = 'one-off',
+        NFT = 'nft',
+        SUBSCRIPTION = 'subscription',
+    }
     return {
         isFree,
         monetizationSchema,
+        MonetizationType,
     };
 };

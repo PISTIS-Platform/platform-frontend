@@ -20,7 +20,6 @@ export default defineEventHandler(async (event) => {
         });
         return response;
     } catch (error) {
-        console.error('Proxy error:', error);
         return { error: 'Failed to fetch data' };
     }
 });

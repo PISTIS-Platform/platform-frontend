@@ -15,6 +15,8 @@ const props = defineProps({
     },
 });
 
+const { MonetizationType } = useMonetizationSchema();
+
 const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid', 'changePage']);
 
 const schema = z.object({
@@ -103,7 +105,7 @@ watch(
                     <UInput
                         v-model="assetOfferingDetails.title"
                         :placeholder="$t('data.designer.titleOfAsset')"
-                        :disabled="monetizationDetails.type === 'nft'"
+                        :disabled="monetizationDetails.type === MonetizationType.NFT"
                     />
                 </UFormGroup>
                 <UFormGroup
@@ -117,11 +119,11 @@ watch(
                         v-model="assetOfferingDetails.description"
                         :placeholder="$t('data.designer.descriptionOfAsset')"
                         icon="i-heroicons-envelope"
-                        :disabled="monetizationDetails.type === 'nft'"
+                        :disabled="monetizationDetails.type === MonetizationType.NFT"
                     />
                 </UFormGroup>
                 <UFormGroup
-                    v-if="monetizationDetails.type !== 'nft'"
+                    v-if="monetizationDetails.type !== MonetizationType.NFT"
                     :label="$t('data.selectedDistribution')"
                     required
                     name="selectedDistribution"
@@ -135,7 +137,7 @@ watch(
                     </USelectMenu>
                 </UFormGroup>
                 <UFormGroup
-                    v-if="monetizationDetails.type !== 'nft'"
+                    v-if="monetizationDetails.type !== MonetizationType.NFT"
                     :label="$t('keywords')"
                     required
                     name="keywords"
