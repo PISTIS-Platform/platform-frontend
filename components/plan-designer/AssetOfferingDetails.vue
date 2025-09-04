@@ -3,10 +3,13 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 const { t } = useI18n();
-const { showErrorMessage } = useAlertMessage();
 
 const props = defineProps({
     assetDetailsProp: {
+        type: Object,
+        required: true,
+    },
+    monetizationDetails: {
         type: Object,
         required: true,
     },
@@ -68,21 +71,6 @@ watch(
         }
     },
 );
-
-const isAssetOfferingDetailsValid = computed(() => {
-    return schema.safeParse(assetOfferingDetails.value).success && assetOfferingDetails?.value.keywords.length > 0;
-});
-
-async function onSubmit(): Promise<void> {
-    if (isAssetOfferingDetailsValid.value) {
-        emit('changePage', 1);
-    } else {
-        if (!assetOfferingDetails?.value.keywords?.length) {
-            showErrorMessage(t('data.designer.pleaseEnterAtLeastOneKeyword'));
-        }
-        showErrorMessage(t('data.designer.pleaseCheck'));
-    }
-}
 </script>
 
 <template>
@@ -112,7 +100,11 @@ async function onSubmit(): Promise<void> {
                     :ui="{ error: 'absolute -bottom-6' }"
                     eager-validation
                 >
-                    <UInput v-model="assetOfferingDetails.title" :placeholder="$t('data.designer.titleOfAsset')" />
+                    <UInput
+                        v-model="assetOfferingDetails.title"
+                        :placeholder="$t('data.designer.titleOfAsset')"
+                        :disabled="monetizationDetails.type === 'nft'"
+                    />
                 </UFormGroup>
                 <UFormGroup
                     :label="$t('description')"
@@ -125,9 +117,11 @@ async function onSubmit(): Promise<void> {
                         v-model="assetOfferingDetails.description"
                         :placeholder="$t('data.designer.descriptionOfAsset')"
                         icon="i-heroicons-envelope"
+                        :disabled="monetizationDetails.type === 'nft'"
                     />
                 </UFormGroup>
                 <UFormGroup
+                    v-if="monetizationDetails.type !== 'nft'"
                     :label="$t('data.selectedDistribution')"
                     required
                     name="selectedDistribution"
@@ -141,6 +135,7 @@ async function onSubmit(): Promise<void> {
                     </USelectMenu>
                 </UFormGroup>
                 <UFormGroup
+                    v-if="monetizationDetails.type !== 'nft'"
                     :label="$t('keywords')"
                     required
                     name="keywords"
@@ -157,9 +152,9 @@ async function onSubmit(): Promise<void> {
                 </UFormGroup>
             </div>
         </UCard>
-        <div class="w-full flex items-center justify-end gap-4">
+        <!-- <div class="w-full flex items-center justify-end gap-4">
             <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
-        </div>
+        </div> -->
     </UForm>
 </template>
 

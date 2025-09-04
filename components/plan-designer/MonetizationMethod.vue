@@ -14,6 +14,10 @@ const props = defineProps({
         type: Object as PropType<Partial<monetizationType>>,
         required: true,
     },
+    assetOfferingDetails: {
+        type: Object,
+        required: true,
+    },
     assetOnMarketplace: {
         type: Boolean,
         required: true,
@@ -37,6 +41,33 @@ const isMonetizationValid = computed(() => {
 const { isFree, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
+
+const assetOfferingDetailsSchema = z.object({
+    title: z.string().min(1, t('required', { count: 1 })),
+    description: z.string().min(1, t('required', { count: 1 })),
+    selectedDistribution: z.object({
+        label: z.string(),
+        id: z.string(),
+        format: z
+            .object({
+                id: z.string(),
+                label: z.string().optional(),
+                resource: z.string().optional(),
+            })
+            .optional(),
+        access_url: z.array(z.string()).optional(),
+        title: z.object({
+            en: z.string(),
+        }),
+    }),
+});
+
+const isAssetOfferingDetailsValid = computed(() => {
+    return assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success &&
+        monetizationDetails.value.type === 'nft'
+        ? true
+        : props.assetOfferingDetails.keywords.length > 0;
+});
 
 const updateFrequencySelections = [
     {
@@ -125,10 +156,10 @@ const handleMonetizationClick = (value: string) => {
 };
 
 async function onSubmit(): Promise<void> {
-    if (isMonetizationValid.value) {
-        emit('changePage', 2);
-    } else if (monetizationDetails.value.type === 'nft' && props.assetOnMarketplace) {
+    if (monetizationDetails.value.type === 'nft' && props.assetOnMarketplace) {
         showErrorMessage(t('data.designer.nftNotPossible'));
+    } else if (isMonetizationValid.value && isAssetOfferingDetailsValid.value) {
+        emit('changePage', 2);
     } else {
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
