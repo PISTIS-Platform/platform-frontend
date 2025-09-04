@@ -10,11 +10,9 @@ export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
 
     const newServices = {
-        // 'analytics-engine': '',
-        // eslint-disable-next-line prettier/prettier
         Anonymizer: [],
         'Asset Description Bundler': ['/srv/asset-description-bundler/api/health/'],
-        'Contract Inspector': [],
+        'Contract Inspector': ['/srv/contract-inspector-on-platform/api/health'],
         'Job Configurator': ['/srv/data-check-in/api/health'],
         'Data Factory Connector': ['/srv/data-connector/api/health'],
         'Identity Wallet': [],
@@ -81,17 +79,22 @@ export default defineEventHandler(async (event) => {
                     },
                     timeout: 5000,
                 });
+
                 if (result === true) {
                     active = 'true';
                 } else if (result === 'Service is up and running') {
                     active = 'true';
                 } else if (result?.success) {
                     active = 'true';
-                } else if (result?.status.toLowerCase() === 'ok' || result?.status.toLowerCase() === 'success') {
+                } else if (
+                    result?.status.toLowerCase() === 'ok' ||
+                    result?.status.toLowerCase() === 'success' ||
+                    result?.status.toLowerCase() === 'up'
+                ) {
                     active = 'true';
                 }
             } catch (error) {
-                // console.error(`Error fetching health for ${key}:`, error);
+                console.error(`Error fetching health for ${key}:`, error);
             } finally {
                 return {
                     title: key,
