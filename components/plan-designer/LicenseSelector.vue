@@ -175,7 +175,6 @@ const updatePersonal = (value: boolean) => {
 };
 
 const updateContractTerms = (value: string) => {
-    console.log(licenseDetails.value.contractTerms);
     licenseDetails.value.contractTerms = value;
 };
 
@@ -193,11 +192,11 @@ const resetLicenseDetails = (license: { code: string; label: string; description
         licenseDetails.value = {
             license: 'PISTIS License',
             extraTerms: '',
-            // contractTerms: '',
+            contractTerms: '',
             limitNumber: '',
             limitFrequency: '',
             isExclusive: false,
-            region: '',
+            region: [],
             transferable: '',
             termDate: '',
             additionalRenewalTerms: '',
@@ -242,8 +241,6 @@ const customValidate = () => {
     if (hasPersonalData.value && !licenseDetails.value.personalDataTerms)
         errors.push({ path: 'personalDataTerms', message: t('val.required') });
 
-    console.log(errors);
-
     return errors;
 };
 
@@ -251,7 +248,6 @@ async function onSubmit(): Promise<void> {
     if (isLicenseValid.value) {
         emit('changePage', 3);
     } else {
-        console.log(licenseDetails.value);
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }

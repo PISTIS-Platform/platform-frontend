@@ -296,6 +296,8 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    annual: 'per year',
+                    monthly: 'per month',
                     nftWarning: 'NFT Warning',
                     nftWarningText:
                         'If you create an NFT, you can not monetize this asset in any other way. Also, the ownership of the asset will be transferred from you to the consumer and the asset will be deleted on your end.',

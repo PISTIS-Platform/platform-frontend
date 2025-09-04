@@ -108,7 +108,10 @@ const subscriptionMapping: Record<string, string> = {
                         }}</span>
                         <span>{{ subscriptionMapping[monetizationDetails.type] }}</span>
                     </div>
-                    <div v-if="monetizationDetails.type === 'one-off'" class="flex gap-2 flex-col w-1/2">
+                    <div
+                        v-if="monetizationDetails.type === 'one-off' || monetizationDetails.type === 'nft'"
+                        class="flex gap-2 flex-col w-1/2"
+                    >
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.price') }}</span>
                         <span>{{
                             monetizationDetails.price ? monetizationDetails.price + ' EUR' : $t('data.designer.free')
@@ -165,10 +168,7 @@ const subscriptionMapping: Record<string, string> = {
                         }}</span>
                     </div>
                 </div>
-                <div
-                    v-if="licenseDetails.license !== 'NFT License' && licenseDetails.license !== 'PISTIS License'"
-                    class="flex items-start w-full"
-                >
+                <div v-if="licenseDetails.license === 'PISTIS License'" class="flex items-start w-full">
                     <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('exclusive') }}</span>
                         <span>{{ licenseDetails.isExclusive ? $t('yes') : $t('no') }}</span>
@@ -187,10 +187,7 @@ const subscriptionMapping: Record<string, string> = {
                         </span>
                     </div>
                 </div>
-                <div
-                    v-if="licenseDetails.license !== 'NFT License' && licenseDetails.license !== 'PISTIS License'"
-                    class="flex items-start w-full"
-                >
+                <div v-if="licenseDetails.license === 'PISTIS License'" class="flex items-start w-full">
                     <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.transferable') }}</span>
                         <span>{{ licenseDetails.transferable }}</span>
@@ -204,10 +201,7 @@ const subscriptionMapping: Record<string, string> = {
                         }}</span>
                     </div>
                 </div>
-                <div
-                    v-if="licenseDetails.license !== 'NFT License' && licenseDetails.license !== 'PISTIS License'"
-                    class="flex items-start w-full"
-                >
+                <div v-if="licenseDetails.license === 'PISTIS License'" class="flex items-start w-full">
                     <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.noticeForNonRenewal')
