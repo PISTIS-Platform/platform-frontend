@@ -61,6 +61,7 @@ export default defineNuxtConfig({
         walletAlias: '',
         prometheusUrl: '',
         factoryName: '',
+        organisationFullName: '',
     },
 
     modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/icon'],

@@ -2,6 +2,7 @@ import { getToken } from '#auth';
 
 const {
     public: { cloudUrl },
+    organisationFullName,
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
@@ -10,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
     const facets = {
         monetizationType: ['one-off', 'subscription'],
-        publisher: ['ACME'],
+        publisher: [organisationFullName],
     };
 
     const results: any = await $fetch(
