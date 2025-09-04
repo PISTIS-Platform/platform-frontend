@@ -1,4 +1,3 @@
-import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 export const useLicenseSchema = () => {
@@ -11,26 +10,32 @@ export const useLicenseSchema = () => {
         .object({
             license: z.string().min(1, t('val.required')),
             extraTerms: z.string().optional(),
-            contractTerms: z.string().optional(),
-            limitNumber: z
-                .union([
-                    z
-                        .string()
-                        .min(1, { message: t('val.required') })
-                        .refine(
-                            (val) => {
-                                return val.trim().length > 0 && !isNaN(Number(val));
-                            },
-                            {
-                                message: t('val.validNumber'),
-                            },
-                        ),
-                    z.coerce
-                        .number({ required_error: t('val.required'), invalid_type_error: t('val.validNumber') })
-                        .int({ message: t('val.integer') })
-                        .gt(0, t('val.positive')),
-                ])
-                .optional(),
+            contractTerms: z.string().min(1, t('val.required')),
+            limitNumber: z.union([
+                z
+                    .string()
+                    .min(1, { message: t('required') })
+                    .refine(
+                        (val) => {
+                            return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
+                        },
+                        {
+                            message: t('val.validNumber'),
+                        },
+                    ),
+                z.coerce
+                    .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
+                    .gte(0, t('val.positive'))
+                    .int({ message: t('val.integer') })
+                    .refine(
+                        (val) => {
+                            return val > 0;
+                        },
+                        {
+                            message: t('val.positive'),
+                        },
+                    ),
+            ]),
             limitFrequency: z.string().min(1, t('val.required')),
             isExclusive: z.boolean().optional(),
             region: z.string().array().optional(),
@@ -41,91 +46,99 @@ export const useLicenseSchema = () => {
                 .union([
                     z
                         .string()
-                        .min(1, { message: t('val.required') })
+                        .min(1, { message: t('required') })
                         .refine(
                             (val) => {
-                                return val.trim().length > 0 && !isNaN(Number(val));
+                                return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
                             },
                             {
                                 message: t('val.validNumber'),
                             },
                         ),
                     z.coerce
-                        .number({ required_error: t('val.required'), invalid_type_error: t('val.validNumber') })
+                        .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
+                        .gte(0, t('val.positive'))
                         .int({ message: t('val.integer') })
-                        .gt(0, t('val.positive')),
+                        .refine(
+                            (val) => {
+                                return val > 0;
+                            },
+                            {
+                                message: t('val.positive'),
+                            },
+                        ),
                 ])
                 .optional(),
             contractBreachDays: z
                 .union([
                     z
                         .string()
-                        .min(1, { message: t('val.required') })
+                        .min(1, { message: t('required') })
                         .refine(
                             (val) => {
-                                return val.trim().length > 0 && !isNaN(Number(val));
+                                return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
                             },
                             {
                                 message: t('val.validNumber'),
                             },
                         ),
                     z.coerce
-                        .number({ required_error: t('val.required'), invalid_type_error: t('val.validNumber') })
+                        .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
+                        .gte(0, t('val.positive'))
                         .int({ message: t('val.integer') })
-                        .gt(0, t('val.positive')),
+                        .refine(
+                            (val) => {
+                                return val > 0;
+                            },
+                            {
+                                message: t('val.positive'),
+                            },
+                        ),
                 ])
                 .optional(),
             personalDataTerms: z.string().optional(),
         })
         .superRefine((data, ctx) => {
             if (data.license === 'PISTIS License') {
-                if (!data.contractTerms) {
+                if (!data.region?.length && !isWorldwide.value) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        path: ['contractTerms'],
                         message: t('val.required'),
                     });
                 }
+
+                if (!data.transferable) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: t('val.required'),
+                    });
+                }
+
+                if (!data.termDate && !isPerpetual.value) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: t('val.required'),
+                    });
+                }
+
                 if (!data.nonRenewalDays) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        path: ['nonRenewalDays'],
-                        message: t('val.positive'),
-                    });
-                }
-                if (!data.contractBreachDays) {
-                    ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
-                        path: ['contractBreachDays'],
                         message: t('val.positive'),
                     });
                 }
 
-                if (!data.region?.length && !isWorldwide.value) {
+                if (!data.contractBreachDays) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        path: ['region'],
-                        message: t('val.required'),
+                        message: t('val.positive'),
                     });
                 }
-                if (!data.transferable) {
-                    ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
-                        path: ['transferable'],
-                        message: t('val.required'),
-                    });
-                }
-                if (!data.termDate && !isPerpetual.value) {
-                    ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
-                        path: ['termDate'],
-                        message: t('val.required'),
-                    });
-                }
+
                 if (!data.personalDataTerms && hasPersonalData.value) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        path: ['personalDataTerms'],
+                        message: t('val.required'),
                     });
                 }
             }

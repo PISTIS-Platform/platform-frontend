@@ -175,6 +175,7 @@ const updatePersonal = (value: boolean) => {
 };
 
 const updateContractTerms = (value: string) => {
+    console.log(licenseDetails.value.contractTerms);
     licenseDetails.value.contractTerms = value;
 };
 
@@ -192,7 +193,7 @@ const resetLicenseDetails = (license: { code: string; label: string; description
         licenseDetails.value = {
             license: 'PISTIS License',
             extraTerms: '',
-            contractTerms: '',
+            // contractTerms: '',
             limitNumber: '',
             limitFrequency: '',
             isExclusive: false,
@@ -241,6 +242,8 @@ const customValidate = () => {
     if (hasPersonalData.value && !licenseDetails.value.personalDataTerms)
         errors.push({ path: 'personalDataTerms', message: t('val.required') });
 
+    console.log(errors);
+
     return errors;
 };
 
@@ -248,6 +251,7 @@ async function onSubmit(): Promise<void> {
     if (isLicenseValid.value) {
         emit('changePage', 3);
     } else {
+        console.log(licenseDetails.value);
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
@@ -587,13 +591,13 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                 <div v-show="licenseDetails.license">
                     <p class="font-semibold text-sm mt-5 mb-1.5">{{ $t('licenseDetails') }}</p>
                     <DataShareTerms
-                        v-if="licenseDetails.license === 'PISTIS License'"
+                        v-show="licenseDetails.license === 'PISTIS License'"
                         :asset-offering-details="props.assetOfferingDetails"
                         :monetization-details="props.monetizationDetails"
                         :license-details="licenseDetails"
                         @update:contract-terms="(value: string) => updateContractTerms(value)"
                     />
-                    <div v-else class="border rounded-md p-4">
+                    <div v-show="licenseDetails.license !== 'PISTIS License'" class="border rounded-md p-4">
                         {{ licenseRef?.description }}
                     </div>
                 </div>

@@ -17,6 +17,8 @@ const props = defineProps({
     },
 });
 
+const detailsChanged = computed(() => [props.monetizationDetails, props.licenseDetails, props.assetOfferingDetails]);
+
 const emit = defineEmits(['update:contract-terms']);
 
 const termsItem = ref([
@@ -34,11 +36,15 @@ const recurrentPaymentText = computed(() =>
 
 const htmlContent = ref<HTMLElement>();
 
-watch(htmlContent, () => {
-    const termsDocContent = htmlContent?.value?.innerHTML || '';
+watch(
+    detailsChanged,
+    () => {
+        const termsDocContent = htmlContent?.value?.innerHTML || '';
 
-    emit('update:contract-terms', btoa(encodeURIComponent(termsDocContent)));
-});
+        emit('update:contract-terms', btoa(encodeURIComponent(termsDocContent)));
+    },
+    { deep: true },
+);
 </script>
 
 <template>
