@@ -175,7 +175,6 @@ const submitStatus = ref();
 const submitAll = async () => {
     submitStatus.value = 'pending';
     let body;
-    //TODO: Different body if it's an NFT. Maintains original assetId also.
 
     if (monetizationDetails.value.type === 'nft') {
         body = {
