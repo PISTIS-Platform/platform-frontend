@@ -181,15 +181,14 @@ const submitAll = async () => {
         body = {
             type: 'nft',
             price: monetizationDetails.value.price,
-            assetId, //(same as dataset ID?)
+            assetId,
             seller: accountData.value?.user.sub,
-            //FIXME: Do we need to send the below or is it generated?
             nftDetails: {
                 dataset_id: assetId,
-                factory_name: 'develop',
-                name: 'Name of NFT',
-                description: 'Description of NFT',
-                issuerName: constant('PISTIS MARKET'),
+                factory_name: runtimeConfig.factoryName,
+                name: assetOfferingDetails.value.title,
+                description: assetOfferingDetails.value.description,
+                issuerName: 'PISTIS MARKET',
                 nft_license: 'https://pistis-market.eu/...',
                 nft_license_hash: 'abc123def456...',
             },
