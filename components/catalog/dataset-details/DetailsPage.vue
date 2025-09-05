@@ -34,6 +34,7 @@ const props = withDefaults(
 const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
+
 // const { appContext } = getCurrentInstance();
 // const store = useStore();
 // const authStore = useAuthStore();
@@ -292,9 +293,15 @@ const truncatedEllipsedDescription = computed(() => {
                     </div>
                     <!-- Data Lineage (Button placements should be discussed together)-->
                     <div>
-                        <a to="/data-lineage" class="">
+                        <NuxtLink
+                            :to="{
+                                path: '/catalog/dataset-details/data-lineage',
+                                query: { id: datasetId, pm: pistisMode },
+                            }"
+                            class=""
+                        >
                             <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                        </a>
+                        </NuxtLink>
                     </div>
                 </section>
             </div>
@@ -304,9 +311,15 @@ const truncatedEllipsedDescription = computed(() => {
                     <template v-if="catalog === 'my-data'">
                         <div class="btn_holder flex gap-5 flex-wrap">
                             <!-- Data Lineage -->
-                            <a to="/data-lineage" class="">
+                            <NuxtLink
+                                :to="{
+                                    path: '/catalog/dataset-details/data-lineage',
+                                    query: { id: datasetId, pm: pistisMode },
+                                }"
+                                class=""
+                            >
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                            </a>
+                            </NuxtLink>
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
@@ -318,9 +331,15 @@ const truncatedEllipsedDescription = computed(() => {
                     <template v-if="catalog === 'acquired-data'">
                         <div class="btn_holder flex gap-5 flex-wrap">
                             <!-- Data Lineage -->
-                            <a to="/data-lineage" class="">
+                            <NuxtLink
+                                :to="{
+                                    path: '/catalog/dataset-details/data-lineage',
+                                    query: { id: datasetId, pm: pistisMode },
+                                }"
+                                class=""
+                            >
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                            </a>
+                            </NuxtLink>
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
