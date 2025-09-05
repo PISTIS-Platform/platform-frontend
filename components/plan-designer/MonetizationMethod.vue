@@ -14,6 +14,14 @@ const props = defineProps({
         type: Object as PropType<Partial<monetizationType>>,
         required: true,
     },
+    assetOfferingDetails: {
+        type: Object,
+        required: true,
+    },
+    assetOnMarketplace: {
+        type: Boolean,
+        required: true,
+    },
 });
 
 //use computed getter and setter to avoid prop mutation
@@ -33,6 +41,33 @@ const isMonetizationValid = computed(() => {
 const { isFree, monetizationSchema } = useMonetizationSchema();
 
 type monetizationType = z.infer<typeof monetizationSchema>;
+
+const assetOfferingDetailsSchema = z.object({
+    title: z.string().min(1, t('required', { count: 1 })),
+    description: z.string().min(1, t('required', { count: 1 })),
+    selectedDistribution: z.object({
+        label: z.string(),
+        id: z.string(),
+        format: z
+            .object({
+                id: z.string(),
+                label: z.string().optional(),
+                resource: z.string().optional(),
+            })
+            .optional(),
+        access_url: z.array(z.string()).optional(),
+        title: z.object({
+            en: z.string(),
+        }),
+    }),
+});
+
+const isAssetOfferingDetailsValid = computed(() => {
+    return assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success &&
+        monetizationDetails.value.type === 'nft'
+        ? true
+        : props.assetOfferingDetails.keywords.length > 0;
+});
 
 const updateFrequencySelections = [
     {
@@ -70,7 +105,10 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'nft')
             updateFrequency: '',
         };
     } else if (monetizationType === 'nft') {
-        //TODO: Do once we know what goes here
+        monetizationDetails.value = {
+            type: 'nft',
+            price: '',
+        };
     }
 };
 
@@ -90,7 +128,7 @@ const monetizationSelections: CardSelection[] = [
     {
         title: t('data.designer.nft'),
         value: 'nft',
-        disabled: true,
+        disabled: false,
     },
 ];
 
@@ -109,7 +147,7 @@ const formRef = ref();
 const updateFree = (value: boolean) => {
     isFree.value = value;
     emit('update:is-free', value);
-    monetizationDetails.value.price = '';
+    monetizationDetails.value.price = 0;
 };
 
 const handleMonetizationClick = (value: string) => {
@@ -118,7 +156,9 @@ const handleMonetizationClick = (value: string) => {
 };
 
 async function onSubmit(): Promise<void> {
-    if (isMonetizationValid.value) {
+    if (monetizationDetails.value.type === 'nft' && props.assetOnMarketplace) {
+        showErrorMessage(t('data.designer.nftNotPossible'));
+    } else if (isMonetizationValid.value && isAssetOfferingDetailsValid.value) {
         emit('changePage', 2);
     } else {
         showErrorMessage(t('data.designer.pleaseCheck'));
@@ -135,6 +175,10 @@ const customValidate = () => {
     }
     return monetizationErrors;
 };
+
+//NFT Functionality
+
+//TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
 <template>
@@ -175,7 +219,7 @@ const customValidate = () => {
                                 >
                                     <UInput
                                         v-model.number="monetizationDetails.price"
-                                        :class="isFree ? 'opacity-50' : 'w-[328px]'"
+                                        :class="isFree ? 'opacity-50 w-[328px]' : 'w-[328px]'"
                                         :disabled="isFree"
                                         :placeholder="$t('data.designer.price')"
                                         type="numeric"
@@ -307,8 +351,60 @@ const customValidate = () => {
                     </div>
                 </template>
 
-                <!-- <template v-if="monetizationDetails.type === 'nft'">
-                        </template> -->
+                <template v-if="monetizationDetails.type === 'nft'">
+                    <div class="flex flex-col space-y-5">
+                        <UAlert
+                            v-if="$props.assetOnMarketplace"
+                            icon="nimbus:forbidden"
+                            class="p-6 border border-red-200"
+                            :description="$t('data.designer.nftNotPossible')"
+                            color="red"
+                            variant="soft"
+                        />
+                        <UAlert
+                            class="p-6 border border-yellow-200"
+                            icon="material-symbols:warning-outline-rounded"
+                            :title="$t('data.designer.nftWarning')"
+                            :description="$t('data.designer.nftWarningText')"
+                            color="yellow"
+                            variant="soft"
+                        />
+                        <div class="flex flex-row gap-4">
+                            <div class="flex-1 flex gap-4">
+                                <UFormGroup
+                                    :label="$t('data.designer.price')"
+                                    required
+                                    name="price"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
+                                >
+                                    <UInput
+                                        v-model.number="monetizationDetails.price"
+                                        :class="'w-[328px]'"
+                                        :disabled="isFree"
+                                        :placeholder="$t('data.designer.price')"
+                                        type="numeric"
+                                    >
+                                        <template #trailing>
+                                            <span class="text-gray-500 text-xs">EUR</span>
+                                        </template>
+                                    </UInput>
+                                    <template #error="{ error }">
+                                        <span
+                                            :class="[
+                                                error
+                                                    ? 'text-red-500 dark:text-red-400'
+                                                    : 'text-primary-500 dark:text-primary-400',
+                                            ]"
+                                        >
+                                            {{ error }}
+                                        </span>
+                                    </template>
+                                </UFormGroup>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
         </UCard>
         <div class="w-full flex items-center justify-between mt-4">

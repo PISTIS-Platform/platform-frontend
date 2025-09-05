@@ -8,8 +8,6 @@ const {
     public: { cloudUrl },
 } = useRuntimeConfig();
 
-import type { AccessPolicyDetails } from '~/interfaces/plan-designer';
-
 const { showErrorMessage, showSuccessMessage } = useAlertMessage();
 import { navigateTo } from '#app';
 
@@ -142,10 +140,6 @@ const steps = computed(() => [
         isActive: selected.value && isAssetOfferingDetailsValid.value,
     },
     {
-        name: t('data.investmentPlanner.steps.accessPoliciesEditor'),
-        isActive: isMonetizationValid.value,
-    },
-    {
         name: t('data.investmentPlanner.steps.preview'),
         isActive: isMonetizationValid.value,
     },
@@ -167,22 +161,6 @@ const assetOfferingsSchema = z.object({
 
 const isAssetOfferingDetailsValid = computed(() => assetOfferingsSchema.safeParse(assetOfferingDetails.value).success);
 
-//Policy Data
-const policyData: Array<AccessPolicyDetails> = [];
-const defaultPolicy: AccessPolicyDetails = {
-    countries: [],
-    domains: [],
-    groups: [],
-    scopes: [],
-    sizes: [],
-    types: [],
-    id: t('policies.publicationDefaults.id'),
-    title: t('policies.publicationDefaults.title'),
-    description: t('policies.publicationDefaults.description'),
-    default: true,
-};
-policyData.push(defaultPolicy);
-
 const onInvestmentSubmit = () => {
     changeStep(2);
 };
@@ -202,7 +180,6 @@ const submitAll = async () => {
         title: string;
         description: string;
         keywords: string[];
-        accessPolicy: AccessPolicyDetails[];
     } = {
         type: 'investment',
         cloudAssetId: uuidV4(),
@@ -217,7 +194,6 @@ const submitAll = async () => {
         title: assetOfferingDetails.value.title,
         description: assetOfferingDetails.value.description,
         keywords: assetOfferingDetails.value.keywords,
-        accessPolicy: policyData,
     };
 
     try {
@@ -455,26 +431,6 @@ const submitAll = async () => {
             </div>
         </UForm>
         <div v-show="selectedPage === 2" class="w-full">
-            <AccessPolicyList
-                v-model:policy-data="policyData"
-                :selected="selected"
-                hide-buttons
-                @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
-            />
-            <div class="relative w-full items-center justify-between flex mt-6">
-                <UButton color="white" size="lg" :disabled="selectedPage === 0" @click="changeStep(selectedPage - 1)"
-                    >Previous</UButton
-                >
-                <UButton
-                    v-if="selectedPage !== 3"
-                    size="lg"
-                    :disabled="!steps[selectedPage + 1]?.isActive"
-                    @click="changeStep(selectedPage + 1)"
-                    >Next</UButton
-                >
-            </div>
-        </div>
-        <div v-show="selectedPage === 3" class="w-full">
             <UCard>
                 <template #header>
                     <div class="flex items-center gap-4">
@@ -559,23 +515,22 @@ const submitAll = async () => {
                     </div>
                 </div>
             </UCard>
-            <AccessPolicyList preview :policy-data="policyData" />
         </div>
     </div>
     <div
-        v-if="datasetsStatus !== 'pending' && selectedPage === 3"
+        v-if="datasetsStatus !== 'pending' && selectedPage === 2"
         class="relative w-full items-center justify-between flex mt-6"
     >
         <UButton color="white" size="lg" :disabled="selectedPage === 0" @click="changeStep(selectedPage - 1)"
             >Previous</UButton
         >
         <UButton
-            v-if="selectedPage !== 3"
+            v-if="selectedPage !== 2"
             size="lg"
             :disabled="!steps[selectedPage + 1]?.isActive"
             @click="changeStep(selectedPage + 1)"
             >Next</UButton
         >
-        <UButton v-if="selectedPage === 3" size="lg" @click="submitAll">Submit</UButton>
+        <UButton v-if="selectedPage === 2" size="lg" @click="submitAll">Submit</UButton>
     </div>
 </template>

@@ -28,6 +28,14 @@ const { data: dataset, status: datasetsStatus } = useAsyncData<Record<string, an
     $fetch('/api/datasets/get-specific', { query: { id: assetId } }),
 );
 
+const { data: isAssetOnMarketplace } = useFetch(`api/datasets/is-on-marketplace`, {
+    query: {
+        query: encodeURIComponent(
+            `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX pst: <https://www.pistis-project.eu/ns/voc#> ASK { ?offer rdf:type pst:Offer ; pst:originalId "${assetId}" .}`,
+        ),
+    },
+});
+
 watch(dataset, () => {
     if (!dataset.value) return;
     selected.value = {
@@ -129,7 +137,7 @@ const isLicenseValid = computed(() => {
 type licenseType = z.infer<typeof licenseSchema>;
 
 const licenseDetails = ref<Partial<licenseType>>({
-    license: 'PISTIS License',
+    license: '',
     extraTerms: '',
     contractTerms: '',
     limitNumber: '',
@@ -166,47 +174,66 @@ const submitStatus = ref();
 
 const submitAll = async () => {
     submitStatus.value = 'pending';
-    let body = {
-        assetId: newAssetId,
-        originalAssetId: selected.value?.id,
-        organizationId: runtimeConfig.public?.orgId,
-        organizationName: accountData.value?.user.orgName,
-        ...assetOfferingDetails.value,
-        ...monetizationDetails.value,
-        distributionId: assetOfferingDetails.value.selectedDistribution.id,
-        // sellerId: session.value?.user?.sub,
-        title: assetOfferingDetails.value.title,
-        description: assetOfferingDetails.value.description,
-        keywords: assetOfferingDetails.value.keywords,
-        type: monetizationDetails.value.type,
-        subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
-        updateFrequency: monetizationDetails.value.updateFrequency,
-        price: monetizationDetails.value.price,
-        license: licenseDetails.value.license,
-        extraTerms: licenseDetails.value.extraTerms,
-        contractTerms: licenseDetails.value.contractTerms,
-        limitNumber: licenseDetails.value.limitNumber,
-        limitFrequency: licenseDetails.value.limitFrequency,
-        canEdit: false, //FIXME: Where do we get this?
-        region: licenseDetails.value.region?.join(', '),
-        isExclusive: licenseDetails.value.isExclusive,
-        transferable: licenseDetails.value.transferable,
-        termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
-        additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
-        nonRenewalDays: licenseDetails.value.nonRenewalDays,
-        contractBreachDays: licenseDetails.value.contractBreachDays,
-        containsPersonalData: hasPersonalData.value,
-        personalDataTerms: licenseDetails.value.personalDataTerms,
-        accessPolicies: {
+    let body;
+
+    if (monetizationDetails.value.type === 'nft') {
+        body = {
+            type: 'nft',
+            price: monetizationDetails.value.price,
+            assetId,
+            seller: accountData.value?.user.sub,
+            nftDetails: {
+                dataset_id: assetId,
+                factory_name: runtimeConfig.factoryName,
+                name: assetOfferingDetails.value.title,
+                description: assetOfferingDetails.value.description,
+                issuerName: 'PISTIS MARKET',
+                nft_license: 'https://pistis-market.eu/...',
+                nft_license_hash: 'abc123def456...',
+            },
+        };
+    } else {
+        body = {
             assetId: newAssetId,
-            assetTitle: assetOfferingDetails.value.title,
-            assetDescription: assetOfferingDetails.value.description,
-            policyData: policyData,
-        },
-        sellerId: accountData.value?.user.sub,
-        numOfResell: 0,
-        numOfShare: 0,
-    };
+            originalAssetId: selected.value?.id,
+            organizationId: runtimeConfig.public?.orgId,
+            organizationName: accountData.value?.user.orgName,
+            ...assetOfferingDetails.value,
+            ...monetizationDetails.value,
+            distributionId: assetOfferingDetails.value.selectedDistribution.id,
+            title: assetOfferingDetails.value.title,
+            description: assetOfferingDetails.value.description,
+            keywords: assetOfferingDetails.value.keywords,
+            type: monetizationDetails.value.type,
+            subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
+            updateFrequency: monetizationDetails.value.updateFrequency,
+            price: monetizationDetails.value.price,
+            license: licenseDetails.value.license,
+            extraTerms: licenseDetails.value.extraTerms,
+            contractTerms: licenseDetails.value.contractTerms,
+            limitNumber: licenseDetails.value.limitNumber,
+            limitFrequency: licenseDetails.value.limitFrequency,
+            canEdit: false, //FIXME: Where do we get this?
+            region: licenseDetails.value.region?.join(', '),
+            isExclusive: licenseDetails.value.isExclusive,
+            transferable: licenseDetails.value.transferable,
+            termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
+            additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
+            nonRenewalDays: licenseDetails.value.nonRenewalDays,
+            contractBreachDays: licenseDetails.value.contractBreachDays,
+            containsPersonalData: hasPersonalData.value,
+            personalDataTerms: licenseDetails.value.personalDataTerms,
+            accessPolicies: {
+                assetId: newAssetId,
+                assetTitle: assetOfferingDetails.value.title,
+                assetDescription: assetOfferingDetails.value.description,
+                policyData: policyData,
+            },
+            sellerId: accountData.value?.user.sub,
+            numOfResell: 0,
+            numOfShare: 0,
+        };
+    }
 
     try {
         await $fetch(`/api/datasets/publish-data`, {
@@ -293,6 +320,10 @@ const changeStep = async (stepNum: number) => {
         //TODO:: use returned compose contract for other pistis components
     }
 };
+
+//NFT Functionality
+
+//TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
 <template>
@@ -306,20 +337,25 @@ const changeStep = async (stepNum: number) => {
             :complete-or-query="completeOrQuery"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
         />
-
-        <AssetOfferingDetails
-            v-model:asset-details-prop="assetOfferingDetails"
-            @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
-            @change-page="changeStep"
-        />
+        <div>
+            <div class="w-full flex items-center justify-end gap-4">
+                <UButton size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
+            </div>
+        </div>
     </div>
 
     <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <!-- <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" /> -->
-
+        <AssetOfferingDetails
+            v-model:asset-details-prop="assetOfferingDetails"
+            :monetization-details="monetizationDetails"
+            @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
+            @change-page="changeStep"
+        />
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
+            :asset-on-marketplace="!!isAssetOnMarketplace"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
