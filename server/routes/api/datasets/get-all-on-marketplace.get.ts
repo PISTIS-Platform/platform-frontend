@@ -23,7 +23,5 @@ export default defineEventHandler(async (event) => {
         },
     );
 
-    console.log({ results });
-
     return results.result.results;
 });

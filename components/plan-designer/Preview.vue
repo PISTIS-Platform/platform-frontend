@@ -49,7 +49,6 @@ const subscriptionMapping: Record<string, string> = {
     subscription: t('data.designer.subscription'),
     'one-off': t('data.designer.oneOffSale'),
     nft: 'NFT',
-    nft: 'NFT',
 };
 </script>
 
