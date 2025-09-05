@@ -66,7 +66,6 @@ export default defineNuxtConfig({
         authSecret: '',
         catalogName: '',
         walletAlias: '',
-        prometheusUrl: '',
         factoryName: '',
         organisationFullName: '',
         pistisMode: '',
