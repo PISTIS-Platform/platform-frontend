@@ -184,6 +184,7 @@ const submitAll = async () => {
         status: boolean;
         terms: string;
         description: string;
+        maxInvestors: number;
     } = {
         type: 'investment',
         cloudAssetId: uuidV4(),
@@ -197,6 +198,7 @@ const submitAll = async () => {
         status: true,
         terms: monetizationDetails.value.termsAndConditions,
         description: assetOfferingDetails.value.description,
+        maxInvestors: monetizationDetails.value.numberOfShares,
     };
 
     loading.value = true;
