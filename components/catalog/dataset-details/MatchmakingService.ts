@@ -1,8 +1,10 @@
-import mockData from './mock-data.json';
+import axios from 'axios';
 
-export async function getMatchingDatasets(_offerId: string) {
-    //const response = await axios.get('https://pistis-market.eu/srv/matchmaking-service/api/mms/${offerId}')
-    const mockResponse = mockData;
+const config = useRuntimeConfig();
+const backendUrl = config.public.cloudUrl;
 
-    return Object.values(mockResponse.data).slice(1);
+export async function getMatchingDatasets(offerId: string) {
+    const response = await axios.get(`${backendUrl}/srv/matchmaking-services/api/mms/${offerId}?format=json`);
+
+    return response.data;
 }
