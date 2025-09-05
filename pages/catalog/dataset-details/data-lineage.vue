@@ -79,7 +79,7 @@
                         />
                         <Compare v-if="store.displayState === 'diff'" :cloud-mode="!isFactory" />
                         <!-- <DataIntegrity v-if="store.displayState === 'integrity' && isFactory" :lineage-id="lineageID" /> -->
-                        <DataIntegrity :lineage-id="lineageID" />
+                        <!-- <DataIntegrity :lineage-id="lineageID" /> -->
                     </div>
                 </div>
             </div>
@@ -105,15 +105,15 @@ import { useStore } from '@/components/catalog/dataset-details/data-lineage/stor
 
 // Route and store setup
 const route = useRoute();
-const lineageID = route.query.id;
+const _lineageID = route.query.id;
 const { data: session } = useAuth();
 
 const store = useStore();
 
-const token = session.value?.token;
+const _token = session.value?.token;
 // Initialize data fetch
-store.fetchData(lineageID, token);
-// store.loadMockData();
+// store.fetchData(lineageID, token);
+store.loadMockData();
 
 // ========================================
 // CONSTANTS

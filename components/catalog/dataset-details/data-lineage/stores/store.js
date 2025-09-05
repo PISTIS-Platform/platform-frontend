@@ -2,6 +2,7 @@ import axios from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
+import mockCompare from './mock-compare.json';
 import mockData from './mock-lineage.json';
 
 const route = useRoute();
@@ -108,26 +109,30 @@ export const useStore = defineStore('store', () => {
         diffError.value = null;
 
         const { data: session } = useAuth();
-        const token = session.value?.token;
+        const _token = session.value?.token;
 
         try {
-            const url = `${backendUrl}srv/lineage-tracker/get_datasets_diff`;
-            const isCloud = pistisMode === 'cloud';
+            // const url = `${backendUrl}srv/lineage-tracker/get_datasets_diff`;
+            // const isCloud = pistisMode === 'cloud';
 
-            const response = await axios.get(url, {
-                params: {
-                    uuid_1: id1,
-                    uuid_2: id2,
-                    is_cloud: isCloud,
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                },
-            });
+            // const response = await axios.get(url, {
+            //     params: {
+            //         uuid_1: id1,
+            //         uuid_2: id2,
+            //         is_cloud: isCloud,
+            //     },
+            //     headers: {
+            //         Authorization: `Bearer ${token}`,
+            //         'Content-Type': 'application/json',
+            //         Accept: 'application/json',
+            //     },
+            // });
 
-            diffData.value = response.data;
+            // diffData.value = response.data;
+
+            // working with mockdata
+            const response = mockCompare;
+            diffData.value = response;
 
             if (import.meta.env.DEV) {
                 console.log('Dataset comparison data received:', diffData.value);
