@@ -2,6 +2,8 @@
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
+import { MonetizationType } from '~/constants/monetization-types';
+
 const { t } = useI18n();
 
 const props = defineProps({
@@ -14,8 +16,6 @@ const props = defineProps({
         required: true,
     },
 });
-
-const { MonetizationType } = useMonetizationSchema();
 
 const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid', 'changePage']);
 
