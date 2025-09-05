@@ -187,9 +187,9 @@ const submitAll = async () => {
         maxInvestors: number;
     } = {
         type: 'investment',
-        cloudAssetId: uuidV4(),
+        cloudAssetId: assetOfferingDetails.value.id,
         sellerId: accountData.value?.user.sub,
-        assetId: assetOfferingDetails.value.id,
+        assetId: uuidV4(),
         dueDate: monetizationDetails.value.validOfferDate,
         percentageOffer: monetizationDetails.value.percentageToOfferSharesFor,
         totalShares: monetizationDetails.value.numberOfShares,
