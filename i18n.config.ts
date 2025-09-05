@@ -243,6 +243,9 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    successfullyPublishedAsInvestmentPlan:
+                        'The dataset was successfully published as an investment plan',
+
                     percentageToOfferSharesFor: 'Percentage to offer shares for',
                     percentageOfOwnership: '% of ownership to place on the market',
                     sharePrice: 'Share Price',
@@ -261,6 +264,7 @@ export default defineI18nConfig(() => ({
                     summary: 'Summary',
                     success: 'Investment plan successfully created',
                     errors: {
+                        couldNotPublishInvestmentPlan: 'Could not publish investment plan. An error has occurred.',
                         number: 'Please enter a valid number',
                         percentageMin: 'Percentage cannot be negative',
                         percentageMax: 'Percentage cannot exceed 49%',

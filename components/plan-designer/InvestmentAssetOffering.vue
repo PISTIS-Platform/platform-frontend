@@ -37,34 +37,19 @@ const customValidate = () => {
             assetErrors.push({ path: error.path[0], message: error.message });
         }
     }
-    if (!assetOfferingDetails.value.keywords?.length) assetErrors.push({ path: 'keywords', message: t('required') });
     return assetErrors;
 };
 
 const formRef = ref();
 
-watch(
-    () => assetOfferingDetails.value.keywords,
-    () => {
-        if (assetOfferingDetails.value.keywords.length >= 1) {
-            formRef.value.clear('keywords');
-        } else {
-            formRef.value.setErrors([{ path: 'keywords', message: t('required') }], 'keywords');
-        }
-    },
-);
-
 const isAssetOfferingDetailsValid = computed(() => {
-    return schema.safeParse(assetOfferingDetails.value).success && assetOfferingDetails?.value.keywords.length > 0;
+    return schema.safeParse(assetOfferingDetails.value).success;
 });
 
 async function onSubmit(): Promise<void> {
     if (isAssetOfferingDetailsValid.value) {
         emit('changePage', 1);
     } else {
-        if (!assetOfferingDetails?.value.keywords?.length) {
-            showErrorMessage(t('data.designer.pleaseEnterAtLeastOneKeyword'));
-        }
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
@@ -98,7 +83,11 @@ async function onSubmit(): Promise<void> {
                     :ui="{ error: 'absolute -bottom-6' }"
                     eager-validation
                 >
-                    <UInput v-model="assetOfferingDetails.title" :placeholder="$t('data.designer.titleOfAsset')" />
+                    <UInput
+                        v-model="assetOfferingDetails.title"
+                        :placeholder="$t('data.designer.titleOfAsset')"
+                        disabled
+                    />
                 </UFormGroup>
                 <UFormGroup
                     :label="$t('description')"
@@ -111,21 +100,7 @@ async function onSubmit(): Promise<void> {
                         v-model="assetOfferingDetails.description"
                         :placeholder="$t('data.designer.descriptionOfAsset')"
                         icon="i-heroicons-envelope"
-                    />
-                </UFormGroup>
-                <UFormGroup
-                    :label="$t('keywords')"
-                    required
-                    name="keywords"
-                    :ui="{ error: 'absolute -bottom-6' }"
-                    eager-validation
-                >
-                    <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->
-                    <vue3-tags-input
-                        class="mb-3"
-                        :tags="assetOfferingDetails.keywords"
-                        :placeholder="assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')"
-                        @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
+                        disabled
                     />
                 </UFormGroup>
             </div>
