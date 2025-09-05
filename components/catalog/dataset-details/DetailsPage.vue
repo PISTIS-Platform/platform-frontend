@@ -336,7 +336,7 @@ const truncatedEllipsedDescription = computed(() => {
                 <MonetizationView :data="monetizationData" />
             </div>
             <div v-if="pistisMode === 'cloud'" class="bg-white p-6 rounded-lg ring-1 ring-gray-200 shadow">
-                <MatchmakingServiceView />
+                <MatchmakingServiceView :dataset-id="datasetId" />
             </div>
         </div>
     </div>
