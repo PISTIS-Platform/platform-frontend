@@ -2,15 +2,15 @@ import { getToken } from '#auth';
 
 const {
     public: { cloudUrl },
+    organisationFullName,
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
-    // const tokenData = jwtDecode(token?.access_token);
 
     const facets = {
         monetizationType: ['one-off', 'subscription'],
-        publisher: ['ACME'],
+        publisher: [organisationFullName],
     };
 
     const results: any = await $fetch(

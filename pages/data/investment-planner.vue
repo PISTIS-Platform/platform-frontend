@@ -117,7 +117,7 @@ const {
     data: datasetsData,
     status: datasetsStatus,
     error: datasetsError,
-} = useFetch(`/api/datasets/get-all`, {
+} = useFetch(`/api/datasets/get-all-on-marketplace`, {
     server: false,
 });
 
