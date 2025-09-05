@@ -1,0 +1,79 @@
+{
+    "dataset_1": [
+        {
+            "data": {
+                "rows": [
+                    [1, 43, "Alice", "f", "Thu, 22 May 2008 00:00:00 GMT"],
+                    [2, 37, "Bob", "m", "Thu, 22 May 2008 00:00:00 GMT"]
+                ]
+            },
+            "data_model": {
+                "columns": [
+                    ["entry_id", "integer"],
+                    ["age", "integer"],
+                    ["name", "text"],
+                    ["sex", "text"],
+                    ["hiring_date", "date"]
+                ]
+            }
+        }
+    ],
+    "dataset_1_type": "table",
+    "dataset_2": [
+        {
+            "data": {
+                "rows": [
+                    [1, 44, "Alice", "Thu, 22 May 2008 00:00:00 GMT", "active"],
+                    [3, 29, "Charlie", "Thu, 22 May 2008 00:00:00 GMT", "pending"]
+                ]
+            },
+            "data_model": {
+                "columns": [
+                    ["entry_id", "integer"],
+                    ["age", "integer"],
+                    ["full_name", "text"],
+                    ["hiring_date", "date"],
+                    ["status", "text"]
+                ]
+            }
+        }
+    ],
+    "dataset_2_type": "table",
+    "diff": {
+        "columns_added": ["status"],
+        "columns_removed": ["sex"],
+        "columns_changed": [
+            {
+                "old": "name",
+                "new": "full_name"
+            }
+        ],
+        "rows_added": [
+            {
+                "entry_id": 3,
+                "age": 29,
+                "full_name": "Charlie",
+                "hiring_date": "Thu, 22 May 2008 00:00:00 GMT",
+                "status": "pending"
+            }
+        ],
+        "rows_removed": [
+            {
+                "entry_id": 2,
+                "age": 37,
+                "name": "Bob",
+                "sex": "m",
+                "hiring_date": "Thu, 22 May 2008 00:00:00 GMT"
+            }
+        ],
+        "values_modified": [
+            {
+                "row": 1,
+                "old_column": "age",
+                "new_column": "age",
+                "old_value": 43,
+                "new_value": 44
+            }
+        ]
+    }
+}
