@@ -8,6 +8,10 @@ const {
     public: { cloudUrl },
 } = useRuntimeConfig();
 
+const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`, {
+    query: { page: '' },
+});
+
 const { showErrorMessage, showSuccessMessage } = useAlertMessage();
 import { navigateTo } from '#app';
 
@@ -168,6 +172,7 @@ const submitAll = async () => {
     const objToSend: {
         type: string;
         cloudAssetId: string;
+        sellerId: string;
         assetId: string;
         dueDate: string;
         percentageOffer: number;
@@ -176,35 +181,45 @@ const submitAll = async () => {
         price: number;
         status: boolean;
         terms: string;
-        title: string;
         description: string;
-        keywords: string[];
     } = {
         type: 'investment',
         cloudAssetId: uuidV4(),
+        sellerId: accountData.value?.user.sub,
         assetId: assetOfferingDetails.value.id,
         dueDate: monetizationDetails.value.validOfferDate,
         percentageOffer: monetizationDetails.value.percentageToOfferSharesFor,
         totalShares: monetizationDetails.value.numberOfShares,
         maxShares: monetizationDetails.value.maximumSharesToBuy,
+        maxInvestors: Math.round(
+            monetizationDetails.value.numberOfShares / monetizationDetails.value.maximumSharesToBuy,
+        ),
         price: monetizationDetails.value.sharePrice,
         status: true,
         terms: monetizationDetails.value.termsAndConditions,
-        title: assetOfferingDetails.value.title,
         description: assetOfferingDetails.value.description,
-        keywords: assetOfferingDetails.value.keywords,
     };
 
     try {
-        await $fetch(`/api/investment/submit-investment`, {
+        await $fetch(`/api/datasets/publish-data`, {
             method: 'POST',
             body: objToSend,
         });
-        showSuccessMessage(t('data.investmentPlanner.success'));
-        await delay(2);
-        navigateTo(`${cloudUrl}/srv/catalog/datasets/${objToSend.assetId}?locale=en`, { external: true });
+        showSuccessMessage(t('data.investmentPlanner.successfullyPublishedAsInvestmentPlan'));
+
+        try {
+            await $fetch(`/api/investment/submit-investment`, {
+                method: 'POST',
+                body: objToSend,
+            });
+            showSuccessMessage(t('data.investmentPlanner.success'));
+            await delay(2);
+            navigateTo(`${cloudUrl}/srv/catalog/datasets/${objToSend.assetId}?locale=en`, { external: true });
+        } catch {
+            showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlan'));
+        }
     } catch {
-        showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlan'));
+        showErrorMessage(t('data.investmentPlanner.errors.couldNotPublishInvestmentPlan'));
     }
 };
 </script>
@@ -449,18 +464,6 @@ const submitAll = async () => {
                         <div class="flex gap-2 flex-col">
                             <span class="text-sm font-semibold text-gray-400">{{ $t('description') }}</span>
                             <span>{{ assetOfferingDetails?.description }}</span>
-                        </div>
-                        <div class="flex gap-2 flex-col">
-                            <span class="text-sm font-semibold text-gray-400">{{ $t('keywords') }}</span>
-                            <div class="flex items-center gap-2">
-                                <div
-                                    v-for="keyword in assetOfferingDetails.keywords"
-                                    :key="keyword"
-                                    class="bg-gray-100 text-gray-500 p-1 rounded-md"
-                                >
-                                    {{ keyword }}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
