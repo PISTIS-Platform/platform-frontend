@@ -168,6 +168,8 @@ const onInvestmentSubmit = () => {
     changeStep(2);
 };
 
+const loading = ref(false);
+
 const submitAll = async () => {
     const objToSend: {
         type: string;
@@ -191,14 +193,13 @@ const submitAll = async () => {
         percentageOffer: monetizationDetails.value.percentageToOfferSharesFor,
         totalShares: monetizationDetails.value.numberOfShares,
         maxShares: monetizationDetails.value.maximumSharesToBuy,
-        maxInvestors: Math.round(
-            monetizationDetails.value.numberOfShares / monetizationDetails.value.maximumSharesToBuy,
-        ),
         price: monetizationDetails.value.sharePrice,
         status: true,
         terms: monetizationDetails.value.termsAndConditions,
         description: assetOfferingDetails.value.description,
     };
+
+    loading.value = true;
 
     try {
         await $fetch(`/api/datasets/publish-data`, {
@@ -220,6 +221,8 @@ const submitAll = async () => {
         }
     } catch {
         showErrorMessage(t('data.investmentPlanner.errors.couldNotPublishInvestmentPlan'));
+    } finally {
+        loading.value = false;
     }
 };
 </script>
@@ -533,6 +536,9 @@ const submitAll = async () => {
             @click="changeStep(selectedPage + 1)"
             >Next</UButton
         >
-        <UButton v-if="selectedPage === 2" size="lg" @click="submitAll">Submit</UButton>
+        <UButton v-if="selectedPage === 2" size="lg" @click="submitAll">
+            <UIcon v-if="loading" name="svg-spinners:270-ring-with-bg" />
+            <span v-else> {{ $t('submit') }}</span>
+        </UButton>
     </div>
 </template>
