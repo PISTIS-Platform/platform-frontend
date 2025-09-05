@@ -112,7 +112,6 @@ watch(selected, () => {
     assetOfferingDetails.value.id = selected.value.id;
 });
 
-//FIXME: Get available datasets (one-off and subscription) from marketplace, not local catalog
 const {
     data: datasetsData,
     status: datasetsStatus,
