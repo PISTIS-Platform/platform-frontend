@@ -67,7 +67,7 @@ export default defineNuxtConfig({
         catalogName: '',
         walletAlias: '',
         factoryName: '',
-        organisationFullName: '',
+        organisationFullname: '',
         pistisMode: '',
     },
 
