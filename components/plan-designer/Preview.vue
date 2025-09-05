@@ -41,11 +41,14 @@ defineProps({
     },
 });
 
+import { LicenseCode } from '~/constants/licenses';
+
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
 
 const subscriptionMapping: Record<string, string> = {
     subscription: t('data.designer.subscription'),
     'one-off': t('data.designer.oneOffSale'),
+    nft: 'NFT',
     nft: 'NFT',
 };
 </script>
@@ -71,11 +74,11 @@ const subscriptionMapping: Record<string, string> = {
                     <span class="text-sm font-semibold text-gray-400">{{ $t('description') }}</span>
                     <span>{{ assetOfferingDetails?.description }}</span>
                 </div>
-                <div v-if="licenseDetails.license !== 'NFT License'" class="flex gap-2 flex-col">
+                <div v-if="licenseDetails.license !== LicenseCode.NFT" class="flex gap-2 flex-col">
                     <span class="text-sm font-semibold text-gray-400">{{ $t('data.selectedDistribution') }}</span>
                     <span>{{ assetOfferingDetails?.selectedDistribution?.label }}</span>
                 </div>
-                <div v-if="licenseDetails.license !== 'NFT License'" class="flex gap-2 flex-col">
+                <div v-if="licenseDetails.license !== LicenseCode.NFT" class="flex gap-2 flex-col">
                     <span class="text-sm font-semibold text-gray-400">{{ $t('keywords') }}</span>
                     <div class="flex items-center gap-2">
                         <div
@@ -155,7 +158,7 @@ const subscriptionMapping: Record<string, string> = {
                         <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
                         <span>{{ licenseDetails.license }}</span>
                     </div>
-                    <div v-if="licenseDetails.license !== 'NFT License'" class="flex gap-2 flex-col">
+                    <div v-if="licenseDetails.license !== LicenseCode.NFT" class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
                         }}</span>
@@ -168,7 +171,7 @@ const subscriptionMapping: Record<string, string> = {
                         }}</span>
                     </div>
                 </div>
-                <div v-if="licenseDetails.license === 'PISTIS License'" class="flex items-start w-full">
+                <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex items-start w-full">
                     <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('exclusive') }}</span>
                         <span>{{ licenseDetails.isExclusive ? $t('yes') : $t('no') }}</span>
@@ -187,7 +190,7 @@ const subscriptionMapping: Record<string, string> = {
                         </span>
                     </div>
                 </div>
-                <div v-if="licenseDetails.license === 'PISTIS License'" class="flex items-start w-full">
+                <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex items-start w-full">
                     <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.transferable') }}</span>
                         <span>{{ licenseDetails.transferable }}</span>
@@ -201,7 +204,7 @@ const subscriptionMapping: Record<string, string> = {
                         }}</span>
                     </div>
                 </div>
-                <div v-if="licenseDetails.license === 'PISTIS License'" class="flex items-start w-full">
+                <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex items-start w-full">
                     <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.noticeForNonRenewal')

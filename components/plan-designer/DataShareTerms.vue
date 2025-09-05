@@ -17,6 +17,8 @@ const props = defineProps({
     },
 });
 
+import { LicenseCode } from '~/constants/licenses';
+
 const detailsChanged = computed(() => [props.monetizationDetails, props.licenseDetails, props.assetOfferingDetails]);
 
 const emit = defineEmits(['update:contract-terms']);
@@ -69,7 +71,7 @@ watch(
                     <div ref="htmlContent">
                         <!-- PISTIS License start-->
                         <div
-                            v-show="licenseDetails.license === 'PISTIS License'"
+                            v-show="licenseDetails.license === LicenseCode.PISTIS"
                             class="prose lg:prose-sm prose-h2:text-center max-w-full"
                         >
                             <h2>EXPLANATORY NOTES</h2>

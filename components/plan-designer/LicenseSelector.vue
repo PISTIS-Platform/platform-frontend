@@ -4,7 +4,7 @@ import * as R from 'ramda';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
-import { licenses } from '~/constants/licenses';
+import { LicenseCode, licenses } from '~/constants/licenses';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
 const codeSort = R.sortWith([R.ascend(R.prop('code'))]);
@@ -45,7 +45,7 @@ watch(
     () => {
         if (monetizationPropComputed.value.type === 'nft') {
             resetLicenseDetails({
-                code: 'NFT License',
+                code: LicenseCode.NFT,
                 label: 'NFT License',
                 description: `Consequat deserunt consectetur magna consequat proident. Elit non cupidatat aliqua aute. Commodo commodo sit duis excepteur eiusmod incididunt proident nisi minim tempor consequat aliquip duis deserunt ad. Voluptate fugiat incididunt fugiat anim ipsum sint Lorem exercitation irure qui aliquip dolore elit et dolore.
 
@@ -56,7 +56,7 @@ Labore laborum tempor mollit mollit nostrud esse dolor fugiat. Fugiat eiusmod oc
         } else {
             if (!props.isFree) {
                 resetLicenseDetails({
-                    code: 'PISTIS License',
+                    code: LicenseCode.PISTIS,
                     label: 'PISTIS License - Custom PISTIS License',
                     description: '',
                 });
@@ -97,7 +97,7 @@ const licenseSelections = computed(() =>
         : props.monetizationDetails.type === 'nft'
           ? [
                 {
-                    code: 'NFT License',
+                    code: LicenseCode.NFT,
                     label: 'NFT License',
                     description: `Consequat deserunt consectetur magna consequat proident. Elit non cupidatat aliqua aute. Commodo commodo sit duis excepteur eiusmod incididunt proident nisi minim tempor consequat aliquip duis deserunt ad. Voluptate fugiat incididunt fugiat anim ipsum sint Lorem exercitation irure qui aliquip dolore elit et dolore.
 
@@ -108,7 +108,7 @@ Labore laborum tempor mollit mollit nostrud esse dolor fugiat. Fugiat eiusmod oc
             ]
           : [
                 {
-                    code: 'PISTIS License',
+                    code: LicenseCode.PISTIS,
                     label: 'PISTIS License - Custom PISTIS License',
                     description: '',
                 },
@@ -188,9 +188,9 @@ const resetLicenseDetails = (license: { code: string; label: string; description
     isOpen.value = false;
     licenseRef.value = license;
 
-    if (license.code === 'PISTIS License') {
+    if (license.code === LicenseCode.PISTIS) {
         licenseDetails.value = {
-            license: 'PISTIS License',
+            license: LicenseCode.PISTIS,
             extraTerms: '',
             contractTerms: '',
             limitNumber: '',
@@ -204,9 +204,9 @@ const resetLicenseDetails = (license: { code: string; label: string; description
             contractBreachDays: '',
             personalDataTerms: '',
         };
-    } else if (license.code === 'NFT License') {
+    } else if (license.code === LicenseCode.NFT) {
         licenseDetails.value = {
-            license: 'NFT License',
+            license: LicenseCode.NFT,
             limitNumber: 10,
             limitFrequency: DownloadFrequency.DAY,
         };
@@ -307,7 +307,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                             ></USelectMenu>
                         </UFormGroup>
                     </div>
-                    <div v-show="licenseDetails.license !== 'NFT License'" class="flex flex-row gap-4">
+                    <div v-show="licenseDetails.license !== LicenseCode.NFT" class="flex flex-row gap-4">
                         <UFormGroup
                             :label="$t('data.designer.downloadLimit')"
                             required
@@ -349,7 +349,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                             >
                         </UFormGroup>
                     </div>
-                    <div v-if="licenseDetails.license === 'PISTIS License'" class="flex flex-col space-y-6">
+                    <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex flex-col space-y-6">
                         <div class="flex flex-row gap-4">
                             <div class="flex flex-1 gap-4">
                                 <UFormGroup
@@ -587,13 +587,13 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                 <div v-show="licenseDetails.license">
                     <p class="font-semibold text-sm mt-5 mb-1.5">{{ $t('licenseDetails') }}</p>
                     <DataShareTerms
-                        v-show="licenseDetails.license === 'PISTIS License'"
+                        v-show="licenseDetails.license === LicenseCode.PISTIS"
                         :asset-offering-details="props.assetOfferingDetails"
                         :monetization-details="props.monetizationDetails"
                         :license-details="licenseDetails"
                         @update:contract-terms="(value: string) => updateContractTerms(value)"
                     />
-                    <div v-show="licenseDetails.license !== 'PISTIS License'" class="border rounded-md p-4">
+                    <div v-show="licenseDetails.license !== LicenseCode.PISTIS" class="border rounded-md p-4">
                         {{ licenseRef?.description }}
                     </div>
                 </div>

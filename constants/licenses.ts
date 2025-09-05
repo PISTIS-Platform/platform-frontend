@@ -906,3 +906,8 @@ export const licenses = [
     label: object.code + ' - ' + object.label,
     description: object.description,
 }));
+
+export enum LicenseCode {
+    PISTIS = 'PISTIS License',
+    NFT = 'NFT License',
+}

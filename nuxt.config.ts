@@ -17,12 +17,19 @@ export default defineNuxtConfig({
         cookie: 'cookie',
     },
 
-    plugins: ['~/plugins/vue3-tags.js', '~/plugins/vue3-chartjs.js'],
+    plugins: [
+        '~/plugins/vue3-tags.js',
+        '~/plugins/vue3-chartjs.js',
+        '~/plugins/queryClient.js',
+        '~/plugins/primevue.js',
+    ],
     devtools: { enabled: true },
 
     ui: {
         icons: ['heroicons', 'fa6-regular', 'formkit'],
     },
+
+    css: ['primevue/resources/primevue.min.css', 'primevue/resources/themes/saga-blue/theme.css'],
 
     typescript: {
         strict: true,
@@ -62,9 +69,18 @@ export default defineNuxtConfig({
         prometheusUrl: '',
         factoryName: '',
         organisationFullName: '',
+        pistisMode: '',
     },
 
-    modules: ['@pinia/nuxt', '@nuxtjs/i18n', '@sidebase/nuxt-auth', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/icon'],
+    modules: [
+        '@pinia/nuxt',
+        '@nuxtjs/i18n',
+        '@sidebase/nuxt-auth',
+        '@vueuse/nuxt',
+        '@nuxt/ui',
+        '@nuxt/icon',
+        'unplugin-icons/nuxt',
+    ],
 
     // Modules Configuration
     i18n: {
