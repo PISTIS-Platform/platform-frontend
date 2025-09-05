@@ -39,9 +39,8 @@ const props = withDefaults(defineProps<CardProps>(), {
     onSave: () => {},
 });
 
-// const route = useRoute();
-// const authStore = useAuthStore();
-// const token = ref(authStore.user.token);
+const { data: session } = useAuth();
+const token = session.value?.token;
 
 const dataOrder = ['modified', 'license', 'created', 'languages'];
 // const pistisMode = config.pistisMode;
@@ -102,7 +101,7 @@ async function downloadFile() {
 
         const config = {
             headers: {
-                Authorization: `Bearer ${token.value}`,
+                Authorization: `Bearer ${token}`,
             },
             responseType: 'blob',
         };
