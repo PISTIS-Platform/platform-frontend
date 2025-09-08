@@ -2,23 +2,24 @@
     <Typography variant="by-heading-4"> {{ $t('monetization.header') }} </Typography>
     <div v-if="isObject(data)" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
         <p>
-            <strong>{{ $t('monetization.transferable') }}:</strong> {{ data.transferable || '-' }}
+            <strong>{{ $t('monetization.transferable') }}:</strong> {{ data.purchase_offer[0].transferable || '-' }}
         </p>
 
         <p>
-            <strong>{{ $t('monetization.type') }}:</strong> {{ data.type || '-' }}
+            <strong>{{ $t('monetization.type') }}:</strong> {{ data.purchase_offer[0].type || '-' }}
         </p>
 
         <p>
-            <strong>{{ $t('monetization.exclusive') }}:</strong> {{ data.is_exclusive ? 'Yes' : 'No' || '-' }}
+            <strong>{{ $t('monetization.exclusive') }}:</strong>
+            {{ data.purchase_offer[0].is_exclusive ? 'Yes' : 'No' || '-' }}
         </p>
 
         <p>
-            <strong>{{ $t('monetization.termination-date') }}:</strong> {{ data.termDate || '-' }}
+            <strong>{{ $t('monetization.termination-date') }}:</strong> {{ data.purchase_offer[0].term_date || '-' }}
         </p>
 
         <p>
-            <strong>{{ $t('monetization.price') }}:</strong> {{ data.price || '-' }} €
+            <strong>{{ $t('monetization.price') }}:</strong> {{ data.purchase_offer[0].price || '-' }} €
         </p>
 
         <div v-if="data.downloads && data.downloads.length">
@@ -30,24 +31,20 @@
             </ul>
         </div>
 
-        <div v-if="data.personal_data_terms && data.personal_data_terms.length">
+        <div v-if="data.purchase_offer[0].personal_data_terms && data.purchase_offer[0].personal_data_terms.length">
             <strong>{{ $t('monetization.personal-data-terms') }}:</strong>
             <ul>
-                <li v-for="(term, index) in data.personal_data_terms" :key="index">
+                <li v-for="(term, index) in data.purchase_offer[0].personal_data_terms" :key="index">
                     <span>{{ term.personal_data_terms || '-' }}</span>
                 </li>
             </ul>
         </div>
 
-        <div v-if="data.license">
+        <div v-if="data.purchase_offer[0].license">
             <strong>{{ $t('monetization.license') }}:</strong>
-            <p class="p-0!">
-                <a :href="data.license.la_url" target="_blank" rel="noopener noreferrer">{{
-                    data.license.label || '-'
-                }}</a
-                ><br />
-                {{ data.license.description || '-' }}
-            </p>
+            <a :href="data.purchase_offer[0].license.resource" target="_blank" rel="noopener noreferrer">{{
+                data.purchase_offer[0].license.label || '-'
+            }}</a>
         </div>
     </div>
 </template>
