@@ -317,7 +317,6 @@ const changeStep = async (stepNum: number) => {
                         : null,
             },
         });
-        //TODO:: use returned compose contract for other pistis components
     }
 };
 

@@ -8,6 +8,10 @@ const {
     public: { cloudUrl },
 } = useRuntimeConfig();
 
+const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`, {
+    query: { page: '' },
+});
+
 const { showErrorMessage, showSuccessMessage } = useAlertMessage();
 import { navigateTo } from '#app';
 
@@ -112,7 +116,6 @@ watch(selected, () => {
     assetOfferingDetails.value.id = selected.value.id;
 });
 
-//FIXME: Get available datasets (one-off and subscription) from marketplace, not local catalog
 const {
     data: datasetsData,
     status: datasetsStatus,
@@ -165,10 +168,13 @@ const onInvestmentSubmit = () => {
     changeStep(2);
 };
 
+const loading = ref(false);
+
 const submitAll = async () => {
     const objToSend: {
         type: string;
         cloudAssetId: string;
+        sellerId: string;
         assetId: string;
         dueDate: string;
         percentageOffer: number;
@@ -177,13 +183,13 @@ const submitAll = async () => {
         price: number;
         status: boolean;
         terms: string;
-        title: string;
         description: string;
-        keywords: string[];
+        maxInvestors: number;
     } = {
         type: 'investment',
-        cloudAssetId: uuidV4(),
-        assetId: assetOfferingDetails.value.id,
+        cloudAssetId: assetOfferingDetails.value.id,
+        sellerId: accountData.value?.user.sub,
+        assetId: uuidV4(),
         dueDate: monetizationDetails.value.validOfferDate,
         percentageOffer: monetizationDetails.value.percentageToOfferSharesFor,
         totalShares: monetizationDetails.value.numberOfShares,
@@ -191,21 +197,34 @@ const submitAll = async () => {
         price: monetizationDetails.value.sharePrice,
         status: true,
         terms: monetizationDetails.value.termsAndConditions,
-        title: assetOfferingDetails.value.title,
         description: assetOfferingDetails.value.description,
-        keywords: assetOfferingDetails.value.keywords,
+        maxInvestors: monetizationDetails.value.numberOfShares,
     };
 
+    loading.value = true;
+
     try {
-        await $fetch(`/api/investment/submit-investment`, {
+        await $fetch(`/api/datasets/publish-data`, {
             method: 'POST',
             body: objToSend,
         });
-        showSuccessMessage(t('data.investmentPlanner.success'));
-        await delay(2);
-        navigateTo(`${cloudUrl}/srv/catalog/datasets/${objToSend.assetId}?locale=en`, { external: true });
+        showSuccessMessage(t('data.investmentPlanner.successfullyPublishedAsInvestmentPlan'));
+
+        try {
+            await $fetch(`/api/investment/submit-investment`, {
+                method: 'POST',
+                body: objToSend,
+            });
+            showSuccessMessage(t('data.investmentPlanner.success'));
+            await delay(2);
+            navigateTo(`${cloudUrl}/srv/catalog/datasets/${objToSend.assetId}?locale=en`, { external: true });
+        } catch {
+            showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlan'));
+        }
     } catch {
-        showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlan'));
+        showErrorMessage(t('data.investmentPlanner.errors.couldNotPublishInvestmentPlan'));
+    } finally {
+        loading.value = false;
     }
 };
 </script>
@@ -451,18 +470,6 @@ const submitAll = async () => {
                             <span class="text-sm font-semibold text-gray-400">{{ $t('description') }}</span>
                             <span>{{ assetOfferingDetails?.description }}</span>
                         </div>
-                        <div class="flex gap-2 flex-col">
-                            <span class="text-sm font-semibold text-gray-400">{{ $t('keywords') }}</span>
-                            <div class="flex items-center gap-2">
-                                <div
-                                    v-for="keyword in assetOfferingDetails.keywords"
-                                    :key="keyword"
-                                    class="bg-gray-100 text-gray-500 p-1 rounded-md"
-                                >
-                                    {{ keyword }}
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </UCard>
@@ -531,6 +538,9 @@ const submitAll = async () => {
             @click="changeStep(selectedPage + 1)"
             >Next</UButton
         >
-        <UButton v-if="selectedPage === 2" size="lg" @click="submitAll">Submit</UButton>
+        <UButton v-if="selectedPage === 2" size="lg" @click="submitAll">
+            <UIcon v-if="loading" name="svg-spinners:270-ring-with-bg" />
+            <span v-else> {{ $t('submit') }}</span>
+        </UButton>
     </div>
 </template>
