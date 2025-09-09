@@ -109,8 +109,6 @@ const fetchMetadata = async () => {
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
-            const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
-            // console.log('preis:' + purchaseOffer.price);
             monetizationData.value = metadata.value.result.monetization[0];
             price.value = monetizationData.value?.purchase_offer[0].price;
             price.value = monetizationData.value?.purchase_offer[0].price;
@@ -158,36 +156,6 @@ const buyRequest = async (factoryPrefix) => {
     try {
         // TODO: link as ENV variable, and add the access token once keycloak is intigrated
         const _response = await axios.post(
-            `https://${factoryPrefix}.pistis-market.eu/srv/smart-contract-execution-engine/api/scee/storePurchase`,
-            {
-                // The request body object
-                assetId: props.datasetId,
-                assetFactory: monetizationData.value?.purchase_offer[0].publisher?.organization_id,
-                sellerId: metadata.value.result?.monetization[0]?.seller_id,
-                price: monetizationData.value?.purchase_offer[0].price,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token.value}`,
-                    'Content-Type': 'application/json',
-                },
-            },
-        );
-        // TODO: first use default language and only then the fallback
-        //   await store.dispatch('snackbar/showSnackbar', {
-        //     message: `Successfully purchased ${Object.values(metadata.value.result?.title)[0]}`,
-        //     variant: 'success',
-        //   })
-    } catch (error) {
-        console.error(error);
-        // const errorMessage = error?.response?.data?.reason || 'An error occurred while processing your request.';
-        //   await store.dispatch('snackbar/showError', errorMessage)
-    }
-};
-const buyRequest = async (factoryPrefix) => {
-    try {
-        // TODO: link as ENV variable, and add the access token once keycloak is intigrated
-        const response = await axios.post(
             `https://${factoryPrefix}.pistis-market.eu/srv/smart-contract-execution-engine/api/scee/storePurchase`,
             {
                 // The request body object
