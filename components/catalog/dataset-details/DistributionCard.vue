@@ -14,8 +14,8 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const pistisMode = route.query.pm;
-console.log('pistisMode:', pistisMode);
-console.log('route:', route);
+// console.log('pistisMode:', pistisMode);
+// console.log('route:', route);
 
 interface CardProps {
     title: string;

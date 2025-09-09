@@ -1,5 +1,6 @@
+<!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-// import axios from 'axios';
+import axios from 'axios';
 
 //import { useStore } from 'vuex';
 import { useDataTruncator } from '@/composables/useDataTruncator';
@@ -38,6 +39,9 @@ const pistisMode = route.query.pm;
 // const { appContext } = getCurrentInstance();
 // const store = useStore();
 // const authStore = useAuthStore();
+const { data: session } = useAuth();
+
+const token = ref(session.value?.token);
 
 let searchUrl = '';
 if (pistisMode === 'factory') {
@@ -46,15 +50,19 @@ if (pistisMode === 'factory') {
     searchUrl = config.public.cloudUrl + '/srv/search/';
 }
 
-// const userFactoryUrl = 'https://pistis-market.eu/srv/factories-registry/api/factories/user-factory';
+const userFactoryUrl = 'https://pistis-market.eu/srv/factories-registry/api/factories/user-factory';
 const distributionID = ref(null);
 const accessID = ref(null);
 const metadata = ref(null);
+const organizationId = ref(null);
 const catalog = ref(null);
 // const token = ref(authStore.user.token);
 const factoryPrefix = ref('');
 const price = ref('');
-const isOwned = ref(); // True only in datasets that the logged-in user owns
+const isOwned = computed(() => {
+    // True only in datasets that the logged-in user owns
+    return organizationId.value === monetizationData.value?.publisher?.organization_id;
+});
 const monetizationData = ref();
 
 const setDistributionID = async (data) => {
@@ -89,9 +97,9 @@ const fetchMetadata = async () => {
         catalog.value = data.result.catalog.id;
         if (pistisMode == 'cloud') {
             const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
-            console.log('preis:' + purchaseOffer.price);
-            price.value = metadata.value.result.monetization[0].price;
+            // console.log('preis:' + purchaseOffer.price);
             monetizationData.value = metadata.value.result.monetization[0];
+            price.value = monetizationData.value?.purchase_offer[0].price;
         }
 
         setAccessID(data);
@@ -101,59 +109,56 @@ const fetchMetadata = async () => {
     }
 };
 
-// const getUserFactory = async () => {
-//     try {
-//         const response = await fetch(`${userFactoryUrl}`, {
-//             headers: {
-//                 Authorization: `Bearer ${token.value}`,
-//                 'Content-Type': 'application/json',
-//             },
-//         });
-//         const data = await response.json();
-//         factoryPrefix.value = data.factoryPrefix;
-//         if (pistisMode == 'cloud') {
-//             isOwned.value = data.organizationId == metadata.value.result.monetization[0]?.publisher.organization_id;
-//         }
-//     } catch (error) {
-//         console.error('Error getting data:', error);
-//     }
-// };
+const getUserFactory = async () => {
+    try {
+        const response = await fetch(`${userFactoryUrl}`, {
+            headers: {
+                Authorization: `Bearer ${token.value}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        const data = await response.json();
+        organizationId.value = data.organizationId;
+        factoryPrefix.value = data.factoryPrefix;
+    } catch (error) {
+        console.error('Error getting data:', error);
+    }
+};
 
-// const buyRequest = async (factoryPrefix) => {
-//     try {
-//         // TODO: link as ENV variable, and add the access token once keycloak is intigrated
-//         const response = await axios.post(
-//             `https://${factoryPrefix}.pistis-market.eu/srv/smart-contract-execution-engine/api/scee/storePurchase`,
-//             {
-//                 // The request body object
-//                 assetId: props.datasetId,
-//                 assetFactory: metadata.value.result?.monetization[0]?.publisher?.organization_id,
-//                 sellerId: metadata.value.result?.monetization[0]?.seller_id,
-//                 price: metadata.value.result?.monetization[0]?.price,
-//             },
-//             {
-//                 headers: {
-//                     Authorization: `Bearer ${token.value}`,
-//                     'Content-Type': 'application/json',
-//                 },
-//             },
-//         );
-
-//         // TODO: first use default language and only then the fallback
-//         await store.dispatch('snackbar/showSnackbar', {
-//             message: `Successfully purchased ${Object.values(metadata.value.result?.title)[0]}`,
-//             variant: 'success',
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         const errorMessage = error?.response?.data?.reason || 'An error occurred while processing your request.';
-//         await store.dispatch('snackbar/showError', errorMessage);
-//     }
-// };
+const buyRequest = async (factoryPrefix) => {
+    try {
+        // TODO: link as ENV variable, and add the access token once keycloak is intigrated
+        const response = await axios.post(
+            `https://${factoryPrefix}.pistis-market.eu/srv/smart-contract-execution-engine/api/scee/storePurchase`,
+            {
+                // The request body object
+                assetId: props.datasetId,
+                assetFactory: monetizationData.value?.purchase_offer[0].publisher?.organization_id,
+                sellerId: metadata.value.result?.monetization[0]?.seller_id,
+                price: monetizationData.value?.purchase_offer[0].price,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token.value}`,
+                    'Content-Type': 'application/json',
+                },
+            },
+        );
+        // TODO: first use default language and only then the fallback
+        //   await store.dispatch('snackbar/showSnackbar', {
+        //     message: `Successfully purchased ${Object.values(metadata.value.result?.title)[0]}`,
+        //     variant: 'success',
+        //   })
+    } catch (error) {
+        console.error(error);
+        // const errorMessage = error?.response?.data?.reason || 'An error occurred while processing your request.';
+        //   await store.dispatch('snackbar/showError', errorMessage)
+    }
+};
 
 onMounted(() => {
     fetchMetadata();
-    // getUserFactory();
+    getUserFactory();
 });
 
 // Dataset desecription truncator "show more"
@@ -288,11 +293,11 @@ const truncatedEllipsedDescription = computed(() => {
                             >
                         </a>
                         <a :href="`/usage-analytics/${datasetId}/questionnaire`" class="">
-                            <KButton v-if="isOwned === false">Provide Feedback</KButton>
+                            <KButton v-if="!isOwned" size="small">Provide Feedback</KButton>
                         </a>
                     </div>
                     <!-- Data Lineage (Button placements should be discussed together)-->
-                    <div>
+                    <div class="ml-5">
                         <NuxtLink
                             :to="{
                                 path: '/catalog/dataset-details/data-lineage',
