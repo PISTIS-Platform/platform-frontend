@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// import axios from 'axios';
-
 //import { useStore } from 'vuex';
 import { useDataTruncator } from '@/composables/useDataTruncator';
 // import config from '@/pages/catalog/config/appConfig';
@@ -39,12 +37,14 @@ const pistisMode = route.query.pm;
 // const store = useStore();
 // const authStore = useAuthStore();
 
-let searchUrl = '';
+let url = '';
+
 if (pistisMode === 'factory') {
-    searchUrl = config.public.factoryUrl + '/srv/search/';
+    url = config.public.factoryUrl;
 } else {
-    searchUrl = config.public.cloudUrl + '/srv/search/';
+    url = config.public.cloudUrl;
 }
+const searchUrl = url + '/srv/search/';
 
 // const userFactoryUrl = 'https://pistis-market.eu/srv/factories-registry/api/factories/user-factory';
 const distributionID = ref(null);
@@ -72,6 +72,7 @@ const setAccessID = async (data) => {
                 break;
             }
         }
+        console.log('-----accesUrl-------:', accessID.value);
 
         if (!accessIDFound) {
             console.log('No access_url found in distributions.');
@@ -296,7 +297,7 @@ const truncatedEllipsedDescription = computed(() => {
                         <NuxtLink
                             :to="{
                                 path: '/catalog/dataset-details/data-lineage',
-                                query: { id: datasetId, pm: pistisMode },
+                                query: { id: accessID, pm: pistisMode },
                             }"
                             class=""
                         >
@@ -314,7 +315,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <NuxtLink
                                 :to="{
                                     path: '/catalog/dataset-details/data-lineage',
-                                    query: { id: datasetId, pm: pistisMode },
+                                    query: { id: accessID, pm: pistisMode },
                                 }"
                                 class=""
                             >
@@ -334,7 +335,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <NuxtLink
                                 :to="{
                                     path: '/catalog/dataset-details/data-lineage',
-                                    query: { id: datasetId, pm: pistisMode },
+                                    query: { id: accessID, pm: pistisMode },
                                 }"
                                 class=""
                             >
