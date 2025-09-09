@@ -96,7 +96,7 @@ const fetchMetadata = async () => {
         metadata.value = data;
         catalog.value = data.result.catalog.id;
         if (pistisMode == 'cloud') {
-            const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
+            // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
             monetizationData.value = metadata.value.result.monetization[0];
             price.value = monetizationData.value?.purchase_offer[0].price;
@@ -128,7 +128,7 @@ const getUserFactory = async () => {
 const buyRequest = async (factoryPrefix) => {
     try {
         // TODO: link as ENV variable, and add the access token once keycloak is intigrated
-        const response = await axios.post(
+        const _response = await axios.post(
             `https://${factoryPrefix}.pistis-market.eu/srv/smart-contract-execution-engine/api/scee/storePurchase`,
             {
                 // The request body object
