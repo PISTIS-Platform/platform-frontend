@@ -39,7 +39,6 @@ const navigation = ref([
         },
         target: '_self',
         icon: '',
-        external: true,
     },
     {
         name: 'marketplace.marketplace',
@@ -50,8 +49,7 @@ const navigation = ref([
             },
         },
         target: '_self',
-        icon: 'heroicons:arrow-top-right-on-square-16-solid',
-        external: true,
+        icon: '',
     },
     { name: 'market.market', to: '/market', target: '_self', icon: '', external: false },
 ]);
