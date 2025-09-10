@@ -7,10 +7,19 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    licenseDetails: {
+        type: Object,
+        required: true,
+    },
     assetOfferingDetails: {
         type: Object,
+        required: true,
     },
 });
+
+import { LicenseCode } from '~/constants/licenses';
+
+const detailsChanged = computed(() => [props.monetizationDetails, props.licenseDetails, props.assetOfferingDetails]);
 
 const emit = defineEmits(['update:contract-terms']);
 
@@ -29,11 +38,15 @@ const recurrentPaymentText = computed(() =>
 
 const htmlContent = ref<HTMLElement>();
 
-watch(htmlContent, () => {
-    const termsDocContent = htmlContent?.value?.innerHTML || '';
+watch(
+    detailsChanged,
+    () => {
+        const termsDocContent = htmlContent?.value?.innerHTML || '';
 
-    emit('update:contract-terms', btoa(encodeURIComponent(termsDocContent)));
-});
+        emit('update:contract-terms', btoa(encodeURIComponent(termsDocContent)));
+    },
+    { deep: true },
+);
 </script>
 
 <template>
@@ -58,7 +71,7 @@ watch(htmlContent, () => {
                     <div ref="htmlContent">
                         <!-- PISTIS License start-->
                         <div
-                            v-show="monetizationDetails.license === 'PISTIS License'"
+                            v-show="licenseDetails.license === LicenseCode.PISTIS"
                             class="prose lg:prose-sm prose-h2:text-center max-w-full"
                         >
                             <h2>EXPLANATORY NOTES</h2>
@@ -150,15 +163,15 @@ watch(htmlContent, () => {
                                 <strong>Scope and Purpose(s) of Sharing of the Data Set.</strong> The subject to the
                                 data-sharing arrangement formed on the PISTIS Data Marketplace between the Data Provider
                                 and the Data Recipient, the Data Provider hereby grants the Data Recipient a(n)
-                                {{ monetizationDetails.isExclusive ? 'exclusive' : 'non-exclusive' }},
+                                {{ licenseDetails.isExclusive ? 'exclusive' : 'non-exclusive' }},
                                 {{
-                                    monetizationDetails.region
-                                        ? `available in ${monetizationDetails.region}`
+                                    licenseDetails.region
+                                        ? `available in ${licenseDetails.region}`
                                         : 'available worldwide'
-                                }}, {{ monetizationDetails.transferable }},
+                                }}, {{ licenseDetails.transferable }},
                                 {{
-                                    monetizationDetails.termDate
-                                        ? `valid until ${dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')}`
+                                    licenseDetails.termDate
+                                        ? `valid until ${dayjs(licenseDetails.termDate).format('DD MMMM YYYY')}`
                                         : 'perpetual'
                                 }}
                                 license to access, copy and process the Data Set for the following purpose(s)
@@ -186,7 +199,7 @@ watch(htmlContent, () => {
                                     to store the Data Set in databases hosted internally or on third party hosted
                                     platforms;
                                 </li>
-                                <li v-if="monetizationDetails.extraTerms">{{ monetizationDetails.extraTerms }}</li>
+                                <li v-if="licenseDetails.extraTerms">{{ licenseDetails.extraTerms }}</li>
                             </ul>
 
                             <p>
@@ -231,24 +244,24 @@ watch(htmlContent, () => {
                                 <strong>Term.</strong>
                                 These terms and the license granted herein, shall be valid
                                 {{
-                                    monetizationDetails.termDate
-                                        ? `until ${dayjs(monetizationDetails.termDate).format('DD MMMM YYYY')}`
+                                    licenseDetails.termDate
+                                        ? `until ${dayjs(licenseDetails.termDate).format('DD MMMM YYYY')}`
                                         : 'perpetually'
                                 }}
                                 and shall be automatically renewed
-                                <span v-if="monetizationDetails.additionalRenewalTerms"
-                                    >for an additional term of {{ monetizationDetails.additionalRenewalTerms }}</span
+                                <span v-if="licenseDetails.additionalRenewalTerms"
+                                    >for an additional term of {{ licenseDetails.additionalRenewalTerms }}</span
                                 >
                                 unless either Party provides the other with written notice not to renew at least
-                                {{ monetizationDetails.nonRenewalDays }} days prior to the expiration date of the
-                                current term.
+                                {{ licenseDetails.nonRenewalDays }} days prior to the expiration date of the current
+                                term.
                             </p>
                             <p>
                                 <strong>Termination.</strong>
                                 Either Party may terminate their data-sharing arrangement immediate upon written notice
                                 if other Party is in material breach of these terms and if such breach is that is not
                                 cured within
-                                {{ monetizationDetails.contractBreachDays }} days after being notified of the breach.
+                                {{ licenseDetails.contractBreachDays }} days after being notified of the breach.
                                 Furthermore, the Data Provider may terminate the data-sharing arrangement or provision
                                 of the Data Set on the PISTIS Data Marketplace upon reasonable prior written notice to
                                 the Data Recipient if the Data Provider’s rights to material portions of the Data Set or
@@ -295,12 +308,12 @@ watch(htmlContent, () => {
                             </p>
                             <p>
                                 <strong>Protection of Personal Data.</strong>
-                                <span v-if="!monetizationDetails.personalDataTerms">
+                                <span v-if="!licenseDetails.personalDataTerms">
                                     The Data Set does not include personal data.
                                 </span>
                                 <span v-else>
                                     The Data Set includes personal data, and the related data processing is subject to
-                                    the following: {{ monetizationDetails.personalDataTerms }}
+                                    the following: {{ licenseDetails.personalDataTerms }}
                                 </span>
                             </p>
                             <p>

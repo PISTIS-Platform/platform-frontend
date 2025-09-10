@@ -2,6 +2,8 @@
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
+import { MonetizationType } from '~/constants/monetization-types';
+
 const { t } = useI18n();
 
 const props = defineProps({
@@ -9,13 +11,17 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    monetizationDetails: {
+        type: Object,
+        required: true,
+    },
 });
 
-const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid']);
+const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid', 'changePage']);
 
 const schema = z.object({
-    title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
-    description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    title: z.string().min(1, t('required', { count: 1 })),
+    description: z.string().min(1, t('required', { count: 1 })),
     selectedDistribution: z.object({
         label: z.string(),
         id: z.string(),
@@ -51,63 +57,107 @@ const customValidate = () => {
             assetErrors.push({ path: error.path[0], message: error.message });
         }
     }
-    if (!assetOfferingDetails.value.keywords?.length)
-        assetErrors.push({ path: 'keywords', message: t('val.required') });
+    if (!assetOfferingDetails.value.keywords?.length) assetErrors.push({ path: 'keywords', message: t('required') });
     return assetErrors;
 };
+
+const formRef = ref();
+
+watch(
+    () => assetOfferingDetails.value.keywords,
+    () => {
+        if (assetOfferingDetails.value.keywords.length >= 1) {
+            formRef.value.clear('keywords');
+        } else {
+            formRef.value.setErrors([{ path: 'keywords', message: t('required') }], 'keywords');
+        }
+    },
+);
 </script>
 
 <template>
-    <Transition
-        enter-active-class="duration-300 ease-out"
-        enter-from-class="transform opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="duration-300 ease-in"
-        leave-from-class="opacity-100"
-        leave-to-class="transform opacity-0"
+    <UForm
+        ref="formRef"
+        class="flex flex-col space-y-5 w-full"
+        :state="assetOfferingDetails"
+        :schema="schema"
+        :validate="customValidate"
     >
         <UCard>
             <template #header>
-                <SubHeading
-                    :title="$t('data.designer.assetOfferingDetails')"
-                    :info="$t('data.designer.assetOfferingDetailsInfo')"
-                />
+                <div class="flex items-center gap-8">
+                    <UIcon name="tabler:list-details" class="w-10 h-10 text-gray-500 -mr-4" />
+                    <SubHeading
+                        :title="$t('data.designer.assetOfferingDetails')"
+                        :info="$t('data.designer.assetOfferingDetailsInfo')"
+                    />
+                </div>
             </template>
-            <UForm
-                class="flex flex-col space-y-5 w-full"
-                :state="assetOfferingDetails"
-                :schema="schema"
-                :validate="customValidate"
-                :validate-on="['input', 'submit', 'blur', 'change']"
-            >
-                <UFormGroup :label="$t('title')" required name="title">
-                    <UInput v-model="assetOfferingDetails.title" :placeholder="$t('data.designer.titleOfAsset')" />
+
+            <div class="flex flex-col space-y-5 w-full">
+                <UFormGroup
+                    :label="$t('title')"
+                    required
+                    name="title"
+                    :ui="{ error: 'absolute -bottom-6' }"
+                    eager-validation
+                >
+                    <UInput
+                        v-model="assetOfferingDetails.title"
+                        :placeholder="$t('data.designer.titleOfAsset')"
+                        :disabled="monetizationDetails.type === MonetizationType.NFT"
+                    />
                 </UFormGroup>
-                <UFormGroup :label="$t('description')" required name="description">
+                <UFormGroup
+                    :label="$t('description')"
+                    required
+                    name="description"
+                    :ui="{ error: 'absolute -bottom-6' }"
+                    eager-validation
+                >
                     <UTextarea
                         v-model="assetOfferingDetails.description"
                         :placeholder="$t('data.designer.descriptionOfAsset')"
                         icon="i-heroicons-envelope"
+                        :disabled="monetizationDetails.type === MonetizationType.NFT"
                     />
                 </UFormGroup>
-                <UFormGroup :label="$t('data.selectedDistribution')" required name="selectedDistribution">
+                <UFormGroup
+                    v-if="monetizationDetails.type !== MonetizationType.NFT"
+                    :label="$t('data.selectedDistribution')"
+                    required
+                    name="selectedDistribution"
+                    :ui="{ error: 'absolute -bottom-6' }"
+                    eager-validation
+                >
                     <USelectMenu
                         v-model="assetOfferingDetails.selectedDistribution"
                         :options="assetOfferingDetails.distributions"
                     >
                     </USelectMenu>
                 </UFormGroup>
-                <UFormGroup :label="$t('keywords')" required name="keywords">
+                <UFormGroup
+                    v-if="monetizationDetails.type !== MonetizationType.NFT"
+                    :label="$t('keywords')"
+                    required
+                    name="keywords"
+                    :ui="{ error: 'absolute -bottom-6' }"
+                    eager-validation
+                >
                     <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->
                     <vue3-tags-input
+                        class="mb-3"
                         :tags="assetOfferingDetails.keywords"
                         :placeholder="assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')"
                         @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
                     />
                 </UFormGroup>
-            </UForm>
+            </div>
         </UCard>
-    </Transition>
+        <!-- <div class="w-full flex items-center justify-end gap-4">
+            <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
+        </div> -->
+    </UForm>
 </template>
 
 <style lang="css">

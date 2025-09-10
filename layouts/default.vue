@@ -7,12 +7,14 @@ import {
     UserCircleIcon,
     XMarkIcon,
 } from '@heroicons/vue/24/outline';
+import { useRoute } from 'vue-router';
 
 import { useMessagesStore } from '~/store/messages';
 
-const messagesStore = useMessagesStore();
+// const config = useRuntimeConfig();
+const route = useRoute();
 
-const config = useRuntimeConfig();
+const messagesStore = useMessagesStore();
 
 const { t } = useI18n();
 
@@ -29,15 +31,25 @@ const navigation = ref([
     { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
     {
         name: 'catalog.catalog',
-        to: config.public.factoryUrl + '/srv/catalog/datasets?locale=en',
+        to: {
+            path: '/catalog',
+            query: {
+                pm: 'factory',
+            },
+        },
         target: '_self',
         icon: '',
         external: true,
     },
     {
         name: 'marketplace.marketplace',
-        to: `${config.public.cloudUrl}/srv/catalog/datasets?locale=en&catalog=${config.public.catalogName}&page=1`,
-        target: '_blank',
+        to: {
+            path: '/marketplace',
+            query: {
+                pm: 'cloud',
+            },
+        },
+        target: '_self',
         icon: 'heroicons:arrow-top-right-on-square-16-solid',
         external: true,
     },
@@ -73,6 +85,11 @@ watch(
     { deep: true },
 );
 const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9+' : notificationCount.value));
+function isActive(item: any) {
+    const targetPath = typeof item.to === 'string' ? item.to : item.to.path;
+    const currentPath = route.path;
+    return currentPath === targetPath;
+}
 </script>
 
 <template>
@@ -92,8 +109,10 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                     :to="item.to"
                                     :target="item.target"
                                     :external="item.external"
-                                    class="text-white hover:bg-primary-600 hover:bg-opacity-75 rounded-md px-3 py-2 text-sm font-medium"
-                                    active-class="bg-primary-800"
+                                    :class="[
+                                        'text-white hover:bg-primary-600 hover:bg-opacity-75 rounded-md px-3 py-2 text-sm font-medium',
+                                        isActive(item) ? 'bg-primary-800' : '',
+                                    ]"
                                 >
                                     {{ $t(item.name) }}
                                     <UIcon :name="item.icon" class="w-4 h-4 text-white-500" />
@@ -134,41 +153,32 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
                                         <ChevronDownIcon class="w-4 h-4 text-primary-300" />
                                     </MenuButton>
                                 </div>
-                                <transition
-                                    enter-active-class="transition ease-out duration-100"
-                                    enter-from-class="transform opacity-0 scale-95"
-                                    enter-to-class="transform opacity-100 scale-100"
-                                    leave-active-class="transition ease-in duration-75"
-                                    leave-from-class="transform opacity-100 scale-100"
-                                    leave-to-class="transform opacity-0 scale-95"
+                                <MenuItems
+                                    class="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                                 >
-                                    <MenuItems
-                                        class="absolute right-0 mt-2 w-52 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                                    >
-                                        <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
-                                            <a
-                                                :href="item.href"
-                                                :class="[
-                                                    active ? 'bg-primary-100' : '',
-                                                    'block px-4 py-2 text-sm text-gray-700',
-                                                ]"
-                                                >{{ $t(item.name) }}</a
-                                            >
-                                        </MenuItem>
-                                        <MenuItem v-slot="{ active }">
-                                            <a
-                                                href="javascript:void(0)"
-                                                :class="[
-                                                    'block px-4 py-2 text-sm text-gray-700',
-                                                    active ? 'bg-primary-100 ' : undefined,
-                                                ]"
-                                                @click="signOut({ callbackUrl: '/' })"
-                                            >
-                                                {{ $t('user.signOut') }}
-                                            </a>
-                                        </MenuItem>
-                                    </MenuItems>
-                                </transition>
+                                    <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
+                                        <a
+                                            :href="item.href"
+                                            :class="[
+                                                active ? 'bg-primary-100' : '',
+                                                'block px-4 py-2 text-sm text-gray-700',
+                                            ]"
+                                            >{{ $t(item.name) }}</a
+                                        >
+                                    </MenuItem>
+                                    <MenuItem v-slot="{ active }">
+                                        <a
+                                            href="javascript:void(0)"
+                                            :class="[
+                                                'block px-4 py-2 text-sm text-gray-700',
+                                                active ? 'bg-primary-100 ' : undefined,
+                                            ]"
+                                            @click="signOut({ callbackUrl: '/' })"
+                                        >
+                                            {{ $t('user.signOut') }}
+                                        </a>
+                                    </MenuItem>
+                                </MenuItems>
                             </Menu>
                             <UButton v-else @click="signIn('keycloak')">
                                 <ArrowRightOnRectangleIcon class="h-4 w-4" />

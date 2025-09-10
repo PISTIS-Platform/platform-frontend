@@ -1,7 +1,5 @@
 import TimeframeSelection from '~/interfaces/selection';
 
-//FIXME:: fix translations
-
 export const timeframeBeforeSelections: TimeframeSelection[] = [
     {
         label: '1D',
