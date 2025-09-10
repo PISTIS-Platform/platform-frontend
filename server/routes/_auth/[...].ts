@@ -43,6 +43,7 @@ export const authOptions = {
                 token.access_token = account.access_token;
                 const decodedJWT = jwtDecode(account.access_token);
                 token.orgId = getUserOrgId(decodedJWT);
+                token.id_token = account.id_token;
             }
 
             return Promise.resolve(token);
@@ -50,16 +51,8 @@ export const authOptions = {
         session: async ({ session, token }: any) => {
             session.orgId = token.orgId;
             session.token = token.access_token;
+            session.id_token = token.id_token;
             return Promise.resolve(session);
-        },
-    },
-    events: {
-        async signOut({ token }: any) {
-            if (token.provider === 'keycloak') {
-                const logOutUrl = new URL(`${keycloak.issuer}/protocol/openid-connect/logout`);
-                logOutUrl.searchParams.append('id_token_hint', token.id_token!);
-                await fetch(logOutUrl);
-            }
         },
     },
 };
