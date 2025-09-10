@@ -48,7 +48,8 @@ const searchUrl = url + '/srv/search/';
 
 // const userFactoryUrl = 'https://pistis-market.eu/srv/factories-registry/api/factories/user-factory';
 const distributionID = ref(null);
-const accessID = ref(null);
+const accessID = ref('');
+const backendUrl = ref('');
 const metadata = ref(null);
 const catalog = ref(null);
 // const token = ref(authStore.user.token);
@@ -66,13 +67,20 @@ const setAccessID = async (data) => {
         let accessIDFound = false;
         for (const distribution of data['result']['distributions']) {
             if (distribution['access_url'] && distribution['access_url'][0]) {
-                const parts = distribution['access_url'][0].split('asset_uuid=');
-                accessID.value = parts[parts.length - 1];
+                const url = new URL(distribution['access_url'][0]);
+                // const parts = distribution['access_url'][0].split('asset_uuid=');
+                // accessID.value = parts[parts.length - 1];
+                const parts = url.searchParams.get('asset_uuid');
+                accessID.value = parts;
+
+                backendUrl.value = url.hostname;
+
                 accessIDFound = true;
                 break;
             }
         }
-        console.log('-----accesUrl-------:', accessID.value);
+        console.log('-----accessID-------:', accessID.value);
+        console.log('-------accessUrl------:', backendUrl.value);
 
         if (!accessIDFound) {
             console.log('No access_url found in distributions.');
@@ -297,7 +305,7 @@ const truncatedEllipsedDescription = computed(() => {
                         <NuxtLink
                             :to="{
                                 path: '/catalog/dataset-details/data-lineage',
-                                query: { id: accessID, pm: pistisMode },
+                                query: { id: accessID, pm: pistisMode, url: backendUrl },
                             }"
                             class=""
                         >
@@ -315,7 +323,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <NuxtLink
                                 :to="{
                                     path: '/catalog/dataset-details/data-lineage',
-                                    query: { id: accessID, pm: pistisMode },
+                                    query: { id: accessID, pm: pistisMode, url: backendUrl },
                                 }"
                                 class=""
                             >
@@ -335,7 +343,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <NuxtLink
                                 :to="{
                                     path: '/catalog/dataset-details/data-lineage',
-                                    query: { id: accessID, pm: pistisMode },
+                                    query: { id: accessID, pm: pistisMode, url: backendUrl },
                                 }"
                                 class=""
                             >

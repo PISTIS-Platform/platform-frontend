@@ -5,15 +5,15 @@ import { ref } from 'vue';
 import mockData from './mock-lineage.json';
 
 const pistisMode = ref('');
+const backendUrl = ref('');
 
 const setPistisMode = (mode) => {
     pistisMode.value = mode;
     console.log('pistisMode:', pistisMode.value);
 };
 
-const getBackendUrl = () => {
-    const nuxtConfig = useRuntimeConfig();
-    return pistisMode.value === 'factory' ? nuxtConfig.public.factoryUrl : nuxtConfig.public.cloudUrl;
+const setBackendUrl = (url) => {
+    backendUrl.value = 'https://' + url;
 };
 
 // Environment logging for debugging
@@ -112,7 +112,7 @@ export const useStore = defineStore('store', () => {
         const token = session.value?.token;
 
         try {
-            const url = `${getBackendUrl()}/srv/lineage-tracker/get_datasets_diff`;
+            const url = `${backendUrl.value}/srv/lineage-tracker/get_datasets_diff`;
             const isCloud = pistisMode.value === 'cloud';
 
             const response = await axios.get(url, {
@@ -155,7 +155,7 @@ export const useStore = defineStore('store', () => {
 
         try {
             const isCloud = pistisMode.value === 'cloud';
-            const url = `${getBackendUrl()}/srv/lineage-tracker/get_dataset_family_tree`;
+            const url = `${backendUrl.value}/srv/lineage-tracker/get_dataset_family_tree`;
             console.log('request url:', url);
 
             const response = await axios.get(url, {
@@ -315,7 +315,7 @@ export const useStore = defineStore('store', () => {
         parseTableData,
         selectTableFilter,
         loadMockData,
-        getBackendUrl,
+        setBackendUrl,
 
         // Utilities (exposed for components that need them)
         capitalizeFirstLetter,
