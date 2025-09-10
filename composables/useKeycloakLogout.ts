@@ -11,7 +11,7 @@ export const useKeycloakLogout = () => {
         }
 
         const idToken = session?.id_token;
-        const postLogout = window.location.origin + '/';
+        const postLogout = '/';
         const logoutUrl =
             `${keycloakIssuer}/protocol/openid-connect/logout` +
             `?id_token_hint=${encodeURIComponent(idToken ?? '')}` +
