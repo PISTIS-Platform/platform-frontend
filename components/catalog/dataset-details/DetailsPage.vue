@@ -1,5 +1,7 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
+import 'vue-sonner/style.css';
+
 import axios from 'axios';
 import { toast } from 'vue-sonner';
 
