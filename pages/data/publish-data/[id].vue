@@ -19,6 +19,9 @@ const submitError = ref(false);
 const submitSuccess = ref(false);
 const route = useRoute();
 const assetId = route.params.id;
+const {
+    public: { factoryUrl },
+} = useRuntimeConfig();
 
 const selected = ref<
     { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
@@ -242,7 +245,7 @@ const submitAll = async () => {
         });
         submitStatus.value = 'success';
         await delay(3);
-        await navigateTo(`https://pistis-market.eu/srv/catalog/datasets/${newAssetId}`, {
+        await navigateTo(`${factoryUrl}/catalog/dataset-details/${newAssetId}?pm=cloud&locale=en`, {
             open: {
                 target: '_blank',
             },

@@ -4,8 +4,10 @@ import dayjs from 'dayjs';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
+import { navigateTo } from '#app';
+
 const {
-    public: { cloudUrl },
+    public: { factoryUrl },
 } = useRuntimeConfig();
 
 const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`, {
@@ -13,7 +15,6 @@ const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/
 });
 
 const { showErrorMessage, showSuccessMessage } = useAlertMessage();
-import { navigateTo } from '#app';
 
 const monetizationDetails = ref({
     validOfferDate: undefined,
@@ -217,7 +218,9 @@ const submitAll = async () => {
             });
             showSuccessMessage(t('data.investmentPlanner.success'));
             await delay(2);
-            navigateTo(`${cloudUrl}/srv/catalog/datasets/${objToSend.assetId}?locale=en`, { external: true });
+            navigateTo(`${factoryUrl}/catalog/dataset-details/${objToSend.cloudAssetId}?pm=cloud&locale=en`, {
+                external: true,
+            });
         } catch {
             showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlan'));
         }

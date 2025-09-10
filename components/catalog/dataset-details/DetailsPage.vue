@@ -325,7 +325,7 @@ const truncatedEllipsedDescription = computed(() => {
                             >
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
                             </NuxtLink>
-                            <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
+                            <a :href="`/catalog/dataset-details/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
                             <a :href="`/data/publish-data/${datasetId}`" class="link"
@@ -345,7 +345,7 @@ const truncatedEllipsedDescription = computed(() => {
                             >
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
                             </NuxtLink>
-                            <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
+                            <a :href="`/catalog/dataset-details/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
                             <a :href="`/usage-analytics/${datasetId}/questionnaire`" class="link"
