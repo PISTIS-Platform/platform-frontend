@@ -1,8 +1,12 @@
 <!-- eslint-disable prettier/prettier -->
+<!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
+import 'vue-sonner/style.css';
 import 'vue-sonner/style.css';
 
 import axios from 'axios';
+import axios from 'axios';
+import { toast } from 'vue-sonner';
 import { toast } from 'vue-sonner';
 
 import { useDataTruncator } from '@/composables/useDataTruncator';
@@ -38,9 +42,6 @@ const pistisMode = route.query.pm;
 const { data: session } = useAuth();
 
 const token = ref(session.value?.token);
-const { data: session } = useAuth();
-
-const token = ref(session.value?.token);
 
 let searchUrl = '';
 if (pistisMode === 'factory') {
@@ -54,14 +55,9 @@ const distributionID = ref(null);
 const accessID = ref(null);
 const metadata = ref(null);
 const organizationId = ref(null);
-const organizationId = ref(null);
 const catalog = ref(null);
 const factoryPrefix = ref('');
 const price = ref('');
-const isOwned = computed(() => {
-    // True only in datasets that the logged-in user owns
-    return organizationId.value === monetizationData.value?.publisher?.organization_id;
-});
 const isOwned = computed(() => {
     // True only in datasets that the logged-in user owns
     return organizationId.value === monetizationData.value?.publisher?.organization_id;
@@ -111,7 +107,6 @@ const fetchMetadata = async () => {
         console.error('Error fetching the metadata. ERROR: ', error);
     }
 };
-
 
 const getUserFactory = async () => {
     try {
@@ -299,11 +294,9 @@ const truncatedEllipsedDescription = computed(() => {
                         </a>
                         <a :href="`/usage-analytics/${datasetId}/questionnaire`" class="">
                             <KButton v-if="!isOwned" size="small">Provide Feedback</KButton>
-                            <KButton v-if="!isOwned" size="small">Provide Feedback</KButton>
                         </a>
                     </div>
                     <!-- Data Lineage (Button placements should be discussed together)-->
-                    <div class="ml-5">
                     <div class="ml-5">
                         <NuxtLink
                             :to="{
