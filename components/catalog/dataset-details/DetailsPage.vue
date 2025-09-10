@@ -1,5 +1,4 @@
 <!-- eslint-disable prettier/prettier -->
-<!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
 import 'vue-sonner/style.css';
 
