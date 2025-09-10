@@ -9,24 +9,18 @@ import {
 } from '@heroicons/vue/24/outline';
 import { useRoute } from 'vue-router';
 
+import { useKeycloakLogout } from '~/composables/useKeycloakLogout';
 import { useMessagesStore } from '~/store/messages';
 
-const config = useRuntimeConfig();
 const route = useRoute();
 
 const messagesStore = useMessagesStore();
 
 const { t } = useI18n();
 
-const { status, signIn, signOut, data: session } = useAuth();
+const { status, signIn, data: session } = useAuth();
 
-const keycloakIssuer = config.keycloakIssuer;
-const postLogoutRedirect = window.location.origin + '/';
-
-const logoutUrl =
-    `${keycloakIssuer}/protocol/openid-connect/logout` +
-    `?id_token_hint=${encodeURIComponent(session?.id_token)}` +
-    `&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirect)}`;
+const { logout } = useKeycloakLogout();
 
 useHead({
     htmlAttrs: { class: 'min-h-full bg-gray-100' },
@@ -179,7 +173,7 @@ function isActive(item: any) {
                                                 'block px-4 py-2 text-sm text-gray-700',
                                                 active ? 'bg-primary-100 ' : undefined,
                                             ]"
-                                            @click="signOut({ callbackUrl: logoutUrl })"
+                                            @click="logout"
                                         >
                                             {{ $t('user.signOut') }}
                                         </a>

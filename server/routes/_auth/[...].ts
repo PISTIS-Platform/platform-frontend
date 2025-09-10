@@ -1,4 +1,5 @@
-import { jwtDecode } from 'jwt-decode';
+// server/api/auth/[...].ts  (your current NuxtAuthHandler file)
+import jwtDecode from 'jwt-decode';
 import KeycloakProvider from 'next-auth/providers/keycloak';
 
 import { NuxtAuthHandler } from '#auth';
@@ -12,25 +13,23 @@ declare module 'next-auth/jwt' {
         expires_at?: number;
     }
 }
-
 declare module 'next-auth' {
     interface Session {
         roles?: string[];
         orgId?: string;
         token: string;
+        id_token?: string;
     }
 }
 
 const { authSecret, keycloak } = useRuntimeConfig();
 
-const getUserOrgId = (profile: any) => {
-    return profile.pistis?.group?.id || '';
-};
+const getUserOrgId = (profile: any) => profile.pistis?.group?.id || '';
 
 export const authOptions = {
     secret: authSecret,
     providers: [
-        // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some poin
+        // .default for SSR if needed
         KeycloakProvider.default({
             issuer: keycloak.issuer,
             clientId: keycloak.clientId,
@@ -41,19 +40,26 @@ export const authOptions = {
         jwt: async ({ token, account, user }: any) => {
             if (account && user) {
                 token.access_token = account.access_token;
-                const decodedJWT = jwtDecode(account.access_token);
-                token.orgId = getUserOrgId(decodedJWT);
                 token.id_token = account.id_token;
+                token.provider = account.provider ?? 'keycloak';
+                try {
+                    const decoded: any = jwtDecode(account.access_token);
+                    token.orgId = getUserOrgId(decoded);
+                } catch (e) {
+                    // ignore decode errors
+                }
             }
-
-            return Promise.resolve(token);
+            return token;
         },
         session: async ({ session, token }: any) => {
             session.orgId = token.orgId;
             session.token = token.access_token;
             session.id_token = token.id_token;
-            return Promise.resolve(session);
+            return session;
         },
+    },
+    events: {
+        async signOut({ _token }: any) {},
     },
 };
 
