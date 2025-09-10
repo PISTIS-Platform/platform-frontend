@@ -1,12 +1,8 @@
 <!-- eslint-disable prettier/prettier -->
-<!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-import 'vue-sonner/style.css';
 import 'vue-sonner/style.css';
 
 import axios from 'axios';
-import axios from 'axios';
-import { toast } from 'vue-sonner';
 import { toast } from 'vue-sonner';
 
 import { useDataTruncator } from '@/composables/useDataTruncator';
