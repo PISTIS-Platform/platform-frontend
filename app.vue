@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import 'vue-sonner/style.css';
+
+import { Toaster } from 'vue-sonner';
+
 const appConfig = useAppConfig();
 
 useHead({
@@ -10,6 +14,7 @@ useHead({
 <template>
     <NuxtLoadingIndicator :throttle="100" :height="4" :color="appConfig.theme.loading" />
     <NuxtLayout>
+        <Toaster />
         <NuxtPage />
     </NuxtLayout>
 

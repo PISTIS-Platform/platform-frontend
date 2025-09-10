@@ -1,20 +1,23 @@
 <!-- eslint-disable prettier/prettier -->
+<!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-import axios from 'axios';
+import 'vue-sonner/style.css';
+import 'vue-sonner/style.css';
 
-//import { useStore } from 'vuex';
+import axios from 'axios';
+import axios from 'axios';
+import { toast } from 'vue-sonner';
+import { toast } from 'vue-sonner';
+
 import { useDataTruncator } from '@/composables/useDataTruncator';
-// import config from '@/pages/catalog/config/appConfig';
 import PhCaretLeft from '~icons/ph/caret-left';
 
 import LinkedDataSelector from './LinkedDataSelector.vue';
 
-// import { useAuthStore } from '../../stores/authStore';
 // import LinkedDataSelector from '../base/links/LinkedDataSelector.vue';
 
 // import MatchmakingServiceView from '../matchmaking-service/MatchmakingServiceView.vue';
 // import MonetizationView from '../monetization/MonetizationView.vue';
-// import keycloak from '@/services/keycloak'
 
 const config = useRuntimeConfig();
 
@@ -36,9 +39,6 @@ const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
 
-// const { appContext } = getCurrentInstance();
-// const store = useStore();
-// const authStore = useAuthStore();
 const { data: session } = useAuth();
 
 const token = ref(session.value?.token);
@@ -50,13 +50,12 @@ if (pistisMode === 'factory') {
     searchUrl = config.public.cloudUrl + '/srv/search/';
 }
 
-const userFactoryUrl = 'https://pistis-market.eu/srv/factories-registry/api/factories/user-factory';
+const userFactoryUrl = config.public.cloudUrl + '/srv/factories-registry/api/factories/user-factory';
 const distributionID = ref(null);
 const accessID = ref(null);
 const metadata = ref(null);
 const organizationId = ref(null);
 const catalog = ref(null);
-// const token = ref(authStore.user.token);
 const factoryPrefix = ref('');
 const price = ref('');
 const isOwned = computed(() => {
@@ -126,33 +125,34 @@ const getUserFactory = async () => {
 };
 
 const buyRequest = async (factoryPrefix) => {
+    const promise = axios.post(
+        `https://${factoryPrefix}.${config.public.cloudUrl.replace(/^https?:\/\//, '')}/srv/smart-contract-execution-engine/api/scee/storePurchase`,
+        {
+            assetId: props.datasetId,
+            assetFactory: monetizationData.value?.purchase_offer[0].publisher?.organization_id,
+            sellerId: metadata.value.result?.monetization[0]?.seller_id,
+            price: monetizationData.value?.purchase_offer[0].price,
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${token.value}`,
+                'Content-Type': 'application/json',
+            },
+        },
+    );
+
+    toast.promise(promise, {
+        loading: 'Processing your purchase...',
+        success: () => `Successfully purchased ${Object.values(metadata.value.result?.title)[0]}`,
+        error: (error) => {
+            return error?.response?.data?.reason || 'An error occurred while processing your request.';
+        },
+    });
+
     try {
-        // TODO: link as ENV variable, and add the access token once keycloak is intigrated
-        const _response = await axios.post(
-            `https://${factoryPrefix}.pistis-market.eu/srv/smart-contract-execution-engine/api/scee/storePurchase`,
-            {
-                // The request body object
-                assetId: props.datasetId,
-                assetFactory: monetizationData.value?.purchase_offer[0].publisher?.organization_id,
-                sellerId: metadata.value.result?.monetization[0]?.seller_id,
-                price: monetizationData.value?.purchase_offer[0].price,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token.value}`,
-                    'Content-Type': 'application/json',
-                },
-            },
-        );
-        // TODO: first use default language and only then the fallback
-        //   await store.dispatch('snackbar/showSnackbar', {
-        //     message: `Successfully purchased ${Object.values(metadata.value.result?.title)[0]}`,
-        //     variant: 'success',
-        //   })
+        // const response = await promise;
     } catch (error) {
         console.error(error);
-        // const errorMessage = error?.response?.data?.reason || 'An error occurred while processing your request.';
-        //   await store.dispatch('snackbar/showError', errorMessage)
     }
 };
 
