@@ -312,13 +312,12 @@ const truncatedEllipsedDescription = computed(() => {
                         </a>
                     </div>
                     <!-- Data Lineage (Button placements should be discussed together)-->
+                    <div class="ml-5">
 
-                    <div>
                         <NuxtLink
                             :to="{
                                 path: '/catalog/dataset-details/data-lineage',
                                 query: { id: accessID, pm: pistisMode, url: backendUrl },
-
                             }"
                             class=""
                         >
