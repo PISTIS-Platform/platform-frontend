@@ -66,8 +66,8 @@ export default defineNuxtConfig({
         authSecret: '',
         catalogName: '',
         walletAlias: '',
-        prometheusUrl: '',
         factoryName: '',
+        organisationFullname: '',
         pistisMode: '',
     },
 
@@ -94,7 +94,7 @@ export default defineNuxtConfig({
             defaultProvider: 'keycloak',
         },
         session: {
-            enableRefreshPeriodically: true,
+            enableRefreshPeriodically: 60000,
             enableRefreshOnWindowFocus: true,
         },
         globalAppMiddleware: {

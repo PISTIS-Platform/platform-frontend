@@ -206,8 +206,9 @@ export default defineI18nConfig(() => ({
                     pleaseSave: 'Please save your credentials below as you will not be able to recover them otherwise.',
                 },
                 dataTransformation: 'Data Transformation',
-                transformationCatalogue: 'Transformations Catalogue',
                 insightGenerator: 'Insights Generator',
+                analyticsEngine: 'Analytics Engine',
+                mlModelEditor: 'ML Model Editor',
                 anonymizer: 'Anonymizer',
                 selectedDistribution: 'Selected Distribution',
                 workflowExecution: 'Workflow Execution',
@@ -243,6 +244,9 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    successfullyPublishedAsInvestmentPlan:
+                        'The dataset was successfully published as an investment plan',
+
                     percentageToOfferSharesFor: 'Percentage to offer shares for',
                     percentageOfOwnership: '% of ownership to place on the market',
                     sharePrice: 'Share Price',
@@ -261,6 +265,7 @@ export default defineI18nConfig(() => ({
                     summary: 'Summary',
                     success: 'Investment plan successfully created',
                     errors: {
+                        couldNotPublishInvestmentPlan: 'Could not publish investment plan. An error has occurred.',
                         number: 'Please enter a valid number',
                         percentageMin: 'Percentage cannot be negative',
                         percentageMax: 'Percentage cannot exceed 49%',
@@ -296,6 +301,13 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    nftNotPossible:
+                        'This asset is already on the marketplace and therefore cannot be sold as an NFT. Please select a different monetization method.',
+                    annual: 'per year',
+                    monthly: 'per month',
+                    nftWarning: 'NFT Warning',
+                    nftWarningText:
+                        'If you create an NFT, you can not monetize this asset in any other way. Also, the ownership of the asset will be transferred from you to the consumer and the asset will be deleted on your end.',
                     changeLicense: 'Change License',
                     searchForACountry: 'Search for a country...',
                     searchForALicense: 'Search for a license...',

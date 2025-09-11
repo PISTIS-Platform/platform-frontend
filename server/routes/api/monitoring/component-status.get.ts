@@ -10,23 +10,21 @@ export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
 
     const newServices = {
-        // 'analytics-engine': '',
-        // eslint-disable-next-line prettier/prettier
         Anonymizer: [],
         'Asset Description Bundler': ['/srv/asset-description-bundler/api/health/'],
-        'Contract Inspector': [],
-        'Job Configurator': [],
+        'Contract Inspector': ['/srv/contract-inspector-on-platform/api/health'],
+        'Job Configurator': ['/srv/data-check-in/api/health'],
         'Data Factory Connector': ['/srv/data-connector/api/health'],
         'Identity Wallet': [],
         'Data Quality Assessment': ['/srv/data-quality-assessor/api/health/'],
-        'Data Transformation': [],
+        'Data Transformation': ['/srv/data-transformation/api/health'],
         'FAIR Data Valuation': [],
         'Distributed Query': [],
         'DLT FIAT Wallet': ['/srv/payments/v0/dlt/health_checker'],
         'Encryption/Decryption': [],
         'Factory Data Storage': ['/srv/factory-data-storage/api/health'],
         'GDPR Checker': ['/srv/gdpr-checker/ready'],
-        'Insights Generator': [],
+        'Insights Generator': ['/srv/insights-generator/api/health'],
         'Lineage Tracker': ['/srv/lineage-tracker/api/health'],
         'Factory Data Catalog': ['/srv/catalog'],
         'Smart Contract Template Composer': ['/srv/sctc/api/health'],
@@ -81,17 +79,22 @@ export default defineEventHandler(async (event) => {
                     },
                     timeout: 5000,
                 });
+
                 if (result === true) {
                     active = 'true';
                 } else if (result === 'Service is up and running') {
                     active = 'true';
                 } else if (result?.success) {
                     active = 'true';
-                } else if (result?.status.toLowerCase() === 'ok' || result?.status.toLowerCase() === 'success') {
+                } else if (
+                    result?.status.toLowerCase() === 'ok' ||
+                    result?.status.toLowerCase() === 'success' ||
+                    result?.status.toLowerCase() === 'up'
+                ) {
                     active = 'true';
                 }
             } catch (error) {
-                // console.error(`Error fetching health for ${key}:`, error);
+                console.error(`Error fetching health for ${key}:`, error);
             } finally {
                 return {
                     title: key,

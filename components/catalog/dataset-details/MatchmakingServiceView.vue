@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import MatchingDatasetDetails from './MatchingDatasetDetails.vue';
 
-const datasetId = '8c1e448b-18c9-48e4-aa6b-4888046cd1a1';
+const { datasetId } = defineProps<{
+    datasetId: string;
+}>();
 </script>
 
 <template>

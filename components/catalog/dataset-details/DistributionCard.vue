@@ -15,6 +15,7 @@ const config = useRuntimeConfig();
 
 const pistisMode = route.query.pm;
 
+
 interface CardProps {
     title: string;
     description: string;
@@ -37,9 +38,8 @@ const props = withDefaults(defineProps<CardProps>(), {
     onSave: () => {},
 });
 
-// const route = useRoute();
-// const authStore = useAuthStore();
-// const token = ref(authStore.user.token);
+const { data: session } = useAuth();
+const token = session.value?.token;
 
 const dataOrder = ['modified', 'license', 'created', 'languages'];
 // const pistisMode = config.pistisMode;
@@ -57,12 +57,13 @@ const resolvedData = computed(() => {
 });
 
 const catalog = ref(null);
-let searchUrl = '';
+let url = '';
 if (route.query.pm === 'factory') {
-    searchUrl = config.public.factoryUrl + '/srv/search/';
+    url = config.public.factoryUrl;
 } else {
-    searchUrl = config.public.cloudUrl + '/srv/search/';
+    url = config.public.cloudUrl;
 }
+const searchUrl = url + '/srv/search/';
 
 const fetchMetadata = async () => {
     try {
@@ -99,7 +100,7 @@ async function downloadFile() {
 
         const config = {
             headers: {
-                Authorization: `Bearer ${token.value}`,
+                Authorization: `Bearer ${token}`,
             },
             responseType: 'blob',
         };
@@ -188,7 +189,7 @@ async function downloadFile() {
 
                     <div v-if="catalog === 'my-data'" class="flex gap-6">
                         <a
-                            :href="`https://develop.pistis-market.eu/srv/enrichment-ui/?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${props.format}`"
+                            :href="`${url}/srv/enrichment-ui/?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${props.format}`"
                             target="_blank"
                             nofollow
                             noreferrer

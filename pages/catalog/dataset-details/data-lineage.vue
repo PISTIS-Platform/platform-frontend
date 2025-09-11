@@ -108,6 +108,7 @@ const isFactory = ref(pistisMode === 'factory');
 // Route and store setup
 
 const lineageID = route.query.id;
+
 const { data: session } = useAuth();
 
 const store = useStore();

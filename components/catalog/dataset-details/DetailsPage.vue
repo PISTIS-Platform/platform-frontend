@@ -1,17 +1,20 @@
+<!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-//import { useStore } from 'vuex';
+
+import 'vue-sonner/style.css';
+
+import axios from 'axios';
+import { toast } from 'vue-sonner';
+
 import { useDataTruncator } from '@/composables/useDataTruncator';
-// import config from '@/pages/catalog/config/appConfig';
 import PhCaretLeft from '~icons/ph/caret-left';
 
 import LinkedDataSelector from './LinkedDataSelector.vue';
 
-// import { useAuthStore } from '../../stores/authStore';
 // import LinkedDataSelector from '../base/links/LinkedDataSelector.vue';
 
 // import MatchmakingServiceView from '../matchmaking-service/MatchmakingServiceView.vue';
 // import MonetizationView from '../monetization/MonetizationView.vue';
-// import keycloak from '@/services/keycloak'
 
 const config = useRuntimeConfig();
 
@@ -33,9 +36,10 @@ const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
 
-// const { appContext } = getCurrentInstance();
-// const store = useStore();
-// const authStore = useAuthStore();
+
+const { data: session } = useAuth();
+
+const token = ref(session.value?.token);
 
 let url = '';
 
@@ -46,17 +50,24 @@ if (pistisMode === 'factory') {
 }
 const searchUrl = url + '/srv/search/';
 
-// const userFactoryUrl = 'https://pistis-market.eu/srv/factories-registry/api/factories/user-factory';
+const userFactoryUrl = config.public.cloudUrl + '/srv/factories-registry/api/factories/user-factory';
 const distributionID = ref(null);
 const accessID = ref('');
 const backendUrl = ref('');
 const metadata = ref(null);
+const organizationId = ref(null);
 const catalog = ref(null);
-// const token = ref(authStore.user.token);
 const factoryPrefix = ref('');
 const price = ref('');
-const isOwned = ref(); // True only in datasets that the logged-in user owns
+const isOwned = computed(() => {
+    // True only in datasets that the logged-in user owns
+    return organizationId.value === monetizationData.value?.publisher?.organization_id;
+});
 const monetizationData = ref();
+const offerId = ref('');
+const feedbackUrl = computed(() =>
+    offerId.value ? `${config.public.cloudUrl}/usage-analytics/responses?assetId=${offerId.value}` : '#',
+);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -95,10 +106,14 @@ const fetchMetadata = async () => {
         metadata.value = data;
         catalog.value = data.result.catalog.id;
         if (pistisMode == 'cloud') {
-            const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
-            console.log('preis:' + purchaseOffer.price);
-            price.value = metadata.value.result.monetization[0].price;
+            // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
+            // console.log('preis:' + purchaseOffer.price);
             monetizationData.value = metadata.value.result.monetization[0];
+            price.value = monetizationData.value?.purchase_offer[0].price;
+            offerId.value = props.datasetId;
+        }
+        if (pistisMode == 'factory') {
+            offerId.value = metadata.value.result?.offer?.marketplace_offer_id;
         }
 
         setAccessID(data);
@@ -108,59 +123,57 @@ const fetchMetadata = async () => {
     }
 };
 
-// const getUserFactory = async () => {
-//     try {
-//         const response = await fetch(`${userFactoryUrl}`, {
-//             headers: {
-//                 Authorization: `Bearer ${token.value}`,
-//                 'Content-Type': 'application/json',
-//             },
-//         });
-//         const data = await response.json();
-//         factoryPrefix.value = data.factoryPrefix;
-//         if (pistisMode == 'cloud') {
-//             isOwned.value = data.organizationId == metadata.value.result.monetization[0]?.publisher.organization_id;
-//         }
-//     } catch (error) {
-//         console.error('Error getting data:', error);
-//     }
-// };
+const getUserFactory = async () => {
+    try {
+        const response = await fetch(`${userFactoryUrl}`, {
+            headers: {
+                Authorization: `Bearer ${token.value}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        const data = await response.json();
+        organizationId.value = data.organizationId;
+        factoryPrefix.value = data.factoryPrefix;
+    } catch (error) {
+        console.error('Error getting data:', error);
+    }
+};
 
-// const buyRequest = async (factoryPrefix) => {
-//     try {
-//         // TODO: link as ENV variable, and add the access token once keycloak is intigrated
-//         const response = await axios.post(
-//             `https://${factoryPrefix}.pistis-market.eu/srv/smart-contract-execution-engine/api/scee/storePurchase`,
-//             {
-//                 // The request body object
-//                 assetId: props.datasetId,
-//                 assetFactory: metadata.value.result?.monetization[0]?.publisher?.organization_id,
-//                 sellerId: metadata.value.result?.monetization[0]?.seller_id,
-//                 price: metadata.value.result?.monetization[0]?.price,
-//             },
-//             {
-//                 headers: {
-//                     Authorization: `Bearer ${token.value}`,
-//                     'Content-Type': 'application/json',
-//                 },
-//             },
-//         );
+const buyRequest = async (factoryPrefix) => {
+    const promise = axios.post(
+        `https://${factoryPrefix}.${config.public.cloudUrl.replace(/^https?:\/\//, '')}/srv/smart-contract-execution-engine/api/scee/storePurchase`,
+        {
+            assetId: props.datasetId,
+            assetFactory: monetizationData.value?.purchase_offer[0].publisher?.organization_id,
+            sellerId: metadata.value.result?.monetization[0]?.seller_id,
+            price: monetizationData.value?.purchase_offer[0].price,
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${token.value}`,
+                'Content-Type': 'application/json',
+            },
+        },
+    );
 
-//         // TODO: first use default language and only then the fallback
-//         await store.dispatch('snackbar/showSnackbar', {
-//             message: `Successfully purchased ${Object.values(metadata.value.result?.title)[0]}`,
-//             variant: 'success',
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         const errorMessage = error?.response?.data?.reason || 'An error occurred while processing your request.';
-//         await store.dispatch('snackbar/showError', errorMessage);
-//     }
-// };
+    toast.promise(promise, {
+        loading: 'Processing your purchase...',
+        success: () => `Successfully purchased ${Object.values(metadata.value.result?.title)[0]}`,
+        error: (error) => {
+            return error?.response?.data?.reason || 'An error occurred while processing your request.';
+        },
+    });
+
+    try {
+        // const response = await promise;
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 onMounted(() => {
     fetchMetadata();
-    // getUserFactory();
+    getUserFactory();
 });
 
 // Dataset desecription truncator "show more"
@@ -294,16 +307,18 @@ const truncatedEllipsedDescription = computed(() => {
                                 >Buy<span v-if="price">&nbsp;{{ price + '€' }}</span></KButton
                             >
                         </a>
-                        <a :href="`/usage-analytics/${datasetId}/questionnaire`" class="">
-                            <KButton v-if="isOwned === false">Provide Feedback</KButton>
+                        <a :href="feedbackUrl" class="">
+                            <KButton v-if="!isOwned" size="small">Provide Feedback</KButton>
                         </a>
                     </div>
                     <!-- Data Lineage (Button placements should be discussed together)-->
+
                     <div>
                         <NuxtLink
                             :to="{
                                 path: '/catalog/dataset-details/data-lineage',
                                 query: { id: accessID, pm: pistisMode, url: backendUrl },
+
                             }"
                             class=""
                         >
@@ -327,6 +342,7 @@ const truncatedEllipsedDescription = computed(() => {
                             >
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
                             </NuxtLink>
+
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
@@ -341,18 +357,20 @@ const truncatedEllipsedDescription = computed(() => {
                             <NuxtLink
                                 :to="{
                                     path: '/catalog/dataset-details/data-lineage',
+
                                     query: { id: accessID, pm: pistisMode, url: backendUrl },
+
                                 }"
                                 class=""
                             >
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
                             </NuxtLink>
+
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
+
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
-                            <a :href="`/usage-analytics/${datasetId}/questionnaire`" class="link"
-                                ><KButton size="small">Provide Feedback</KButton></a
-                            >
+                            <a :href="feedbackUrl" class="link"><KButton size="small">Provide Feedback</KButton></a>
                         </div>
                     </template>
                 </section>
@@ -362,7 +380,7 @@ const truncatedEllipsedDescription = computed(() => {
                 <MonetizationView :data="monetizationData" />
             </div>
             <div v-if="pistisMode === 'cloud'" class="bg-white p-6 rounded-lg ring-1 ring-gray-200 shadow">
-                <MatchmakingServiceView />
+                <MatchmakingServiceView :dataset-id="datasetId" />
             </div>
         </div>
     </div>

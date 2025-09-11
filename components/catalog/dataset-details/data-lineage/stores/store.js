@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-
 import mockData from './mock-lineage.json';
 
 const pistisMode = ref('');
@@ -121,6 +120,7 @@ export const useStore = defineStore('store', () => {
             // const response = mockCompare;
             // diffData.value = response;
 
+
             if (import.meta.env.DEV) {
                 console.log('Dataset comparison data received:', diffData.value);
             }
@@ -141,8 +141,10 @@ export const useStore = defineStore('store', () => {
         }
 
         try {
+
             const isCloud = pistisMode.value === 'cloud';
             const url = `${backendUrl.value}/srv/lineage-tracker/get_dataset_family_tree`;
+
 
             const response = await axios.get(url, {
                 params: {

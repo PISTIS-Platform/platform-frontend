@@ -43,6 +43,8 @@ export const authOptions = {
                 token.access_token = account.access_token;
                 const decodedJWT = jwtDecode(account.access_token);
                 token.orgId = getUserOrgId(decodedJWT);
+                token.provider = account.provider;
+                token.id_token = account.id_token;
             }
 
             return Promise.resolve(token);
@@ -57,7 +59,7 @@ export const authOptions = {
         async signOut({ token }: any) {
             if (token.provider === 'keycloak') {
                 const logOutUrl = new URL(`${keycloak.issuer}/protocol/openid-connect/logout`);
-                logOutUrl.searchParams.append('id_token_hint', token.id_token!);
+                logOutUrl.searchParams.append('id_token_hint', token.id_token);
                 await fetch(logOutUrl);
             }
         },

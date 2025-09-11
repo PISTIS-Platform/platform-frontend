@@ -10,10 +10,7 @@
         "generate": "nuxt generate",
         "preview": "nuxt preview",
         "postinstall": "nuxt prepare",
-        "lint": "eslint --ext .js,.ts,.vue .",
-        "setup-submodules": "cd pv-sdk && pnpm build",
-        "setup-pv-sdk-core": "cd pv-sdk/packages/sdk-core && pnpm install",
-        "setup-pv-sdk-vue": "cd pv-sdk/packages/sdk-vue && pnpm install"
+        "lint": "eslint --ext .js,.ts,.vue ."
     },
     "lint-staged": {
         "**/*.{js,ts,vue,json,html}": [
@@ -81,6 +78,7 @@
         "vue-fast-marquee": "^1.0.6",
         "vue-feather-icons": "^5.1.0",
         "vue-multiselect": "3.2.0",
+        "vue-sonner": "^2.0.8",
         "vue3-promise-dialog": "^0.3.4",
         "vue3-tags-input": "^1.0.12",
         "zod": "^3.22.4"

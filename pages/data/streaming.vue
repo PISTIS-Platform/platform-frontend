@@ -127,9 +127,11 @@ const showPassword = ref(false);
                             <span class="font-normal font-mono"
                                 ><NuxtLink
                                     class="text-primary-500"
-                                    :to="`${factoryUrl}/srv/catalog/datasets/${data.id}?locale=en`"
+                                    :to="`${factoryUrl}/catalog/dataset-details/${data.id}?pm=factory&locale=en`"
                                     target="_blank"
-                                    >{{ `${factoryUrl}/srv/catalog/datasets/${data.id}?locale=en` }}</NuxtLink
+                                    >{{
+                                        `${factoryUrl}/catalog/dataset-details/${data.id}?pm=factory&locale=en`
+                                    }}</NuxtLink
                                 ></span
                             >
                         </span>
