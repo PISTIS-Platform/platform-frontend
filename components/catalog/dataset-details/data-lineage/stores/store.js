@@ -9,24 +9,11 @@ const backendUrl = ref('');
 
 const setPistisMode = (mode) => {
     pistisMode.value = mode;
-    console.log('pistisMode:', pistisMode.value);
 };
 
 const setBackendUrl = (url) => {
     backendUrl.value = 'https://' + url;
 };
-
-// Environment logging for debugging
-if (import.meta.env.DEV) {
-    console.log('Store Environment Config:', {
-        // FACTORY_OR_CLOUD: import.meta.env.VITE_FACTORY_OR_CLOUD,
-        BASE_API_HOST: import.meta.env.VITE_BASE_API_HOST,
-        KEYCLOAK_URL: import.meta.env.VITE_KEYCLOAK_URL,
-        KEYCLOAK_CLIENT_ID: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
-        KEYCLOAK_REALM: import.meta.env.VITE_KEYCLOAK_REALM,
-        EXTERNAL_LOGIN_URL: import.meta.env.VITE_EXTERNAL_LOGIN_URL,
-    });
-}
 
 export const useStore = defineStore('store', () => {
     // ========================================
@@ -156,7 +143,6 @@ export const useStore = defineStore('store', () => {
         try {
             const isCloud = pistisMode.value === 'cloud';
             const url = `${backendUrl.value}/srv/lineage-tracker/get_dataset_family_tree`;
-            console.log('request url:', url);
 
             const response = await axios.get(url, {
                 params: {

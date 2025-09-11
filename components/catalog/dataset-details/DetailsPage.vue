@@ -79,8 +79,6 @@ const setAccessID = async (data) => {
                 break;
             }
         }
-        console.log('-----accessID-------:', accessID.value);
-        console.log('-------accessUrl------:', backendUrl.value);
 
         if (!accessIDFound) {
             console.log('No access_url found in distributions.');
