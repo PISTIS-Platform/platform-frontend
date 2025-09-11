@@ -2,6 +2,8 @@
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
+import { StreamingFormat, StreamingGranularity } from '~/constants/streaming';
+
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();
@@ -9,14 +11,61 @@ const {
 const { t } = useI18n();
 const { showErrorMessage } = useAlertMessage();
 
+const streamingFormatChoices = [
+    {
+        label: 'CSV',
+        value: StreamingFormat.CSV,
+    },
+    {
+        label: 'JSON',
+        value: StreamingFormat.JSON,
+    },
+    {
+        label: t('data.streaming.plainText'),
+        value: StreamingFormat.TEXT,
+    },
+];
+
+const streamingGranularityChoices = [
+    {
+        label: t('data.streaming.granularity.realTime'),
+        tooltip: t('data.streaming.granularityTooltip.realTime'),
+        value: StreamingGranularity.REAL_TIME,
+    },
+    {
+        label: t('data.streaming.granularity.high'),
+        tooltip: t('data.streaming.granularityTooltip.high'),
+        value: StreamingGranularity.HIGH,
+    },
+    {
+        label: t('data.streaming.granularity.medium'),
+        tooltip: t('data.streaming.granularityTooltip.medium'),
+        value: StreamingGranularity.MEDIUM,
+    },
+    {
+        label: t('data.streaming.granularity.low'),
+        tooltip: t('data.streaming.granularityTooltip.low'),
+        value: StreamingGranularity.LOW,
+    },
+    {
+        label: t('data.streaming.granularity.unknown'),
+        tooltip: t('data.streaming.granularityTooltip.unknown'),
+        value: StreamingGranularity.UNKNOWN,
+    },
+];
+
 const state = reactive({
     title: undefined,
     description: undefined,
+    format: streamingFormatChoices[0].value,
+    granularity: streamingGranularityChoices[4].value,
 });
 
 const schema = z.object({
     title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
     description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    format: z.string().min(1, t('required')),
+    granularity: z.string().min(1, t('required')),
 });
 
 const loading = ref(false);
@@ -51,6 +100,8 @@ const onSubmit = async () => {
         data.value.brokerUrls = details.bootstrapServers;
         data.value.securityProtocol = details.securityProtocol;
         data.value.saslMechanism = details.saslMechanism;
+        data.value.format = state.format;
+        data.value.granularity = state.granularity;
 
         loaded.value = true;
     } catch (err: any) {
@@ -100,6 +151,37 @@ const showPassword = ref(false);
                 </UFormGroup>
                 <UFormGroup :label="$t('data.streaming.description')" name="description">
                     <UTextarea v-model="state.description" :disabled="loaded" :ui="{ base: 'disabled:opacity-40' }" />
+                    <template #error="{ error }">
+                        <div class="absolute left-0 -bottom-6">
+                            {{ error }}
+                        </div>
+                    </template>
+                </UFormGroup>
+                <UFormGroup :label="$t('data.streaming.format')" name="format">
+                    <div class="flex items-center gap-2">
+                        <URadio
+                            v-for="choice in streamingFormatChoices"
+                            :key="choice.value"
+                            v-model="state.format"
+                            v-bind="choice"
+                        />
+                    </div>
+                    <template #error="{ error }">
+                        <div class="absolute left-0 -bottom-6">
+                            {{ error }}
+                        </div>
+                    </template>
+                </UFormGroup>
+                <UFormGroup :label="$t('data.streaming.granularity.title')" name="granularity">
+                    <div class="flex items-center gap-2">
+                        <UTooltip
+                            v-for="choice in streamingGranularityChoices"
+                            :key="choice.value"
+                            :text="choice.tooltip"
+                        >
+                            <URadio v-model="state.granularity" v-bind="choice" />
+                        </UTooltip>
+                    </div>
                     <template #error="{ error }">
                         <div class="absolute left-0 -bottom-6">
                             {{ error }}
