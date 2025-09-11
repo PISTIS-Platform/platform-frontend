@@ -33,24 +33,24 @@ const streamingGranularityChoices = [
         value: StreamingGranularity.REAL_TIME,
     },
     {
-        label: t('data.streaming.granularity.high'),
-        tooltip: t('data.streaming.granularityTooltip.high'),
-        value: StreamingGranularity.HIGH,
+        label: t('data.streaming.granularity.frequent'),
+        tooltip: t('data.streaming.granularityTooltip.frequent'),
+        value: StreamingGranularity.FREQUENT,
     },
     {
-        label: t('data.streaming.granularity.medium'),
-        tooltip: t('data.streaming.granularityTooltip.medium'),
-        value: StreamingGranularity.MEDIUM,
+        label: t('data.streaming.granularity.regular'),
+        tooltip: t('data.streaming.granularityTooltip.regular'),
+        value: StreamingGranularity.REGULAR,
     },
     {
-        label: t('data.streaming.granularity.low'),
-        tooltip: t('data.streaming.granularityTooltip.low'),
-        value: StreamingGranularity.LOW,
+        label: t('data.streaming.granularity.infrequent'),
+        tooltip: t('data.streaming.granularityTooltip.infrequent'),
+        value: StreamingGranularity.INFREQUENT,
     },
     {
-        label: t('data.streaming.granularity.unknown'),
-        tooltip: t('data.streaming.granularityTooltip.unknown'),
-        value: StreamingGranularity.UNKNOWN,
+        label: t('data.streaming.granularity.unspecified'),
+        tooltip: t('data.streaming.granularityTooltip.unspecified'),
+        value: StreamingGranularity.UNSPECIFIED,
     },
 ];
 

@@ -6,8 +6,8 @@ export enum StreamingFormat {
 
 export enum StreamingGranularity {
     REAL_TIME = 'realTime',
-    HIGH = 'high',
-    MEDIUM = 'medium',
-    LOW = 'low',
-    UNKNOWN = 'unknown',
+    FREQUENT = 'frequent',
+    REGULAR = 'regular',
+    INFREQUENT = 'infrequent',
+    UNSPECIFIED = 'unspecified',
 }
