@@ -99,7 +99,7 @@ const showPassword = ref(false);
                     </template>
                 </UFormGroup>
                 <UFormGroup :label="$t('data.streaming.description')" name="description">
-                    <UInput v-model="state.description" :disabled="loaded" :ui="{ base: 'disabled:opacity-40' }" />
+                    <UTextarea v-model="state.description" :disabled="loaded" :ui="{ base: 'disabled:opacity-40' }" />
                     <template #error="{ error }">
                         <div class="absolute left-0 -bottom-6">
                             {{ error }}
