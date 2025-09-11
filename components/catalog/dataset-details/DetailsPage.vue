@@ -59,6 +59,10 @@ const isOwned = computed(() => {
     return organizationId.value === monetizationData.value?.publisher?.organization_id;
 });
 const monetizationData = ref();
+const offerId = ref('');
+const feedbackUrl = computed(() =>
+    offerId.value ? `${config.public.cloudUrl}/usage-analytics/responses?assetId=${offerId.value}` : '#',
+);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -95,6 +99,10 @@ const fetchMetadata = async () => {
             // console.log('preis:' + purchaseOffer.price);
             monetizationData.value = metadata.value.result.monetization[0];
             price.value = monetizationData.value?.purchase_offer[0].price;
+            offerId.value = props.datasetId;
+        }
+        if (pistisMode == 'factory') {
+            offerId.value = metadata.value.result?.offer?.marketplace_offer_id;
         }
 
         setAccessID(data);
@@ -288,7 +296,7 @@ const truncatedEllipsedDescription = computed(() => {
                                 >Buy<span v-if="price">&nbsp;{{ price + '€' }}</span></KButton
                             >
                         </a>
-                        <a :href="`/usage-analytics/${datasetId}/questionnaire`" class="">
+                        <a :href="feedbackUrl" class="">
                             <KButton v-if="!isOwned" size="small">Provide Feedback</KButton>
                         </a>
                     </div>
@@ -344,9 +352,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <a :href="`/catalog/dataset-details/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
-                            <a :href="`/usage-analytics/${datasetId}/questionnaire`" class="link"
-                                ><KButton size="small">Provide Feedback</KButton></a
-                            >
+                            <a :href="feedbackUrl" class="link"><KButton size="small">Provide Feedback</KButton></a>
                         </div>
                     </template>
                 </section>
