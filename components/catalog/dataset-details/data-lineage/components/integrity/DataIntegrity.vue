@@ -90,6 +90,7 @@
 </template>
 
 <script setup>
+import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 
 import { useStore } from '@/components/catalog/dataset-details/data-lineage/stores/store';
@@ -100,7 +101,7 @@ import JsonViewer from '../data-display/json/JsonViewer.vue';
 // PROPS
 // ========================================
 
-const _props = defineProps({
+const props = defineProps({
     lineageId: {
         type: String,
         required: true,
@@ -159,7 +160,7 @@ const fetchBlockchainHash = async () => {
         loadingBlockchainHash.value = true;
         blockchainHashError.value = '';
 
-        const url = `${backendUrl}srv/lineage-tracker/blockchain-hash`;
+        const url = `${backendUrl}/srv/lineage-tracker/blockchain-hash`;
 
         const response = await axios.get(url, {
             params: {

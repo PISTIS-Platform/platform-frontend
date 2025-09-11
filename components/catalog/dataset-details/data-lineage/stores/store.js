@@ -1,32 +1,18 @@
 import axios from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-
-import mockCompare from './mock-compare.json';
 import mockData from './mock-lineage.json';
 
-const route = useRoute();
-const pistisMode = route.query.pm;
+const pistisMode = ref('');
+const backendUrl = ref('');
 
-const nuxtConfig = useRuntimeConfig();
-let backendUrl = '';
-if (pistisMode === 'factory') {
-    backendUrl = nuxtConfig.public.factoryUrl;
-} else {
-    backendUrl = nuxtConfig.public.cloudUrl;
-}
+const setPistisMode = (mode) => {
+    pistisMode.value = mode;
+};
 
-// Environment logging for debugging
-if (import.meta.env.DEV) {
-    console.log('Store Environment Config:', {
-        // FACTORY_OR_CLOUD: import.meta.env.VITE_FACTORY_OR_CLOUD,
-        BASE_API_HOST: import.meta.env.VITE_BASE_API_HOST,
-        KEYCLOAK_URL: import.meta.env.VITE_KEYCLOAK_URL,
-        KEYCLOAK_CLIENT_ID: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
-        KEYCLOAK_REALM: import.meta.env.VITE_KEYCLOAK_REALM,
-        EXTERNAL_LOGIN_URL: import.meta.env.VITE_EXTERNAL_LOGIN_URL,
-    });
-}
+const setBackendUrl = (url) => {
+    backendUrl.value = 'https://' + url;
+};
 
 export const useStore = defineStore('store', () => {
     // ========================================
@@ -109,30 +95,31 @@ export const useStore = defineStore('store', () => {
         diffError.value = null;
 
         const { data: session } = useAuth();
-        const _token = session.value?.token;
+        const token = session.value?.token;
 
         try {
-            // const url = `${backendUrl}srv/lineage-tracker/get_datasets_diff`;
-            // const isCloud = pistisMode === 'cloud';
+            const url = `${backendUrl.value}/srv/lineage-tracker/get_datasets_diff`;
+            const isCloud = pistisMode.value === 'cloud';
 
-            // const response = await axios.get(url, {
-            //     params: {
-            //         uuid_1: id1,
-            //         uuid_2: id2,
-            //         is_cloud: isCloud,
-            //     },
-            //     headers: {
-            //         Authorization: `Bearer ${token}`,
-            //         'Content-Type': 'application/json',
-            //         Accept: 'application/json',
-            //     },
-            // });
+            const response = await axios.get(url, {
+                params: {
+                    uuid_1: id1,
+                    uuid_2: id2,
+                    is_cloud: isCloud,
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+            });
 
-            // diffData.value = response.data;
+            diffData.value = response.data;
 
             // working with mockdata
-            const response = mockCompare;
-            diffData.value = response;
+            // const response = mockCompare;
+            // diffData.value = response;
+
 
             if (import.meta.env.DEV) {
                 console.log('Dataset comparison data received:', diffData.value);
@@ -154,8 +141,10 @@ export const useStore = defineStore('store', () => {
         }
 
         try {
-            const isCloud = pistisMode === 'cloud';
-            const url = `${backendUrl}/srv/lineage-tracker/get_dataset_family_tree`;
+
+            const isCloud = pistisMode.value === 'cloud';
+            const url = `${backendUrl.value}/srv/lineage-tracker/get_dataset_family_tree`;
+
 
             const response = await axios.get(url, {
                 params: {
@@ -304,6 +293,7 @@ export const useStore = defineStore('store', () => {
         diffError,
 
         // Actions
+        setPistisMode,
         addToDiff,
         resetDiff,
         toggleCompareVisibility,
@@ -313,6 +303,7 @@ export const useStore = defineStore('store', () => {
         parseTableData,
         selectTableFilter,
         loadMockData,
+        setBackendUrl,
 
         // Utilities (exposed for components that need them)
         capitalizeFirstLetter,

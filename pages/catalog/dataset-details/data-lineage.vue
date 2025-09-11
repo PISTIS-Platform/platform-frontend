@@ -78,8 +78,7 @@
                             :selected-diff="store.selectedDiff"
                         />
                         <Compare v-if="store.displayState === 'diff'" :cloud-mode="!isFactory" />
-                        <!-- <DataIntegrity v-if="store.displayState === 'integrity' && isFactory" :lineage-id="lineageID" /> -->
-                        <!-- <DataIntegrity :lineage-id="lineageID" /> -->
+                        <DataIntegrity v-if="store.displayState === 'integrity' && isFactory" :lineage-id="lineageID" />
                     </div>
                 </div>
             </div>
@@ -101,19 +100,26 @@ import { useStore } from '@/components/catalog/dataset-details/data-lineage/stor
 // ========================================
 
 // Environment configuration
-// const isFactory = ref(config.keycloak.factory_or_cloud?.toLowerCase() === 'factory');
+const route = useRoute();
+const pistisMode = route.query.pm;
+const backendUrl = route.query.url;
+const isFactory = ref(pistisMode === 'factory');
 
 // Route and store setup
-const route = useRoute();
-const _lineageID = route.query.id;
+
+const lineageID = route.query.id;
+
 const { data: session } = useAuth();
 
 const store = useStore();
 
-const _token = session.value?.token;
+store.setPistisMode(pistisMode);
+store.setBackendUrl(backendUrl);
+
+const token = session.value?.token;
 // Initialize data fetch
-// store.fetchData(lineageID, token);
-store.loadMockData();
+store.fetchData(lineageID, token);
+// store.loadMockData();
 
 // ========================================
 // CONSTANTS

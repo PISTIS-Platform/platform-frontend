@@ -1,5 +1,6 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
+
 import 'vue-sonner/style.css';
 
 import axios from 'axios';
@@ -35,20 +36,24 @@ const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
 
+
 const { data: session } = useAuth();
 
 const token = ref(session.value?.token);
 
-let searchUrl = '';
+let url = '';
+
 if (pistisMode === 'factory') {
-    searchUrl = config.public.factoryUrl + '/srv/search/';
+    url = config.public.factoryUrl;
 } else {
-    searchUrl = config.public.cloudUrl + '/srv/search/';
+    url = config.public.cloudUrl;
 }
+const searchUrl = url + '/srv/search/';
 
 const userFactoryUrl = config.public.cloudUrl + '/srv/factories-registry/api/factories/user-factory';
 const distributionID = ref(null);
-const accessID = ref(null);
+const accessID = ref('');
+const backendUrl = ref('');
 const metadata = ref(null);
 const organizationId = ref(null);
 const catalog = ref(null);
@@ -73,8 +78,14 @@ const setAccessID = async (data) => {
         let accessIDFound = false;
         for (const distribution of data['result']['distributions']) {
             if (distribution['access_url'] && distribution['access_url'][0]) {
-                const parts = distribution['access_url'][0].split('asset_uuid=');
-                accessID.value = parts[parts.length - 1];
+                const url = new URL(distribution['access_url'][0]);
+                // const parts = distribution['access_url'][0].split('asset_uuid=');
+                // accessID.value = parts[parts.length - 1];
+                const parts = url.searchParams.get('asset_uuid');
+                accessID.value = parts;
+
+                backendUrl.value = url.hostname;
+
                 accessIDFound = true;
                 break;
             }
@@ -301,11 +312,13 @@ const truncatedEllipsedDescription = computed(() => {
                         </a>
                     </div>
                     <!-- Data Lineage (Button placements should be discussed together)-->
-                    <div class="ml-5">
+
+                    <div>
                         <NuxtLink
                             :to="{
                                 path: '/catalog/dataset-details/data-lineage',
-                                query: { id: datasetId, pm: pistisMode },
+                                query: { id: accessID, pm: pistisMode, url: backendUrl },
+
                             }"
                             class=""
                         >
@@ -323,13 +336,14 @@ const truncatedEllipsedDescription = computed(() => {
                             <NuxtLink
                                 :to="{
                                     path: '/catalog/dataset-details/data-lineage',
-                                    query: { id: datasetId, pm: pistisMode },
+                                    query: { id: accessID, pm: pistisMode, url: backendUrl },
                                 }"
                                 class=""
                             >
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
                             </NuxtLink>
-                            <a :href="`/catalog/dataset-details/${datasetId}/quality`" class="link"
+
+                            <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
                             <a :href="`/data/publish-data/${datasetId}`" class="link"
@@ -343,13 +357,17 @@ const truncatedEllipsedDescription = computed(() => {
                             <NuxtLink
                                 :to="{
                                     path: '/catalog/dataset-details/data-lineage',
-                                    query: { id: datasetId, pm: pistisMode },
+
+                                    query: { id: accessID, pm: pistisMode, url: backendUrl },
+
                                 }"
                                 class=""
                             >
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
                             </NuxtLink>
-                            <a :href="`/catalog/dataset-details/${datasetId}/quality`" class="link"
+
+                            <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
+
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
                             <a :href="feedbackUrl" class="link"><KButton size="small">Provide Feedback</KButton></a>
