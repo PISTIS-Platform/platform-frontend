@@ -178,6 +178,7 @@ const showPassword = ref(false);
                             v-for="choice in streamingGranularityChoices"
                             :key="choice.value"
                             :text="choice.tooltip"
+                            :ui="{ width: 'max-w-2xl', base: 'text-wrap' }"
                         >
                             <URadio v-model="state.granularity" v-bind="choice" />
                         </UTooltip>
