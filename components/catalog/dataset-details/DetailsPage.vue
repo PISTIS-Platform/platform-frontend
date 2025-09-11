@@ -1,5 +1,6 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
+
 import 'vue-sonner/style.css';
 
 import axios from 'axios';
@@ -34,6 +35,7 @@ const props = withDefaults(
 const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
+
 
 const { data: session } = useAuth();
 
@@ -310,8 +312,8 @@ const truncatedEllipsedDescription = computed(() => {
                         </a>
                     </div>
                     <!-- Data Lineage (Button placements should be discussed together)-->
-
                     <div class="ml-5">
+
                         <NuxtLink
                             :to="{
                                 path: '/catalog/dataset-details/data-lineage',
@@ -356,6 +358,7 @@ const truncatedEllipsedDescription = computed(() => {
                                     path: '/catalog/dataset-details/data-lineage',
 
                                     query: { id: accessID, pm: pistisMode, url: backendUrl },
+
                                 }"
                                 class=""
                             >
@@ -363,6 +366,7 @@ const truncatedEllipsedDescription = computed(() => {
                             </NuxtLink>
 
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
+
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
                             <a :href="feedbackUrl" class="link"><KButton size="small">Provide Feedback</KButton></a>
