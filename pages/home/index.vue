@@ -149,7 +149,7 @@ const { page, paginatedRows, sortBy } = useTable(transactionsData, pageCount, so
 
 <template>
     <PageContainer>
-        <div class="w-full h-full">
+        <div class="w-full h-full px-6 xl:px-0">
             <!-- Cards Info -->
             <div v-if="balanceStatus === 'pending'" class="flex w-full gap-4 mt-8">
                 <USkeleton
