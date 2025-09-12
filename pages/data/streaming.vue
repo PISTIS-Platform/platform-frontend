@@ -54,6 +54,16 @@ const streamingGranularityChoices = [
     },
 ];
 
+const selectedFormat = computed(() =>
+    streamingFormatChoices.find((item: { label: string; value: string }) => item.value === state.format),
+);
+
+const selectedGranularity = computed(() =>
+    streamingGranularityChoices.find(
+        (item: { label: string; value: string; tooltip: string }) => item.value === state.granularity,
+    ),
+);
+
 const state = reactive({
     title: undefined,
     description: undefined,
@@ -204,6 +214,16 @@ const showPassword = ref(false);
                         <span class="flex items-center gap-2 font-bold"
                             >{{ $t('data.streaming.descriptionPlain') }}:
                             <span class="font-normal font-mono">{{ data.description }}</span>
+                        </span>
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.format') }}:
+                            <span class="font-normal font-mono">{{ selectedFormat?.label }}</span>
+                        </span>
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.granularity.title') }}:
+                            <span class="font-normal font-mono"
+                                >{{ selectedGranularity?.label }} ({{ selectedGranularity?.tooltip }})</span
+                            >
                         </span>
                         <span class="flex items-center gap-2 font-bold"
                             >{{ $t('data.streaming.catalogLink') }}:
