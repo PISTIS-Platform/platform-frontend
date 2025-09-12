@@ -7,19 +7,49 @@ import { useAnonymizerStore } from '~/store/anonymizer';
 import Title from '../../components/anonymizer/Title.vue';
 import { getSensitiveColumns } from './data';
 
+/**
+ * Translater for this page.
+ */
 const { t } = useI18n();
 
+/**
+ * Title for this page.
+ */
 const title = t('anonymizer.anonymizer');
 
+/**
+ * Reference to the anonymiser pinia store.
+ */
 const anonymizerStore = useAnonymizerStore();
+
+/**
+ * Reference to the nuxt router.
+ */
 const router = useRouter();
 
+/**
+ * Trigger for discard button loading animation
+ */
 const discardButtonLoading = ref(false);
+
+/**
+ * Trigger for apply button loading animation
+ */
 const applyButtonLoading = ref(false);
 
+/**
+ * Rows to be displayed in the dataset table.
+ */
 const rows = ref<TableRow[]>(anonymizerStore.getTableRows);
+
+/**
+ * A list of sensitive column names.
+ */
 const sensitiveColumns = ref<string[]>(getSensitiveColumns(anonymizerStore.getReport));
 
+/**
+ * When anonymiser store mutates state update rows, sensitive column names and file data.
+ */
 anonymizerStore.$subscribe((mutation, state) => {
     rows.value = state.tableRows;
     sensitiveColumns.value = getSensitiveColumns(state.report);
@@ -105,11 +135,9 @@ async function discardChanges(): Promise<void> {
                 </p>
                 <UButton class="w-44" to="/anonymizer/k-anonymity">k-Anonymity</UButton>
 
-                <!-- Temporarily disabled while differential privacy is not in place
-                <h3 class="font-bold">Differential Privacy</h3>
-                <p>Inject noise into your dataset so that personally identifiable information is obscured.</p>
-                <UButton class="w-44">Differential Privacy</UButton>
-                -->
+                <h3 class="font-bold">Synthetic Data</h3>
+                <p>Replace your data with synthetic data that maintains its statistical properties.</p>
+                <UButton class="w-44" to="/anonymizer/synth">Synthesize Data</UButton>
             </div>
         </UCard>
     </div>

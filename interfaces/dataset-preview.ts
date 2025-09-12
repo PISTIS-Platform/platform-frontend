@@ -1,7 +1,13 @@
+/**
+ * Represents dataset as fetched from the anonymiser backend.
+ */
 export interface Dataset {
     [key: string | number]: (string | null)[] | (number | null)[];
 }
 
+/**
+ * Represents data metadata as fetched from the anonymiser backend.
+ */
 export interface Metadata {
     types: {
         [key: string | number]: string;
@@ -44,17 +50,43 @@ export interface Report {
     };
 }
 
+/**
+ * Represents a row of tabular data as accepted by nuxt ui's table component.
+ */
 export interface TableRow {
     [key: string | number]: string | number;
 }
 
+/**
+ * Represents the result of a call to an anonymiser backend preview component.
+ */
 export interface Preview {
     dataset: Dataset;
     metadata: Metadata;
     report: Report;
 }
 
+/**
+ * Stores a preview of a dataset that has had k-anonymity applied to it.
+ */
+export interface KAnonPreview {
+    dataset: string[][];
+    riskMetrics: RiskMetrics;
+}
+
+/**
+ * Represents a solution object as retrieved from the anonymiser backend.
+ */
 export interface Solution {
     transformation: { [key: string | number]: number };
     informationLoss: string;
+}
+
+/**
+ * Stores data about the risk of reidentification posed to a dataset.
+ */
+export interface RiskMetrics {
+    recordsAtRisk: number;
+    highestRisk: number;
+    successRate: number;
 }
