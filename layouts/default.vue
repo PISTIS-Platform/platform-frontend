@@ -11,7 +11,6 @@ import { useRoute } from 'vue-router';
 
 import { useMessagesStore } from '~/store/messages';
 
-// const config = useRuntimeConfig();
 const route = useRoute();
 
 const messagesStore = useMessagesStore();
@@ -51,7 +50,7 @@ const navigation = ref([
         target: '_self',
         icon: '',
     },
-    { name: 'market.market', to: '/market', target: '_self', icon: '', external: false },
+    { name: 'market.market', to: '/market-insights', target: '_self', icon: '', external: false },
 ]);
 
 const userNavigation: { name: string; href: string }[] = [
@@ -86,14 +85,14 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
 function isActive(item: any) {
     const targetPath = typeof item.to === 'string' ? item.to : item.to.path;
     const currentPath = route.path;
-    return currentPath === targetPath;
+    return currentPath.startsWith(targetPath);
 }
 </script>
 
 <template>
     <div class="h-full flex flex-col">
         <Disclosure v-slot="{ open }" as="nav" class="bg-primary-700 sticky top-0 z-50">
-            <div class="mx-auto px-8 max-w-7xl">
+            <div class="mx-auto px-8 max-w-[1600px]">
                 <div class="flex h-16 items-center justify-between">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
