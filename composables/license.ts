@@ -38,6 +38,7 @@ export const useLicenseSchema = () => {
                         },
                     ),
             ]),
+            nftLicenseText: z.string().optional(),
             limitFrequency: z.string().min(1, t('val.required')),
             isExclusive: z.boolean().optional(),
             region: z.string().array().optional(),

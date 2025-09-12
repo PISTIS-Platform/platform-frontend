@@ -175,11 +175,22 @@ policyData.push(defaultPolicy);
 
 const submitStatus = ref();
 
+const hashLicense = async (licenseText: string) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(licenseText);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+    // Convert ArrayBuffer to hex string
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+};
+
 const submitAll = async () => {
     submitStatus.value = 'pending';
     let body;
 
     if (monetizationDetails.value.type === 'nft') {
+        const hashedNFTLicense = await hashLicense(licenseDetails.value.nftLicenseText!);
         body = {
             type: 'nft',
             price: monetizationDetails.value.price,
@@ -191,8 +202,9 @@ const submitAll = async () => {
                 name: assetOfferingDetails.value.title,
                 description: assetOfferingDetails.value.description,
                 issuerName: 'PISTIS MARKET',
+                //FIXME: What to do with URL? Where to display NFT license?
                 nft_license: 'https://pistis-market.eu/...',
-                nft_license_hash: 'abc123def456...',
+                nft_license_hash: hashedNFTLicense,
             },
         };
     } else {
