@@ -10,12 +10,12 @@ defineProps<{
 </script>
 
 <template>
-    <div class="flex flex-col flex-1">
+    <div class="flex flex-col flex-1 w-full">
         <Disclosure as="nav" class="bg-white shadow-sm sticky top-0 z-40">
-            <div class="mx-auto px-2 max-w-7xl">
+            <div class="mx-auto max-w-7xl">
                 <div class="flex h-12 justify-start">
                     <div class="flex">
-                        <div class="-my-px ml-6 flex space-x-8">
+                        <div class="-my-px flex space-x-8">
                             <NuxtLink
                                 v-for="item in navigation"
                                 :key="item.name"
@@ -33,7 +33,7 @@ defineProps<{
             </div>
         </Disclosure>
 
-        <div class="py-6 justify-center items-center px-8 flex flex-col flex-1 max-w-7xl mx-auto w-full">
+        <div class="py-6 justify-center items-center flex flex-col flex-1 max-w-7xl mx-auto w-full">
             <slot />
         </div>
     </div>

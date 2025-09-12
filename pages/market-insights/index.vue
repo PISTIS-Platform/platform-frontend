@@ -142,7 +142,7 @@ const performingColumns = [
 
 <template>
     <PageContainer>
-        <RollingAssetsBar v-if="assets" :assets="assets" />
+        <RollingAssetsBar v-if="assets" :assets="assets" class="mt-6" />
         <div class="flex flex-row w-full mt-6">
             <div class="flex flex-col w-1/2">
                 <div class="flex flex-row mr-6 mb-6">
