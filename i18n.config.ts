@@ -205,9 +205,9 @@ export default defineI18nConfig(() => ({
                     warning: 'Warning',
                     pleaseSave: 'Please save your credentials below as you will not be able to recover them otherwise.',
                     plainText: 'Plain Text',
-                    format: 'Format',
+                    format: 'Message Format',
                     granularity: {
-                        title: 'Granularity',
+                        title: 'Publishing Rate',
                         realTime: 'Real-time',
                         frequent: 'Frequent',
                         regular: 'Regular',

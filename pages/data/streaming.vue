@@ -180,15 +180,11 @@ const showPassword = ref(false);
                     </template>
                 </UFormGroup>
                 <UFormGroup :label="$t('data.streaming.granularity.title')" name="granularity">
-                    <div class="flex items-center gap-2">
-                        <UTooltip
-                            v-for="choice in streamingGranularityChoices"
-                            :key="choice.value"
-                            :text="choice.tooltip"
-                            :ui="{ width: 'max-w-2xl', base: 'text-wrap' }"
-                        >
+                    <div class="flex flex-col gap-2">
+                        <div v-for="choice in streamingGranularityChoices" :key="choice.value" class="flex gap-4">
                             <URadio v-model="state.granularity" v-bind="choice" />
-                        </UTooltip>
+                            <span class="text-sm text-neutral-500">{{ choice.tooltip }}</span>
+                        </div>
                     </div>
                     <template #error="{ error }">
                         <div class="absolute left-0 -bottom-6">
