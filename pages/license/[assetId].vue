@@ -20,7 +20,7 @@ const content = DOMPurify.sanitize(urlDecodedString);
 </script>
 
 <template>
-    <div class="w-full h-full space-y-6">
+    <div class="w-full h-full space-y-6 mt-6">
         <PageContainer>
             <UCard class="w-full h-full space-y-6">
                 <div class="text-gray-800 px-8 h-full">
