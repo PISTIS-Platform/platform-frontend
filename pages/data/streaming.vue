@@ -96,10 +96,7 @@ const onSubmit = async () => {
             saslMechanism: string;
         }>(`/api/connector/get-streaming-details`, {
             method: 'POST',
-            body: {
-                title: state.title,
-                description: state.description,
-            },
+            body: state,
         });
         data.value.id = details.id;
         data.value.topic = details.topic;
