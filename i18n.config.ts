@@ -494,6 +494,7 @@ export default defineI18nConfig(() => ({
                 },
                 usage: {
                     title: 'Data Usage and Intensions Analytics',
+                    analytics: 'Usage Analytics',
                     questionnaire: 'Questionnaire',
                     dashboard: 'Dashboard',
                     questionnaireInfo: 'Display the questionnaire for selected dataset',
@@ -607,6 +608,7 @@ export default defineI18nConfig(() => ({
             },
             marketplace: {
                 marketplace: 'Marketplace',
+                pistisMarketplace: 'PISTIS Marketplace',
                 details: 'Details',
                 overview: 'Overview',
                 auditor: 'Auditor',
