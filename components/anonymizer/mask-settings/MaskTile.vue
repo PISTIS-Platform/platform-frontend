@@ -16,7 +16,13 @@ import Location from './Location.vue';
 import None from './None.vue';
 import Range from './Range.vue';
 
-//get default and masks from anonymizerStore instead
+/**
+ * Defines custom properties for the MaskTile component.
+ * Accepted properties are:
+ *  - column - name of the column.
+ *  - masks - list of available masks.
+ *  - default - name of the mask to display by default.
+ */
 const props = defineProps({
     column: {
         type: String,
@@ -32,11 +38,19 @@ const props = defineProps({
     },
 });
 
+/**
+ * List of mask names.
+ */
 const maskNames: string[] = props.masks.map((mask) => mask.name);
 
-//Should emit current mask and config
+/**
+ * Defines and emit that occurs when the configuration of the MaskTile changes.
+ */
 const emit = defineEmits(['configChange']);
 
+/**
+ * Configuraton of the mask tile.
+ */
 const config = reactive<ConfigEmit>({
     mask: props.default,
     config: {
@@ -44,9 +58,14 @@ const config = reactive<ConfigEmit>({
     },
 });
 
+/**
+ * Reference to the anonymiser pinia store.
+ */
 const anonymizerStore = useAnonymizerStore();
 
-//For updating mask recommendations after an obfuscation
+/**
+ * Listen for changes in the anonymiser pinia store state and update the mask tile accordingly
+ */
 anonymizerStore.$subscribe((mutation, state) => {
     const recommendation = state.metadata.recommendation[props.column];
     if (recommendation) {
@@ -57,7 +76,12 @@ anonymizerStore.$subscribe((mutation, state) => {
     }
 });
 
-const maskMap: { [key: string]: any } = {
+/**
+ * list of all possible mask settings components.
+ */
+const maskMap: {
+    [key: string]: typeof Delete | typeof Faker | typeof Hash | typeof Location | typeof None | typeof Range;
+} = {
     delete: Delete,
     faker: Faker,
     hash: Hash,
@@ -66,34 +90,77 @@ const maskMap: { [key: string]: any } = {
     range: Range,
 };
 
-//Mask name maps to the component names found in mask-settings
-//Used to dynamically load mask components by name
+/**
+ * Get a mask component from the mask map
+ *
+ * @param maskName name of the mask
+ * @return the mask settings component
+ */
 function loadMaskComponent(maskName: string) {
     return maskMap[maskName];
 }
 
+/**
+ * Update the MaskTile's current configuration.
+ *
+ * @param settings Settings object to merge. All keys from the settings object will be added to the configuration
+ */
 function updateConfig(settings: LocationSettings | RangeSettings | HashSettings | FakerSettings) {
     Object.assign(config.config, settings);
 }
 
+/**
+ * Clear the configuration of all irrelevant keys.
+ */
 function clearConfig() {
+    var preservedField;
+
+    switch (config.mask) {
+        case 'faker':
+            preservedField = 'replacer';
+            break;
+
+        case 'hash':
+            preservedField = 'classification';
+            break;
+
+        case 'location':
+            preservedField = 'isLat';
+            break;
+
+        case 'range':
+            preservedField = 'interval';
+            break;
+
+        default:
+            preservedField = 'none';
+            break;
+    }
+
     for (const [key] of Object.entries(config.config)) {
-        if (key !== 'name') {
+        if (key !== 'name' && key !== preservedField) {
             delete config.config[key];
         }
     }
 }
 
+/**
+ * What for configuration changes and emit the changes.
+ */
 watch(config, () => {
     emit('configChange', config);
 });
 
+/**
+ * Emit the configuration on initialisation.
+ */
 onMounted(() => {
     emit('configChange', config);
 });
 </script>
 
 <template>
+    <!--Container for displaying mask settings menus.-->
     <div class="flex flex-col gap-2 min-w-[17rem] border p-2 rounded-md shadow-md bg-pistis-50">
         <h3 class="text-md font-bold">{{ props.column }}</h3>
         <USelect v-model="config.mask" :options="maskNames" @change="clearConfig" />

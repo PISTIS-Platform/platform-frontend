@@ -7,47 +7,97 @@ import { useAnonymizerStore } from '~/store/anonymizer';
 
 import Title from '../../components/anonymizer/Title.vue';
 import { formatPreview } from './data';
-
+/**
+ * Translater for the page.
+ */
 const { t } = useI18n();
 
+/**
+ * Title of the page
+ */
 const title: string = `${t('anonymizer.anonymizer')} - ${t('anonymizer.obfuscation')}`;
+
+/**
+ * Reference to the anonymiser pinia store
+ */
 const anonymizerStore = useAnonymizerStore();
+
+/**
+ * Reference to nuxt router.
+ */
 const router = useRouter();
 
-//Preview before anonymization
+/**
+ * Preview of the dataset before anonymisation.
+ */
 const rawPreview = reactive({
     rows: anonymizerStore.tableRows,
     columns: anonymizerStore.metadata.types,
     recommendation: anonymizerStore.metadata.recommendation,
 });
 
+/**
+ * Update preview on mutation of pinia store state.
+ */
 anonymizerStore.$subscribe((mutation, state) => {
     rawPreview.rows = state.tableRows;
     rawPreview.columns = state.metadata.types;
     rawPreview.recommendation = state.metadata.recommendation;
 });
 
-//Table rows after anonymization
+/**
+ * Obfuscated data to be displayed in a table.
+ */
 const obfuscatedRows = ref<TableRow[]>([]);
 
-//Masks sorted by applicable data type
+/**
+ * Boolean that indicates whether masks are available
+ */
 const masksAreLoaded = ref<boolean>(false);
+
+/**
+ * List of all masks stored by data type that they are applicable to.
+ */
 const masks = ref<SortedMasks>({ STRING: [], NUMBER: [] });
 
-//Request body used for obfuscation and obfuscation preview
+/**
+ * Request body to be sent to anonymiser obfuscation endpoints.
+ */
 const obfuscationBody = reactive<ObfuscationBody>({});
+
+/**
+ * Boolean flag that will hide the obfuscation preview.
+ */
 const hidePreview = ref<boolean>(true);
+
+/**
+ * Trigger for the preview transformation button loading animation.
+ */
 const loadingPreview = ref<boolean>(false);
+
+/**
+ * Trigger for the apply transformation button loading animation
+ */
 const submittingObfuscation = ref<boolean>(false);
 
-//Get list of available masks from the anonymizer
+/**
+ * Fetch a list of available masks from the backend.
+ *
+ * @returns A promise containing a list of masks sorted by data type.
+ */
 async function loadAvailableMasks(): Promise<SortedMasks> {
     const response = await useFetch('/api/anonymizer/mask');
     const masks = response.data.value;
     return masks.result;
 }
 
-//Reconfigure request body
+/**
+ * Add a configuration to the `obfuscationBody`. If the column
+ * name already exists in the `obfuscationBody` it is removed and
+ * the new config will replace it.
+ *
+ * @param config configuration to add to the `obfuscationBody`
+ */
 function configureBody(config: ConfigEmit): void {
     //Remove previous occurences of the column's config
     for (const [mask, columns] of Object.entries(obfuscationBody)) {
@@ -71,6 +121,11 @@ function configureBody(config: ConfigEmit): void {
     }
 }
 
+/**
+ * Anonymise the dataset.
+ *
+ * @param isPreview If `true` only the preview will be loaded into the preview table. Otherwise update the dataset in the postgres database.
+ */
 async function submitObfuscation(isPreview: boolean): Promise<void> {
     //Check if one column is altered
     if (Object.keys(obfuscationBody).length === 0) {
@@ -93,14 +148,13 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
             loadingPreview.value = true;
 
             //Fetch a preview of the obfuscation
-            let response = await useFetch('/api/anonymizer/preview', {
+            let dataset = (await $fetch('/api/anonymizer/preview', {
                 method: 'POST',
                 body: {
                     config: obfuscationBody,
                 },
-            });
+            })) as Dataset;
 
-            let dataset = response.data.value as Dataset;
             obfuscatedRows.value = formatPreview(dataset);
 
             loadingPreview.value = false;
@@ -136,6 +190,9 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
     }
 }
 
+/**
+ * Load mask types on mount.
+ */
 onMounted(async () => {
     //Load needed information from the anonymizer
     if (anonymizerStore.getMasks.STRING.length === 0) {

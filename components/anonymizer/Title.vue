@@ -8,6 +8,7 @@ const props = defineProps({
 </script>
 
 <template>
+    <!--Displays the title passed in the props-->
     <div class="w-full mb-10">
         <h1 class="text-2xl">{{ props.title }}</h1>
     </div>

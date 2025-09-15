@@ -2,6 +2,8 @@
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
+import { StreamingFormat, StreamingGranularity } from '~/constants/streaming';
+
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();
@@ -9,14 +11,71 @@ const {
 const { t } = useI18n();
 const { showErrorMessage } = useAlertMessage();
 
+const streamingFormatChoices = [
+    {
+        label: 'CSV',
+        value: StreamingFormat.CSV,
+    },
+    {
+        label: 'JSON',
+        value: StreamingFormat.JSON,
+    },
+    {
+        label: t('data.streaming.plainText'),
+        value: StreamingFormat.TEXT,
+    },
+];
+
+const streamingGranularityChoices = [
+    {
+        label: t('data.streaming.granularity.realTime'),
+        tooltip: t('data.streaming.granularityTooltip.realTime'),
+        value: StreamingGranularity.REAL_TIME,
+    },
+    {
+        label: t('data.streaming.granularity.frequent'),
+        tooltip: t('data.streaming.granularityTooltip.frequent'),
+        value: StreamingGranularity.FREQUENT,
+    },
+    {
+        label: t('data.streaming.granularity.regular'),
+        tooltip: t('data.streaming.granularityTooltip.regular'),
+        value: StreamingGranularity.REGULAR,
+    },
+    {
+        label: t('data.streaming.granularity.infrequent'),
+        tooltip: t('data.streaming.granularityTooltip.infrequent'),
+        value: StreamingGranularity.INFREQUENT,
+    },
+    {
+        label: t('data.streaming.granularity.unspecified'),
+        tooltip: t('data.streaming.granularityTooltip.unspecified'),
+        value: StreamingGranularity.UNSPECIFIED,
+    },
+];
+
+const selectedFormat = computed(() =>
+    streamingFormatChoices.find((item: { label: string; value: string }) => item.value === state.format),
+);
+
+const selectedGranularity = computed(() =>
+    streamingGranularityChoices.find(
+        (item: { label: string; value: string; tooltip: string }) => item.value === state.granularity,
+    ),
+);
+
 const state = reactive({
     title: undefined,
     description: undefined,
+    format: streamingFormatChoices[0].value,
+    granularity: streamingGranularityChoices[4].value,
 });
 
 const schema = z.object({
     title: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
     description: z.string().min(5, t('val.atLeastNumberChars', { count: 5 })),
+    format: z.string().min(1, t('required')),
+    granularity: z.string().min(1, t('required')),
 });
 
 const loading = ref(false);
@@ -37,10 +96,7 @@ const onSubmit = async () => {
             saslMechanism: string;
         }>(`/api/connector/get-streaming-details`, {
             method: 'POST',
-            body: {
-                title: state.title,
-                description: state.description,
-            },
+            body: state,
         });
         data.value.id = details.id;
         data.value.topic = details.topic;
@@ -51,6 +107,8 @@ const onSubmit = async () => {
         data.value.brokerUrls = details.bootstrapServers;
         data.value.securityProtocol = details.securityProtocol;
         data.value.saslMechanism = details.saslMechanism;
+        data.value.format = state.format;
+        data.value.granularity = state.granularity;
 
         loaded.value = true;
     } catch (err: any) {
@@ -99,7 +157,35 @@ const showPassword = ref(false);
                     </template>
                 </UFormGroup>
                 <UFormGroup :label="$t('data.streaming.description')" name="description">
-                    <UInput v-model="state.description" :disabled="loaded" :ui="{ base: 'disabled:opacity-40' }" />
+                    <UTextarea v-model="state.description" :disabled="loaded" :ui="{ base: 'disabled:opacity-40' }" />
+                    <template #error="{ error }">
+                        <div class="absolute left-0 -bottom-6">
+                            {{ error }}
+                        </div>
+                    </template>
+                </UFormGroup>
+                <UFormGroup :label="$t('data.streaming.format')" name="format">
+                    <div class="flex items-center gap-2">
+                        <URadio
+                            v-for="choice in streamingFormatChoices"
+                            :key="choice.value"
+                            v-model="state.format"
+                            v-bind="choice"
+                        />
+                    </div>
+                    <template #error="{ error }">
+                        <div class="absolute left-0 -bottom-6">
+                            {{ error }}
+                        </div>
+                    </template>
+                </UFormGroup>
+                <UFormGroup :label="$t('data.streaming.granularity.title')" name="granularity">
+                    <div class="flex flex-col gap-2">
+                        <div v-for="choice in streamingGranularityChoices" :key="choice.value" class="flex gap-4">
+                            <URadio v-model="state.granularity" v-bind="choice" />
+                            <span class="text-sm text-neutral-500">{{ choice.tooltip }}</span>
+                        </div>
+                    </div>
                     <template #error="{ error }">
                         <div class="absolute left-0 -bottom-6">
                             {{ error }}
@@ -121,6 +207,16 @@ const showPassword = ref(false);
                         <span class="flex items-center gap-2 font-bold"
                             >{{ $t('data.streaming.descriptionPlain') }}:
                             <span class="font-normal font-mono">{{ data.description }}</span>
+                        </span>
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.format') }}:
+                            <span class="font-normal font-mono">{{ selectedFormat?.label }}</span>
+                        </span>
+                        <span class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.streaming.granularity.title') }}:
+                            <span class="font-normal font-mono"
+                                >{{ selectedGranularity?.label }} ({{ selectedGranularity?.tooltip }})</span
+                            >
                         </span>
                         <span class="flex items-center gap-2 font-bold"
                             >{{ $t('data.streaming.catalogLink') }}:

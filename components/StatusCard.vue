@@ -12,7 +12,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="py-1 pr-6">
+    <div class="py-1 pr-2">
         <div class="w-full flex justify-between items-center">
             <span class="text-sm text-gray-500">{{ props.title }}</span>
             <div v-if="props.active === 'N/A'" class="text-xs text-gray-500">{{ 'N/A' }}</div>
