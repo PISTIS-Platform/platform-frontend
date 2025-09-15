@@ -27,7 +27,7 @@ loadData();
             :key="dataset.dataset_id"
             class="block border rounded-lg border-pistis-500 p-3 mb-4 hover:bg-pistis-100"
             :to="{
-                name: 'catalog-dataset-details-datasetId',
+                name: 'my-data-catalog-dataset-details-datasetId',
                 params: { datasetId: dataset.dataset_id },
                 query: { pm: 'cloud' },
             }"

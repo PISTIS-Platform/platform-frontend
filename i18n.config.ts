@@ -603,6 +603,7 @@ export default defineI18nConfig(() => ({
             },
             catalog: {
                 catalog: 'My Data',
+                title: 'Catalog',
             },
             marketplace: {
                 marketplace: 'Marketplace',

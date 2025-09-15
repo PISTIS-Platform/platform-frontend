@@ -30,10 +30,7 @@ const navigation = ref([
     {
         name: 'catalog.catalog',
         to: {
-            path: '/catalog',
-            query: {
-                pm: 'factory',
-            },
+            path: '/my-data/catalog',
         },
         target: '_self',
         icon: '',
