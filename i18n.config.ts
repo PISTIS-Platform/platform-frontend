@@ -179,6 +179,9 @@ export default defineI18nConfig(() => ({
                 hide: 'Hide',
                 noNotifications: 'No notifications available.',
             },
+            dataAnalytics: {
+                title: 'Data Analytics',
+            },
             data: {
                 data: 'Data Ingestion',
                 gdpr: 'GPDR Checker Results:',
