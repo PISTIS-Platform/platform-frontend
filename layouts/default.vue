@@ -89,7 +89,6 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
 function isActive(item: any) {
     const targetPath = typeof item.to === 'string' ? item.to : item.to.path;
     const currentPath = route.path;
-    console.log(currentPath);
     return currentPath.split('/')[1] === targetPath.replace('/', '');
 }
 </script>

@@ -7,7 +7,6 @@ const routes = ref([
     { name: 'data.insightGenerator', to: '/data/insight-generator' },
     // { name: 'data.analyticsEngine', to: '/srv/analytics-engine' },
     // { name: 'data.mlModelEditor', to: '/srv/ml-model-editor' },
-    { name: 'data.investmentPlanner.title', to: '/data/investment-planner' },
     // { name: 'data.anonymizer', to: '/data/anonymizer' },
     // { name: 'data.designer.title', to: '/data/publish-data' },
 ]);
