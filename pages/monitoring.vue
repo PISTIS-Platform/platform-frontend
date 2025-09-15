@@ -40,10 +40,10 @@ const computedResourcesUsageStats = computed(() => {
 </script>
 
 <template>
-    <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full">
+    <div class="justify-center items-center px-6 xl:px-0 max-w-7xl mx-auto w-full">
         <PageContainer>
             <div class="flex flex-col w-full mt-8">
-                <div class="grid grid-cols-2 gap-8 place-items-stretch">
+                <div class="flex gap-8 flex-wrap xl:flex-nowrap">
                     <!-- Components statuses -->
                     <UCard :ui="{ base: 'w-full' }">
                         <template #header>
@@ -59,7 +59,7 @@ const computedResourcesUsageStats = computed(() => {
                                         :active="item.active"
                                     />
                                 </div>
-                                <div class="flex flex-col gap-1 w-full pl-4">
+                                <div class="flex flex-col gap-1 w-full pl-2">
                                     <StatusCard
                                         v-for="item in componentStatusData?.slice(halfItems)"
                                         :key="item.title"

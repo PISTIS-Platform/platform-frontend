@@ -283,7 +283,7 @@ const runJobConfigurator = async (services: [string]) => {
 </script>
 
 <template>
-    <div class="container mx-auto p-4 bg-white border-4 border-white rounded-md space-y-6">
+    <div class="w-full mx-auto p-4 bg-white border border-1 rounded-lg space-y-6">
         <div class="form-container rounded-md bg-white space-y-4 p-4">
             <label for="datasetDefinition" class="block text-sm font-extrabold text-neutral-700">{{
                 $t('data.datasetDefinition')
