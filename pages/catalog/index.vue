@@ -14,9 +14,9 @@ import { useDatasetSearchView } from './useDatasetsSearchView';
 import { useSearchParams } from './useSearchParams';
 import { useSelectedFacets } from './useSelectedFacets';
 
-const route = useRoute();
+// const route = useRoute();
 // const pistisMode = computed(() => route.query.pistisMode || 'factory');
-const _pistisMode = route.query.pm;
+// const pistisMode = route.query.pm;
 // console.log('pistisMode:', pistisMode);
 
 const searchInput = defineModel<string>('searchInput', { required: true });
