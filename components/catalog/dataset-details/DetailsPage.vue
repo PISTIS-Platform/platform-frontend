@@ -1,6 +1,5 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-
 import 'vue-sonner/style.css';
 
 import axios from 'axios';
@@ -35,7 +34,6 @@ const props = withDefaults(
 const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
-
 
 const { data: session } = useAuth();
 
@@ -99,6 +97,20 @@ const setAccessID = async (data) => {
     }
 };
 
+const hasInvestmentOffer = computed(() => monetizationData.value?.investment_offer?.some((offer) => offer?.is_active));
+
+const hasPurchaseOffer = computed(() => monetizationData.value?.purchase_offer);
+
+const offerType = computed(() => {
+    const hasInvestment = hasInvestmentOffer.value;
+    const hasPurchase = hasPurchaseOffer.value;
+
+    if (hasInvestment && hasPurchase) return 'both';
+    if (hasInvestment) return 'investment';
+    if (hasPurchase) return 'purchase';
+    return 'none';
+});
+
 const fetchMetadata = async () => {
     try {
         const response = await fetch(`${searchUrl}datasets/${props.datasetId}`);
@@ -109,6 +121,7 @@ const fetchMetadata = async () => {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
             monetizationData.value = metadata.value.result.monetization[0];
+
             price.value = monetizationData.value?.purchase_offer[0].price;
             offerId.value = props.datasetId;
         }
@@ -302,10 +315,13 @@ const truncatedEllipsedDescription = computed(() => {
             <div v-if="pistisMode === 'cloud'">
                 <section class="container custom_nav_container flex">
                     <div class="btn_holder flex gap-5 flex-wrap">
-                        <a :href="'#'" class="" @click.prevent="buyRequest(factoryPrefix)">
+                        <a v-if="hasPurchaseOffer" :href="'#'" class="" @click.prevent="buyRequest(factoryPrefix)">
                             <KButton size="small"
                                 >Buy<span v-if="price">&nbsp;{{ price + '€' }}</span></KButton
                             >
+                        </a>
+                        <a v-if="hasInvestmentOffer" :href="`${config.public.factoryUrl}/invest/${datasetId}`" class="">
+                            <KButton size="small">Invest</KButton>
                         </a>
                         <a :href="feedbackUrl" class="">
                             <KButton v-if="!isOwned" size="small">Provide Feedback</KButton>
@@ -313,7 +329,6 @@ const truncatedEllipsedDescription = computed(() => {
                     </div>
                     <!-- Data Lineage (Button placements should be discussed together)-->
                     <div class="ml-5">
-
                         <NuxtLink
                             :to="{
                                 path: '/catalog/dataset-details/data-lineage',
@@ -358,7 +373,6 @@ const truncatedEllipsedDescription = computed(() => {
                                     path: '/catalog/dataset-details/data-lineage',
 
                                     query: { id: accessID, pm: pistisMode, url: backendUrl },
-
                                 }"
                                 class=""
                             >
@@ -366,7 +380,6 @@ const truncatedEllipsedDescription = computed(() => {
                             </NuxtLink>
 
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
-
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
                             <a :href="feedbackUrl" class="link"><KButton size="small">Provide Feedback</KButton></a>
@@ -376,7 +389,7 @@ const truncatedEllipsedDescription = computed(() => {
             </div>
             <slot name="sections"> </slot>
             <div v-if="pistisMode === 'cloud'" class="bg-white p-6 rounded-lg ring-1 ring-gray-200 shadow">
-                <MonetizationView :data="monetizationData" />
+                <MonetizationView :data="monetizationData" :offer-type="offerType" />
             </div>
             <div v-if="pistisMode === 'cloud'" class="bg-white p-6 rounded-lg ring-1 ring-gray-200 shadow">
                 <MatchmakingServiceView :dataset-id="datasetId" />

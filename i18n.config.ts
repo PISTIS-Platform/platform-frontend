@@ -811,6 +811,12 @@ export default defineI18nConfig(() => ({
                 downloads: 'Downloads',
                 'personal-data-terms': 'Personal Data Terms',
                 license: 'License',
+                'price-per-share': 'Price Per Share',
+                'percentage-offer': 'Percentage Offer',
+                'max-shares': 'Max. Shares',
+                'available-shares': 'Available Shares',
+                'total-shares': 'Total Shares',
+                'is-active': 'Active',
             },
             matchmakingService: {
                 recommendationsHeader: 'Recommended Datasets',
