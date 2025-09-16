@@ -15,7 +15,6 @@ const config = useRuntimeConfig();
 
 const pistisMode = route.query.pm;
 
-
 interface CardProps {
     title: string;
     description: string;
@@ -65,11 +64,16 @@ if (route.query.pm === 'factory') {
 }
 const searchUrl = url + '/srv/search/';
 
+const isTransformed = ref();
+const isAnonymized = ref();
+
 const fetchMetadata = async () => {
     try {
         const response = await fetch(`${searchUrl}datasets/${props.datasetId}`);
         const data = await response.json();
         catalog.value = data.result.catalog.id;
+        isTransformed.value = data.result.distributions.some((transformation) => transformation?.is_transformed);
+        isAnonymized.value = data.result.distributions.some((anonymization) => anonymization?.is_anonymized);
     } catch (error) {
         console.error('Error fetching the metadata. ERROR: ', error);
     }
@@ -151,9 +155,13 @@ async function downloadFile() {
                 <Typography as="h2" variant="by-heading-4" class="text-surface-text">
                     {{ title }}
                 </Typography>
-                <KTag class="hidden md:block">
-                    {{ format }}
-                </KTag>
+                <div class="flex inline">
+                    <KTag v-if="isAnonymized" class="!bg-orange-600 mr-5"> anonymized </KTag>
+                    <KTag v-if="isTransformed" class="!bg-orange-600 mr-5"> transformed </KTag>
+                    <KTag class="hidden md:block">
+                        {{ format }}
+                    </KTag>
+                </div>
             </div>
 
             <div class="my-0 flex flex-col lg:my-6 lg:flex-row lg:justify-between lg:gap-28">
