@@ -183,6 +183,7 @@ export default defineI18nConfig(() => ({
             },
             dataAnalytics: {
                 title: 'Data Analytics',
+            },
             invest: {
                 title: 'Invest In Asset',
                 info: 'Purchase shares in a published asset',
