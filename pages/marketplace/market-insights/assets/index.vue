@@ -348,7 +348,14 @@ const {
         </ChartContainer>
         <ChartContainer :title="$t('market.assets.transactionsOverview')" class="mt-6 h-[450px] relative">
             <template #right-header>
-                <UInput v-model="transactionsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
+                <UInput
+                    v-model="transactionsSearchString"
+                    size="md"
+                    :placeholder="$t('search')"
+                    class="w-full ml-6"
+                    icon="ic:baseline-search"
+                    :trailing="false"
+                />
                 <USelectMenu v-model="selectedSector" size="md" :options="sectors" class="ml-6" />
             </template>
             <UTable

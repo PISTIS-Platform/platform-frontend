@@ -76,6 +76,7 @@ export default defineI18nConfig(() => ({
             or: 'or',
             sortBy: 'Sort By',
             days: 'days',
+            created: 'Created',
             settings: {
                 title: 'Factory Settings',
                 info: 'The settings of your unique factory',
@@ -499,6 +500,15 @@ export default defineI18nConfig(() => ({
                     dashboard: 'Dashboard',
                     questionnaireInfo: 'Display the questionnaire for selected dataset',
                     dashboardInfo: 'Display analytics for selected dataset',
+                    notAuthorized: "You are not authorized to see this questionnaire's responses.",
+                    responsesNotFound: 'Responses to this dataset questionnaire were not found.',
+                    responsesFor: 'Responses for asset',
+                    question: 'Question',
+                    overallResponses: 'Overall Responses',
+                    timeline: 'Timeline',
+                    assetsNotFound: 'No assets of yours found on the marketplace',
+                    verified: 'Verified Version',
+                    unverified: 'Unverified Version',
                 },
             },
             market: {

@@ -239,21 +239,19 @@ const computedChartData = computed(() =>
                 animation="carousel"
                 color="primary"
             />
-            <ErrorCard v-else-if="!isAuthorized" :error-msg="$t('usage-analytics.notAuthorized')" />
+            <ErrorCard v-else-if="!isAuthorized" :error-msg="$t('data.usage.notAuthorized')" />
             <ErrorCard
                 v-else-if="error || questionnaireError || !data || data.length === 0"
-                :error-msg="error?.statusMessage ?? t('usage-analytics.responsesNotFound')"
+                :error-msg="error?.statusMessage ?? t('data.usage.responsesNotFound')"
             />
             <div v-else class="w-full flex flex-col gap-4 text-gray-600">
                 <SubHeading
-                    :title="`${questionnaire?.title} : ${$t('usage-analytics.responsesFor')} ${assetId}` || ''"
+                    :title="`${questionnaire?.title} : ${$t('data.usage.responsesFor')} ${assetId}` || ''"
                     :info="questionnaire?.description || ''"
                 />
                 <UCard v-for="(answer, index) in computedChartData" :key="answer" :ui="{ base: 'w-full' }">
                     <template #header>
-                        <span class="font-semibold text-lg"
-                            >{{ $t('usage-analytics.question') }}: {{ answer.label }}</span
-                        >
+                        <span class="font-semibold text-lg">{{ $t('data.usage.question') }}: {{ answer.label }}</span>
                     </template>
                     <div class="flex items-start flex-wrap gap-2 xl:gap-8 xl:flex-nowrap">
                         <!-- All time-->
@@ -261,7 +259,7 @@ const computedChartData = computed(() =>
                             <span
                                 class="flex justify-center w-full"
                                 :class="answer.allTime.chartType === 'bar' ? 'mb-[32px]' : 'mb-[20px]'"
-                                >{{ $t('usage-analytics.overallResponses') }}</span
+                                >{{ $t('data.usage.overallResponses') }}</span
                             >
                             <div v-if="answer.allTime.chartType === 'pie'">
                                 <Pie
@@ -293,7 +291,7 @@ const computedChartData = computed(() =>
                         </div>
                         <!-- Timeline-->
                         <div class="w-full xl:w-[calc(50%-1rem)] h-[300px] pb-6 mt-12 xl:mt-0 xl:pb-0 pr-10 relative">
-                            <span class="flex justify-center w-full mb-4">{{ $t('usage-analytics.timeline') }}</span>
+                            <span class="flex justify-center w-full mb-4">{{ $t('data.usage.timeline') }}</span>
                             <div class="flex gap-2 flex-col absolute top-[calc(50%-0.5rem)] right-0">
                                 <UButton
                                     size="xs"
