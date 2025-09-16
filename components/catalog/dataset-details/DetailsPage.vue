@@ -189,19 +189,6 @@ const buyRequest = async (factoryPrefix) => {
     }
 };
 
-const investRequest = async () => {
-    try {
-        const response = await axios.post(`${url}/invest/${props.datasetId}`, {
-            headers: {
-                Authorization: `Bearer ${token.value}`,
-            },
-        });
-        console.log('response:', response);
-    } catch (error) {
-        console.error('Investment failed:', error);
-    }
-};
-
 onMounted(() => {
     fetchMetadata();
     getUserFactory();
@@ -338,7 +325,7 @@ const truncatedEllipsedDescription = computed(() => {
                                 >Buy<span v-if="price">&nbsp;{{ price + '€' }}</span></KButton
                             >
                         </a>
-                        <a v-if="hasInvestmentOffer" :href="'#'" class="" @click="investRequest">
+                        <a v-if="hasInvestmentOffer" :href="`${config.public.factoryUrl}/invest/${datasetId}`" class="">
                             <KButton size="small">Invest</KButton>
                         </a>
                         <a :href="feedbackUrl" class="">

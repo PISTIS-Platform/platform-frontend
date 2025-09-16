@@ -24,7 +24,7 @@
 
                     <p>
                         <strong>{{ $t('monetization.termination-date') }}:</strong>
-                        {{ data.purchase_offer[0].term_date || '-' }}
+                        {{ formatDate(data.purchase_offer[0].term_date) }}
                     </p>
 
                     <div v-if="data.purchase_offer[0].license">
@@ -72,7 +72,7 @@
 
                     <p>
                         <strong>{{ $t('monetization.termination-date') }}:</strong>
-                        {{ data.investment_offer[0].term_date || '-' }}
+                        {{ formatDate(data.investment_offer[0].term_date) }}
                     </p>
 
                     <p>
@@ -119,6 +119,12 @@ const _props = defineProps({
 const isObject = (value) => {
     return value && typeof value === 'object' && !Array.isArray(value);
 };
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString();
+};
 </script>
 
 <style>
@@ -126,6 +132,12 @@ const isObject = (value) => {
     @apply text-gray-400 text-xl hover:text-pistis-600;
 }
 [aria-selected='true'] .p-tabview-title {
-    @apply text-black underline decoration-pistis-600;
+    @apply text-gray-800 underline;
+}
+.p-tabview-panels {
+    @apply p-1;
+}
+.p-tabview-nav-link {
+    @apply pl-1 pt-5 pr-3 pb-2;
 }
 </style>
