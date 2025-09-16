@@ -325,7 +325,6 @@ export default defineI18nConfig(() => ({
                     nftNotPossible:
                         'This asset is already on the marketplace and therefore cannot be sold as an NFT. Please select a different monetization method.',
                     annual: 'per year',
-                    monthly: 'per month',
                     nftWarning: 'NFT Warning',
                     nftWarningText:
                         'If you create an NFT, you can not monetize this asset in any other way. Also, the ownership of the asset will be transferred from you to the consumer and the asset will be deleted on your end.',
