@@ -90,13 +90,18 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
                                 row.id.slice(0, 5) + '...'
                             }}</UTooltip>
                         </template>
+                        <template #title-data="{ row }">
+                            <UTooltip :text="row.title" :popper="{ placement: 'top' }" :ui="{ width: 'max-w-2xl' }">
+                                {{ `${row.title.slice(0, 30)}${row.description.length > 30 ? '...' : ''}` }}
+                            </UTooltip>
+                        </template>
                         <template #description-data="{ row }">
                             <UTooltip
                                 :text="row.description"
                                 :popper="{ placement: 'top' }"
                                 :ui="{ width: 'max-w-2xl' }"
                             >
-                                {{ row.description.slice(0, 10) + '...' }}
+                                {{ `${row.description.slice(0, 10)}${row.description.length > 10 ? '...' : ''}` }}
                             </UTooltip>
                         </template>
                     </UTable>
