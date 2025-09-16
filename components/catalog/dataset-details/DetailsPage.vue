@@ -121,11 +121,6 @@ const fetchMetadata = async () => {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
             monetizationData.value = metadata.value.result.monetization[0];
-            console.log('monetizationData:', monetizationData.value);
-
-            console.log('hasInvestmentOffer:', hasInvestmentOffer.value);
-
-            console.log('hasPurchaseOffer:', hasPurchaseOffer.value);
 
             price.value = monetizationData.value?.purchase_offer[0].price;
             offerId.value = props.datasetId;
