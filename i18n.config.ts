@@ -20,6 +20,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            view: 'View',
             required: 'Required',
             monitoring: 'Monitoring',
             countries: countries,

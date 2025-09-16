@@ -19,7 +19,7 @@ const transformedDatasets = computed(() =>
     })),
 );
 
-const columns: { key: string; label: string; sortable: boolean }[] = [
+const columns: { key: string; label: string; sortable: boolean; class?: string }[] = [
     {
         key: 'issued',
         label: t('created'),
@@ -45,11 +45,13 @@ const columns: { key: string; label: string; sortable: boolean }[] = [
         key: 'verified',
         label: t('data.usage.verified'),
         sortable: false,
+        class: 'w-32',
     },
     {
         key: 'unverified',
         label: t('data.usage.unverified'),
         sortable: false,
+        class: 'w-32',
     },
 ];
 const pageCount = 10;
@@ -104,6 +106,21 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
                                 {{ `${row.description.slice(0, 10)}${row.description.length > 10 ? '...' : ''}` }}
                             </UTooltip>
                         </template>
+                        <template #verified-data="{ row }">
+                            <UButton
+                                variant="outline"
+                                :to="`/marketplace/usage-analytics/responses?assetId=${row.id}&forVerifiedBuyers=true`"
+                                >{{ $t('view') }}</UButton
+                            >
+                        </template>
+                        <template #unverified-data="{ row }"
+                            ><UButton
+                                variant="outline"
+                                color="green"
+                                :to="`/marketplace/usage-analytics/responses?assetId=${row.id}&forVerifiedBuyers=false`"
+                                >{{ $t('view') }}</UButton
+                            ></template
+                        >
                     </UTable>
                     <UPagination
                         v-if="filteredRows.length > pageCount"
