@@ -18,8 +18,6 @@ import { Bar, Line, Pie } from 'vue-chartjs';
 
 import type { Questionnaire, QuestionResponse } from '~/interfaces/usage-analytics';
 
-const { data: session } = useAuth();
-
 const { t } = useI18n();
 const OPACITY_DECIMAL = 0.5;
 
@@ -39,6 +37,7 @@ const colorPaletteRadio = ['5bb86e', 'E9FF70', '989898', 'FF9770', 'fc3232'].rev
 
 const route = useRoute();
 const assetId = computed(() => route.query.assetId);
+const forVerifiedBuyers = computed(() => route.query.forVerifiedBuyers);
 
 const chartOptions = {
     responsive: true,
@@ -123,13 +122,10 @@ const {
     $fetch(`/api/usage-analytics/${assetId.value}`),
 );
 
-const isAuthorized = computed(() => {
-    return session.value?.sub === questionnaire.value?.creatorId;
-});
-
 const { data, status, error } = useFetch<QuestionResponse[]>(`/api/usage-analytics/get-answers`, {
     query: {
         assetId: assetId.value,
+        forVerifiedBuyers: forVerifiedBuyers.value,
     },
 });
 
@@ -239,10 +235,11 @@ const computedChartData = computed(() =>
                 animation="carousel"
                 color="primary"
             />
-            <ErrorCard v-else-if="!isAuthorized" :error-msg="$t('data.usage.notAuthorized')" />
             <ErrorCard
                 v-else-if="error || questionnaireError || !data || data.length === 0"
-                :error-msg="error?.statusMessage ?? t('data.usage.responsesNotFound')"
+                :error-msg="
+                    questionnaireError?.data?.message || error?.data?.message || t('data.usage.responsesNotFound')
+                "
             />
             <div v-else class="w-full flex flex-col gap-4 text-gray-600">
                 <SubHeading
