@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import dayjs from 'dayjs';
+
 const { t } = useI18n();
 const {
     data: datasetsData,
@@ -19,6 +21,11 @@ const transformedDatasets = computed(() =>
 
 const columns: { key: string; label: string; sortable: boolean }[] = [
     {
+        key: 'issued',
+        label: t('created'),
+        sortable: true,
+    },
+    {
         key: 'id',
         label: 'ID',
         sortable: true,
@@ -33,11 +40,7 @@ const columns: { key: string; label: string; sortable: boolean }[] = [
         label: t('description'),
         sortable: false,
     },
-    {
-        key: 'issued',
-        label: t('created'),
-        sortable: true,
-    },
+
     {
         key: 'verified',
         label: t('data.usage.verified'),
@@ -51,8 +54,8 @@ const columns: { key: string; label: string; sortable: boolean }[] = [
 ];
 const pageCount = 10;
 const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(transformedDatasets, pageCount, {
-    column: 'id',
-    direction: 'asc',
+    column: 'issued',
+    direction: 'desc',
 });
 </script>
 
@@ -78,10 +81,23 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
                         />
                     </div>
                     <UTable v-model:sort="sortBy" :columns="columns" :rows="paginatedRows" sort-mode="manual">
+                        <template #issued-data="{ row }">
+                            {{ dayjs(row.issued).format('YYYY/MM/DD HH:mm:ss') }}
+                        </template>
+
                         <template #id-data="{ row }">
                             <UTooltip :text="row.id" :popper="{ placement: 'top' }">{{
                                 row.id.slice(0, 5) + '...'
                             }}</UTooltip>
+                        </template>
+                        <template #description-data="{ row }">
+                            <UTooltip
+                                :text="row.description"
+                                :popper="{ placement: 'top' }"
+                                :ui="{ width: 'max-w-2xl' }"
+                            >
+                                {{ row.description.slice(0, 10) + '...' }}
+                            </UTooltip>
                         </template>
                     </UTable>
                     <UPagination
