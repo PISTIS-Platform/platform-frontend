@@ -236,7 +236,7 @@ const computedChartData = computed(() =>
                 color="primary"
             />
             <ErrorCard
-                v-else-if="error || questionnaireError || !data || data.length === 0"
+                v-else-if="questionnaireError || error || !data || data.length === 0"
                 :error-msg="
                     questionnaireError?.data?.message || error?.data?.message || t('data.usage.responsesNotFound')
                 "
