@@ -4,7 +4,7 @@
 // import DataInfoCard from '@/components/base/data-info-box/DataInfoCard.vue';
 import Paginator from 'primevue/paginator';
 
-import { useSearchParams } from '@/pages/catalog/useSearchParams';
+import { useSearchParams } from '../../../pages/my-data/catalog/useSearchParams';
 
 const route = useRoute();
 
@@ -25,7 +25,7 @@ const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
             <slot v-for="item in items" :key="item.id" :item="item">
                 <DataInfoCard
                     :to="{
-                        name: 'catalog-dataset-details-datasetId',
+                        name: 'my-data-catalog-dataset-details-datasetId',
                         params: { datasetId: item.id },
                         query: { pm: route.query.pm },
                     }"

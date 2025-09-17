@@ -20,6 +20,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            view: 'View',
             required: 'Required',
             monitoring: 'Monitoring',
             countries: countries,
@@ -76,6 +77,7 @@ export default defineI18nConfig(() => ({
             or: 'or',
             sortBy: 'Sort By',
             days: 'days',
+            created: 'Created',
             settings: {
                 title: 'Factory Settings',
                 info: 'The settings of your unique factory',
@@ -178,6 +180,9 @@ export default defineI18nConfig(() => ({
                 markRead: 'Mark as read',
                 hide: 'Hide',
                 noNotifications: 'No notifications available.',
+            },
+            dataAnalytics: {
+                title: 'Data Analytics',
             },
             invest: {
                 title: 'Invest In Asset',
@@ -345,7 +350,6 @@ export default defineI18nConfig(() => ({
                     nftNotPossible:
                         'This asset is already on the marketplace and therefore cannot be sold as an NFT. Please select a different monetization method.',
                     annual: 'per year',
-                    monthly: 'per month',
                     nftWarning: 'NFT Warning',
                     nftWarningText:
                         'If you create an NFT, you can not monetize this asset in any other way. Also, the ownership of the asset will be transferred from you to the consumer and the asset will be deleted on your end.',
@@ -514,11 +518,23 @@ export default defineI18nConfig(() => ({
                     },
                 },
                 usage: {
-                    title: 'Data Usage and Intensions Analytics',
+                    title: 'Data Usage and Intention Analytics',
+                    analytics: 'Usage Analytics',
                     questionnaire: 'Questionnaire',
                     dashboard: 'Dashboard',
                     questionnaireInfo: 'Display the questionnaire for selected dataset',
                     dashboardInfo: 'Display analytics for selected dataset',
+                    notAuthorized: "You are not authorized to see this questionnaire's responses.",
+                    responsesNotFound: 'Responses to this dataset questionnaire were not found.',
+                    responsesFor: 'Responses for asset',
+                    question: 'Question',
+                    overallResponses: 'Overall Responses',
+                    timeline: 'Timeline',
+                    assetsNotFound: 'No assets of yours found on the marketplace',
+                    verified: 'Verified Buyers',
+                    unverified: 'Potential Buyers',
+                    created: 'Added in Marketplace',
+                    viewResults: 'View Results',
                 },
             },
             market: {
@@ -624,9 +640,11 @@ export default defineI18nConfig(() => ({
             },
             catalog: {
                 catalog: 'My Data',
+                title: 'Catalog',
             },
             marketplace: {
                 marketplace: 'Marketplace',
+                pistisMarketplace: 'PISTIS Marketplace',
                 details: 'Details',
                 overview: 'Overview',
                 auditor: 'Auditor',
@@ -752,7 +770,8 @@ export default defineI18nConfig(() => ({
                 answerTextInfo: 'Enter your answer',
                 checkInputs: 'Please ensure all answers are filled correctly before submitting the form',
                 submitAnswers: 'Submit Answers',
-                answersSubmitted: 'Your answers have been submitted successfully',
+                answersSubmitted:
+                    'Your answers have been submitted successfully. You will now be redirected back to the main page.',
                 errorInSubmitAnswers: 'Error occurred while submitting answers',
                 noQuestionsWereFound: 'No questions were found for this questionnaire',
             },

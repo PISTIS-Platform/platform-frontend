@@ -26,15 +26,11 @@ useHead({
 
 const navigation = ref([
     { name: 'home.home', to: '/home', target: '_self', icon: '', external: false },
-    { name: 'monitoring', to: '/monitoring', target: '_self', icon: '', external: false },
     { name: 'data.data', to: '/data', target: '_self', icon: '', external: false },
     {
         name: 'catalog.catalog',
         to: {
-            path: '/catalog',
-            query: {
-                pm: 'factory',
-            },
+            path: '/my-data/catalog',
         },
         target: '_self',
         icon: '',
@@ -43,14 +39,17 @@ const navigation = ref([
         name: 'marketplace.marketplace',
         to: {
             path: '/marketplace',
-            query: {
-                pm: 'cloud',
-            },
         },
         target: '_self',
         icon: '',
     },
-    { name: 'market.market', to: '/market-insights', target: '_self', icon: '', external: false },
+    {
+        name: 'dataAnalytics.title',
+        to: '/data-analytics',
+        target: '_self',
+        icon: '',
+        external: false,
+    },
 ]);
 
 const userNavigation: { name: string; href: string }[] = [
@@ -85,7 +84,7 @@ const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9
 function isActive(item: any) {
     const targetPath = typeof item.to === 'string' ? item.to : item.to.path;
     const currentPath = route.path;
-    return currentPath.startsWith(targetPath);
+    return currentPath.split('/')[1] === targetPath.split('/')[1].replace('/', '');
 }
 </script>
 

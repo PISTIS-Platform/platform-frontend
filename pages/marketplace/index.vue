@@ -9,10 +9,10 @@
 import Sidebar from 'primevue/sidebar';
 
 // import { ref, toRef } from 'vue'
-import { useDcatApSearch } from '../catalog/sdk';
-import { useDatasetSearchView } from '../catalog/useDatasetsSearchView';
-import { useSearchParams } from '../catalog/useSearchParams';
-import { useSelectedFacets } from '../catalog/useSelectedFacets';
+import { useDcatApSearch } from '../my-data/catalog/sdk';
+import { useDatasetSearchView } from '../my-data/catalog/useDatasetsSearchView';
+import { useSearchParams } from '../my-data/catalog/useSearchParams';
+import { useSelectedFacets } from '../my-data/catalog/useSelectedFacets';
 
 // const route = useRoute();
 // const pistisMode = computed(() => route.query.pistisMode || 'factory');

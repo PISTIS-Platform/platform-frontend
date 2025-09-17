@@ -50,3 +50,11 @@ export interface Questionnaire {
     publicationDate?: string | null;
     questions: Question[];
 }
+
+export interface QuestionResponse {
+    questionId: string;
+    questionTitle: string;
+    responses: { response: string; date: string }[];
+    questionType?: QuestionType | null;
+    options?: string[];
+}

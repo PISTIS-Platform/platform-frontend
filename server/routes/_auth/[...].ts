@@ -27,6 +27,10 @@ const getUserOrgId = (profile: any) => {
     return profile.pistis?.group?.id || '';
 };
 
+const getUserSub = (profile: any) => {
+    return profile.sub || '';
+};
+
 export const authOptions = {
     secret: authSecret,
     providers: [
@@ -45,6 +49,7 @@ export const authOptions = {
                 token.orgId = getUserOrgId(decodedJWT);
                 token.provider = account.provider;
                 token.id_token = account.id_token;
+                token.sub = getUserSub(jwtDecode(account.access_token));
             }
 
             return Promise.resolve(token);
@@ -52,6 +57,7 @@ export const authOptions = {
         session: async ({ session, token }: any) => {
             session.orgId = token.orgId;
             session.token = token.access_token;
+            session.sub = token.sub;
             return Promise.resolve(session);
         },
     },

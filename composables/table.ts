@@ -2,7 +2,11 @@ import type { UnwrapRef } from 'vue';
 
 import type { SortOptions } from '~/interfaces/table';
 
-export const useTable = <T>(data: Ref<T[] | null>, pageCount: number = 10, defaultSort?: SortOptions) => {
+export const useTable = <T>(
+    data: Ref<T[] | null | undefined> | ComputedRef<T[] | null | undefined>,
+    pageCount: number = 10,
+    defaultSort?: SortOptions,
+) => {
     //Table data
     const rows = computed<T[]>(() => data.value || []);
 
