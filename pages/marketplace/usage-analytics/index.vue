@@ -21,26 +21,15 @@ const transformedDatasets = computed(() =>
 
 const columns: { key: string; label: string; sortable: boolean; class?: string }[] = [
     {
-        key: 'issued',
-        label: t('created'),
-        sortable: true,
-    },
-    {
-        key: 'id',
-        label: 'ID',
-        sortable: true,
-    },
-    {
         key: 'title',
         label: t('title'),
         sortable: true,
     },
     {
-        key: 'description',
-        label: t('description'),
-        sortable: false,
+        key: 'issued',
+        label: t('data.usage.created'),
+        sortable: true,
     },
-
     {
         key: 'verified',
         label: t('data.usage.verified'),
@@ -93,9 +82,12 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
                             }}</UTooltip>
                         </template>
                         <template #title-data="{ row }">
-                            <UTooltip :text="row.title" :popper="{ placement: 'top' }" :ui="{ width: 'max-w-2xl' }">
-                                {{ `${row.title.slice(0, 30)}${row.description.length > 30 ? '...' : ''}` }}
-                            </UTooltip>
+                            <a
+                                :href="`/my-data/catalog/dataset-details/${row.id}`"
+                                target="_blank"
+                                class="text-primary"
+                                >{{ row.title }}</a
+                            >
                         </template>
                         <template #description-data="{ row }">
                             <UTooltip
@@ -110,7 +102,7 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
                             <UButton
                                 variant="outline"
                                 :to="`/marketplace/usage-analytics/responses?assetId=${row.id}&forVerifiedBuyers=true`"
-                                >{{ $t('view') }}</UButton
+                                >{{ $t('data.usage.viewResults') }}</UButton
                             >
                         </template>
                         <template #unverified-data="{ row }"
@@ -118,7 +110,7 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
                                 variant="outline"
                                 color="green"
                                 :to="`/marketplace/usage-analytics/responses?assetId=${row.id}&forVerifiedBuyers=false`"
-                                >{{ $t('view') }}</UButton
+                                >{{ $t('data.usage.viewResults') }}</UButton
                             ></template
                         >
                     </UTable>

@@ -531,8 +531,10 @@ export default defineI18nConfig(() => ({
                     overallResponses: 'Overall Responses',
                     timeline: 'Timeline',
                     assetsNotFound: 'No assets of yours found on the marketplace',
-                    verified: 'Verified Version',
-                    unverified: 'Unverified Version',
+                    verified: 'Verified Buyers',
+                    unverified: 'Potential Buyers',
+                    created: 'Added in Marketplace',
+                    viewResults: 'View Results',
                 },
             },
             market: {
