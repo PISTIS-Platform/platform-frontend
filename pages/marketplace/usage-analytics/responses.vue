@@ -154,10 +154,9 @@ const computedChartData = computed(() =>
               });
 
               //Timeline data
-              const groupByDate = R.groupBy((response: { response: string; date: string }) => {
-                  const day = dayjs(response.date).format('DD/MM/YY');
-                  return day;
-              });
+              const groupByDate = R.groupBy((response: { response: string; date: string }) =>
+                  dayjs(response.date).format('DD/MM/YY'),
+              );
               const groupedByDate = groupByDate(response.responses);
 
               const dates = Object.keys(groupedByDate);

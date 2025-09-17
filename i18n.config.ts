@@ -770,7 +770,8 @@ export default defineI18nConfig(() => ({
                 answerTextInfo: 'Enter your answer',
                 checkInputs: 'Please ensure all answers are filled correctly before submitting the form',
                 submitAnswers: 'Submit Answers',
-                answersSubmitted: 'Your answers have been submitted successfully',
+                answersSubmitted:
+                    'Your answers have been submitted successfully. You will now be redirected back to the main page.',
                 errorInSubmitAnswers: 'Error occurred while submitting answers',
                 noQuestionsWereFound: 'No questions were found for this questionnaire',
             },

@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import type {
-    Question,
-    QuestionAnswer,
-    Questionnaire,
-    QuestionOption,
-    SelectedOption,
-} from '~/interfaces/usage-analytics';
+import type { Question, QuestionAnswer, Questionnaire, SelectedOption } from '~/interfaces/usage-analytics';
 
 const { t } = useI18n();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
@@ -34,35 +28,23 @@ if (error.value || !questionnaire.value) {
         showErrorMessage(t('usageAnalytics.errorInRetrievingQuestionnaire'));
     }
 } else {
-    let answerId = 0;
-
     answers.value =
-        questionnaire.value?.questions?.map((question: Question) => {
-            let availableOptions: SelectedOption[] = [];
-
-            if (question?.options) {
-                let id = 0;
-                availableOptions = question?.options.map((option: QuestionOption) => {
-                    id++;
-
-                    return {
-                        id: id.toString(),
-                        value: option?.text || '',
-                        isSelected: false,
-                    };
-                });
-            }
-
-            answerId++;
+        questionnaire.value?.questions?.map((question: Question, questionIndex) => {
+            const availableOptions =
+                question.options?.map((option, optionIndex) => ({
+                    id: (optionIndex + 1).toString(),
+                    value: option?.text || '',
+                    isSelected: false,
+                })) || [];
 
             return {
-                id: answerId.toString(),
+                id: (questionIndex + 1).toString(),
                 text: '',
                 questionType: question.type,
                 availableOptions,
                 selectedOptions: [],
                 question,
-                isValid: question.isRequired ? false : true,
+                isValid: !question.isRequired,
             };
         }) || [];
 }
@@ -113,8 +95,6 @@ const saveAnswers = async () => {
         showSuccessMessage(t('usageAnalytics.answersSubmitted'));
         await delay(3);
         router.push({ name: 'home' });
-
-        //TODO:: add any navigation after success (?)
     } catch (error) {
         showErrorMessage(t('usageAnalytics.errorInSubmitAnswers'));
 
