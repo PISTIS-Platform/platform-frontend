@@ -31,6 +31,9 @@ const navigation = ref([
         name: 'catalog.catalog',
         to: {
             path: '/my-data/catalog',
+            query: {
+                pm: 'factory',
+            },
         },
         target: '_self',
         icon: '',
@@ -39,6 +42,9 @@ const navigation = ref([
         name: 'marketplace.marketplace',
         to: {
             path: '/marketplace',
+            query: {
+                pm: 'cloud',
+            },
         },
         target: '_self',
         icon: '',
