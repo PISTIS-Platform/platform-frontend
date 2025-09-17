@@ -34,13 +34,13 @@ const columns: { key: string; label: string; sortable: boolean; class?: string }
         key: 'verified',
         label: t('data.usage.verified'),
         sortable: false,
-        class: 'w-32',
+        class: 'w-36',
     },
     {
         key: 'unverified',
         label: t('data.usage.unverified'),
         sortable: false,
-        class: 'w-32',
+        class: 'w-36',
     },
 ];
 const pageCount = 10;
