@@ -67,13 +67,7 @@ if (error.value || !questionnaire.value) {
         }) || [];
 }
 
-const isSubmitDisabled = computed(() => {
-    if (answers.value.some((a: QuestionAnswer) => !a.isValid) || submitPending.value) {
-        return true;
-    }
-
-    return false;
-});
+const isSubmitDisabled = computed(() => answers.value.some((a: QuestionAnswer) => !a.isValid) || submitPending.value);
 
 const saveAnswers = async () => {
     // if even at least 1 answer has validation errors -> do not proceed
