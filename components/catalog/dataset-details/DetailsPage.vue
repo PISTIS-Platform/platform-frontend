@@ -331,7 +331,7 @@ const truncatedEllipsedDescription = computed(() => {
                     <div class="ml-5">
                         <NuxtLink
                             :to="{
-                                path: '/catalog/dataset-details/data-lineage',
+                                path: '/my-data/catalog/dataset-details/data-lineage',
                                 query: { id: accessID, pm: pistisMode, url: backendUrl },
                             }"
                             class=""
@@ -349,7 +349,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <!-- Data Lineage -->
                             <NuxtLink
                                 :to="{
-                                    path: '/catalog/dataset-details/data-lineage',
+                                    path: '/my-data/catalog/dataset-details/data-lineage',
                                     query: { id: accessID, pm: pistisMode, url: backendUrl },
                                 }"
                                 class=""
@@ -370,7 +370,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <!-- Data Lineage -->
                             <NuxtLink
                                 :to="{
-                                    path: '/catalog/dataset-details/data-lineage',
+                                    path: '/my-data/catalog/dataset-details/data-lineage',
 
                                     query: { id: accessID, pm: pistisMode, url: backendUrl },
                                 }"

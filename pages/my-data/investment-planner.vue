@@ -218,7 +218,7 @@ const submitAll = async () => {
             });
             showSuccessMessage(t('data.investmentPlanner.success'));
             await delay(2);
-            navigateTo(`${factoryUrl}/catalog/dataset-details/${objToSend.cloudAssetId}?pm=cloud&locale=en`, {
+            navigateTo(`${factoryUrl}/my-data/catalog/dataset-details/${objToSend.cloudAssetId}?pm=cloud&locale=en`, {
                 external: true,
             });
         } catch {

@@ -189,12 +189,12 @@ const cleanResults = () => {
                                         <span v-else>
                                             <div v-for="(subValue, subKey) in value" :key="subKey" class="items-start">
                                                 <NuxtLink
-                                                    :to="`${config.public.factoryUrl}/catalog/dataset-details/${subValue}?pm=cloud&locale=en`"
+                                                    :to="`${config.public.factoryUrl}/my-data/catalog/dataset-details/${subValue}?pm=cloud&locale=en`"
                                                     target="_blank"
                                                     class="text-sm text-blue-500 underline"
                                                     external
                                                     >{{
-                                                        `${config.public.factoryUrl}/catalog/dataset-details/${subValue}?pm=cloud&locale=en`
+                                                        `${config.public.factoryUrl}/my-data/catalog/dataset-details/${subValue}?pm=cloud&locale=en`
                                                     }}</NuxtLink
                                                 >
                                             </div>
