@@ -518,7 +518,7 @@ export default defineI18nConfig(() => ({
                     },
                 },
                 usage: {
-                    title: 'Data Usage and Intensions Analytics',
+                    title: 'Data Usage and Intention Analytics',
                     analytics: 'Usage Analytics',
                     questionnaire: 'Questionnaire',
                     dashboard: 'Dashboard',
