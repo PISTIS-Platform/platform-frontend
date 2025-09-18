@@ -913,10 +913,10 @@ export enum LicenseCode {
 }
 
 export enum durations {
-    ONE_MONTH = 'one month',
-    THREE_MONTHS = 'three months',
-    SIX_MONTHS = 'six months',
-    ONE_YEAR = 'one year',
+    ONE_MONTH = 30,
+    THREE_MONTHS = 90,
+    SIX_MONTHS = 180,
+    ONE_YEAR = 365,
     PERPETUAL = 'perpetual',
     PERPETUAL_REVOCABLE = 'perpetual revocable',
 }
