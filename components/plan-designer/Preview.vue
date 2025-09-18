@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { t } = useI18n();
-import dayjs from 'dayjs';
 
 defineProps({
     assetOfferingDetails: {
@@ -23,10 +22,6 @@ defineProps({
         type: Array<Record<string, any>>,
         required: true,
     },
-    isPerpetual: {
-        type: Boolean,
-        required: true,
-    },
     isWorldwide: {
         type: Boolean,
         required: true,
@@ -42,6 +37,8 @@ defineProps({
 });
 
 import { LicenseCode } from '~/constants/licenses';
+
+const { durationSelections } = useLicenseSchema();
 
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
 
@@ -195,11 +192,11 @@ const subscriptionMapping: Record<string, string> = {
                         <span>{{ licenseDetails.transferable }}</span>
                     </div>
                     <div class="flex gap-2 flex-col w-1/2">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.termDate') }}</span>
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.designer.duration.title')
+                        }}</span>
                         <span>{{
-                            isPerpetual
-                                ? $t('data.designer.perpetual')
-                                : dayjs(licenseDetails.termDate).format('DD/MM/YYYY')
+                            durationSelections.find((item) => item.value === licenseDetails.duration)?.label
                         }}</span>
                     </div>
                 </div>

@@ -1,12 +1,37 @@
 import { z } from 'zod';
 
-import { LicenseCode } from '~/constants/licenses';
+import { durations, LicenseCode } from '~/constants/licenses';
 
 export const useLicenseSchema = () => {
     const { t } = useI18n();
     const isWorldwide = ref(false);
-    const isPerpetual = ref(false);
     const hasPersonalData = ref(false);
+    const durationSelections = [
+        {
+            value: durations.ONE_MONTH,
+            label: t('data.designer.duration.oneMonth'),
+        },
+        {
+            value: durations.THREE_MONTHS,
+            label: t('data.designer.duration.threeMonths'),
+        },
+        {
+            value: durations.SIX_MONTHS,
+            label: t('data.designer.duration.sixMonths'),
+        },
+        {
+            value: durations.ONE_YEAR,
+            label: t('data.designer.duration.oneYear'),
+        },
+        {
+            value: durations.PERPETUAL,
+            label: t('data.designer.duration.perpetual'),
+        },
+        {
+            value: durations.PERPETUAL_REVOCABLE,
+            label: t('data.designer.duration.perpetualRevocable'),
+        },
+    ];
 
     const licenseSchema = z
         .object({
@@ -42,7 +67,8 @@ export const useLicenseSchema = () => {
             isExclusive: z.boolean().optional(),
             region: z.string().array().optional(),
             transferable: z.string().optional(),
-            termDate: z.string().optional(),
+            duration: z.union([z.string(), z.number()]).optional(),
+            noUseWithBlacklistedDatasets: z.boolean().optional(),
             additionalRenewalTerms: z.string().optional(),
             nonRenewalDays: z
                 .union([
@@ -116,7 +142,7 @@ export const useLicenseSchema = () => {
                     });
                 }
 
-                if (!data.termDate && !isPerpetual.value) {
+                if (!data.duration) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         message: t('val.required'),
@@ -148,8 +174,8 @@ export const useLicenseSchema = () => {
 
     return {
         isWorldwide,
-        isPerpetual,
         hasPersonalData,
         licenseSchema,
+        durationSelections,
     };
 };

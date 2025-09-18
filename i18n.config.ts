@@ -340,6 +340,15 @@ export default defineI18nConfig(() => ({
                     state: 'Status',
                 },
                 designer: {
+                    duration: {
+                        title: 'Duration',
+                        oneMonth: '1 month',
+                        threeMonths: '3 months',
+                        sixMonths: '6 months',
+                        oneYear: '1 year',
+                        perpetual: 'Perpetual',
+                        perpetualRevocable: 'Perpetual (Revocable)',
+                    },
                     nav: {
                         selectDataset: 'Dataset Selector',
                         monetizationPlanner: 'Monetization Planner',
@@ -347,6 +356,7 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    noUseWithBlacklistedDatasets: 'No use with blacklisted datasets',
                     nftNotPossible:
                         'This asset is already on the marketplace and therefore cannot be sold as an NFT. Please select a different monetization method.',
                     annual: 'per year',

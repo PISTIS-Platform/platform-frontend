@@ -911,3 +911,12 @@ export enum LicenseCode {
     PISTIS = 'PISTIS License',
     NFT = 'NFT License',
 }
+
+export enum durations {
+    ONE_MONTH = 30,
+    THREE_MONTHS = 90,
+    SIX_MONTHS = 180,
+    ONE_YEAR = 365,
+    PERPETUAL = 'perpetual',
+    PERPETUAL_REVOCABLE = 'perpetual revocable',
+}
