@@ -67,7 +67,7 @@ export const useLicenseSchema = () => {
             isExclusive: z.boolean().optional(),
             region: z.string().array().optional(),
             transferable: z.string().optional(),
-            duration: z.string().optional(),
+            duration: z.union([z.string(), z.number()]).optional(),
             noUseWithBlacklistedDatasets: z.boolean().optional(),
             additionalRenewalTerms: z.string().optional(),
             nonRenewalDays: z
