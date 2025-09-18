@@ -340,6 +340,17 @@ export default defineI18nConfig(() => ({
                     state: 'Status',
                 },
                 designer: {
+                    duration: {
+                        title: 'Duration',
+                        oneMonth: '1 month',
+                        threeMonths: '3 months',
+                        sixMonths: '6 months',
+                        oneYear: '1 year',
+                        fiveYears: '5 years',
+                        tenYears: '10 years',
+                        perpetual: 'Perpetual',
+                        perpetualRevocable: 'Perpetual (Revocable)',
+                    },
                     nav: {
                         selectDataset: 'Dataset Selector',
                         monetizationPlanner: 'Monetization Planner',

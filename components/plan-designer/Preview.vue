@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { t } = useI18n();
-import dayjs from 'dayjs';
 
 defineProps({
     assetOfferingDetails: {
@@ -21,10 +20,6 @@ defineProps({
     },
     limitFrequencySelections: {
         type: Array<Record<string, any>>,
-        required: true,
-    },
-    isPerpetual: {
-        type: Boolean,
         required: true,
     },
     isWorldwide: {
@@ -195,12 +190,9 @@ const subscriptionMapping: Record<string, string> = {
                         <span>{{ licenseDetails.transferable }}</span>
                     </div>
                     <div class="flex gap-2 flex-col w-1/2">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.termDate') }}</span>
-                        <span>{{
-                            isPerpetual
-                                ? $t('data.designer.perpetual')
-                                : dayjs(licenseDetails.termDate).format('DD/MM/YYYY')
-                        }}</span>
+                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.duration') }}</span>
+                        <span>{{ licenseDetails.value.duration }}</span>
+                        //TODO: Find from options to show label
                     </div>
                 </div>
                 <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex items-start w-full">

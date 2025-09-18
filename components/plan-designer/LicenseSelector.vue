@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import dayjs from 'dayjs';
 import * as R from 'ramda';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
-import { LicenseCode, licenses } from '~/constants/licenses';
+import { durations, LicenseCode, licenses } from '~/constants/licenses';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
 const codeSort = R.sortWith([R.ascend(R.prop('code'))]);
@@ -13,6 +12,41 @@ const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
 import { countries } from '~/constants/countries';
+
+const durationSelections = [
+    {
+        value: durations.ONE_MONTH,
+        label: t('data.designer.duration.oneMonth'),
+    },
+    {
+        value: durations.THREE_MONTHS,
+        label: t('data.designer.duration.threeMonths'),
+    },
+    {
+        value: durations.SIX_MONTHS,
+        label: t('data.designer.duration.sixMonths'),
+    },
+    {
+        value: durations.ONE_YEAR,
+        label: t('data.designer.duration.oneYear'),
+    },
+    {
+        value: durations.FIVE_YEARS,
+        label: t('data.designer.duration.fiveYears'),
+    },
+    {
+        value: durations.TEN_YEARS,
+        label: t('data.designer.duration.tenYears'),
+    },
+    {
+        value: durations.PERPETUAL,
+        label: t('data.designer.duration.perpetual'),
+    },
+    {
+        value: durations.PERPETUAL_REVOCABLE,
+        label: t('data.designer.duration.perpetualRevocable'),
+    },
+];
 
 //NOTE: Value will be the shorthand, label is translatable
 const listOfCountries = Object.keys(countries).map((countryShorthand: string) => ({
@@ -87,7 +121,7 @@ const isLicenseValid = computed(() => {
 
 const isAllValid = computed(() => isLicenseValid.value);
 
-const { isWorldwide, isPerpetual, hasPersonalData, licenseSchema } = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema();
 
 type licenseType = z.infer<typeof licenseSchema>;
 
@@ -158,14 +192,6 @@ const updateWorldwide = (value: boolean) => {
     }
 };
 
-const updatePerpetual = (value: boolean) => {
-    isPerpetual.value = value;
-    emit('update:is-perpetual', value);
-    if (isPerpetual.value) {
-        licenseDetails.value.termDate = undefined;
-    }
-};
-
 const updatePersonal = (value: boolean) => {
     hasPersonalData.value = value;
     emit('update:has-personal-data', value);
@@ -232,8 +258,7 @@ const customValidate = () => {
     if (!isWorldwide.value && !licenseDetails.value.region.length)
         errors.push({ path: 'region', message: t('val.required') });
     else formRef.value.clear('region');
-    if (!isPerpetual.value && !licenseDetails.value.termDate)
-        errors.push({ path: 'termDate', message: t('val.required') });
+    if (!licenseDetails.value.duration) errors.push({ path: 'duration', message: t('val.required') });
     if (!licenseDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
     if (!licenseDetails.value.nonRenewalDays) errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
     if (!licenseDetails.value.contractBreachDays)
@@ -432,34 +457,22 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                                     ></USelectMenu>
                                 </UFormGroup>
                                 <UFormGroup
-                                    :label="$t('data.designer.termDate')"
-                                    :required="!isPerpetual"
-                                    name="termDate"
-                                    class="text-gray-200"
+                                    :label="$t('data.designer.duration.title')"
+                                    name="duration"
+                                    required
+                                    class="w-full"
                                     :ui="{ error: 'absolute -bottom-6' }"
                                     eager-validation
                                 >
-                                    <UPopover :popper="{ placement: 'bottom-start' }">
-                                        <UButton
-                                            color="white"
-                                            icon="i-heroicons-calendar-days-20-solid"
-                                            :label="
-                                                licenseDetails.termDate
-                                                    ? dayjs(licenseDetails.termDate).format('DD MMMM YYYY')
-                                                    : isPerpetual
-                                                      ? t('data.designer.licenseIsPerpetual')
-                                                      : t('data.designer.pleaseSelectDate')
-                                            "
-                                            :disabled="isPerpetual"
-                                            :class="[
-                                                isPerpetual ? 'opacity-50' : '',
-                                                licenseDetails.termDate ? 'text-gray-700' : 'text-gray-400',
-                                            ]"
-                                        />
-                                        <template #panel="{ close }">
-                                            <DatePicker v-model="licenseDetails.termDate" is-required @close="close" />
-                                        </template>
-                                    </UPopover>
+                                    <USelectMenu
+                                        v-model="licenseDetails.duration"
+                                        :options="durationSelections"
+                                        :placeholder="$t('data.designer.duration.title')"
+                                        value-attribute="value"
+                                        option-attribute="label"
+                                        class="disabled:opacity-50"
+                                    />
+
                                     <template #error="{ error }">
                                         <span
                                             :class="[
@@ -468,20 +481,9 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                                                     : 'text-primary-500 dark:text-primary-400',
                                             ]"
                                         >
-                                            {{ isPerpetual || licenseDetails.termDate ? '' : error }}
+                                            {{ error }}
                                         </span>
                                     </template>
-                                </UFormGroup>
-                                <UFormGroup
-                                    :label="$t('data.designer.perpetual')"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <UCheckbox
-                                        :model-value="isPerpetual"
-                                        class="mt-2.5 justify-center"
-                                        @update:model-value="(value: boolean) => updatePerpetual(value)"
-                                    />
                                 </UFormGroup>
                             </div>
                         </div>

@@ -5,7 +5,6 @@ import { LicenseCode } from '~/constants/licenses';
 export const useLicenseSchema = () => {
     const { t } = useI18n();
     const isWorldwide = ref(false);
-    const isPerpetual = ref(false);
     const hasPersonalData = ref(false);
 
     const licenseSchema = z
@@ -42,7 +41,7 @@ export const useLicenseSchema = () => {
             isExclusive: z.boolean().optional(),
             region: z.string().array().optional(),
             transferable: z.string().optional(),
-            termDate: z.string().optional(),
+            duration: z.string().optional(),
             additionalRenewalTerms: z.string().optional(),
             nonRenewalDays: z
                 .union([
@@ -116,7 +115,7 @@ export const useLicenseSchema = () => {
                     });
                 }
 
-                if (!data.termDate && !isPerpetual.value) {
+                if (!data.duration) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         message: t('val.required'),
@@ -148,7 +147,6 @@ export const useLicenseSchema = () => {
 
     return {
         isWorldwide,
-        isPerpetual,
         hasPersonalData,
         licenseSchema,
     };

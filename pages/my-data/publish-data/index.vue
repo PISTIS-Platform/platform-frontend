@@ -12,7 +12,6 @@ const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/
     query: { page: '' },
 });
 
-// const { showSuccessMessage } = useAlertMessage();
 const router = useRouter();
 const { t } = useI18n();
 const submitError = ref(false);
@@ -159,9 +158,10 @@ const licenseDetails = ref<Partial<licenseType>>({
     nonRenewalDays: '',
     contractBreachDays: '',
     personalDataTerms: '',
+    duration: '',
 });
 
-const { isWorldwide, isPerpetual, hasPersonalData, licenseSchema } = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema();
 
 // access policies
 let policyData: Array<AccessPolicyDetails> = [];
@@ -385,7 +385,6 @@ const changeStep = async (stepNum: number) => {
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
-            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
@@ -398,7 +397,6 @@ const changeStep = async (stepNum: number) => {
             :is-free="isFree"
             @change-page="changeStep"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
-            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
@@ -421,7 +419,6 @@ const changeStep = async (stepNum: number) => {
         :asset-offering-details="assetOfferingDetails"
         :license-details="licenseDetails"
         :limit-frequency-selections="limitFrequencySelections"
-        :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
         :has-personal-data="hasPersonalData"
         :submit-status="submitStatus"
