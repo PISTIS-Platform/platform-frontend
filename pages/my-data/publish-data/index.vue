@@ -159,6 +159,7 @@ const licenseDetails = ref<Partial<licenseType>>({
     contractBreachDays: '',
     personalDataTerms: '',
     duration: '',
+    noUseWithBlacklistedDatasets: false,
 });
 
 const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema();

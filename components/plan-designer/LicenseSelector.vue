@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
-import { durations, LicenseCode, licenses } from '~/constants/licenses';
+import { LicenseCode, licenses } from '~/constants/licenses';
 import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
 const codeSort = R.sortWith([R.ascend(R.prop('code'))]);
@@ -12,41 +12,6 @@ const { showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
 
 import { countries } from '~/constants/countries';
-
-const durationSelections = [
-    {
-        value: durations.ONE_MONTH,
-        label: t('data.designer.duration.oneMonth'),
-    },
-    {
-        value: durations.THREE_MONTHS,
-        label: t('data.designer.duration.threeMonths'),
-    },
-    {
-        value: durations.SIX_MONTHS,
-        label: t('data.designer.duration.sixMonths'),
-    },
-    {
-        value: durations.ONE_YEAR,
-        label: t('data.designer.duration.oneYear'),
-    },
-    {
-        value: durations.FIVE_YEARS,
-        label: t('data.designer.duration.fiveYears'),
-    },
-    {
-        value: durations.TEN_YEARS,
-        label: t('data.designer.duration.tenYears'),
-    },
-    {
-        value: durations.PERPETUAL,
-        label: t('data.designer.duration.perpetual'),
-    },
-    {
-        value: durations.PERPETUAL_REVOCABLE,
-        label: t('data.designer.duration.perpetualRevocable'),
-    },
-];
 
 //NOTE: Value will be the shorthand, label is translatable
 const listOfCountries = Object.keys(countries).map((countryShorthand: string) => ({
@@ -121,7 +86,7 @@ const isLicenseValid = computed(() => {
 
 const isAllValid = computed(() => isLicenseValid.value);
 
-const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema, durationSelections } = useLicenseSchema();
 
 type licenseType = z.infer<typeof licenseSchema>;
 
@@ -387,6 +352,19 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                                         v-model="licenseDetails.isExclusive"
                                         name="isExclusive"
                                         class="mt-2.5 -ml-1 justify-center"
+                                    />
+                                </UFormGroup>
+                                <UFormGroup
+                                    :label="$t('data.designer.noUseWithBlacklistedDatasets')"
+                                    name="noUseWithBlacklistedDatasets"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                    eager-validation
+                                    class="w-[440px]"
+                                >
+                                    <UCheckbox
+                                        v-model="licenseDetails.noUseWithBlacklistedDatasets"
+                                        name="noUseWithBlacklistedDatasets"
+                                        class="mt-2.5 justify-center"
                                     />
                                 </UFormGroup>
                                 <UFormGroup

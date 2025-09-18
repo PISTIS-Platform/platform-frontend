@@ -346,8 +346,6 @@ export default defineI18nConfig(() => ({
                         threeMonths: '3 months',
                         sixMonths: '6 months',
                         oneYear: '1 year',
-                        fiveYears: '5 years',
-                        tenYears: '10 years',
                         perpetual: 'Perpetual',
                         perpetualRevocable: 'Perpetual (Revocable)',
                     },
@@ -358,6 +356,7 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    noUseWithBlacklistedDatasets: 'No use with blacklisted datasets',
                     nftNotPossible:
                         'This asset is already on the marketplace and therefore cannot be sold as an NFT. Please select a different monetization method.',
                     annual: 'per year',

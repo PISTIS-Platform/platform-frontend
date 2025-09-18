@@ -917,8 +917,6 @@ export enum durations {
     THREE_MONTHS = 'three months',
     SIX_MONTHS = 'six months',
     ONE_YEAR = 'one year',
-    FIVE_YEARS = 'five years',
-    TEN_YEARS = 'ten years',
     PERPETUAL = 'perpetual',
     PERPETUAL_REVOCABLE = 'perpetual revocable',
 }

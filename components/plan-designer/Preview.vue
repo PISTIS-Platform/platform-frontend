@@ -38,6 +38,8 @@ defineProps({
 
 import { LicenseCode } from '~/constants/licenses';
 
+const { durationSelections } = useLicenseSchema();
+
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
 
 const subscriptionMapping: Record<string, string> = {
@@ -191,8 +193,9 @@ const subscriptionMapping: Record<string, string> = {
                     </div>
                     <div class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.duration') }}</span>
-                        <span>{{ licenseDetails.value.duration }}</span>
-                        //TODO: Find from options to show label
+                        <span>{{
+                            durationSelections.find((item) => item.value === licenseDetails.duration)?.label
+                        }}</span>
                     </div>
                 </div>
                 <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex items-start w-full">
