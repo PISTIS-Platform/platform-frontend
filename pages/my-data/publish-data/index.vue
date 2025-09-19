@@ -60,17 +60,17 @@ const transformSingleDataset = (dataset: Record<string, any>) => ({
     distributions: dataset.distributions,
 });
 
-const { data: isAssetOnMarketplace, refresh } = useFetch(`api/datasets/is-on-marketplace`, {
+const { data: isAssetOnMarketplace } = useFetch(`api/datasets/is-on-marketplace`, {
     query: {
         query: encodeURIComponent(
             `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX pst: <https://www.pistis-project.eu/ns/voc#> ASK { ?offer rdf:type pst:Offer ; pst:originalId "${selectedAsset.value?.id}" .}`,
         ),
     },
+    watch: [selectedAsset],
 });
 
 watch(selectedAsset, () => {
     if (!selectedAsset.value) return;
-    refresh();
     assetOfferingDetails.value.title = selectedAsset.value.title;
     assetOfferingDetails.value.description = selectedAsset.value.description;
     assetOfferingDetails.value.distributions = selectedAsset?.value.distributions?.map((item) => ({
