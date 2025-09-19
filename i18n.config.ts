@@ -331,6 +331,9 @@ export default defineI18nConfig(() => ({
                             'Could not retrieve datasets available for investment. An error has occurred.',
                     },
                 },
+                quality: {
+                    query: 'Data Quality Query',
+                },
 
                 workflow: {
                     runId: 'Run ID',
