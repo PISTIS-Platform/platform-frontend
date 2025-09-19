@@ -31,8 +31,14 @@ const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<strin
     $fetch('/api/datasets/get-all'),
 );
 
-const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(`single-dataset`, () =>
-    !!route.query.id ? $fetch('/api/datasets/get-specific', { query: { id: route.query.id } }) : null,
+const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(
+    () =>
+        $fetch('/api/datasets/get-specific', {
+            query: { id: route.query.id },
+        }),
+    {
+        immediate: !!route.query.id,
+    },
 );
 
 watch(dataset, () => {
@@ -60,14 +66,20 @@ const transformSingleDataset = (dataset: Record<string, any>) => ({
     distributions: dataset.distributions,
 });
 
-const { data: isAssetOnMarketplace } = useFetch(`api/datasets/is-on-marketplace`, {
-    query: {
-        query: encodeURIComponent(
-            `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX pst: <https://www.pistis-project.eu/ns/voc#> ASK { ?offer rdf:type pst:Offer ; pst:originalId "${selectedAsset.value?.id}" .}`,
-        ),
+const { data: isAssetOnMarketplace } = useAsyncData(
+    () =>
+        $fetch(`api/datasets/is-on-marketplace`, {
+            query: {
+                query: encodeURIComponent(
+                    `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX pst: <https://www.pistis-project.eu/ns/voc#> ASK { ?offer rdf:type pst:Offer ; pst:originalId "${selectedAsset.value?.id}" .}`,
+                ),
+            },
+        }),
+    {
+        watch: [selectedAsset],
+        immediate: !!selectedAsset.value,
     },
-    watch: [selectedAsset],
-});
+);
 
 watch(selectedAsset, () => {
     if (!selectedAsset.value) return;
