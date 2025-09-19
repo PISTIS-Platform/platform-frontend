@@ -31,8 +31,8 @@ const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<strin
     $fetch('/api/datasets/get-all'),
 );
 
-const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(() =>
-    $fetch('/api/datasets/get-specific', { query: { id: route.query.id } }),
+const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(`single-dataset`, () =>
+    !!route.query.id ? $fetch('/api/datasets/get-specific', { query: { id: route.query.id } }) : null,
 );
 
 watch(dataset, () => {
