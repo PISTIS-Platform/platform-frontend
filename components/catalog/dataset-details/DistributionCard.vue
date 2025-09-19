@@ -92,7 +92,7 @@ if (titleObject) {
         if (keys.includes('en')) {
             downloadFileName = titleObject.en;
         } else {
-            downloadFileName = titleObject[keys[0]];
+            downloadFileName = titleObject;
         }
     }
 }
