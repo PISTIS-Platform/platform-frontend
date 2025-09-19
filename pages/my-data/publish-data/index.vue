@@ -25,7 +25,7 @@ const selected = ref<
     { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
 >(undefined);
 
-const routeAssetId = computed(() => route.query.id);
+const hasRouteAssetId = computed(() => !!route.query.id);
 
 const assetId = computed(() => selected.value?.id);
 
@@ -362,13 +362,13 @@ const changeStep = async (stepNum: number) => {
         class="w-full h-full text-gray-700 space-y-8"
     >
         <UAlert
-            v-if="routeAssetId && !dataset && !selected"
+            v-if="hasRouteAssetId && !dataset && !selected"
             :title="t('data.designer.error.noAssetFound')"
             color="red"
             variant="soft"
             icon="nonicons:not-found-16"
         />
-        <UCard v-if="!routeAssetId || !dataset">
+        <UCard v-if="!hasRouteAssetId || !dataset">
             <template #header>
                 <div class="flex items-center gap-4">
                     <UIcon name="oui:pages-select" class="w-10 h-10 text-gray-500" />
