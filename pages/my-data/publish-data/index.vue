@@ -70,9 +70,7 @@ const { data: isAssetOnMarketplace } = useAsyncData(
     () =>
         $fetch(`api/datasets/is-on-marketplace`, {
             query: {
-                query: encodeURIComponent(
-                    `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX pst: <https://www.pistis-project.eu/ns/voc#> ASK { ?offer rdf:type pst:Offer ; pst:originalId "${selectedAsset.value?.id}" .}`,
-                ),
+                id: selectedAsset.value?.id,
             },
         }),
     {
