@@ -29,23 +29,19 @@ const routeAssetId = computed(() => route.query.id);
 
 const assetId = computed(() => selected.value?.id);
 
-watch(
-    routeAssetId,
-    () => {
-        if (routeAssetId) {
-            selected.value = transformSingleDataset(dataset);
-        }
-    },
-    { deep: true },
-);
-
 const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
     $fetch('/api/datasets/get-all'),
 );
 
 const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(() =>
-    $fetch('/api/datasets/get-specific', { query: { id: assetId } }),
+    $fetch('/api/datasets/get-specific', { query: { id: route.query.id } }),
 );
+
+watch(dataset, () => {
+    if (dataset.value) {
+        selected.value = transformSingleDataset(dataset.value);
+    }
+});
 
 const transformedDatasets = computed(() => {
     if (!datasetsData.value || !datasetsData.value.length) {
@@ -366,6 +362,7 @@ const changeStep = async (stepNum: number) => {
         class="w-full h-full text-gray-700 space-y-8"
     >
         <UAlert
+            v-if="routeAssetId && !dataset && !selected"
             :title="t('data.designer.error.noAssetFound')"
             color="red"
             variant="soft"
