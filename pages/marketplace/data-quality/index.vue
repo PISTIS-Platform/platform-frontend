@@ -170,11 +170,12 @@
 <script setup>
 import { computed, reactive, ref } from 'vue';
 
-import RulesConfig from '~/composables/rules-config';
+// import RulesConfig from '~/composables/rules-config';
+import { availableRules, ruleDetails } from '~/constants/quality-rules';
 
 // Dimensions
 const dimensions = ['accuracy', 'consistency', 'completeness', 'uniqueness', 'validity'];
-console.log('Available Rules:', RulesConfig.availableRules);
+// console.log('Available Rules:', RulesConfig.availableRules);
 // State
 const selectedDimension = ref('all');
 const expandedDimensions = reactive({});
@@ -190,7 +191,7 @@ function onDragStart(ruleId) {
 function onDrop(event) {
     event.preventDefault();
     const ruleId = event.dataTransfer.getData('ruleId');
-    const rule = RulesConfig.availableRules.find((r) => r.id === ruleId);
+    const rule = availableRules.find((r) => r.id === ruleId);
     if (rule) addRuleToSelected(rule);
 }
 
@@ -198,16 +199,14 @@ function onDrop(event) {
 const filteredRulesByDimension = computed(() => {
     if (selectedDimension.value === 'all') {
         // Group by dimension
-        return RulesConfig.availableRules.reduce((acc, rule) => {
+        return availableRules.reduce((acc, rule) => {
             acc[rule.dimension] = acc[rule.dimension] || [];
             acc[rule.dimension].push(rule);
             return acc;
         }, {});
     } else {
         return {
-            [selectedDimension.value]: RulesConfig.availableRules.filter(
-                (rule) => rule.dimension === selectedDimension.value,
-            ),
+            [selectedDimension.value]: availableRules.filter((rule) => rule.dimension === selectedDimension.value),
         };
     }
 });
@@ -271,7 +270,7 @@ function capitalize(str) {
 // Rule-specific fields
 const ruleSpecificFields = computed(() => {
     if (!selectedRule.value) return [];
-    const details = RulesConfig.ruleDetails[selectedRule.value.id];
+    const details = ruleDetails[selectedRule.value.id];
     return details?.fields || [];
 });
 
@@ -301,6 +300,7 @@ function getFieldProps(field) {
 .fade-leave-active {
     transition: opacity 0.3s;
 }
+
 .fade-enter-from,
 .fade-leave-to {
     opacity: 0;
