@@ -12,7 +12,7 @@ const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/
     query: { page: '' },
 });
 
-// const { showSuccessMessage } = useAlertMessage();
+const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const submitError = ref(false);
@@ -25,10 +25,26 @@ const selected = ref<
     { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
 >(undefined);
 
+const routeAssetId = computed(() => route.query.id);
+
 const assetId = computed(() => selected.value?.id);
+
+watch(
+    routeAssetId,
+    () => {
+        if (routeAssetId) {
+            selected.value = transformSingleDataset(dataset);
+        }
+    },
+    { deep: true },
+);
 
 const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
     $fetch('/api/datasets/get-all'),
+);
+
+const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(() =>
+    $fetch('/api/datasets/get-specific', { query: { id: assetId } }),
 );
 
 const transformedDatasets = computed(() => {
@@ -41,6 +57,13 @@ const transformedDatasets = computed(() => {
         description: dataset.description.en,
         distributions: dataset.distributions,
     }));
+});
+
+const transformSingleDataset = (dataset: Record<string, any>) => ({
+    id: dataset.id,
+    title: dataset.title.en,
+    description: dataset.description.en,
+    distributions: dataset.distributions,
 });
 
 const { data: isAssetOnMarketplace } = useFetch(`api/datasets/is-on-marketplace`, {
@@ -336,10 +359,19 @@ const changeStep = async (stepNum: number) => {
 
 <template>
     <NavigationSteps :steps="steps" :selected-page="selectedPage" @select-page="changeStep" />
-    <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
+    <UProgress v-if="datasetsStatus === 'pending' || singleDatasetStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 0 && datasetsStatus !== 'pending'" class="w-full h-full text-gray-700 space-y-8">
-        <UCard>
+    <div
+        v-show="selectedPage === 0 && datasetsStatus !== 'pending' && singleDatasetStatus !== 'pending'"
+        class="w-full h-full text-gray-700 space-y-8"
+    >
+        <UAlert
+            :title="t('data.designer.error.noAssetFound')"
+            color="red"
+            variant="soft"
+            icon="nonicons:not-found-16"
+        />
+        <UCard v-if="!routeAssetId || !dataset">
             <template #header>
                 <div class="flex items-center gap-4">
                     <UIcon name="oui:pages-select" class="w-10 h-10 text-gray-500" />
