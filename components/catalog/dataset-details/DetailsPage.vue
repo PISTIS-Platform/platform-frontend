@@ -360,7 +360,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
-                            <a :href="`/data/publish-data/${datasetId}`" class="link"
+                            <a :href="`/my-data/publish-data?id=${datasetId}`" class="link"
                                 ><KButton size="small">Publish Data</KButton></a
                             >
                         </div>

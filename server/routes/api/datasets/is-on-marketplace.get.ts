@@ -1,25 +1,22 @@
-import { defineEventHandler, getQuery } from 'h3';
-import { $fetch } from 'ofetch';
+import { getToken } from '#auth';
 
 const {
     public: { cloudUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
+    const token = await getToken({ event });
     const query = getQuery(event);
-    const sparqlQuery = query.query;
 
-    const targetUrl = `${cloudUrl}/srv/virtuoso/sparql?query=${encodeURIComponent(sparqlQuery)}`;
-
-    try {
-        const response = await $fetch(targetUrl, {
+    const result: Record<string, any> = await $fetch(
+        `${cloudUrl}/srv/search/search?q=${query.id}&filters=dataset&fields=offer.original_id&includes=id,offer,monetization`,
+        {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/sparql-query',
+                Authorization: `Bearer ${token?.access_token}`,
             },
-        });
-        return response;
-    } catch (error) {
-        return { error: 'Failed to fetch data' };
-    }
+        },
+    );
+
+    return !!result.result.results.length;
 });
