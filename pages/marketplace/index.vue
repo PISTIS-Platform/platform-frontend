@@ -8,12 +8,11 @@
 // import SearchItems from '@/views/search/SearchItems.vue'
 import Sidebar from 'primevue/sidebar';
 
+import { useDatasetSearchView } from '@/pages/catalog/useDatasetsSearchView';
+import { useSearchParams } from '@/pages/catalog/useSearchParams';
+import { useSelectedFacets } from '@/pages/catalog/useSelectedFacets';
 // import { ref, toRef } from 'vue'
 import { useDcatApSearch } from '@/sdk';
-
-import { useDatasetSearchView } from '../my-data/catalog/useDatasetsSearchView';
-import { useSearchParams } from '../my-data/catalog/useSearchParams';
-import { useSelectedFacets } from '../my-data/catalog/useSelectedFacets';
 
 // const route = useRoute();
 // const pistisMode = computed(() => route.query.pistisMode || 'factory');

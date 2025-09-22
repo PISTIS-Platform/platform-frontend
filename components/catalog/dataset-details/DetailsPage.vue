@@ -248,16 +248,47 @@ const truncatedEllipsedDescription = computed(() => {
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-row items-center justify-between">
                             <h3 class="text-4xl text-primary-600 font-semibold">{{ title }}</h3>
-                            <div class="flex flex-row">
+                            <div class="flex flex-row gap-2">
                                 <UButton
                                     size="sm"
                                     variant="outline"
                                     :label="$t('buttons.dataLineage')"
                                     :to="{
-                                        path: '/my-data/catalog/dataset-details/data-lineage',
+                                        path:
+                                            pistisMode === 'cloud'
+                                                ? '/marketplace/dataset-details/data-lineage'
+                                                : '/catalog/dataset-details/data-lineage',
                                         query: { id: accessID, pm: pistisMode, url: backendUrl },
                                     }"
                                 />
+                                <template v-if="pistisMode === 'factory'">
+                                    <UButton
+                                        size="sm"
+                                        variant="outline"
+                                        label="Quality Assessment"
+                                        :to="{
+                                            path: `/srv/catalog/datasets/${datasetId}/quality`,
+                                            external: true,
+                                        }"
+                                    />
+                                    <UButton
+                                        v-if="catalog === 'my-data'"
+                                        size="sm"
+                                        color="secondary"
+                                        variant="solid"
+                                        label="Publish Data"
+                                        :to="`/data/publish-data/${datasetId}`"
+                                    />
+                                    <UButton
+                                        v-if="catalog === 'acquired-data'"
+                                        size="sm"
+                                        color="secondary"
+                                        variant="outline"
+                                        label="Rate Dataset"
+                                        :to="feedbackUrl"
+                                    ></UButton>
+                                </template>
+                                <template v-if="pistisMode === 'factory' && catalog === 'acquired-data'"></template>
                             </div>
                         </div>
                         <h5 class="text-lg">
@@ -362,63 +393,9 @@ const truncatedEllipsedDescription = computed(() => {
                         <UButton variant="solid" size="lg" color="primary" block>Invest</UButton>
                     </div>
 
-                    <UButton
-                        v-if="!isOwned"
-                        size="sm"
-                        variant="link"
-                        block
-                        :to="`${config.public.factoryUrl}/invest/${datasetId}`"
-                        >Provide Feedback</UButton
-                    >
+                    <UButton v-if="!isOwned" size="sm" variant="link" block :to="feedbackUrl">Provide Feedback</UButton>
                 </div>
             </section>
-
-            <!-- Factory (My Data) -->
-            <div v-if="pistisMode === 'factory'">
-                <section class="container custom_nav_container">
-                    <template v-if="catalog === 'my-data'">
-                        <div class="btn_holder flex gap-5 flex-wrap">
-                            <!-- Data Lineage -->
-                            <NuxtLink
-                                :to="{
-                                    path: '/my-data/catalog/dataset-details/data-lineage',
-                                    query: { id: accessID, pm: pistisMode, url: backendUrl },
-                                }"
-                                class=""
-                            >
-                                <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                            </NuxtLink>
-
-                            <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
-                                ><KButton size="small">Quality Assessment</KButton></a
-                            >
-                            <a :href="`/data/publish-data/${datasetId}`" class="link"
-                                ><KButton size="small">Publish Data</KButton></a
-                            >
-                        </div>
-                    </template>
-                    <template v-if="catalog === 'acquired-data'">
-                        <div class="btn_holder flex gap-5 flex-wrap">
-                            <!-- Data Lineage -->
-                            <NuxtLink
-                                :to="{
-                                    path: '/my-data/catalog/dataset-details/data-lineage',
-
-                                    query: { id: accessID, pm: pistisMode, url: backendUrl },
-                                }"
-                                class=""
-                            >
-                                <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                            </NuxtLink>
-
-                            <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
-                                ><KButton size="small">Quality Assessment</KButton></a
-                            >
-                            <a :href="feedbackUrl" class="link"><KButton size="small">Provide Feedback</KButton></a>
-                        </div>
-                    </template>
-                </section>
-            </div>
         </div>
     </div>
 </template>

@@ -115,62 +115,66 @@ const {
             <!-- </template> -->
 
             <template #sections>
-                <section class="space-y-4">
-                    <div class="flex flex-row items-center gap-2">
-                        <h4 class="text-[1.7rem] font-bold leading-[3rem]">Distributions</h4>
-                        <KTag class="rounded-full bg-secondary">
-                            {{ getFormattedDistributions?.length }}
-                        </KTag>
-                    </div>
+                <UCard>
+                    <template #header>
+                        <span class="flex flex-col gap-0.5 items-start justify-center">
+                            <h3 class="text-base font-semibold whitespace-nowrap">
+                                Distributions
+                                <UBadge color="primary" variant="soft">{{ getFormattedDistributions.length }}</UBadge>
+                            </h3>
+                        </span>
+                    </template>
 
-                    <div v-if="false" name="distribution-cards">
-                        <template v-for="(distribution, i) in truncatedFormattedDistributions" :key="distribution.id">
-                            <div name="distribution-card-wrapper" class="relative">
-                                <DistributionCard
-                                    :title="distribution.title || ''"
-                                    :description="distribution.descriptionMarkup || ''"
-                                    :format="distribution.format || 'Unknown'"
-                                    :download-url="distribution.downloadUrls?.[0]!"
-                                    :last-updated="distribution.modified"
-                                    :data="distribution.data"
-                                    :linked-data="distribution.linkedData"
-                                    :dataset-id="datasetId"
-                                    :distribution-id="distribution.id"
-                                />
-                                <div
-                                    v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"
-                                    name="distribution-card-overlay"
-                                    class="bg-linear-to-b absolute left-0 top-0 size-full from-transparent from-0% to-white to-55%"
-                                >
-                                    <div class="absolute bottom-0 flex w-full flex-row items-center justify-center">
-                                        <div>
-                                            <KButton
-                                                :label="`Show more (${getFormattedDistributions.length})`"
-                                                @click="showAllDistributions"
-                                            >
-                                                <i class="icon-[ph--eye-fill]"></i>
-                                            </KButton>
-                                        </div>
+                    <template v-for="(distribution, i) in truncatedFormattedDistributions" :key="distribution.id">
+                        <div name="distribution-card-wrapper" class="relative">
+                            <DistributionCard
+                                :title="distribution.title || ''"
+                                :description="distribution.descriptionMarkup || ''"
+                                :format="distribution.format || 'Unknown'"
+                                :download-url="distribution.downloadUrls?.[0]!"
+                                :last-updated="distribution.modified"
+                                :data="distribution.data"
+                                :linked-data="distribution.linkedData"
+                                :dataset-id="datasetId"
+                                :distribution-id="distribution.id"
+                            />
+                            <div
+                                v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"
+                                name="distribution-card-overlay"
+                                class="bg-linear-to-b absolute left-0 top-0 size-full from-transparent from-0% to-white to-55%"
+                            >
+                                <div class="absolute bottom-0 flex w-full flex-row items-center justify-center">
+                                    <div>
+                                        <KButton
+                                            :label="`Show more (${getFormattedDistributions.length})`"
+                                            @click="showAllDistributions"
+                                        >
+                                            <i class="icon-[ph--eye-fill]"></i>
+                                        </KButton>
                                     </div>
                                 </div>
                             </div>
-                        </template>
-                    </div>
-                </section>
-                <div v-if="(resultEnhanced?.getCategories?.length || 0) > 0" class="space-y-3">
-                    <Typography variant="by-heading-4" class="font-semibold"> Categories </Typography>
-                    <div class="flex flex-row gap-2">
-                        <KTag v-for="category in resultEnhanced?.getCategories" :key="category.id">
-                            <!-- @click="router.push({ name: 'Datasets', query: { categories: category.id } })" -->
-                            {{ getLocalizedValue({ obj: category.label, fallbackLocale: 'en' }) }}
-                        </KTag>
-                    </div>
-                </div>
+                        </div>
+                    </template>
+                </UCard>
             </template>
-        </DetailsPage>
-        <div class="container mx-auto p-8 pt-4">
-            <div class="flex flex-col rounded-lg gap-4 bg-white ring-1 ring-gray-200 shadow p-5">
-                <Typography variant="by-heading-4" class=""> Additional Information </Typography>
+
+            <template #additional-info>
+                <div class="flex flex-row space-x-2 mb-4">
+                    <SummaryBox v-if="(resultEnhanced?.getCategories?.length || 0) > 0" title="Categories">
+                        <template #text>
+                            <UBadge
+                                v-for="category in resultEnhanced?.getCategories"
+                                :key="category.id"
+                                size="sm"
+                                variant="soft"
+                            >
+                                {{ getLocalizedValue({ obj: category.label, fallbackLocale: 'en' }) }}
+                            </UBadge>
+                        </template>
+                    </SummaryBox>
+                </div>
+
                 <PropertyTable
                     v-if="isSuccess"
                     :node="{
@@ -180,7 +184,7 @@ const {
                         data: resultEnhanced?.getPropertyTable2 || undefined,
                     }"
                 />
-            </div>
-        </div>
+            </template>
+        </DetailsPage>
     </div>
 </template>

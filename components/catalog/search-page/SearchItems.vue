@@ -4,7 +4,7 @@
 // import DataInfoCard from '@/components/base/data-info-box/DataInfoCard.vue';
 import Paginator from 'primevue/paginator';
 
-import { useSearchParams } from '../../../pages/my-data/catalog/useSearchParams';
+import { useSearchParams } from '@/pages/catalog/useSearchParams';
 
 const route = useRoute();
 
@@ -17,6 +17,10 @@ const _props = defineProps<{
 }>();
 const searchParams = useSearchParams();
 const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
+
+const toRoute = computed(() =>
+    route.query.pm === 'cloud' ? 'marketplace-dataset-details-datasetId' : 'catalog-dataset-details-datasetId',
+);
 </script>
 
 <template>
@@ -25,7 +29,7 @@ const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
             <slot v-for="item in items" :key="item.id" :item="item">
                 <DataInfoCard
                     :to="{
-                        name: 'marketplace-dataset-details-datasetId',
+                        name: toRoute,
                         params: { datasetId: item.id },
                         query: { pm: route.query.pm },
                     }"

@@ -784,7 +784,7 @@ export default defineI18nConfig(() => ({
                 searchBarPlaceholder: 'Search...',
                 searchButton: 'Search',
                 datasets: {
-                    found: 'Datasets found',
+                    found: 'datasets found',
                 },
             },
             SortSplitButton: {
