@@ -57,6 +57,12 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-semibold text-gray-800">Selected Rules</h2>
                     <button
+                        class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                        @click="exportStagedRules"
+                    >
+                        Preview rules
+                    </button>
+                    <button
                         class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
                         @click="clearAllRules"
                     >
@@ -392,6 +398,32 @@ const ruleSpecificFields = computed(() => {
     const details = ruleDetails[selectedRule.value.id];
     return details?.fields || [];
 });
+
+// Export selectedRules to GX structure
+function exportStagedRules() {
+    const result = selectedRules.value.map((rule) => {
+        const { name, description, mostly, specificData } = rule;
+
+        // Build kwargs
+        const kwargs = { ...specificData };
+        if (mostly !== undefined && mostly !== null) {
+            kwargs.mostly = parseFloat(mostly);
+        }
+
+        // Build meta
+        const meta = {};
+        if (name) meta.name = name;
+        if (description) meta.description = description;
+
+        return {
+            name: rule.type,
+            kwargs,
+            meta,
+        };
+    });
+
+    console.log('Exported Rules JSON:', JSON.stringify(result, null, 2));
+}
 </script>
 
 <style>
