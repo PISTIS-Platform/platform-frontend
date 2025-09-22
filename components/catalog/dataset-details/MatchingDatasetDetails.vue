@@ -25,19 +25,33 @@ loadData();
         <NuxtLink
             v-for="dataset in matchingDatasets"
             :key="dataset.dataset_id"
-            class="block border rounded-lg border-pistis-500 p-3 mb-4 hover:bg-pistis-100"
+            class="block border rounded-md border-neutral-300 p-3 hover:bg-pistis-50 hover:border-pistis-300"
             :to="{
                 name: 'my-data-catalog-dataset-details-datasetId',
                 params: { datasetId: dataset.dataset_id },
                 query: { pm: 'cloud' },
             }"
         >
-            <p>
-                <strong> {{ dataset.title }} </strong>
-            </p>
-            <p>{{ dataset.description }}</p>
-            <p class="text-pistis-500">{{ dataset.price }}€</p>
-            <p>{{ dataset.offer_type }}</p>
+            <div class="flex flex-col space-y-2">
+                <div class="flex flex-row justify-between items-start">
+                    <div class="font-semibold">{{ dataset.title }}</div>
+                    <UBadge
+                        variant="subtle"
+                        class="capitalize"
+                        :color="
+                            dataset.offer_type === 'one-ff'
+                                ? 'secondary'
+                                : dataset.offer_type === 'subscription'
+                                  ? 'emerald'
+                                  : dataset.offer_type === 'nft'
+                                    ? 'blue'
+                                    : 'primary'
+                        "
+                        >{{ dataset.offer_type }}</UBadge
+                    >
+                </div>
+                <div class="text-sm">{{ dataset.description }}</div>
+            </div>
         </NuxtLink>
     </div>
 </template>

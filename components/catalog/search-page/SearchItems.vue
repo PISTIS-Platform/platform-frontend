@@ -20,7 +20,7 @@ const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
 </script>
 
 <template>
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-6">
         <template v-if="!isLoading && !isFetching">
             <slot v-for="item in items" :key="item.id" :item="item">
                 <DataInfoCard

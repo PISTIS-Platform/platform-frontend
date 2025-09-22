@@ -1,111 +1,116 @@
 <template>
-    <Typography variant="by-heading-4"> {{ $t('monetization.header') }} </Typography>
-    <div>
-        <TabView>
-            <TabPanel v-if="offerType === 'purchase' || offerType === 'both'" header="Purchase Offer">
-                <div v-if="isObject(data)" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                    <p>
-                        <strong>{{ $t('monetization.price') }}:</strong> {{ data.purchase_offer[0].price || '-' }} €
-                    </p>
+    <UTabs
+        :items="items"
+        :ui="
+            items.length === 1
+                ? { list: { base: 'hidden' } }
+                : {
+                      list: {
+                          base: '!w-fit bg-primary-100', // Replace the default full-width with width-fit-content
+                      },
+                  }
+        "
+    >
+        <template #purchase>
+            <div v-if="isObject(data)" class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mt-4">
+                <SummaryBox :title="$t('monetization.type')">
+                    <template #text>
+                        {{ data.purchase_offer[0].type }}
+                    </template>
+                </SummaryBox>
 
-                    <p>
-                        <strong>{{ $t('monetization.transferable') }}:</strong>
+                <SummaryBox :title="$t('monetization.transferable')">
+                    <template #text>
                         {{ data.purchase_offer[0].transferable || '-' }}
-                    </p>
+                    </template>
+                </SummaryBox>
 
-                    <p>
-                        <strong>{{ $t('monetization.type') }}:</strong> {{ data.purchase_offer[0].type || '-' }}
-                    </p>
-
-                    <p>
-                        <strong>{{ $t('monetization.exclusive') }}:</strong>
+                <SummaryBox :title="$t('monetization.exclusive')">
+                    <template #text>
                         {{ data.purchase_offer[0].is_exclusive ? 'Yes' : 'No' || '-' }}
-                    </p>
+                    </template>
+                </SummaryBox>
 
-                    <p>
-                        <strong>{{ $t('monetization.termination-date') }}:</strong>
+                <SummaryBox :title="$t('monetization.termination-date')">
+                    <template #text>
                         {{ formatDate(data.purchase_offer[0].term_date) }}
-                    </p>
+                    </template>
+                </SummaryBox>
 
-                    <div v-if="data.purchase_offer[0].license">
-                        <strong>{{ $t('monetization.license') }}: </strong>
+                <SummaryBox v-if="data.purchase_offer[0].license" :title="$t('monetization.license')">
+                    <template #text>
+                        <!-- TODO: Replace with a modal -->
                         <a :href="data.purchase_offer[0].license.resource" target="_blank" rel="noopener noreferrer">{{
                             data.purchase_offer[0].license.label || '-'
                         }}</a>
-                    </div>
+                    </template>
+                </SummaryBox>
 
-                    <div v-if="data.downloads && data.downloads.length">
-                        <strong>{{ $t('monetization.downloads') }}:</strong>
+                <SummaryBox v-if="data.downloads && data.downloads.length">
+                    <template #text>
                         <ul>
                             <li v-for="(dl, index) in data.downloads" :key="index">
                                 {{ dl.frequency || '-' }}: {{ dl.downloads || '-' }}
                             </li>
                         </ul>
-                    </div>
+                    </template>
+                </SummaryBox>
 
-                    <div
-                        v-if="
-                            data.purchase_offer[0].personal_data_terms &&
-                            data.purchase_offer[0].personal_data_terms.length
-                        "
-                    >
-                        <strong>{{ $t('monetization.personal-data-terms') }}:</strong>
+                <SummaryBox
+                    v-if="
+                        data.purchase_offer[0].personal_data_terms && data.purchase_offer[0].personal_data_terms.length
+                    "
+                    :title="$t('monetization.personal-data-terms')"
+                    class="md:col-span-3"
+                >
+                    <template #text>
                         <ul>
                             <li v-for="(term, index) in data.purchase_offer[0].personal_data_terms" :key="index">
                                 <span>{{ term.personal_data_terms || '-' }}</span>
                             </li>
                         </ul>
-                    </div>
-                </div>
-            </TabPanel>
-            <TabPanel v-if="offerType === 'invest' || offerType === 'both'" header="Investment Offer">
-                <div v-if="isObject(data)" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                    <p>
-                        <strong>{{ $t('monetization.price-per-share') }}:</strong>
-                        {{ data.investment_offer[0].price_per_share || '-' }}
-                    </p>
+                    </template>
+                </SummaryBox>
+            </div>
+        </template>
+        <template #investment>
+            <div v-if="isObject(data)" class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
+                <SummaryBox :title="$t('monetization.price-per-share')">
+                    <template #text>{{ data.investment_offer[0].price_per_share || '-' }}</template>
+                </SummaryBox>
 
-                    <p>
-                        <strong>{{ $t('monetization.available-shares') }}:</strong>
-                        {{ data.investment_offer[0].available_shares || '-' }}
-                    </p>
+                <SummaryBox :title="$t('monetization.available-shares')">
+                    <template #text>{{ data.investment_offer[0].available_shares || '-' }}</template>
+                </SummaryBox>
 
-                    <p>
-                        <strong>{{ $t('monetization.termination-date') }}:</strong>
-                        {{ formatDate(data.investment_offer[0].term_date) }}
-                    </p>
+                <SummaryBox :title="$t('monetization.termination-date')">
+                    <template #text>{{ formatDate(data.investment_offer[0].term_date) }}</template>
+                </SummaryBox>
 
-                    <p>
-                        <strong>{{ $t('monetization.total-shares') }}:</strong>
-                        {{ data.investment_offer[0].total_shares || '-' }}
-                    </p>
+                <SummaryBox :title="$t('monetization.total-shares')">
+                    <template #text>{{ data.investment_offer[0].total_shares || '-' }}</template>
+                </SummaryBox>
 
-                    <p>
-                        <strong>{{ $t('monetization.percentage-offer') }}: </strong>
-                        {{ data.investment_offer[0].percentage_offer || '-' }}
-                    </p>
+                <SummaryBox :title="$t('monetization.percentage-offer')">
+                    <template #text>{{ data.investment_offer[0].percentage_offer || '-' }}</template>
+                </SummaryBox>
 
-                    <p>
-                        <strong>{{ $t('monetization.max-shares') }}: </strong>
-                        {{ data.investment_offer[0].max_shares || '-' }}
-                    </p>
+                <SummaryBox :title="$t('monetization.max-shares')">
+                    <template #text>{{ data.investment_offer[0].max_shares || '-' }}</template>
+                </SummaryBox>
 
-                    <p>
-                        <strong>{{ $t('monetization.is-active') }}: </strong>
-                        {{ data.investment_offer[0].is_active || '-' }}
-                    </p>
-                </div>
-            </TabPanel>
-        </TabView>
-    </div>
+                <SummaryBox :title="$t('monetization.is-active')">
+                    <template #text>{{ data.investment_offer[0].is_active || '-' }}</template>
+                </SummaryBox>
+            </div>
+        </template>
+    </UTabs>
 </template>
 
 <script setup>
-import TabPanel from 'primevue/tabpanel';
-import TabView from 'primevue/tabview';
 import { defineProps } from 'vue';
 
-const _props = defineProps({
+const props = defineProps({
     data: {
         type: Object,
         required: true,
@@ -125,19 +130,26 @@ const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString();
 };
-</script>
 
-<style>
-.p-tabview-title {
-    @apply text-gray-400 text-xl hover:text-pistis-600;
-}
-[aria-selected='true'] .p-tabview-title {
-    @apply text-gray-800 underline;
-}
-.p-tabview-panels {
-    @apply p-1;
-}
-.p-tabview-nav-link {
-    @apply pl-1 pt-5 pr-3 pb-2;
-}
-</style>
+const items = computed(() => {
+    const tabs = [];
+
+    if (props.data?.purchase_offer?.[0]) {
+        tabs.push({
+            label:
+                props.data.purchase_offer[0].type === 'one-off'
+                    ? 'One-off Purchase'
+                    : props.data.purchase_offer[0].type === 'subscription'
+                      ? 'Subscription'
+                      : 'NFT',
+            slot: 'purchase',
+        });
+    }
+
+    if (props.data?.investment_offer_offer?.[0]) {
+        tabs.push({ label: 'Investment', slot: 'investment' });
+    }
+
+    return tabs;
+});
+</script>

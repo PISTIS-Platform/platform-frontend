@@ -117,6 +117,7 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
+        console.log(metadata.value);
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
@@ -227,93 +228,149 @@ const truncatedEllipsedDescription = computed(() => {
             </template>
         </KCard>
     </div>
-    <div class="container mx-auto p-8 pt-4">
-        <div class="mx-auto w-full max-w-content-max space-y-12 pt-1">
+    <div class="container mx-auto">
+        <div class="mx-auto w-full max-w-content-max pt-1">
             <section name="dsd-header" class="flex flex-col gap-6">
                 <!-- Go previous page -->
                 <div class="flex flex-col gap-6">
                     <div class="flex justify-between">
-                        <button class="-ml-6 mt-[10px] px-4 py-1 cursor-pointer" @click="router.back()">
+                        <button class="-ml-6 px-4 py-1 cursor-pointer" @click="router.back()">
                             <Typography
                                 variant="paragraph-1"
                                 class="flex items-center gap-2 text-primary hover:text-primary-hover"
                             >
                                 <PhCaretLeft />
-                                <span>back</span>
+                                <span>Back</span>
                             </Typography>
                         </button>
                         <LinkedDataSelector :resource-id="datasetId" resource="datasets" />
                     </div>
-                    <DetailsPageHeader :headline="headline" :title="title" :subtitle="subtitle">
-                        <template #subtitle>
-                            <slot name="subtitle" :subtitle="subtitle">
-                                <span>{{ subtitle }}</span>
-                                <!-- <RouterLink
-                                    :to="{ name: 'Datasets', query: { catalog: resultEnhanced?.getCatalogId } }"
-                                    class="by-link"
-                                /> -->
-                            </slot>
-                        </template>
-                    </DetailsPageHeader>
-                </div>
-                <!-- Metadata -->
-                <slot name="metadata">
-                    <div class="flex flex-col justify-between md:flex-row">
-                        <SummaryBox
-                            v-for="(s, i) in summary"
-                            :key="i"
-                            class="mb-4 mr-4 flex-1"
-                            :title="s.title"
-                            :text="s.text || '-'"
-                        />
-                        <!-- <SummaryBox class="mb-4 mr-4 flex-1" title="Datenbereitsteller" :text="resultEnhanced?.getPublisher?.name || '-'" />
-              <SummaryBox class="mb-4 mr-4 flex-1" title="Aktualisiert" :text="resultEnhanced?.getModified || '-'" /> -->
-                    </div>
-                </slot>
-            </section>
-            <section>
-                <TabGroup
-                    :tabs="[
-                        {
-                            id: 'dataset',
-                            title: 'Info',
-                            content: truncatedEllipsedDescription || '',
-                        },
-                    ]"
-                    class="ring-1 ring-gray-200 shadow rounded-lg"
-                >
-                    <template #default="{ id, content }">
-                        <template v-if="id === 'dataset'">
-                            <div class="flex flex-col gap-4">
-                                <div>
-                                    <Typography as="h5" variant="by-heading-4" class="mb-8">
-                                        <slot name="about-this-dataset"> About this dataset </slot>
-                                    </Typography>
-                                    <Typography as="p" variant="by-copy-small-regular">
-                                        <div class="markdown-content" v-html="content" />
-                                    </Typography>
-                                </div>
-                                <button
-                                    v-if="isDescriptionTruncationNeeded"
-                                    class="grid w-full place-content-center"
-                                    @click="toggleDescription"
-                                >
-                                    <div
-                                        class="flex flex-col items-center justify-center text-primary text-xs/6 font-bold"
-                                    >
-                                        <span>Mehr lesen</span>
-                                        <i v-if="isDescriptionTruncated" class="icon-[ph--caret-down]" />
-                                        <i v-else class="icon-[ph--caret-up]" />
-                                    </div>
-                                </button>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex flex-row items-center justify-between">
+                            <h3 class="text-4xl text-primary-600 font-semibold">{{ title }}</h3>
+                            <div class="flex flex-row">
+                                <UButton
+                                    size="sm"
+                                    variant="outline"
+                                    :label="$t('buttons.dataLineage')"
+                                    :to="{
+                                        path: '/my-data/catalog/dataset-details/data-lineage',
+                                        query: { id: accessID, pm: pistisMode, url: backendUrl },
+                                    }"
+                                />
                             </div>
-                        </template>
-                    </template>
-                </TabGroup>
+                        </div>
+                        <h5 class="text-lg">
+                            <span class="italic">by</span> <span class="font-semibold">{{ subtitle }}</span>
+                        </h5>
+                    </div>
+                </div>
             </section>
+
+            <section class="flex flex-row gap-8 items-start mt-4">
+                <div class="w-full space-y-8">
+                    <UCard
+                        :ui="{
+                            base: ['w-full flex flex-col transition-[flex-grow] duration-300 ease-in-out relative'],
+                        }"
+                    >
+                        <template #header>
+                            <SubHeading title="About this dataset" />
+                        </template>
+
+                        <SummaryBox title="Description">
+                            <template #text>
+                                <div v-html="descriptionMarkup" />
+                            </template>
+                        </SummaryBox>
+
+                        <div class="mt-4">
+                            <slot name="additional-info"></slot>
+                        </div>
+                    </UCard>
+
+                    <UCard v-if="pistisMode === 'cloud'">
+                        <template #header>
+                            <SubHeading :title="$t('monetization.header')" />
+                        </template>
+                        <MonetizationView :data="monetizationData" :offer-type="offerType" />
+                    </UCard>
+
+                    <slot name="sections"></slot>
+
+                    <UCard v-if="pistisMode === 'cloud'">
+                        <template #header>
+                            <SubHeading :title="$t('matchmakingService.recommendationsHeader')" />
+                        </template>
+                        <MatchingDatasetDetails :dataset-id="datasetId" />
+                    </UCard>
+                </div>
+
+                <div v-if="pistisMode === 'cloud'" class="flex flex-col gap-4 w-96">
+                    <template v-if="hasPurchaseOffer">
+                        <div
+                            v-if="monetizationData.purchase_offer[0].type === 'subscription'"
+                            class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
+                        >
+                            <div class="flex justify-between items-center">
+                                <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
+                                <div class="text-3xl font-bold text-primary-700">
+                                    {{ price }} &euro;
+                                    <span class="font-medium text-lg text-neutral-500">
+                                        / {{ monetizationData.purchase_offer[0].subscriptionFrequency }}</span
+                                    >
+                                </div>
+                            </div>
+
+                            <UButton variant="solid" size="lg" color="emerald" block>Subscribe</UButton>
+                        </div>
+                        <div
+                            v-else
+                            class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
+                        >
+                            <div class="flex justify-between items-center">
+                                <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
+                                <div class="text-3xl font-bold text-primary-700">
+                                    <span v-if="price">{{ price }} &euro;</span>
+                                    <span v-else>FREE</span>
+                                </div>
+                            </div>
+
+                            <UButton variant="solid" size="lg" color="secondary" block>
+                                <span v-if="price">Buy</span>
+                                <span v-else>Get</span>
+                            </UButton>
+                        </div>
+                    </template>
+                    <div
+                        v-if="hasInvestmentOffer || true"
+                        class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
+                            <div class="text-3xl font-bold text-primary-700">
+                                {{ price }} &euro;
+                                <span class="font-medium text-lg text-neutral-500"> / share</span>
+                            </div>
+                        </div>
+
+                        <UButton variant="solid" size="lg" color="primary" block>Invest</UButton>
+                    </div>
+
+                    <UButton
+                        v-if="!isOwned"
+                        size="sm"
+                        variant="link"
+                        block
+                        :to="`${config.public.factoryUrl}/invest/${datasetId}`"
+                        >Provide Feedback</UButton
+                    >
+                </div>
+            </section>
+
             <!-- Cloud (Marketplace) -->
-            <div v-if="pistisMode === 'cloud'">
-                <section class="container custom_nav_container flex">
+            <aside v-if="pistisMode === 'cloud'">
+                <section v-if="false" class="container custom_nav_container flex">
                     <div class="btn_holder flex gap-5 flex-wrap">
                         <a v-if="hasPurchaseOffer" :href="'#'" class="" @click.prevent="buyRequest(factoryPrefix)">
                             <KButton size="small"
@@ -340,7 +397,7 @@ const truncatedEllipsedDescription = computed(() => {
                         </NuxtLink>
                     </div>
                 </section>
-            </div>
+            </aside>
             <!-- Factory (My Data) -->
             <div v-else-if="pistisMode === 'factory'">
                 <section class="container custom_nav_container">
@@ -386,13 +443,6 @@ const truncatedEllipsedDescription = computed(() => {
                         </div>
                     </template>
                 </section>
-            </div>
-            <slot name="sections"> </slot>
-            <div v-if="pistisMode === 'cloud'" class="bg-white p-6 rounded-lg ring-1 ring-gray-200 shadow">
-                <MonetizationView :data="monetizationData" :offer-type="offerType" />
-            </div>
-            <div v-if="pistisMode === 'cloud'" class="bg-white p-6 rounded-lg ring-1 ring-gray-200 shadow">
-                <MatchmakingServiceView :dataset-id="datasetId" />
             </div>
         </div>
     </div>
