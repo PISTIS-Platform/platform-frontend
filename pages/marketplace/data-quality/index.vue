@@ -129,10 +129,43 @@
                     <template v-for="field in ruleSpecificFields" :key="field.id">
                         <div class="mb-4">
                             <label class="block font-semibold text-gray-700 mb-1">{{ field.label }}</label>
-                            <component
-                                :is="getFieldComponent(field)"
+
+                            <!-- Textarea -->
+                            <textarea
+                                v-if="field.type === 'textarea'"
                                 v-model="selectedRule.specificData[field.id]"
-                                v-bind="getFieldProps(field)"
+                                :placeholder="field.placeholder"
+                                :rows="field.rows || 3"
+                                class="border rounded px-3 py-2 w-full"
+                            ></textarea>
+
+                            <!-- Select -->
+                            <select
+                                v-else-if="field.type === 'select'"
+                                v-model="selectedRule.specificData[field.id]"
+                                class="border rounded px-3 py-2 w-full"
+                            >
+                                <option v-for="option in field.options" :key="option" :value="option">
+                                    {{ option }}
+                                </option>
+                            </select>
+
+                            <!-- Checkbox -->
+                            <div v-else-if="field.type === 'checkbox'" class="flex items-center">
+                                <input v-model="selectedRule.specificData[field.id]" type="checkbox" class="mr-2" />
+                                <span class="text-gray-700 text-sm">{{ field.label }}</span>
+                            </div>
+
+                            <!-- Default input (text/number/etc.) -->
+                            <input
+                                v-else
+                                v-model="selectedRule.specificData[field.id]"
+                                :type="field.type"
+                                :placeholder="field.placeholder"
+                                :min="field.min"
+                                :max="field.max"
+                                :step="field.step"
+                                class="border rounded px-3 py-2 w-full"
                             />
                         </div>
                     </template>
@@ -140,6 +173,7 @@
                         <button
                             type="submit"
                             class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 flex-1"
+                            @click="saveRuleDetails"
                         >
                             Save Details
                         </button>
@@ -221,17 +255,36 @@ function toggleDimension(dimension) {
 
 // Add rule to selected
 function addRuleToSelected(rule) {
-    if (!selectedRules.value.find((r) => r.id === rule.id)) {
+    const alreadySelected = selectedRules.value.find((r) => r.id === rule.id);
+    if (!alreadySelected) {
+        const details = ruleDetails[rule.id];
+        const specificFields = details?.fields || [];
+
+        const specificDataDefaults = {};
+        specificFields.forEach((field) => {
+            if (field.type === 'checkbox') {
+                specificDataDefaults[field.id] = false;
+            } else if (field.type === 'number') {
+                specificDataDefaults[field.id] = field.min ?? 0;
+            } else {
+                specificDataDefaults[field.id] = '';
+            }
+        });
+
         selectedRules.value.push({
             id: rule.id,
             type: rule.name,
             name: '',
             description: '',
             mostly: 1.0,
-            specificData: {},
+            specificData: specificDataDefaults,
         });
     }
-    selectRule(selectedRules.value.find((r) => r.id === rule.id));
+
+    const existing = selectedRules.value.find((r) => r.id === rule.id);
+    if (existing) {
+        selectRule(existing);
+    }
 }
 
 // Select rule for editing
@@ -276,26 +329,6 @@ const ruleSpecificFields = computed(() => {
     const details = ruleDetails[selectedRule.value.id];
     return details?.fields || [];
 });
-
-// Dynamic field rendering
-function getFieldComponent(field) {
-    if (field.type === 'textarea') return 'textarea';
-    if (field.type === 'checkbox') return 'input';
-    if (field.type === 'select') return 'select';
-    return 'input';
-}
-function getFieldProps(field) {
-    const props = {
-        type: field.type === 'checkbox' ? 'checkbox' : field.type,
-        placeholder: field.placeholder || '',
-        rows: field.rows || undefined,
-        required: field.required || false,
-        min: field.min || undefined,
-        max: field.max || undefined,
-        step: field.step || undefined,
-    };
-    return props;
-}
 </script>
 
 <style>
