@@ -2,13 +2,12 @@ import { getToken } from '#auth';
 
 const {
     public: { factoryUrl },
-    catalogName,
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
 
-    const catalogResults: string[] = await $fetch(`${factoryUrl}/srv/search/datasets?catalogue=${catalogName}`, {
+    const catalogResults: string[] = await $fetch(`${factoryUrl}/srv/search/datasets?catalogue=my-data`, {
         method: 'GET',
         headers: {
             Authorization: `Bearer ${token?.access_token}`,

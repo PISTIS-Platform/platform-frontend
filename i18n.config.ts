@@ -340,6 +340,9 @@ export default defineI18nConfig(() => ({
                     state: 'Status',
                 },
                 designer: {
+                    error: {
+                        noAssetFound: 'No asset found with this ID. Please select one from the dropdown below.',
+                    },
                     nav: {
                         selectDataset: 'Dataset Selector',
                         monetizationPlanner: 'Monetization Planner',
