@@ -35,7 +35,7 @@
                             <div
                                 v-for="rule in rules"
                                 :key="rule.id"
-                                class="bg-indigo-100 border border-indigo-700 rounded mb-2 p-3 cursor-pointer hover:bg-green-50"
+                                class="bg-indigo-100 border border-indigo-700 rounded mb-2 p-3 cursor-pointer hover:bg-indigo-300"
                                 draggable="true"
                                 @dragstart="onDragStart(rule.id)"
                                 @click="addRuleToSelected(rule)"
@@ -71,10 +71,10 @@
                         v-for="(rule, idx) in selectedRules"
                         :key="rule.id"
                         :class="[
-                            'bg-white border rounded mb-2 p-3 cursor-pointer',
+                            'bg-white border rounded mb-2 p-3 cursor-pointer transition-colors duration-150',
                             selectedRule && selectedRule.id === rule.id
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200',
+                                ? 'border-indigo-600 bg-indigo-100 shadow-inner'
+                                : 'border-gray-200 hover:bg-gray-100',
                         ]"
                         @click="selectRule(rule)"
                     >
@@ -89,7 +89,7 @@
         <section class="bg-white rounded-lg shadow p-6 mt-6">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Rule Details</h2>
-                <span v-if="selectedRule" class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">{{
+                <span v-if="selectedRule" class="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-medium">{{
                     selectedRule.type
                 }}</span>
             </div>
@@ -137,7 +137,10 @@
                         </div>
                     </template>
                     <div class="flex gap-4">
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1">
+                        <button
+                            type="submit"
+                            class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 flex-1"
+                        >
                             Save Details
                         </button>
                         <button
@@ -159,7 +162,7 @@
         <transition name="fade">
             <div
                 v-if="notification"
-                class="fixed bottom-6 right-6 bg-blue-600 text-white px-6 py-3 rounded shadow-lg z-50"
+                class="fixed bottom-6 right-6 bg-indigo-600 text-white px-6 py-3 rounded shadow-lg z-50"
             >
                 {{ notification }}
             </div>
