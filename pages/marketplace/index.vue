@@ -9,7 +9,8 @@
 import Sidebar from 'primevue/sidebar';
 
 // import { ref, toRef } from 'vue'
-import { useDcatApSearch } from '../my-data/catalog/sdk';
+import { useDcatApSearch } from '@/sdk';
+
 import { useDatasetSearchView } from '../my-data/catalog/useDatasetsSearchView';
 import { useSearchParams } from '../my-data/catalog/useSearchParams';
 import { useSelectedFacets } from '../my-data/catalog/useSelectedFacets';

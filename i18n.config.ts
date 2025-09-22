@@ -639,8 +639,8 @@ export default defineI18nConfig(() => ({
                 },
             },
             catalog: {
-                catalog: 'My Data',
-                title: 'Catalog',
+                catalog: 'Catalog',
+                title: 'Factory Catalog',
             },
             marketplace: {
                 marketplace: 'Marketplace',

@@ -25,7 +25,7 @@ const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
             <slot v-for="item in items" :key="item.id" :item="item">
                 <DataInfoCard
                     :to="{
-                        name: 'my-data-catalog-dataset-details-datasetId',
+                        name: 'marketplace-dataset-details-datasetId',
                         params: { datasetId: item.id },
                         query: { pm: route.query.pm },
                     }"
@@ -49,7 +49,8 @@ const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
     <div class="grid w-full place-content-center">
         <Paginator
             v-model:first="searchParams.queryParams.page.value"
-            class="cursor-pointer ring-1 ring-gray-200"
+            class="cursor-pointer ring-1 ring-gray-200 rounded shadow-md"
+            :pt="{ root: { class: 'rounded-lg' } }"
             :rows="1"
             :total-records="getSearchResultsPagesCount"
         />
@@ -62,6 +63,6 @@ const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
 }
 
 .p-paginator-page.p-highlight {
-    @apply border border-pistis-500 text-pistis-500 font-semibold;
+    @apply border border-pistis-500 text-pistis-500 bg-pistis-50 font-semibold;
 }
 </style>

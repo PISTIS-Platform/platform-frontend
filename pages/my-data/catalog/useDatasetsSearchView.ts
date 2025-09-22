@@ -1,8 +1,9 @@
 import type { Publisher } from '@piveau/sdk-core';
 import type { HubSearchDefinition } from '@piveau/sdk-vue';
 
-import { useDcatApSearch } from './sdk';
-import { getLocalizedValue } from './sdk/utils/helpers';
+import { useDcatApSearch } from '@/sdk';
+import { getLocalizedValue } from '@/sdk/utils/helpers';
+
 // import type { MaybeRef } from 'vue';
 // import { computed, ref, toRef, toRefs, unref } from 'vue';
 // import { useI18n } from 'vue-i18n';

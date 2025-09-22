@@ -46,6 +46,12 @@
                     </template>
                 </SummaryBox>
 
+                <SummaryBox v-if="data.purchase_offer[0].update_frequency" title="Data Updated">
+                    <template #text>
+                        {{ data.purchase_offer[0].update_frequency }}
+                    </template>
+                </SummaryBox>
+
                 <SummaryBox v-if="data.downloads && data.downloads.length">
                     <template #text>
                         <ul>

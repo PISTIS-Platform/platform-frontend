@@ -19,7 +19,7 @@ const computedTextClasses = computed(() => ({
 </script>
 
 <template>
-    <div class="flex flex-col gap-by1">
+    <div class="flex flex-col gap-1">
         <slot name="title" :title="props.title">
             <Typography as="div" variant="by-caption" class="uppercase text-neutral-400">
                 {{ props.title }}

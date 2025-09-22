@@ -5,10 +5,9 @@ import { marked } from 'marked';
 
 import { PropertyTable } from '@/components/catalog/dataset-details/PropertyTableRow';
 import { useDataTruncator } from '@/composables/useDataTruncator';
-
 // import config from '../config/appConfig';
-import { useDcatApSearch } from '../sdk/index';
-import { getLocalizedValue } from '../sdk/utils/helpers';
+import { useDcatApSearch } from '@/sdk/index';
+import { getLocalizedValue } from '@/sdk/utils/helpers';
 
 function ensureDatasetId(id: Ref): asserts id is Ref<string> {
     if (typeof toValue(id) !== 'string') throw new Error('id must be a string');

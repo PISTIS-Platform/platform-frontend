@@ -27,7 +27,7 @@ loadData();
             :key="dataset.dataset_id"
             class="block border rounded-md border-neutral-300 p-3 hover:bg-pistis-50 hover:border-pistis-300"
             :to="{
-                name: 'my-data-catalog-dataset-details-datasetId',
+                name: 'marketplace-dataset-details-datasetId',
                 params: { datasetId: dataset.dataset_id },
                 query: { pm: 'cloud' },
             }"

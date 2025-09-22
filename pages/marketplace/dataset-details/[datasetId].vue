@@ -147,20 +147,25 @@ const {
                         </div>
                     </template>
                 </UCard>
-
-                <div v-if="(resultEnhanced?.getCategories?.length || 0) > 0" class="space-y-3">
-                    <Typography variant="by-heading-4" class="font-semibold"> Categories </Typography>
-                    <div class="flex flex-row gap-2">
-                        <KTag v-for="category in resultEnhanced?.getCategories" :key="category.id">
-                            <!-- @click="router.push({ name: 'Datasets', query: { categories: category.id } })" -->
-                            {{ getLocalizedValue({ obj: category.label, fallbackLocale: 'en' }) }}
-                        </KTag>
-                    </div>
-                </div>
             </template>
 
             <!-- Additional info for "About this dataset" section -->
             <template #additional-info>
+                <div class="flex flex-row space-x-2 mb-4">
+                    <SummaryBox v-if="(resultEnhanced?.getCategories?.length || 0) > 0" title="Categories">
+                        <template #text>
+                            <UBadge
+                                v-for="category in resultEnhanced?.getCategories"
+                                :key="category.id"
+                                size="sm"
+                                variant="soft"
+                            >
+                                {{ getLocalizedValue({ obj: category.label, fallbackLocale: 'en' }) }}
+                            </UBadge>
+                        </template>
+                    </SummaryBox>
+                </div>
+
                 <PropertyTable
                     v-if="isSuccess"
                     :node="{

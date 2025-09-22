@@ -317,7 +317,12 @@ const truncatedEllipsedDescription = computed(() => {
                                 <div class="text-3xl font-bold text-primary-700">
                                     {{ price }} &euro;
                                     <span class="font-medium text-lg text-neutral-500">
-                                        / {{ monetizationData.purchase_offer[0].subscriptionFrequency }}</span
+                                        /
+                                        {{
+                                            monetizationData.purchase_offer[0].subscription_frequency === 'yearly'
+                                                ? 'year'
+                                                : 'month'
+                                        }}</span
                                     >
                                 </div>
                             </div>
@@ -368,38 +373,8 @@ const truncatedEllipsedDescription = computed(() => {
                 </div>
             </section>
 
-            <!-- Cloud (Marketplace) -->
-            <aside v-if="pistisMode === 'cloud'">
-                <section v-if="false" class="container custom_nav_container flex">
-                    <div class="btn_holder flex gap-5 flex-wrap">
-                        <a v-if="hasPurchaseOffer" :href="'#'" class="" @click.prevent="buyRequest(factoryPrefix)">
-                            <KButton size="small"
-                                >Buy<span v-if="price">&nbsp;{{ price + '€' }}</span></KButton
-                            >
-                        </a>
-                        <a v-if="hasInvestmentOffer" :href="`${config.public.factoryUrl}/invest/${datasetId}`" class="">
-                            <KButton size="small">Invest</KButton>
-                        </a>
-                        <a :href="feedbackUrl" class="">
-                            <KButton v-if="!isOwned" size="small">Provide Feedback</KButton>
-                        </a>
-                    </div>
-                    <!-- Data Lineage (Button placements should be discussed together)-->
-                    <div class="ml-5">
-                        <NuxtLink
-                            :to="{
-                                path: '/my-data/catalog/dataset-details/data-lineage',
-                                query: { id: accessID, pm: pistisMode, url: backendUrl },
-                            }"
-                            class=""
-                        >
-                            <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                        </NuxtLink>
-                    </div>
-                </section>
-            </aside>
             <!-- Factory (My Data) -->
-            <div v-else-if="pistisMode === 'factory'">
+            <div v-if="pistisMode === 'factory'">
                 <section class="container custom_nav_container">
                     <template v-if="catalog === 'my-data'">
                         <div class="btn_holder flex gap-5 flex-wrap">
