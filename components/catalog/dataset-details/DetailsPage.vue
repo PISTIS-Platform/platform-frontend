@@ -343,7 +343,7 @@ const truncatedEllipsedDescription = computed(() => {
                         </div>
                     </template>
                     <div
-                        v-if="hasInvestmentOffer || true"
+                        v-if="hasInvestmentOffer"
                         class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
                     >
                         <div class="flex justify-between items-center">
