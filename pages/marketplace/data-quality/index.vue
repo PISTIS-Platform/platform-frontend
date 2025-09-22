@@ -136,14 +136,20 @@
                                 v-model="selectedRule.specificData[field.id]"
                                 :placeholder="field.placeholder"
                                 :rows="field.rows || 3"
-                                class="border rounded px-3 py-2 w-full"
+                                :class="[
+                                    'border rounded px-3 py-2 w-full',
+                                    invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
+                                ]"
                             ></textarea>
 
                             <!-- Select -->
                             <select
                                 v-else-if="field.type === 'select'"
                                 v-model="selectedRule.specificData[field.id]"
-                                class="border rounded px-3 py-2 w-full"
+                                :class="[
+                                    'border rounded px-3 py-2 w-full',
+                                    invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
+                                ]"
                             >
                                 <option v-for="option in field.options" :key="option" :value="option">
                                     {{ option }}
@@ -152,7 +158,12 @@
 
                             <!-- Checkbox -->
                             <div v-else-if="field.type === 'checkbox'" class="flex items-center">
-                                <input v-model="selectedRule.specificData[field.id]" type="checkbox" class="mr-2" />
+                                <input
+                                    v-model="selectedRule.specificData[field.id]"
+                                    type="checkbox"
+                                    class="mr-2"
+                                    :class="invalidFields.has(field.id) ? 'border-red-500 ring-1 ring-red-400' : ''"
+                                />
                                 <span class="text-gray-700 text-sm">{{ field.label }}</span>
                             </div>
 
@@ -165,10 +176,19 @@
                                 :min="field.min"
                                 :max="field.max"
                                 :step="field.step"
-                                class="border rounded px-3 py-2 w-full"
+                                :class="[
+                                    'border rounded px-3 py-2 w-full',
+                                    invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
+                                ]"
                             />
+
+                            <!-- Validation Message -->
+                            <p v-if="invalidFields.has(field.id)" class="text-red-500 text-sm mt-1">
+                                This field is required.
+                            </p>
                         </div>
                     </template>
+
                     <div class="flex gap-4">
                         <button
                             type="submit"
@@ -220,6 +240,7 @@ dimensions.forEach((dim) => (expandedDimensions[dim] = false));
 const selectedRules = ref([]);
 const selectedRule = ref(null);
 const notification = ref('');
+const invalidFields = ref(new Set());
 
 // Drag & Drop
 function onDragStart(ruleId) {
@@ -265,7 +286,7 @@ function addRuleToSelected(rule) {
             if (field.type === 'checkbox') {
                 specificDataDefaults[field.id] = false;
             } else if (field.type === 'number') {
-                specificDataDefaults[field.id] = field.min ?? 0;
+                specificDataDefaults[field.id] = null;
             } else {
                 specificDataDefaults[field.id] = '';
             }
@@ -308,8 +329,50 @@ function clearAllRules() {
 // Save rule details
 function saveRuleDetails() {
     if (!selectedRule.value) return;
-    // Update ruleSet logic here if needed
+
+    const { specificData, id } = selectedRule.value;
+    const ruleDef = ruleDetails[id];
+
+    if (!ruleDef || !ruleDef.fields) return;
+
+    invalidFields.value.clear(); // reset
+
+    ruleDef.fields.forEach((field) => {
+        // Skip validation for checkboxes and number fields
+        if (['checkbox'].includes(field.type)) return;
+
+        const currentValue = specificData[field.id];
+        const defaultValue = field.default ?? getDefaultForType(field.type);
+
+        const isInvalid =
+            Array.isArray(currentValue) && Array.isArray(defaultValue)
+                ? JSON.stringify(currentValue) === JSON.stringify(defaultValue)
+                : currentValue === defaultValue;
+
+        if (isInvalid) {
+            invalidFields.value.add(field.id);
+        }
+    });
+
+    if (invalidFields.value.size > 0) {
+        showNotification('Please update all required text or select fields from their default values.');
+        return;
+    }
+
     showNotification('Rule details saved successfully!');
+}
+
+function getDefaultForType(type) {
+    switch (type) {
+        case 'text':
+        case 'textarea':
+        case 'select':
+            return '';
+        case 'number':
+            return null;
+        default:
+            return null;
+    }
 }
 
 // Notification logic
