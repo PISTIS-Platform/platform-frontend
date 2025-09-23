@@ -80,7 +80,7 @@ const numberOfSharesError = computed(() => {
 
 <template>
     <UProgress v-if="retrieveStatus === 'pending'" animation="carousel" color="primary" />
-    <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full mt-6">
+    <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full my-8 text-gray-600">
         <PageContainer>
             <ErrorCard
                 v-if="retrieveError"
@@ -104,7 +104,7 @@ const numberOfSharesError = computed(() => {
                         <div class="flex gap-6">
                             <div class="flex flex-col gap-4 w-full">
                                 <div class="flex gap-1 flex-col">
-                                    <span class="text-sm font-semibold text-gray-400">{{
+                                    <span class="text-gray-400 uppercase text-xs font-semibold">{{
                                         $t('invest.assetDescription')
                                     }}</span>
                                     <span>{{ investmentPlan.description }}</span>
@@ -122,7 +122,7 @@ const numberOfSharesError = computed(() => {
                         <div class="flex items-start gap-6">
                             <div class="flex flex-col gap-4 w-full">
                                 <div class="flex gap-1 flex-col">
-                                    <span class="text-sm font-semibold text-gray-400">{{
+                                    <span class="text-gray-400 uppercase text-xs font-semibold">{{
                                         $t('invest.validUntil')
                                     }}</span>
                                     <span
@@ -132,7 +132,7 @@ const numberOfSharesError = computed(() => {
                                     >
                                 </div>
                                 <div class="flex gap-1 flex-col">
-                                    <span class="text-sm font-semibold text-gray-400">{{
+                                    <span class="text-gray-400 uppercase text-xs font-semibold">{{
                                         $t('invest.availableShares')
                                     }}</span>
                                     <span
@@ -146,7 +146,7 @@ const numberOfSharesError = computed(() => {
                             </div>
                             <div class="flex flex-col gap-4 w-full">
                                 <div class="flex gap-1 flex-col">
-                                    <span class="text-sm font-semibold text-gray-400">{{
+                                    <span class="text-gray-400 uppercase text-xs font-semibold">{{
                                         $t('invest.maxPerInvestor')
                                     }}</span>
                                     <span
@@ -154,7 +154,7 @@ const numberOfSharesError = computed(() => {
                                     >
                                 </div>
                                 <div class="flex gap-1 flex-col">
-                                    <span class="text-sm font-semibold text-gray-400">{{
+                                    <span class="text-gray-400 uppercase text-xs font-semibold">{{
                                         $t('invest.sharePercentage')
                                     }}</span>
                                     <span
@@ -171,7 +171,7 @@ const numberOfSharesError = computed(() => {
                             </div>
                             <div class="flex flex-col gap-4 w-full">
                                 <div class="flex gap-1 flex-col">
-                                    <span class="text-sm font-semibold text-gray-400">{{
+                                    <span class="text-gray-400 uppercase text-xs font-semibold">{{
                                         $t('invest.sharePrice')
                                     }}</span>
                                     <span
