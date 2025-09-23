@@ -336,36 +336,46 @@ function clearAllRules() {
 function saveRuleDetails() {
     if (!selectedRule.value) return;
 
-    const { specificData, id } = selectedRule.value;
-    const ruleDef = ruleDetails[id];
+    const validation = validateRuleFields(selectedRule.value);
+    invalidFields.value = validation.invalidFieldIds;
 
-    if (!ruleDef || !ruleDef.fields) return;
-
-    invalidFields.value.clear(); // reset
-
-    ruleDef.fields.forEach((field) => {
-        // Skip validation for checkboxes and number fields
-        if (['checkbox'].includes(field.type)) return;
-
-        const currentValue = specificData[field.id];
-        const defaultValue = field.default ?? getDefaultForType(field.type);
-
-        const isInvalid =
-            Array.isArray(currentValue) && Array.isArray(defaultValue)
-                ? JSON.stringify(currentValue) === JSON.stringify(defaultValue)
-                : currentValue === defaultValue;
-
-        if (isInvalid) {
-            invalidFields.value.add(field.id);
-        }
-    });
-
-    if (invalidFields.value.size > 0) {
-        showNotification('Please update all required text or select fields from their default values.');
+    if (!validation.isValid) {
+        showNotification('Please update all required fields before saving.');
         return;
     }
 
     showNotification('Rule details saved successfully!');
+}
+
+function validateRuleFields(rule) {
+    const result = {
+        invalidFieldIds: new Set(),
+        isValid: true,
+    };
+
+    const { specificData, id } = rule;
+    const ruleDef = ruleDetails[id];
+
+    if (!ruleDef || !ruleDef.fields) return result;
+
+    ruleDef.fields.forEach((field) => {
+        const currentValue = specificData[field.id];
+        const defaultValue = field.default ?? getDefaultForType(field.type);
+
+        const isInvalid =
+            (field.type === 'checkbox' && currentValue !== true) ||
+            (field.type === 'number' && (currentValue === null || currentValue === '')) ||
+            (typeof currentValue === 'string' && currentValue.trim() === '') ||
+            (Array.isArray(currentValue) && currentValue.length === 0) ||
+            currentValue === defaultValue;
+
+        if (isInvalid) {
+            result.invalidFieldIds.add(field.id);
+        }
+    });
+
+    result.isValid = result.invalidFieldIds.size === 0;
+    return result;
 }
 
 function getDefaultForType(type) {
@@ -412,7 +422,7 @@ function exportStagedRules() {
 
         // Build kwargs
         const kwargs = { ...specificData };
-        if (mostly !== undefined && mostly !== null) {
+        if (mostly !== undefined && mostly !== null && mostly !== 1) {
             kwargs.mostly = parseFloat(mostly);
         }
 
