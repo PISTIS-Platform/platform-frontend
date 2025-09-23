@@ -81,6 +81,7 @@
                             selectedRule && selectedRule.id === rule.id
                                 ? 'border-indigo-600 bg-indigo-100 shadow-inner'
                                 : 'border-gray-200 hover:bg-gray-100',
+                            invalidRuleIds.has(rule.id) ? 'border-red-500 bg-red-50' : '',
                         ]"
                         @click="selectRule(rule)"
                     >
@@ -247,6 +248,7 @@ const selectedRules = ref([]);
 const selectedRule = ref(null);
 const notification = ref('');
 const invalidFields = ref(new Set());
+const invalidRuleIds = ref(new Set());
 
 // Drag & Drop
 function onDragStart(ruleId) {
@@ -341,9 +343,11 @@ function saveRuleDetails() {
 
     if (!validation.isValid) {
         showNotification('Please update all required fields before saving.');
+        invalidRuleIds.value.add(selectedRule.value.id);
         return;
     }
 
+    invalidRuleIds.value.delete(selectedRule.value.id);
     showNotification('Rule details saved successfully!');
 }
 
@@ -411,22 +415,27 @@ const ruleSpecificFields = computed(() => {
 
 // Export selectedRules to GX structure
 function exportStagedRules() {
-    // Check for stagged rules
-    if (selectedRules.value.length === 0) {
-        showNotification('No quality rules defined.');
+    if (selectedRules.value.length == 0) {
+        showNotification('No quality rules selected.');
+        return;
+    }
+    // Validate all rules before export
+    const invalids = selectedRules.value.filter(hasMissingDetails);
+    invalidRuleIds.value = new Set(invalids.map((r) => r.id));
+    console.log(invalidRuleIds);
+    if (invalids.length > 0) {
+        showNotification('Please complete all rule configurations before exporting.');
         return;
     }
 
     const result = selectedRules.value.map((rule) => {
         const { name, description, mostly, specificData } = rule;
 
-        // Build kwargs
         const kwargs = { ...specificData };
         if (mostly !== undefined && mostly !== null && mostly !== 1) {
             kwargs.mostly = parseFloat(mostly);
         }
 
-        // Build meta
         const meta = {};
         if (name) meta.name = name;
         if (description) meta.description = description;
@@ -442,7 +451,6 @@ function exportStagedRules() {
 
     console.log('Exported Rules JSON:', jsonString);
 
-    // Create a Blob and open in a new tab
     const newTab = window.open();
 
     if (newTab) {
@@ -475,6 +483,11 @@ function exportStagedRules() {
     } else {
         showNotification('Popup blocked. Please allow popups for this site.');
     }
+}
+
+function hasMissingDetails(rule) {
+    const validation = validateRuleFields(rule);
+    return !validation.isValid;
 }
 </script>
 
