@@ -297,7 +297,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                                 eager-validation
                             >
                                 <template #label>
-                                    <div class="w-full bg-red-500">
+                                    <div class="w-[220px]">
                                         {{ $t('data.designer.noUseWithBlacklistedDatasets') }}
                                     </div>
                                 </template>
