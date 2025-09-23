@@ -70,7 +70,7 @@
                         class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
                         @click="exportStagedRules"
                     >
-                        Preview rules
+                        Send Query
                     </button>
                     <button
                         class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
@@ -509,42 +509,16 @@ function exportStagedRules() {
         };
     });
 
-    const jsonString = JSON.stringify(result, null, 2);
-
+    const dataQueryPayload = {
+        access_url: accessURL.value,
+        table: table.value,
+        file_type: fileType.value,
+        data_query: result,
+    };
+    const jsonString = JSON.stringify(dataQueryPayload, null, 2);
     console.log('Exported Rules JSON:', jsonString);
 
-    const newTab = window.open();
-
-    if (newTab) {
-        newTab.document.write(`
-            <html>
-                <head>
-                    <title>Exported Rules Preview</title>
-                    <style>
-                        body {
-                            font-family: monospace;
-                            white-space: pre-wrap;
-                            margin: 2rem;
-                            background-color: #f9fafb;
-                            color: #111827;
-                        }
-                        h1 {
-                            font-size: 1.5rem;
-                            font-weight: bold;
-                            margin-bottom: 1rem;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <h1>Exported Rules JSON</h1>
-                    <pre>${jsonString.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-                </body>
-            </html>
-        `);
-        newTab.document.close();
-    } else {
-        showNotification('Popup blocked. Please allow popups for this site.');
-    }
+    // Make call to the factory DQA @ ${fatoryURL.value}/srv/data-quality-assessor/api/dqa/query/
 }
 
 function hasMissingDetails(rule) {
