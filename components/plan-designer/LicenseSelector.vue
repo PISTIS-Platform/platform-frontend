@@ -190,7 +190,7 @@ const resetLicenseDetails = (license: { code: string; label: string; description
             contractTerms: '',
             isExclusive: false,
             region: [],
-            transferable: '',
+            transferable: 'non-transferable',
             duration: '',
             perpetual: '',
             noUseWithBlacklistedDatasets: false,

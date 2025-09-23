@@ -180,7 +180,7 @@ const licenseDetails = ref<Partial<licenseType>>({
     region: '',
     duration: '',
     perpetual: '',
-    transferable: '',
+    transferable: 'non-transferable',
     additionalRenewalTerms: '',
     nonRenewalDays: '',
     contractBreachDays: '',
