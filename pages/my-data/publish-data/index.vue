@@ -39,14 +39,10 @@ const { data: dataset, status: singleDatasetStatus } = useFetch<Record<string, a
     onResponse({ response }) {
         if (R.isNil(response._data)) {
             refresh();
+        } else {
+            selectedAsset.value = transformSingleDataset(response._data);
         }
     },
-});
-
-watch(dataset, () => {
-    if (dataset.value) {
-        selectedAsset.value = transformSingleDataset(dataset.value);
-    }
 });
 
 const transformedDatasets = computed(() => {
