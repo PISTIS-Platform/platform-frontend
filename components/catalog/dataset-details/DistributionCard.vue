@@ -156,8 +156,8 @@ async function downloadFile() {
                 <div>{{ title }}</div>
             </div>
             <div class="space-x-2">
-                <UBadge v-if="!isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
-                <UBadge v-if="!isTransformed" color="blue" variant="subtle">Transformed</UBadge>
+                <UBadge v-if="isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
+                <UBadge v-if="isTransformed" color="blue" variant="subtle">Transformed</UBadge>
             </div>
         </div>
     </div>
