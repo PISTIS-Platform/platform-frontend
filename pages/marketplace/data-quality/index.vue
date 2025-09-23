@@ -57,7 +57,7 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-semibold text-gray-800">Selected Rules</h2>
                     <button
-                        class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                        class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
                         @click="exportStagedRules"
                     >
                         Preview rules
@@ -401,6 +401,12 @@ const ruleSpecificFields = computed(() => {
 
 // Export selectedRules to GX structure
 function exportStagedRules() {
+    // Check for stagged rules
+    if (selectedRules.value.length === 0) {
+        showNotification('No quality rules defined.');
+        return;
+    }
+
     const result = selectedRules.value.map((rule) => {
         const { name, description, mostly, specificData } = rule;
 
@@ -422,7 +428,43 @@ function exportStagedRules() {
         };
     });
 
-    console.log('Exported Rules JSON:', JSON.stringify(result, null, 2));
+    const jsonString = JSON.stringify(result, null, 2);
+
+    console.log('Exported Rules JSON:', jsonString);
+
+    // Create a Blob and open in a new tab
+    const newTab = window.open();
+
+    if (newTab) {
+        newTab.document.write(`
+            <html>
+                <head>
+                    <title>Exported Rules Preview</title>
+                    <style>
+                        body {
+                            font-family: monospace;
+                            white-space: pre-wrap;
+                            margin: 2rem;
+                            background-color: #f9fafb;
+                            color: #111827;
+                        }
+                        h1 {
+                            font-size: 1.5rem;
+                            font-weight: bold;
+                            margin-bottom: 1rem;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Exported Rules JSON</h1>
+                    <pre>${jsonString.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                </body>
+            </html>
+        `);
+        newTab.document.close();
+    } else {
+        showNotification('Popup blocked. Please allow popups for this site.');
+    }
 }
 </script>
 
