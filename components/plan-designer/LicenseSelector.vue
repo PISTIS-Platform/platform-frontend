@@ -58,6 +58,11 @@ watch(
                 resetLicenseDetails(licenses[0]);
             }
         }
+        if (props.isFree) {
+            licenseIsFree.value = true;
+        } else {
+            licenseIsFree.value = false;
+        }
     },
     { deep: true },
 );
@@ -81,7 +86,7 @@ const isLicenseValid = computed(() => {
 
 const isAllValid = computed(() => isLicenseValid.value);
 
-const { isWorldwide, hasPersonalData, licenseSchema, durationSelections } = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema, durationSelections, isFree: licenseIsFree } = useLicenseSchema();
 
 type licenseType = z.infer<typeof licenseSchema>;
 
@@ -177,6 +182,8 @@ const resetLicenseDetails = (license: { code: string; label: string; description
             nonRenewalDays: '',
             contractBreachDays: '',
             personalDataTerms: '',
+            numOfResell: undefined,
+            numOfShare: undefined,
         };
     } else if (license.code === LicenseCode.NFT) {
         licenseDetails.value = {
@@ -209,7 +216,6 @@ const customValidate = () => {
         errors.push({ path: 'contractBreachDays', message: t('val.positive') });
     if (hasPersonalData.value && !licenseDetails.value.personalDataTerms)
         errors.push({ path: 'personalDataTerms', message: t('val.required') });
-
     return errors;
 };
 
@@ -400,6 +406,54 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                                         {{ error }}
                                     </span>
                                 </template>
+                            </UFormGroup>
+                        </div>
+
+                        <div
+                            v-if="monetizationDetails.type === 'one-off' && monetizationDetails.price !== 0"
+                            class="flex flex-1 gap-4"
+                        >
+                            <UFormGroup
+                                :label="$t('data.designer.numberOfResell')"
+                                class="flex-1"
+                                required
+                                name="numOfResell"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <UInput
+                                    v-model.number="licenseDetails.numOfResell"
+                                    :placeholder="$t('data.designer.numberOfResell')"
+                                    type="numeric"
+                                >
+                                    <template #trailing>
+                                        <span class="text-gray-500 text-xs">{{ t('times') }}</span>
+                                    </template>
+                                </UInput>
+                            </UFormGroup>
+                        </div>
+
+                        <div
+                            v-if="monetizationDetails.type === 'one-off' && monetizationDetails.price === 0"
+                            class="flex flex-1 gap-4"
+                        >
+                            <UFormGroup
+                                :label="$t('data.designer.numberOfShare')"
+                                class="flex-1"
+                                required
+                                name="numOfShare"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <UInput
+                                    v-model.number="licenseDetails.numOfShare"
+                                    :placeholder="$t('data.designer.numberOfShare')"
+                                    type="numeric"
+                                >
+                                    <template #trailing>
+                                        <span class="text-gray-500 text-xs">{{ t('times') }}</span>
+                                    </template>
+                                </UInput>
                             </UFormGroup>
                         </div>
 

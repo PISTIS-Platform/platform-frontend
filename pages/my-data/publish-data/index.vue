@@ -186,6 +186,8 @@ const licenseDetails = ref<Partial<licenseType>>({
     contractBreachDays: '',
     personalDataTerms: '',
     noUseWithBlacklistedDatasets: false,
+    numOfResell: undefined,
+    numOfShare: undefined,
 });
 
 const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema();
@@ -265,8 +267,8 @@ const submitAll = async () => {
                 policyData: policyData,
             },
             sellerId: accountData.value?.user.sub,
-            numOfResell: 0,
-            numOfShare: 0,
+            numOfResell: licenseDetails.value.numOfResell || 0,
+            numOfShare: licenseDetails.value.numOfShare || 0,
         };
     }
 

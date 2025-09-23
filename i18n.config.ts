@@ -20,6 +20,7 @@ export default defineI18nConfig(() => ({
     },
     messages: {
         en: {
+            times: 'times',
             view: 'View',
             required: 'Required',
             monitoring: 'Monitoring',
@@ -349,6 +350,8 @@ export default defineI18nConfig(() => ({
                         perpetual: 'Perpetual',
                         perpetualRevocable: 'Perpetual (Revocable)',
                     },
+                    numberOfResell: 'Number of times asset can be resold',
+                    numberOfShare: 'Number of times asset can be shared',
                     error: {
                         noAssetFound: 'No asset found with this ID. Please select one from the dropdown below.',
                     },

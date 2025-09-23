@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import * as R from 'ramda';
+
 const { t } = useI18n();
 
 defineProps({
@@ -217,6 +219,14 @@ const subscriptionMapping: Record<string, string> = {
                         $t('data.designer.additionalRenewalTerms')
                     }}</span>
                     <span>{{ licenseDetails.additionalRenewalTerms }}</span>
+                </div>
+                <div v-if="!R.isNil(licenseDetails.numOfResell)" class="flex gap-2 flex-col">
+                    <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.numberOfResell') }}</span>
+                    <span>{{ `${licenseDetails.numOfResell} ${$t('times')}` }}</span>
+                </div>
+                <div v-if="!R.isNil(licenseDetails.numOfShare)" class="flex gap-2 flex-col">
+                    <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.numberOfShare') }}</span>
+                    <span>{{ `${licenseDetails.numOfShare} ${$t('times')}` }}</span>
                 </div>
             </div>
         </UCard>

@@ -1,8 +1,10 @@
+import * as R from 'ramda';
 import { z } from 'zod';
 
 import { durations, LicenseCode } from '~/constants/licenses';
 
 export const useLicenseSchema = () => {
+    const isFree = ref(false);
     const { t } = useI18n();
     const isWorldwide = ref(false);
     const hasPersonalData = ref(false);
@@ -44,6 +46,60 @@ export const useLicenseSchema = () => {
             duration: z.union([z.string(), z.number()]).optional(),
             noUseWithBlacklistedDatasets: z.boolean().optional(),
             additionalRenewalTerms: z.string().optional(),
+            numOfResell: z
+                .union([
+                    z
+                        .string()
+                        .min(1, { message: t('required') })
+                        .refine(
+                            (val) => {
+                                return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
+                            },
+                            {
+                                message: t('val.validNumber'),
+                            },
+                        ),
+                    z.coerce
+                        .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
+                        .gte(0, t('val.positive'))
+                        .int({ message: t('val.integer') })
+                        .refine(
+                            (val) => {
+                                return val > 0;
+                            },
+                            {
+                                message: t('val.positive'),
+                            },
+                        ),
+                ])
+                .optional(),
+            numOfShare: z
+                .union([
+                    z
+                        .string()
+                        .min(1, { message: t('required') })
+                        .refine(
+                            (val) => {
+                                return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
+                            },
+                            {
+                                message: t('val.validNumber'),
+                            },
+                        ),
+                    z.coerce
+                        .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
+                        .gte(0, t('val.positive'))
+                        .int({ message: t('val.integer') })
+                        .refine(
+                            (val) => {
+                                return val > 0;
+                            },
+                            {
+                                message: t('val.positive'),
+                            },
+                        ),
+                ])
+                .optional(),
             nonRenewalDays: z
                 .union([
                     z
@@ -123,6 +179,22 @@ export const useLicenseSchema = () => {
                     });
                 }
 
+                if (isFree.value && R.isNil(data.numOfShare)) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: t('val.required'),
+                        path: ['numOfShare'],
+                    });
+                }
+
+                if (!isFree.value && R.isNil(data.numOfResell)) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: t('val.required'),
+                        path: ['numOfResell'],
+                    });
+                }
+
                 if (!data.nonRenewalDays) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
@@ -147,6 +219,7 @@ export const useLicenseSchema = () => {
         });
 
     return {
+        isFree,
         isWorldwide,
         hasPersonalData,
         licenseSchema,
