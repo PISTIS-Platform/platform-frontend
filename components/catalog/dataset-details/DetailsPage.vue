@@ -63,9 +63,7 @@ const isOwned = computed(() => {
 });
 const monetizationData = ref();
 const offerId = ref('');
-const feedbackUrl = computed(() =>
-    offerId.value ? `${config.public.cloudUrl}/usage-analytics/responses?assetId=${offerId.value}` : '#',
-);
+const feedbackUrl = computed(() => `${config.public.factoryUrl}/marketplace/usage-analytics/${props.datasetId}/questionnaire`);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -191,10 +189,7 @@ onMounted(() => {
 });
 
 // Dataset desecription truncator "show more"
-const {
-    data: truncatedDescription,
-    isTruncated: isDescriptionTruncated,
-} = useDataTruncator({
+const { data: truncatedDescription, isTruncated: isDescriptionTruncated } = useDataTruncator({
     data: computed(() => props.descriptionMarkup || ''),
     limit: 550,
 });
