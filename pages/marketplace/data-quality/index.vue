@@ -248,15 +248,20 @@ import { availableRules, ruleDetails } from '~/constants/quality-rules';
 // --- Dataset loading state ---
 const datasets = ref([]);
 const selectedDataset = ref(datasets.value[0]);
+const factoryURL = ref('');
 const accessURL = ref('');
 const table = ref(false);
 const fileType = ref('');
 
 watch(selectedDataset, (newVal) => {
+    console.log(newVal);
     const distribution = newVal.distributions?.[0];
     accessURL.value = distribution.access_url?.[0] || 'No AccessURL';
+    const url = new URL(accessURL.value);
+    factoryURL.value = `${url.protocol}//${url.host}/`;
     fileType.value = distribution.format.label;
     table.value = fileType.value === 'SQL';
+    console.log('factoryURL:', factoryURL.value);
     console.log('accessURL:', accessURL.value);
     console.log('fileType:', fileType.value);
     console.log('table:', table.value);
