@@ -153,7 +153,7 @@ const getUserFactory = async () => {
     }
 };
 
-const buyRequest = async (factoryPrefix) => {
+const _buyRequest = async (factoryPrefix) => {
     const promise = axios.post(
         `https://${factoryPrefix}.${config.public.cloudUrl.replace(/^https?:\/\//, '')}/srv/smart-contract-execution-engine/api/scee/storePurchase`,
         {
@@ -193,15 +193,13 @@ onMounted(() => {
 // Dataset desecription truncator "show more"
 const {
     data: truncatedDescription,
-    toggle: toggleDescription,
     isTruncated: isDescriptionTruncated,
-    isTruncationNeeded: isDescriptionTruncationNeeded,
 } = useDataTruncator({
     data: computed(() => props.descriptionMarkup || ''),
     limit: 550,
 });
 
-const truncatedEllipsedDescription = computed(() => {
+const _truncatedEllipsedDescription = computed(() => {
     if (toValue(isDescriptionTruncated)) {
         return `${truncatedDescription.value}...`;
     }
@@ -217,9 +215,15 @@ const truncatedEllipsedDescription = computed(() => {
 //   data: getFormattedDistributions,
 //   limit: 7,
 // })
+
+const investOpen = ref(false);
 </script>
 
 <template>
+    <UModal v-model="investOpen" :ui="{ width: 'sm:max-w-5xl' }">
+        <InvestViewer :asset-id="props.datasetId" @close-modal="investOpen = false" />
+    </UModal>
+
     <div v-if="error" class="grid size-full place-content-center bg-bg-base">
         <KCard class="size-96">
             <template #title> Fehler </template>
@@ -390,7 +394,9 @@ const truncatedEllipsedDescription = computed(() => {
                             </div>
                         </div>
 
-                        <UButton variant="solid" size="lg" color="primary" block>Invest</UButton>
+                        <UButton variant="solid" size="lg" color="primary" block @click="investOpen = !investOpen"
+                            >Invest</UButton
+                        >
                     </div>
 
                     <UButton v-if="!isOwned" size="sm" variant="link" block :to="feedbackUrl">Provide Feedback</UButton>

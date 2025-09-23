@@ -2,10 +2,17 @@
 import dayjs from 'dayjs';
 import { z } from 'zod';
 
-const route = useRoute();
 const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 const { t } = useI18n();
-const router = useRouter();
+
+const emit = defineEmits(['closeModal']);
+
+const props = defineProps({
+    assetId: {
+        type: String,
+        required: true,
+    },
+});
 
 type InvestmentPlan = {
     title: string;
@@ -46,7 +53,7 @@ const {
     error: retrieveError,
 } = await useFetch<InvestmentPlan>(`/api/invest/retrieve-investment-plan`, {
     method: 'GET',
-    query: { cloudAssetId: route.params.id },
+    query: { cloudAssetId: props.assetId },
 });
 
 const purchaseShares = async () => {
@@ -59,7 +66,7 @@ const purchaseShares = async () => {
             },
         });
         showSuccessMessage(t('invest.purchaseSuccessful'));
-        router.push('/dashboard');
+        emit('closeModal');
     } catch {
         showErrorMessage(t('invest.couldNotPurchaseShares'));
     }
