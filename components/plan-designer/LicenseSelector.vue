@@ -46,11 +46,7 @@ watch(
             resetLicenseDetails({
                 code: LicenseCode.NFT,
                 label: 'NFT License',
-                description: `Consequat deserunt consectetur magna consequat proident. Elit non cupidatat aliqua aute. Commodo commodo sit duis excepteur eiusmod incididunt proident nisi minim tempor consequat aliquip duis deserunt ad. Voluptate fugiat incididunt fugiat anim ipsum sint Lorem exercitation irure qui aliquip dolore elit et dolore.
-
-Labore fugiat pariatur aute. Deserunt sunt qui adipisicing occaecat dolore et culpa nulla aliquip sunt ullamco voluptate consequat. Irure consequat in tempor velit ipsum ullamco exercitation excepteur ut ex fugiat. Ullamco nisi aute culpa dolor consectetur labore aliquip sit anim commodo aliquip. Cillum do quis aute id excepteur exercitation minim voluptate sint irure occaecat.
-
-Labore laborum tempor mollit mollit nostrud esse dolor fugiat. Fugiat eiusmod occaecat minim consectetur irure non magna et culpa adipisicing eu sunt anim in. Proident anim proident eiusmod eu exercitation. Quis nostrud nisi officia consequat pariatur ipsum esse esse labore eu deserunt dolore eiusmod occaecat.`,
+                description: licenses.find((license) => license.code === LicenseCode.NFT)?.description,
             });
         } else {
             if (!props.isFree) {
@@ -98,11 +94,7 @@ const licenseSelections = computed(() =>
                 {
                     code: LicenseCode.NFT,
                     label: 'NFT License',
-                    description: `Consequat deserunt consectetur magna consequat proident. Elit non cupidatat aliqua aute. Commodo commodo sit duis excepteur eiusmod incididunt proident nisi minim tempor consequat aliquip duis deserunt ad. Voluptate fugiat incididunt fugiat anim ipsum sint Lorem exercitation irure qui aliquip dolore elit et dolore.
-
-Labore fugiat pariatur aute. Deserunt sunt qui adipisicing occaecat dolore et culpa nulla aliquip sunt ullamco voluptate consequat. Irure consequat in tempor velit ipsum ullamco exercitation excepteur ut ex fugiat. Ullamco nisi aute culpa dolor consectetur labore aliquip sit anim commodo aliquip. Cillum do quis aute id excepteur exercitation minim voluptate sint irure occaecat.
-
-Labore laborum tempor mollit mollit nostrud esse dolor fugiat. Fugiat eiusmod occaecat minim consectetur irure non magna et culpa adipisicing eu sunt anim in. Proident anim proident eiusmod eu exercitation. Quis nostrud nisi officia consequat pariatur ipsum esse esse labore eu deserunt dolore eiusmod occaecat.`,
+                    description: licenses.find((license) => license.code === LicenseCode.NFT)?.description,
                 },
             ]
           : [
