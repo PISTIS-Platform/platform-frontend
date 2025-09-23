@@ -26,8 +26,9 @@ const selectedAsset = ref<
 
 const hasRouteAssetId = computed(() => !!route.query.id);
 
-const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
-    $fetch('/api/datasets/get-all'),
+const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<string, any>>(
+    () => $fetch('/api/datasets/get-all'),
+    { immediate: !!!route.query.id },
 );
 
 const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(
