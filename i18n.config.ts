@@ -453,7 +453,7 @@ export default defineI18nConfig(() => ({
                     saveInvestmentPlan: 'Save Investment Plan',
                     pleaseCheck: 'Please check the form and fill in all required (*) fields',
                     availability: 'Availability',
-                    regionCountry: 'Select a country',
+                    regionCountry: 'Select country/ies',
                     worldwide: 'Worldwide',
                     transferable: 'Transferable',
                     nonTransferable: 'Non-transferable',
