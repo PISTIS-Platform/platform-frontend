@@ -48,7 +48,7 @@ const licenseOpen = ref(false);
 </script>
 
 <template>
-    <UModal v-model="licenseOpen" :ui="{ width: 'sm:max-w-5xl' }">
+    <UModal v-model="licenseOpen" :ui="{ width: 'sm:max-w-5xl', overlay: { background: 'bg-gray-800/75' } }">
         <LicenseViewer :asset-id="data.purchase_offer[0].license.resource.split('/').at(-1)" />
     </UModal>
     <UTabs

@@ -63,7 +63,9 @@ const isOwned = computed(() => {
 });
 const monetizationData = ref();
 const offerId = ref('');
-const feedbackUrl = computed(() => `${config.public.factoryUrl}/marketplace/usage-analytics/${props.datasetId}/questionnaire`);
+const feedbackUrl = computed(
+    () => `${config.public.factoryUrl}/marketplace/usage-analytics/${props.datasetId}/questionnaire`,
+);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -215,7 +217,7 @@ const investOpen = ref(false);
 </script>
 
 <template>
-    <UModal v-model="investOpen" :ui="{ width: 'sm:max-w-5xl' }">
+    <UModal v-model="investOpen" :ui="{ width: 'sm:max-w-5xl', overlay: { background: 'bg-gray-800/75' } }">
         <InvestViewer :asset-id="props.datasetId" @close-modal="investOpen = false" />
     </UModal>
 
