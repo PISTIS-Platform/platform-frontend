@@ -63,15 +63,7 @@ export const useLicenseSchema = () => {
                     z.coerce
                         .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
                         .gte(0, t('val.positive'))
-                        .int({ message: t('val.integer') })
-                        .refine(
-                            (val) => {
-                                return val > 0;
-                            },
-                            {
-                                message: t('val.positive'),
-                            },
-                        ),
+                        .int({ message: t('val.integer') }),
                 ])
                 .optional(),
             numOfShare: z
@@ -90,15 +82,7 @@ export const useLicenseSchema = () => {
                     z.coerce
                         .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
                         .gte(0, t('val.positive'))
-                        .int({ message: t('val.integer') })
-                        .refine(
-                            (val) => {
-                                return val > 0;
-                            },
-                            {
-                                message: t('val.positive'),
-                            },
-                        ),
+                        .int({ message: t('val.integer') }),
                 ])
                 .optional(),
             nonRenewalDays: z

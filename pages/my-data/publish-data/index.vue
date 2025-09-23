@@ -266,8 +266,8 @@ const submitAll = async () => {
                 policyData: policyData,
             },
             sellerId: accountData.value?.user.sub,
-            numOfResell: licenseDetails.value.numOfResell || 0,
-            numOfShare: licenseDetails.value.numOfShare || 0,
+            numOfResell: licenseDetails.value.numOfResell,
+            numOfShare: licenseDetails.value.numOfShare,
         };
     }
 
