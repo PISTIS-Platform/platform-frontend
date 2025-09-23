@@ -18,10 +18,6 @@ defineProps({
         type: Object as PropType<Record<string, any>[]>,
         required: true,
     },
-    limitFrequencySelections: {
-        type: Array<Record<string, any>>,
-        required: true,
-    },
     isWorldwide: {
         type: Boolean,
         required: true,
@@ -154,17 +150,11 @@ const subscriptionMapping: Record<string, string> = {
                         <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
                         <span>{{ licenseDetails.license }}</span>
                     </div>
-                    <div v-if="licenseDetails.license !== LicenseCode.NFT" class="flex gap-2 flex-col">
+                    <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
+                            $t('data.designer.noUseWithBlacklistedDatasets')
                         }}</span>
-                        <span>{{
-                            licenseDetails.limitNumber +
-                            ' ' +
-                            $t('times') +
-                            ' ' +
-                            limitFrequencySelections.find((item) => item.value === licenseDetails.limitFrequency)?.title
-                        }}</span>
+                        <span>{{ licenseDetails.noUseWithBlacklistedDatasets }}</span>
                     </div>
                 </div>
                 <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex items-start w-full">

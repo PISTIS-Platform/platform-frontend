@@ -38,32 +38,6 @@ export const useLicenseSchema = () => {
             license: z.string().min(1, t('val.required')),
             extraTerms: z.string().optional(),
             contractTerms: z.string().min(1, t('val.required')),
-            limitNumber: z.union([
-                z
-                    .string()
-                    .min(1, { message: t('required') })
-                    .refine(
-                        (val) => {
-                            return val.trim().length > 1 && typeof val === 'number' && !Number.isNaN(val);
-                        },
-                        {
-                            message: t('val.validNumber'),
-                        },
-                    ),
-                z.coerce
-                    .number({ required_error: t('required'), invalid_type_error: t('val.validNumber') })
-                    .gte(0, t('val.positive'))
-                    .int({ message: t('val.integer') })
-                    .refine(
-                        (val) => {
-                            return val > 0;
-                        },
-                        {
-                            message: t('val.positive'),
-                        },
-                    ),
-            ]),
-            limitFrequency: z.string().min(1, t('val.required')),
             isExclusive: z.boolean().optional(),
             region: z.string().array().optional(),
             transferable: z.string().optional(),

@@ -3,7 +3,6 @@ import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
-import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
@@ -177,8 +176,6 @@ const licenseDetails = ref<Partial<licenseType>>({
     license: '',
     extraTerms: '',
     contractTerms: '',
-    limitNumber: '',
-    limitFrequency: '',
     isExclusive: false,
     region: '',
     duration: '',
@@ -237,7 +234,6 @@ const submitAll = async () => {
             originalAssetId: selectedAsset.value?.id,
             organizationId: runtimeConfig.public?.orgId,
             organizationName: accountData.value?.user.orgName,
-            ...assetOfferingDetails.value,
             ...monetizationDetails.value,
             distributionId: assetOfferingDetails.value.selectedDistribution.id,
             title: assetOfferingDetails.value.title,
@@ -250,8 +246,6 @@ const submitAll = async () => {
             license: licenseDetails.value.license,
             extraTerms: licenseDetails.value.extraTerms,
             contractTerms: licenseDetails.value.contractTerms,
-            limitNumber: licenseDetails.value.limitNumber,
-            limitFrequency: licenseDetails.value.limitFrequency,
             canEdit: false, //FIXME: Where do we get this?
             region: licenseDetails.value.region?.join(', '),
             isExclusive: licenseDetails.value.isExclusive,
@@ -297,14 +291,6 @@ const submitAll = async () => {
 
     return body;
 };
-
-const limitFrequencySelections = computed(() => [
-    { title: t('perHour'), value: DownloadFrequency.HOUR },
-    { title: t('perDay'), value: DownloadFrequency.DAY },
-    { title: t('perWeek'), value: DownloadFrequency.WEEK },
-    { title: t('perMonth'), value: DownloadFrequency.MONTH },
-    { title: t('perYear'), value: DownloadFrequency.YEAR },
-]);
 
 const steps = computed(() => [
     { name: t('data.designer.nav.selectDataset'), isActive: selectedAsset.value },
@@ -355,8 +341,6 @@ const changeStep = async (stepNum: number) => {
                 terms: licenseDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
                 price: monetizationDetails.value.price,
-                limitNumber: licenseDetails.value.limitNumber,
-                limitFrequency: licenseDetails.value.limitFrequency,
                 subscriptionFrequency:
                     monetizationDetails.value.type === 'subscription'
                         ? monetizationDetails.value.subscriptionFrequency
@@ -469,7 +453,6 @@ const changeStep = async (stepNum: number) => {
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
         :license-details="licenseDetails"
-        :limit-frequency-selections="limitFrequencySelections"
         :is-worldwide="isWorldwide"
         :has-personal-data="hasPersonalData"
         :submit-status="submitStatus"
