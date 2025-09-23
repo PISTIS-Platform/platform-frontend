@@ -122,6 +122,9 @@ const {
     status: datasetsStatus,
     error: datasetsError,
 } = useFetch(`/api/datasets/get-all-on-marketplace`, {
+    query: {
+        nonFree: true,
+    },
     server: false,
 });
 
