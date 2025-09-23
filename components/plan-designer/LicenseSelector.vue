@@ -58,10 +58,19 @@ watch(
                 resetLicenseDetails(licenses[0]);
             }
         }
+
+        //reactive for license schema
         if (props.isFree) {
             licenseIsFree.value = true;
         } else {
             licenseIsFree.value = false;
+        }
+
+        //reactive for license schema
+        if (props.monetizationDetails.type === 'one-off') {
+            isOneOff.value = true;
+        } else {
+            isOneOff.value = false;
         }
     },
     { deep: true },
@@ -86,7 +95,14 @@ const isLicenseValid = computed(() => {
 
 const isAllValid = computed(() => isLicenseValid.value);
 
-const { isWorldwide, hasPersonalData, licenseSchema, durationSelections, isFree: licenseIsFree } = useLicenseSchema();
+const {
+    isWorldwide,
+    hasPersonalData,
+    licenseSchema,
+    durationSelections,
+    isFree: licenseIsFree,
+    isOneOff,
+} = useLicenseSchema();
 
 type licenseType = z.infer<typeof licenseSchema>;
 
@@ -409,10 +425,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                             </UFormGroup>
                         </div>
 
-                        <div
-                            v-if="monetizationDetails.type === 'one-off' && monetizationDetails.price !== 0"
-                            class="flex flex-1 gap-4"
-                        >
+                        <div v-if="monetizationDetails.type === 'one-off' && !isFree" class="flex flex-1 gap-4">
                             <UFormGroup
                                 :label="$t('data.designer.numberOfResell')"
                                 class="flex-1"
@@ -433,10 +446,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                             </UFormGroup>
                         </div>
 
-                        <div
-                            v-if="monetizationDetails.type === 'one-off' && monetizationDetails.price === 0"
-                            class="flex flex-1 gap-4"
-                        >
+                        <div v-if="monetizationDetails.type === 'one-off' && isFree" class="flex flex-1 gap-4">
                             <UFormGroup
                                 :label="$t('data.designer.numberOfShare')"
                                 class="flex-1"

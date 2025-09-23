@@ -5,6 +5,7 @@ import { durations, LicenseCode } from '~/constants/licenses';
 
 export const useLicenseSchema = () => {
     const isFree = ref(false);
+    const isOneOff = ref(false);
     const { t } = useI18n();
     const isWorldwide = ref(false);
     const hasPersonalData = ref(false);
@@ -179,7 +180,7 @@ export const useLicenseSchema = () => {
                     });
                 }
 
-                if (isFree.value && R.isNil(data.numOfShare)) {
+                if (isFree.value && isOneOff.value && R.isNil(data.numOfShare)) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         message: t('val.required'),
@@ -187,7 +188,7 @@ export const useLicenseSchema = () => {
                     });
                 }
 
-                if (!isFree.value && R.isNil(data.numOfResell)) {
+                if (!isFree.value && isOneOff.value && R.isNil(data.numOfResell)) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         message: t('val.required'),
@@ -220,6 +221,7 @@ export const useLicenseSchema = () => {
 
     return {
         isFree,
+        isOneOff,
         isWorldwide,
         hasPersonalData,
         licenseSchema,
