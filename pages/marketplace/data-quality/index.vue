@@ -5,7 +5,17 @@
         <header class="flex flex-col md:flex-row justify-between items-center border-b border-gray-200 pb-4 mb-6">
             <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">Data Quality Rules Configuration</h1>
         </header>
-
+        <!-- Dataset Selector -->
+        <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
+            <div class="flex items-center gap-4">
+                <label class="font-semibold text-gray-700 text-sm">Select Dataset:</label>
+                <select v-model="selectedDataset" class="border rounded px-3 py-2 text-sm">
+                    <option v-for="ds in datasets" :key="ds.id" :value="ds">
+                        {{ getDatasetDisplayTitle(ds) }}
+                    </option>
+                </select>
+            </div>
+        </section>
         <!-- Zones -->
         <div class="flex flex-col md:flex-row gap-8 min-h-[500px]">
             <!-- Available Rules Zone -->
@@ -234,12 +244,57 @@
 <script setup>
 import { computed, reactive, ref } from 'vue';
 
-// import RulesConfig from '~/composables/rules-config';
 import { availableRules, ruleDetails } from '~/constants/quality-rules';
+// --- Dataset loading state ---
+const datasets = ref([]);
+const selectedDataset = ref(datasets.value[0]);
+const accessURL = ref('');
+const table = ref(false);
+const fileType = ref('');
+
+watch(selectedDataset, (newVal) => {
+    const distribution = newVal.distributions?.[0];
+    accessURL.value = distribution.access_url?.[0] || 'No AccessURL';
+    fileType.value = distribution.format.label;
+    table.value = fileType.value === 'SQL';
+    console.log('accessURL:', accessURL.value);
+    console.log('fileType:', fileType.value);
+    console.log('table:', table.value);
+});
+
+function getDatasetDisplayTitle(dataset) {
+    const dist = dataset.distributions?.[0];
+    if (dist?.title?.en) {
+        return (dataset.title?.en || 'Untitled') + ' | ' + (dist.title?.en || 'No Distribution Title');
+    }
+    return dataset.id || 'Untitled Dataset';
+}
+
+async function loadDatasets() {
+    try {
+        const response = await fetch('https://pistis-market.eu/srv/search/search?filters=dataset&limit=25');
+        const json = await response.json();
+        const rawDatasets = json.result?.results || [];
+
+        datasets.value = rawDatasets;
+    } catch (err) {
+        console.error('Error fetching datasets:', err);
+    }
+}
+
+// call on mounted
+onMounted(() => {
+    loadDatasets();
+});
+
+// // computed to get selected dataset's title
+// const selectedDatasetTitle = computed(() => {
+//   const ds = datasets.value.find((d) => d.id === selectedDatasetId.value);
+//   return ds ? ds.title : '';
+// });
 
 // Dimensions
 const dimensions = ['accuracy', 'consistency', 'completeness', 'uniqueness', 'validity'];
-// console.log('Available Rules:', RulesConfig.availableRules);
 // State
 const selectedDimension = ref('all');
 const expandedDimensions = reactive({});
@@ -436,7 +491,9 @@ function exportStagedRules() {
             kwargs.mostly = parseFloat(mostly);
         }
 
-        const meta = {};
+        const meta = {
+            offer_id: selectedDataset.value.id,
+        };
         if (name) meta.name = name;
         if (description) meta.description = description;
 
