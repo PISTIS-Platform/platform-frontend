@@ -352,7 +352,8 @@ export default defineI18nConfig(() => ({
                     numberOfResell: 'Number of times asset can be resold',
                     numberOfShare: 'Number of times asset can be shared',
                     error: {
-                        noAssetFound: 'No asset found with this ID. Please select one from the dropdown below.',
+                        noAssetFound:
+                            'Asset not found or not in your catalog. Please select one from the dropdown below.',
                     },
                     nav: {
                         selectDataset: 'Dataset Selector',
