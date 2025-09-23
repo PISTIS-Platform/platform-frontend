@@ -197,43 +197,48 @@ const numberOfSharesError = computed(() => {
                         </div>
                     </UCard>
                 </div>
-                <div class="mt-6 mb-2">
+                <div class="mt-6 mb-2 flex">
                     <UForm
                         :submit="purchaseShares"
                         :state="state"
                         :schema="schema"
-                        class="flex items-end gap-6 relative"
+                        class="flex items-end justify-between gap-6 relative w-full"
                     >
                         <UFormGroup
                             :label="$t('invest.numberOfSharesToPurchase')"
                             name="sharesToPurchase"
-                            :ui="{ container: 'w-64', error: 'absolute -bottom-6 w-full' }"
+                            :ui="{ container: 'w-96', error: 'absolute -bottom-6 w-full' }"
                             required
                             eager-validation
                         >
-                            <UInput
-                                v-model.number="state.sharesToPurchase"
-                                type="number"
-                                size="xl"
-                                min="1"
-                                :max="investmentPlan.maxShares"
-                                class="w-64"
-                            >
-                                <template #trailing>
-                                    <span class="text-gray-500 text-xs">{{
-                                        state.sharesToPurchase === 1 ? $t('invest.share') : $t('invest.shares')
-                                    }}</span>
-                                </template>
-                            </UInput>
+                            <div class="flex items-center gap-4">
+                                <UInput
+                                    v-model.number="state.sharesToPurchase"
+                                    type="number"
+                                    size="md"
+                                    min="1"
+                                    :max="investmentPlan.maxShares"
+                                    class="w-32"
+                                >
+                                    <template #trailing>
+                                        <span class="text-gray-500 text-xs ml-6">{{
+                                            state.sharesToPurchase === 1 ? $t('invest.share') : $t('invest.shares')
+                                        }}</span>
+                                    </template>
+                                </UInput>
+                                <span class="text-nowrap font-semibold"
+                                    >Total {{ state.sharesToPurchase * investmentPlan.price }} EUR</span
+                                >
+                            </div>
                         </UFormGroup>
 
                         <UButton
                             class="cursor-pointer"
-                            size="xl"
+                            size="lg"
                             type="submit"
                             :disabled="numberOfSharesError"
                             @click="purchaseShares"
-                            >{{ $t('invest.pay') }} ({{ state.sharesToPurchase * investmentPlan.price }} EUR)</UButton
+                            >{{ $t('invest.pay') }}</UButton
                         >
                     </UForm>
                 </div>
