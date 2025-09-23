@@ -349,6 +349,9 @@ export default defineI18nConfig(() => ({
                         perpetual: 'Perpetual',
                         perpetualRevocable: 'Perpetual (Revocable)',
                     },
+                    error: {
+                        noAssetFound: 'No asset found with this ID. Please select one from the dropdown below.',
+                    },
                     nav: {
                         selectDataset: 'Dataset Selector',
                         monetizationPlanner: 'Monetization Planner',

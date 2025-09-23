@@ -12,6 +12,7 @@ const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/
     query: { page: '' },
 });
 
+const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const submitError = ref(false);
@@ -20,15 +21,31 @@ const {
     public: { factoryUrl },
 } = useRuntimeConfig();
 
-const selected = ref<
+const selectedAsset = ref<
     { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
 >(undefined);
 
-const assetId = computed(() => selected.value?.id);
+const hasRouteAssetId = computed(() => !!route.query.id);
 
 const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
     $fetch('/api/datasets/get-all'),
 );
+
+const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(
+    () =>
+        $fetch('/api/datasets/get-specific', {
+            query: { id: route.query.id },
+        }),
+    {
+        immediate: !!route.query.id,
+    },
+);
+
+watch(dataset, () => {
+    if (dataset.value) {
+        selectedAsset.value = transformSingleDataset(dataset.value);
+    }
+});
 
 const transformedDatasets = computed(() => {
     if (!datasetsData.value || !datasetsData.value.length) {
@@ -42,19 +59,31 @@ const transformedDatasets = computed(() => {
     }));
 });
 
-const { data: isAssetOnMarketplace } = useFetch(`api/datasets/is-on-marketplace`, {
-    query: {
-        query: encodeURIComponent(
-            `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX pst: <https://www.pistis-project.eu/ns/voc#> ASK { ?offer rdf:type pst:Offer ; pst:originalId "${assetId.value}" .}`,
-        ),
-    },
+const transformSingleDataset = (dataset: Record<string, any>) => ({
+    id: dataset.id,
+    title: dataset.title.en,
+    description: dataset.description.en,
+    distributions: dataset.distributions,
 });
 
-watch(selected, () => {
-    if (!selected.value) return;
-    assetOfferingDetails.value.title = selected.value.title;
-    assetOfferingDetails.value.description = selected.value.description;
-    assetOfferingDetails.value.distributions = selected?.value.distributions?.map((item) => ({
+const { data: isAssetOnMarketplace } = useAsyncData(
+    () =>
+        $fetch(`/api/datasets/is-on-marketplace`, {
+            query: {
+                id: selectedAsset.value?.id,
+            },
+        }),
+    {
+        watch: [selectedAsset],
+        immediate: !!selectedAsset.value,
+    },
+);
+
+watch(selectedAsset, () => {
+    if (!selectedAsset.value) return;
+    assetOfferingDetails.value.title = selectedAsset.value.title;
+    assetOfferingDetails.value.description = selectedAsset.value.description;
+    assetOfferingDetails.value.distributions = selectedAsset?.value.distributions?.map((item) => ({
         ...item,
         label: `${item?.title?.en ?? t('data.designer.noTitle')} (${item?.format?.label ?? t('data.designer.unknownFormat')})`,
     }));
@@ -190,10 +219,10 @@ const submitAll = async () => {
         body = {
             type: 'nft',
             price: monetizationDetails.value.price,
-            assetId: assetId.value,
+            assetId: selectedAsset.value?.id,
             seller: accountData.value?.user.sub,
             nftDetails: {
-                dataset_id: assetId.value,
+                dataset_id: selectedAsset.value?.id,
                 factory_name: runtimeConfig.factoryName,
                 name: assetOfferingDetails.value.title,
                 description: assetOfferingDetails.value.description,
@@ -205,7 +234,7 @@ const submitAll = async () => {
     } else {
         body = {
             assetId: newAssetId,
-            originalAssetId: selected.value?.id,
+            originalAssetId: selectedAsset.value?.id,
             organizationId: runtimeConfig.public?.orgId,
             organizationName: accountData.value?.user.orgName,
             ...assetOfferingDetails.value,
@@ -278,21 +307,30 @@ const limitFrequencySelections = computed(() => [
 ]);
 
 const steps = computed(() => [
-    { name: t('data.designer.nav.selectDataset'), isActive: selected.value },
-    { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value && isAssetOfferingDetailsValid.value },
+    { name: t('data.designer.nav.selectDataset'), isActive: selectedAsset.value },
+    {
+        name: t('data.designer.nav.monetizationPlanner'),
+        isActive: selectedAsset.value && isAssetOfferingDetailsValid.value,
+    },
     {
         name: t('data.designer.nav.licenseSelector'),
-        isActive: selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value,
+        isActive: selectedAsset.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value,
     },
     {
         name: t('data.designer.nav.accessPoliciesEditor'),
         isActive:
-            selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value && isLicenseValid.value,
+            selectedAsset.value &&
+            isAssetOfferingDetailsValid.value &&
+            isMonetizationValid.value &&
+            isLicenseValid.value,
     },
     {
         name: t('data.designer.nav.preview'),
         isActive:
-            selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value && isLicenseValid.value,
+            selectedAsset.value &&
+            isAssetOfferingDetailsValid.value &&
+            isMonetizationValid.value &&
+            isLicenseValid.value,
     },
 ]);
 
@@ -339,10 +377,20 @@ const changeStep = async (stepNum: number) => {
 
 <template>
     <NavigationSteps :steps="steps" :selected-page="selectedPage" @select-page="changeStep" />
-    <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
+    <UProgress v-if="datasetsStatus === 'pending' || singleDatasetStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 0 && datasetsStatus !== 'pending'" class="w-full h-full text-gray-700 space-y-8">
-        <UCard>
+    <div
+        v-show="selectedPage === 0 && datasetsStatus !== 'pending' && singleDatasetStatus !== 'pending'"
+        class="w-full h-full text-gray-700 space-y-8"
+    >
+        <UAlert
+            v-if="hasRouteAssetId && !dataset && !selectedAsset"
+            :title="t('data.designer.error.noAssetFound')"
+            color="red"
+            variant="soft"
+            icon="nonicons:not-found-16"
+        />
+        <UCard v-if="!hasRouteAssetId || !dataset">
             <template #header>
                 <div class="flex items-center gap-4">
                     <UIcon name="oui:pages-select" class="w-10 h-10 text-gray-500" />
@@ -353,7 +401,7 @@ const changeStep = async (stepNum: number) => {
                 </div>
             </template>
             <USelectMenu
-                v-model="selected"
+                v-model="selectedAsset"
                 searchable
                 :options="transformedDatasets"
                 option-attribute="title"
@@ -361,8 +409,8 @@ const changeStep = async (stepNum: number) => {
             />
         </UCard>
         <DatasetSelector
-            v-if="selected"
-            :selected="selected"
+            v-if="selectedAsset"
+            :selected="selectedAsset"
             :complete-or-query="completeOrQuery"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
         />
@@ -384,7 +432,7 @@ const changeStep = async (stepNum: number) => {
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
-            :asset-on-marketplace="!!isAssetOnMarketplace"
+            :asset-on-marketplace="isAssetOnMarketplace"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
@@ -404,11 +452,11 @@ const changeStep = async (stepNum: number) => {
         />
     </div>
 
-    <template v-if="selected">
+    <template v-if="selectedAsset">
         <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">
             <AccessPolicyList
                 v-model:policy-data="policyData"
-                :selected="selected"
+                :selected="selectedAsset"
                 @change-page="changeStep"
                 @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
             />
