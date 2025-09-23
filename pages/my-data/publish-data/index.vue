@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import * as R from 'ramda';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
@@ -26,20 +27,21 @@ const selectedAsset = ref<
 
 const hasRouteAssetId = computed(() => !!route.query.id);
 
-const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<string, any>>(
-    () => $fetch('/api/datasets/get-all'),
-    { immediate: !!!route.query.id },
-);
+const {
+    data: datasetsData,
+    status: datasetsStatus,
+    refresh,
+} = useAsyncData<Record<string, any>>(() => $fetch('/api/datasets/get-all'), { immediate: !!!route.query.id });
 
-const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(
-    () =>
-        $fetch('/api/datasets/get-specific', {
-            query: { id: route.query.id },
-        }),
-    {
-        immediate: !!route.query.id,
+const { data: dataset, status: singleDatasetStatus } = useFetch<Record<string, any>>(`/api/datasets/get-specific`, {
+    immediate: !!route.query.id,
+    query: { id: route.query.id },
+    onResponse({ response }) {
+        if (R.isNil(response._data)) {
+            refresh();
+        }
     },
-);
+});
 
 watch(dataset, () => {
     if (dataset.value) {
