@@ -1,4 +1,56 @@
+<script setup>
+import { defineProps } from 'vue';
+
+const props = defineProps({
+    data: {
+        type: Object,
+        required: true,
+    },
+    offerType: {
+        type: String,
+        required: true,
+    },
+});
+
+const isObject = (value) => {
+    return value && typeof value === 'object' && !Array.isArray(value);
+};
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString();
+};
+
+const items = computed(() => {
+    const tabs = [];
+
+    if (props.data?.purchase_offer?.[0]) {
+        tabs.push({
+            label:
+                props.data.purchase_offer[0].type === 'one-off'
+                    ? 'One-off Purchase'
+                    : props.data.purchase_offer[0].type === 'subscription'
+                      ? 'Subscription'
+                      : 'NFT',
+            slot: 'purchase',
+        });
+    }
+
+    if (props.data?.investment_offer_offer?.[0]) {
+        tabs.push({ label: 'Investment', slot: 'investment' });
+    }
+
+    return tabs;
+});
+
+const licenseOpen = ref(false);
+</script>
+
 <template>
+    <UModal v-model="licenseOpen" :ui="{ width: 'sm:max-w-5xl' }">
+        <LicenseViewer :asset-id="data.purchase_offer[0].license.resource.split('/').at(-1)" />
+    </UModal>
     <UTabs
         :items="items"
         :ui="
@@ -39,10 +91,9 @@
 
                 <SummaryBox v-if="data.purchase_offer[0].license" :title="$t('monetization.license')">
                     <template #text>
-                        <!-- TODO: Replace with a modal -->
-                        <a :href="data.purchase_offer[0].license.resource" target="_blank" rel="noopener noreferrer">{{
+                        <span class="text-primary-500 cursor-pointer" @click="licenseOpen = !licenseOpen">{{
                             data.purchase_offer[0].license.label || '-'
-                        }}</a>
+                        }}</span>
                     </template>
                 </SummaryBox>
 
@@ -112,50 +163,3 @@
         </template>
     </UTabs>
 </template>
-
-<script setup>
-import { defineProps } from 'vue';
-
-const props = defineProps({
-    data: {
-        type: Object,
-        required: true,
-    },
-    offerType: {
-        type: String,
-        required: true,
-    },
-});
-
-const isObject = (value) => {
-    return value && typeof value === 'object' && !Array.isArray(value);
-};
-
-const formatDate = (dateStr) => {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString();
-};
-
-const items = computed(() => {
-    const tabs = [];
-
-    if (props.data?.purchase_offer?.[0]) {
-        tabs.push({
-            label:
-                props.data.purchase_offer[0].type === 'one-off'
-                    ? 'One-off Purchase'
-                    : props.data.purchase_offer[0].type === 'subscription'
-                      ? 'Subscription'
-                      : 'NFT',
-            slot: 'purchase',
-        });
-    }
-
-    if (props.data?.investment_offer_offer?.[0]) {
-        tabs.push({ label: 'Investment', slot: 'investment' });
-    }
-
-    return tabs;
-});
-</script>
