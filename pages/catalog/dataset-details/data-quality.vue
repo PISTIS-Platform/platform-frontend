@@ -16,15 +16,10 @@
                 </button>
             </div>
             <!-- Title Section -->
-            <DetailsPageHeader
-                class="my-5"
-                :headline="'Dataset'"
-                :title="'Fontaines à boire'"
-                :subtitle="'Toulouse métropole'"
-            >
+            <DetailsPageHeader class="my-5" :headline="headline" :title="title" :subtitle="subtitle">
                 <template #subtitle>
-                    <slot name="subtitle" :subtitle="'Toulouse métropole'">
-                        <span>{{ 'Toulouse métropole' }}</span>
+                    <slot name="subtitle" :subtitle="subtitle">
+                        <span>{{ subtitle }}</span>
                     </slot>
                 </template>
             </DetailsPageHeader>
@@ -33,24 +28,27 @@
                 <h3 class="text-2xl font-semibold text-gray-700 mb-2">Metadata quality</h3>
                 <p class="text-gray-600 mb-6">
                     The Metadata Quality Assurance is intended to help data providers and data portals to check their
-                    metadata against various indicators. For information on which metrics we use for indicator
+                    metadata against various indicators.
+                    <!-- For information on which metrics we use for indicator
                     measurements, please have a look at our
-                    <a href="#" class="text-purple-600 hover:underline">methodology page</a>.
+                    <a href="#" class="text-purple-600 hover:underline">methodology page</a>. -->
                 </p>
 
                 <!-- Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div
-                        v-for="card in mockCards"
-                        :key="card.key"
+                        v-for="card in relevantMetrics"
+                        :key="card.title"
                         :class="` bg-gray-200 border border-gray-500 p-6 rounded-lg shadow-lg`"
                     >
                         <!-- :class="`${card.bg} ${card.text} p-6 rounded-lg shadow-lg`" -->
                         <h4 class="text-xl font-semibold text-pistis-700 mb-4">{{ card.title }}</h4>
                         <ul class="space-y-3 text-sm">
                             <li v-for="line in card.items" :key="line.title" class="flex justify-between items-center">
-                                <span>{{ line.title }}</span>
-                                <span class="metadata-value bg-pistis-300 font-bold">{{ line.value }}</span>
+                                <span>{{ Object.keys(line)[0] }}</span>
+                                <span class="metadata-value bg-pistis-300 font-bold">{{
+                                    line[Object.keys(line)[0]]
+                                }}</span>
                             </li>
                         </ul>
                     </div>
@@ -61,14 +59,14 @@
             <section class="mb-10">
                 <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Metadata Quality</h3>
                 <p class="text-gray-600 mb-6">
-                    The following lists the quality measurement of all distributions of the dataset. For more
-                    information, see our
-                    <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>.
+                    The following lists the quality measurement of all distributions of the dataset.
+                    <!-- For more information, see our
+                    <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>. -->
                 </p>
 
                 <div class="space-y-4">
                     <!-- NUXT ACCORDIOUNS -->
-                    <UAccordion :items="items">
+                    <UAccordion :items="items" type="multiple">
                         <template #item>
                             <div class="p-4 text-gray-700">
                                 <div class="accordion-content p-4 text-sm text-gray-600">
@@ -154,14 +152,14 @@
             <section class="mb-10">
                 <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Data Quality</h3>
                 <p class="text-gray-600 mb-6">
-                    The following lists the quality measurement of all distributions of the dataset. For more
-                    information, see our
-                    <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>.
+                    The following lists the quality measurement of all distributions of the dataset.
+                    <!-- For more information, see our
+                    <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>. -->
                 </p>
 
                 <div class="space-y-4">
                     <!-- NUXT ACCORDIOUNS -->
-                    <UAccordion :items="items">
+                    <UAccordion :items="items" type="multiple">
                         <template #item>
                             <div class="p-4 text-gray-700">
                                 <div class="accordion-content p-3 text-sm text-gray-500">
@@ -260,90 +258,66 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
+import { onMounted, ref } from 'vue';
+
+import { getMetricsData } from '~/components/catalog/dataset-details/DataQualityService';
 import PhCaretLeft from '~icons/ph/caret-left';
-// import { getMetricsData } from '~/components/catalog/dataset-details/DataQualityService';
 
 const router = useRouter();
+const route = useRoute();
 
+const { datasetId, title, headline, subtitle } = route.query;
+
+const metricData = ref({});
+const relevantMetrics = ref([]);
+
+const loadData = async () => {
+    try {
+        const response = await getMetricsData(datasetId);
+        metricData.value = response.result.results[0][0];
+        relevantMetrics.value = [
+            {
+                title: 'Accessibility',
+                items: metricData.value.accessibility,
+            },
+            {
+                title: 'Contextuality',
+                items: metricData.value.contextuality,
+            },
+            {
+                title: 'Interoperability',
+                items: metricData.value.interoperability,
+            },
+            {
+                title: 'Reusability',
+                items: metricData.value.reusability,
+            },
+        ];
+    } catch (error) {
+        console.error('Loading data failed:', error);
+    }
+};
+
+// MockItems
 const items = [
-    {
-        label: 'dist.csv',
-        icon: 'i-lucide-box',
-    },
-    {
-        label: 'dist.zip',
-        icon: 'i-lucide-box',
-    },
-    {
-        label: 'dist.json',
-        icon: 'i-lucide-box',
-    },
+    // {
+    //     label: 'dist.csv',
+    //     icon: 'i-lucide-box',
+    // },
+    // {
+    //     label: 'dist.zip',
+    //     icon: 'i-lucide-box',
+    // },
+    // {
+    //     label: 'dist.json',
+    //     icon: 'i-lucide-box',
+    // },
 ];
 
-const mockCards = [
-    {
-        key: 'accessibility',
-        title: 'Accessibility',
-        bg: 'bg-blue-500',
-        text: 'text-white',
-        items: [
-            { title: 'Download URL', value: '100 %' },
-            { title: 'Most frequent accessing status codes', value: 'N/A' },
-            { title: 'Most frequent distribution status codes', value: 'N/A' },
-        ],
-    },
-    {
-        key: 'findability',
-        title: 'Findability',
-        bg: 'bg-green-500',
-        text: 'text-white',
-        items: [
-            { title: 'Keyword usage', value: 'yes' },
-            { title: 'Categories', value: 'yes' },
-            { title: 'Geo search', value: 'yes' },
-            { title: 'Time based search', value: 'no' },
-        ],
-    },
-    {
-        key: 'reusability',
-        title: 'Reusability',
-        bg: 'bg-red-500',
-        text: 'text-white',
-        items: [
-            { title: 'Access restrictions', value: 'no' },
-            { title: 'License information', value: '100 %' },
-            { title: 'Access restrictions vocabulary', value: 'yes' },
-            { title: 'Contact point', value: 'yes' },
-            { title: 'Publisher', value: 'yes' },
-        ],
-    },
-    {
-        key: 'interoperability',
-        title: 'Interoperability',
-        bg: 'bg-indigo-500',
-        text: 'text-white',
-        items: [
-            { title: 'DCAT-AP compliance', value: 'N/A' },
-            { title: 'Format', value: '100 %' },
-            { title: 'Media type', value: '100 %' },
-            { title: 'Format / Media type from Vocabulary', value: '0 %' },
-        ],
-    },
-    {
-        key: 'contextuality',
-        title: 'Contextuality',
-        bg: 'bg-yellow-500',
-        text: 'text-gray-800',
-        items: [
-            { title: 'File size', value: '0 %' },
-            { title: 'Rights Vocabulary', value: '100 %' },
-            { title: 'Spatial data of issue', value: 'yes' },
-            { title: 'Distribution Modification date', value: '100 %' },
-            { title: 'Temporal data of issue', value: '100 %' },
-        ],
-    },
-];
+onMounted(() => {
+    loadData();
+});
 </script>
 
 <style scoped>

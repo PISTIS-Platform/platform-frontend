@@ -381,6 +381,12 @@ const truncatedEllipsedDescription = computed(() => {
                             <NuxtLink
                                 :to="{
                                     path: '/catalog/dataset-details/data-quality',
+                                    query: {
+                                        datasetId,
+                                        title,
+                                        headline,
+                                        subtitle,
+                                    },
                                 }"
                                 class="link"
                             >
