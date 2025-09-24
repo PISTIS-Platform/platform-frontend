@@ -378,7 +378,14 @@ const truncatedEllipsedDescription = computed(() => {
                             >
                                 <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
                             </NuxtLink>
-
+                            <NuxtLink
+                                :to="{
+                                    path: '/catalog/dataset-details/data-quality',
+                                }"
+                                class="link"
+                            >
+                                <KButton size="small">Data quality</KButton>
+                            </NuxtLink>
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
