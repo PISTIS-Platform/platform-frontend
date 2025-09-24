@@ -63,9 +63,7 @@ const isOwned = computed(() => {
 });
 const monetizationData = ref();
 const offerId = ref('');
-const feedbackUrl = computed(
-    () => `/marketplace/usage-analytics/${props.datasetId}/questionnaire`,
-);
+const feedbackUrl = computed(() => `/marketplace/usage-analytics/${props.datasetId}/questionnaire`);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
