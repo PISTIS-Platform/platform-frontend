@@ -26,10 +26,10 @@ const model = useVModel(props, 'modelValue', emit, { passive: true });
 </script>
 
 <template>
-    <div class="flex flex-col gap-6 pr-10">
+    <div class="flex flex-col gap-4">
         <div v-if="ghost" class="h-[720px] w-full animate-pulse rounded-lg border bg-surface-200" />
         <template v-else>
-            <div class="flex w-full flex-col gap-4">
+            <div class="flex w-80 flex-col rounded bg-neutral-200 border border-neutral-300 shadow-md">
                 <KFacetGroup
                     v-for="facet of facets.filter((facet) => facet.items.length > 0)"
                     :id="`facet-group-${facet.id}`"

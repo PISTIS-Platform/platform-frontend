@@ -9,7 +9,7 @@ import { dcatApDataset, defineHubSearch, getTranslationFor } from '@piveau/sdk-v
 import DOMPurify from 'isomorphic-dompurify';
 import { marked } from 'marked';
 
-import type { EnhancedSearchResult } from '../composables/useDatasetsSearchView';
+import type { EnhancedSearchResult } from '/composables/useDatasetsSearchView';
 
 const config = useRuntimeConfig();
 let appUrl = '';

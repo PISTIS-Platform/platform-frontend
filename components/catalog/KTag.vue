@@ -135,7 +135,7 @@ const _preset = {
                 class="flex min-w-fit flex-nowrap items-center gap-2 text-secondary-text"
                 :class="{ 'flex-row-reverse': props.iconRight }"
             >
-                <PhX v-if="props.removable && !hasIcon" />
+                <PhX v-if="props.removable && !hasIcon" class="!-ml-2" />
                 <i v-else-if="hasIcon" :class="props.icon || props.iconLeft || props.iconRight" />
                 <slot>
                     <Typography variant="by-copy-small-regular">

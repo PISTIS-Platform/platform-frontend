@@ -4,7 +4,7 @@
 // import DataInfoCard from '@/components/base/data-info-box/DataInfoCard.vue';
 import Paginator from 'primevue/paginator';
 
-import { useSearchParams } from '../../../pages/my-data/catalog/useSearchParams';
+import { useSearchParams } from '@/pages/catalog/useSearchParams';
 
 const route = useRoute();
 
@@ -17,15 +17,19 @@ const _props = defineProps<{
 }>();
 const searchParams = useSearchParams();
 const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
+
+const toRoute = computed(() =>
+    route.query.pm === 'cloud' ? 'marketplace-dataset-details-datasetId' : 'catalog-dataset-details-datasetId',
+);
 </script>
 
 <template>
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-6">
         <template v-if="!isLoading && !isFetching">
             <slot v-for="item in items" :key="item.id" :item="item">
                 <DataInfoCard
                     :to="{
-                        name: 'my-data-catalog-dataset-details-datasetId',
+                        name: toRoute,
                         params: { datasetId: item.id },
                         query: { pm: route.query.pm },
                     }"
@@ -49,7 +53,8 @@ const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
     <div class="grid w-full place-content-center">
         <Paginator
             v-model:first="searchParams.queryParams.page.value"
-            class="cursor-pointer ring-1 ring-gray-200"
+            class="cursor-pointer ring-1 ring-gray-200 rounded shadow-md"
+            :pt="{ root: { class: 'rounded-lg' } }"
             :rows="1"
             :total-records="getSearchResultsPagesCount"
         />
@@ -62,6 +67,6 @@ const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
 }
 
 .p-paginator-page.p-highlight {
-    @apply border border-pistis-500 text-pistis-500 font-semibold;
+    @apply border border-pistis-500 text-pistis-500 bg-pistis-50 font-semibold;
 }
 </style>

@@ -122,6 +122,9 @@ const {
     status: datasetsStatus,
     error: datasetsError,
 } = useFetch(`/api/datasets/get-all-on-marketplace`, {
+    query: {
+        nonFree: true,
+    },
     server: false,
 });
 
@@ -218,7 +221,7 @@ const submitAll = async () => {
             });
             showSuccessMessage(t('data.investmentPlanner.success'));
             await delay(2);
-            navigateTo(`${factoryUrl}/my-data/catalog/dataset-details/${objToSend.cloudAssetId}?pm=cloud&locale=en`, {
+            navigateTo(`${factoryUrl}/catalog/dataset-details/${objToSend.cloudAssetId}?pm=cloud&locale=en`, {
                 external: true,
             });
         } catch {

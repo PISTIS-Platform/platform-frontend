@@ -14,13 +14,14 @@ const props = defineProps<{
 
 const computedTextClasses = computed(() => ({
     truncate: props.truncate,
+    'font-semibold': true,
 }));
 </script>
 
 <template>
-    <div class="flex flex-col gap-by1">
+    <div class="flex flex-col gap-1">
         <slot name="title" :title="props.title">
-            <Typography as="div" variant="by-caption" class="uppercase">
+            <Typography as="div" variant="by-caption" class="uppercase text-neutral-400">
                 {{ props.title }}
             </Typography>
         </slot>

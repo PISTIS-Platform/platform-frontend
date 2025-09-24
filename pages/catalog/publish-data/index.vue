@@ -279,7 +279,7 @@ const submitAll = async () => {
         });
         submitStatus.value = 'success';
         await delay(3);
-        await navigateTo(`${factoryUrl}/my-data/catalog/dataset-details/${newAssetId}?pm=cloud&locale=en`, {
+        await navigateTo(`${factoryUrl}/catalog/dataset-details/${newAssetId}?pm=cloud&locale=en`, {
             open: {
                 target: '_blank',
             },

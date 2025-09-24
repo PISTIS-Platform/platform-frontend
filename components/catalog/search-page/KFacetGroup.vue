@@ -39,10 +39,11 @@ const panelPreset = {
             'text-surface-700 dark:text-surface-0/80',
             'bg-transparent',
             // 'border border-surface-200 dark:border-surface-700',
+            'border-b border-neutral-300',
             // Shape
-            'rounded-tl-lg rounded-tr-lg',
+            // 'rounded-tl-lg rounded-tr-lg',
             // Conditional Spacing
-            { 'px-4 py-3': props.toggleable },
+            { 'px-3 py-1': props.toggleable },
         ],
     }),
     title: {
@@ -91,15 +92,18 @@ const panelPreset = {
 <template>
     <Panel
         v-model:collapsed="collapsed"
-        class="flex min-w-64 flex-col bg-white ring-gray-200 ring-1 shadow rounded-lg text-surface-text rounded-custom"
+        class="flex min-w-64 flex-col text-surface-text"
         :pt="panelPreset"
-        :pt-options="{ mergeSections: false, mergeProps: false }"
+        :pt-options="{ mergeSections: true, mergeProps: false }"
         toggleable
     >
         <template #header>
             <div class="flex w-full flex-col justify-center gap-2">
                 <slot name="header" :title="props.title">
-                    <Typography variant="by-heading-5" class="flex flex-row justify-between text-surface-text">
+                    <Typography
+                        variant="by-heading-6"
+                        class="flex flex-row justify-between text-surface-text font-medium"
+                    >
                         {{ title }}
                         <!-- <PhCaretDown class="text-lg font-semibold" /> -->
                     </Typography>
@@ -114,8 +118,8 @@ const panelPreset = {
                 }"
             />
         </template>
-        <div class="flex-1">
-            <ul class="flex flex-col divide-y border-neutral-20">
+        <div class="flex-1 border-b border-neutral-300">
+            <ul class="flex flex-col divide-y border-neutral-50">
                 <li v-for="(facet, i) in truncatedFacets" :key="i" class="">
                     <label class="relative">
                         <input
@@ -127,7 +131,7 @@ const panelPreset = {
                             :name="facet.label"
                         />
                         <div
-                            class="max-h-12 w-full px-4 py-3 pr-6"
+                            class="max-h-12 w-full py-3"
                             :class="{
                                 'text-surface-text hover:bg-neutral-20': !model?.includes(facet.id),
                                 'border-b border-b-primary bg-primary-light font-semibold': model?.includes(facet.id),
@@ -136,12 +140,16 @@ const panelPreset = {
                             :value="facet.value || facet.id"
                         >
                             <div
-                                class="flex flex-1 flex-row text-surface-text flex-nowrap items-center justify-between cursor-pointer"
+                                class="flex flex-1 flex-row text-surface-text flex-nowrap items-center justify-between cursor-pointer px-3"
                             >
-                                <div class="truncate">
+                                <div class="truncate text-sm">
                                     {{ facet.label }}
                                 </div>
-                                <Typography class="font-normal text-fg-muted" as="div" variant="button-text">
+                                <Typography
+                                    class="font-normal text-primary-600 bg-primary-50 border-primary-100 border px-2 rounded text-sm"
+                                    as="div"
+                                    variant="button-text"
+                                >
                                     {{ facet.count }}
                                 </Typography>
                             </div>
@@ -150,7 +158,7 @@ const panelPreset = {
                 </li>
                 <li v-if="isTruncationNeeded">
                     <button
-                        class="grid max-h-12 w-full place-content-center border-t-0 bg-surface px-4 py-3 pr-6 cursor-pointer rounded-b-lg"
+                        class="grid max-h-12 w-full place-content-center border-t-0 bg-surface py-2 cursor-pointer rounded-b-lg"
                         @click="toggleFacetsTruncation"
                     >
                         <i v-if="isTruncated" class="icon-[ph--caret-down]" />
@@ -161,3 +169,9 @@ const panelPreset = {
         </div>
     </Panel>
 </template>
+
+<style>
+.p-panel-content {
+    @apply rounded-none p-0 border-0;
+}
+</style>

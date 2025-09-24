@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 const routes = ref([
-    { name: 'catalog.title', to: '/my-data/catalog?pm=factory' },
-    { name: 'data.designer.title', to: '/my-data/publish-data' },
-    { name: 'data.investmentPlanner.title', to: '/my-data/investment-planner' },
+    { name: 'catalog.title', to: '/catalog?pm=factory' },
+    { name: 'data.designer.title', to: '/catalog/publish-data' },
+    { name: 'data.investmentPlanner.title', to: '/catalog/investment-planner' },
 ]);
 </script>
 

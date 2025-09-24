@@ -7,10 +7,12 @@ const {
 
 export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
+    const query = await getQuery(event);
 
     const facets = {
         monetizationType: ['one-off', 'subscription'],
         publisher: [organisationFullname],
+        is_free: query?.nonFree ? [false] : [],
     };
 
     const results: any = await $fetch(

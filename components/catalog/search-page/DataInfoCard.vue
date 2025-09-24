@@ -36,19 +36,19 @@ const computedWrapperComponent = computed(() => {
     <NuxtLink
         :is="computedWrapperComponent"
         :to="to"
-        class="group relative mx-auto box-border border border-transparent border-b-[3px] rounded-custom by w-full ring-gray-200 ring-1 shadow rounded-lg bg-white text-surface-text p-12 hover:border-b-primary-600 mb-6"
+        class="group relative mx-auto box-border border border-neutral-200 w-full shadow-md rounded-lg bg-white text-surface-text p-6 hover:bg-primary-50 hover:border-primary-200"
     >
         <!-- Header -->
         <div class="flex flex-col gap-by5">
-            <Typography v-if="title || id" variant="by-heading-4" class="mb-6">
+            <Typography v-if="title || id" variant="by-heading-5" class="text-primary-600 mb-2">
                 {{ title || id }}
             </Typography>
-            <div class="flex flex-col gap-16">
+            <div class="flex flex-col gap-4">
                 <slot name="body">
                     <div class="grid grid-cols-12 gap-2">
                         <!-- Description -->
                         <p
-                            class="col-span-12 line-clamp-6 text-surface-light lg:col-span-8 break-words overflow-hidden max-w-full"
+                            class="text-sm col-span-12 line-clamp-6 text-surface-light lg:col-span-9 break-words overflow-hidden max-w-full"
                         >
                             {{ description }}
                         </p>
@@ -56,14 +56,22 @@ const computedWrapperComponent = computed(() => {
                             <!-- File Format Tags -->
                             <SummaryBox
                                 v-if="fileFormats.length > 0"
-                                class="col-span-12 lg:col-span-4 mt-6 md:mt-0 lg:ml-10"
+                                class="col-span-12 lg:col-span-3 mt-6 md:mt-0 lg:ml-3"
                                 title="data format"
                             >
                                 <template #text>
                                     <div class="flex flex-wrap gap-2">
-                                        <KTag v-for="format in fileFormats" :key="format">
+                                        <UBadge
+                                            v-for="format in fileFormats"
+                                            :key="format"
+                                            variant="subtle"
+                                            color="primary"
+                                            size="sm"
+                                            :label="format"
+                                        />
+                                        <!-- <KTag v-for="format in fileFormats" :key="format">
                                             {{ format }}
-                                        </KTag>
+                                        </KTag> -->
                                     </div>
                                 </template>
                             </SummaryBox>

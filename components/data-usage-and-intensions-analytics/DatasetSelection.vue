@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import dummyData from '../../pages/data/dummy-data';
+import dummyData from '@/pages/data/dummy-data';
 
 const { t } = useI18n();
 
