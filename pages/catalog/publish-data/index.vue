@@ -401,7 +401,7 @@ const changeStep = async (stepNum: number) => {
         />
         <div>
             <div class="w-full flex items-center justify-end gap-4">
-                <UButton size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
+                <UButton v-if="selectedAsset" size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
             </div>
         </div>
     </div>
