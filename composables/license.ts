@@ -3,9 +3,10 @@ import { z } from 'zod';
 
 import { durations, LicenseCode } from '~/constants/licenses';
 
-export const useLicenseSchema = () => {
-    const isFree = ref(false);
-    const isOneOff = ref(false);
+export const useLicenseSchema = (monetizationDetailsRef: Ref) => {
+    const isFree = computed(() => monetizationDetailsRef.value.price === 0);
+    const isOneOff = computed(() => monetizationDetailsRef.value.type === 'one-off');
+
     const { t } = useI18n();
     const isWorldwide = ref(false);
     const hasPersonalData = ref(false);
@@ -204,8 +205,6 @@ export const useLicenseSchema = () => {
         });
 
     return {
-        isFree,
-        isOneOff,
         isWorldwide,
         hasPersonalData,
         licenseSchema,

@@ -58,10 +58,6 @@ watch(
                 resetLicenseDetails(licenses[0]);
             }
         }
-
-        //reactive for license schema
-        licenseIsFree.value = props.isFree;
-        isOneOff.value = props.monetizationDetails.type === 'one-off';
     },
     { deep: true },
 );
@@ -85,14 +81,7 @@ const isLicenseValid = computed(() => {
 
 const isAllValid = computed(() => isLicenseValid.value);
 
-const {
-    isWorldwide,
-    hasPersonalData,
-    licenseSchema,
-    durationSelections,
-    isFree: licenseIsFree,
-    isOneOff,
-} = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema, durationSelections } = useLicenseSchema(monetizationPropComputed);
 
 type licenseType = z.infer<typeof licenseSchema>;
 

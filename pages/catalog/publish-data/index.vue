@@ -31,10 +31,10 @@ const {
     data: datasetsData,
     status: datasetsStatus,
     refresh,
-} = useAsyncData<Record<string, any>>(() => $fetch('/api/datasets/get-all'), { immediate: !!!route.query.id });
+} = useAsyncData<Record<string, any>>(() => $fetch('/api/datasets/get-all'), { immediate: !hasRouteAssetId.value });
 
 const { data: dataset, status: singleDatasetStatus } = useFetch<Record<string, any>>(`/api/datasets/get-specific`, {
-    immediate: !!route.query.id,
+    immediate: hasRouteAssetId.value,
     query: { id: route.query.id },
     onResponse({ response }) {
         if (R.isNil(response._data)) {
