@@ -9,13 +9,15 @@
 import Sidebar from 'primevue/sidebar';
 
 // import { ref, toRef } from 'vue'
-import { useDcatApSearch } from '../catalog/sdk';
-import { useDatasetSearchView } from '../catalog/useDatasetsSearchView';
-import { useSearchParams } from '../catalog/useSearchParams';
-import { useSelectedFacets } from '../catalog/useSelectedFacets';
+import { useDcatApSearch } from './sdk';
+import { useDatasetSearchView } from './useDatasetsSearchView';
+import { useSearchParams } from './useSearchParams';
+import { useSelectedFacets } from './useSelectedFacets';
 
 // const route = useRoute();
 // const pistisMode = computed(() => route.query.pistisMode || 'factory');
+// const pistisMode = route.query.pm;
+// console.log('pistisMode:', pistisMode);
 
 const searchInput = defineModel<string>('searchInput', { required: true });
 const hvdModel = defineModel<boolean>('hvd', { required: true });

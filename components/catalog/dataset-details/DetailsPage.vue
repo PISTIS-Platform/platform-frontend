@@ -320,7 +320,7 @@ const truncatedEllipsedDescription = computed(() => {
                                 >Buy<span v-if="price">&nbsp;{{ price + '€' }}</span></KButton
                             >
                         </a>
-                        <a v-if="hasInvestmentOffer" :href="`${config.public.factoryUrl}/invest/${datasetId}`" class="">
+                        <a v-if="hasInvestmentOffer" :href="`/invest/${datasetId}`" class="">
                             <KButton size="small">Invest</KButton>
                         </a>
                         <a :href="feedbackUrl" class="">
@@ -331,7 +331,7 @@ const truncatedEllipsedDescription = computed(() => {
                     <div class="ml-5">
                         <NuxtLink
                             :to="{
-                                path: '/my-data/catalog/dataset-details/data-lineage',
+                                path: '/catalog/dataset-details/data-lineage',
                                 query: { id: accessID, pm: pistisMode, url: backendUrl },
                             }"
                             class=""
@@ -349,7 +349,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <!-- Data Lineage -->
                             <NuxtLink
                                 :to="{
-                                    path: '/my-data/catalog/dataset-details/data-lineage',
+                                    path: '/catalog/dataset-details/data-lineage',
                                     query: { id: accessID, pm: pistisMode, url: backendUrl },
                                 }"
                                 class=""
@@ -360,7 +360,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
                                 ><KButton size="small">Quality Assessment</KButton></a
                             >
-                            <a :href="`/my-data/publish-data?id=${datasetId}`" class="link"
+                            <a :href="`/catalog/publish-data?id=${datasetId}`" class="link"
                                 ><KButton size="small">Publish Data</KButton></a
                             >
                         </div>
@@ -370,7 +370,7 @@ const truncatedEllipsedDescription = computed(() => {
                             <!-- Data Lineage -->
                             <NuxtLink
                                 :to="{
-                                    path: '/my-data/catalog/dataset-details/data-lineage',
+                                    path: '/catalog/dataset-details/data-lineage',
 
                                     query: { id: accessID, pm: pistisMode, url: backendUrl },
                                 }"

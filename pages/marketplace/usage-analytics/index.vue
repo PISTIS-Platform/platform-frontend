@@ -84,7 +84,7 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
                         </template>
                         <template #title-data="{ row }">
                             <a
-                                :href="`/my-data/catalog/dataset-details/${row.id}?pm=cloud`"
+                                :href="`/catalog/dataset-details/${row.id}?pm=cloud`"
                                 target="_blank"
                                 class="text-primary"
                                 >{{ row.title }}</a

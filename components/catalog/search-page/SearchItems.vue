@@ -4,7 +4,7 @@
 // import DataInfoCard from '@/components/base/data-info-box/DataInfoCard.vue';
 import Paginator from 'primevue/paginator';
 
-import { useSearchParams } from '../../../pages/my-data/catalog/useSearchParams';
+import { useSearchParams } from '../../../pages/catalog/useSearchParams';
 
 const route = useRoute();
 
