@@ -75,7 +75,7 @@ function beforeLeave(el: any) {
 </script>
 
 <template>
-    <div class="relative w-full">
+    <div class="relative w-full mt-4">
         <transition-group
             enter-active-class="transform-gpu transition-all"
             enter-from-class="opacity-0 scale-50"
@@ -92,7 +92,7 @@ function beforeLeave(el: any) {
                 <KInteractiveChip
                     :id="`selected-facet-${facet.title}-${facet.value}`"
                     :id-name="`selected-facet-${facet.title}-${facet.value}`"
-                    class="bg-pistis-200 rounded-lg"
+                    class="bg-pistis-50 rounded border border-pistis-200"
                     @click="removeSelectedFacetById(facet.title, facet.id)"
                 >
                     <div class="flex flex-row flex-nowrap items-center gap-1 whitespace-nowrap">

@@ -656,7 +656,7 @@ export default defineI18nConfig(() => ({
             },
             catalog: {
                 catalog: 'Catalog',
-                title: 'Catalog',
+                title: 'Factory Catalog',
             },
             marketplace: {
                 marketplace: 'Marketplace',
@@ -800,7 +800,7 @@ export default defineI18nConfig(() => ({
                 searchBarPlaceholder: 'Search...',
                 searchButton: 'Search',
                 datasets: {
-                    found: 'Datasets found',
+                    found: 'datasets found',
                 },
             },
             SortSplitButton: {

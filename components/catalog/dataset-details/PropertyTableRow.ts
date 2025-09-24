@@ -2,7 +2,7 @@ import type { PropertyTableEntry, PropertyTableEntryLeaf, PropertyTableEntryNode
 import { isVNodeEmpty } from '@piveau/sdk-vue';
 import type { PropType, VNode, VNodeArrayChildren } from 'vue';
 
-import Typography from '../Typography.vue';
+import { SummaryBox } from '#components';
 
 const PropertyTable = defineComponent({
     name: 'PropertyTable',
@@ -20,7 +20,7 @@ const PropertyTable = defineComponent({
             if (data.type === 'href')
                 return h(
                     'span',
-                    h('a', { class: 'text-primary hover:text-primar', href: data.data.href }, data.data.label),
+                    h('a', { class: 'text-primary hover:text-primary', href: data.data.href }, data.data.label),
                 );
 
             return h('span', JSON.stringify(data));
@@ -34,19 +34,22 @@ const PropertyTable = defineComponent({
 
                 if (data.type === 'node' && depth <= 0) {
                     return !!data.data && data.data.length > 0
-                        ? h('tr', { class: 'flex flex-col gap-1 mb-2' }, [
-                              h(
-                                  'td',
-                                  { class: 'block font-medium' },
-                                  h(Typography, { as: 'span', variant: 'caption' }, () => data.label || data.id),
-                              ),
-                              h('td', { class: 'block' }, renderNodes(data.data || [], depth + 1)),
-                          ])
-                        : null;
-                    // return h('tr', [
-                    //   slots.title?.({ title: data.label, depth }) || h('div', { class: 'font-medium' }, `${data.type} -> ${data.id} (${data.id}) (${data.data?.length || 0} children)`),
-                    //   !isVNodeEmpty(itemsSlot) ? itemsSlot : h('div', { class: 'pl-8' }, renderNodes(data.data || [], depth + 1)),
-                    // ])
+                        ? h(
+                              SummaryBox,
+                              { title: data.label },
+                              {
+                                  text: h('span', {}, renderNodes(data.data || [], depth + 1)),
+                              },
+                          )
+                        : // ? h('tr', { class: 'flex flex-col gap-1 mb-2' }, [
+                          //       h(
+                          //           'td',
+                          //           { class: 'block font-medium' },
+                          //           h(Typography, { as: 'span', variant: 'caption' }, () => data.label || data.id),
+                          //       ),
+                          //       h('td', { class: 'block' }, renderNodes(data.data || [], depth + 1)),
+                          //   ])
+                          null;
                 }
 
                 if (data.type === 'node' && depth > 0) {
@@ -73,7 +76,7 @@ const PropertyTable = defineComponent({
             h(
                 props.as,
                 {
-                    class: 'grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6',
+                    class: 'grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4',
                 },
                 renderNodes(node.value?.data || []),
             );

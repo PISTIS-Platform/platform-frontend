@@ -8,11 +8,11 @@
 // import SearchItems from '@/views/search/SearchItems.vue'
 import Sidebar from 'primevue/sidebar';
 
+import { useDatasetSearchView } from '@/pages/catalog/useDatasetsSearchView';
+import { useSearchParams } from '@/pages/catalog/useSearchParams';
+import { useSelectedFacets } from '@/pages/catalog/useSelectedFacets';
 // import { ref, toRef } from 'vue'
-import { useDcatApSearch } from '../catalog/sdk';
-import { useDatasetSearchView } from '../catalog/useDatasetsSearchView';
-import { useSearchParams } from '../catalog/useSearchParams';
-import { useSelectedFacets } from '../catalog/useSelectedFacets';
+import { useDcatApSearch } from '@/sdk';
 
 // const route = useRoute();
 // const pistisMode = computed(() => route.query.pistisMode || 'factory');
@@ -65,10 +65,10 @@ const {
             />
         </Sidebar>
         <div
-            class="w-full relative mx-auto grid max-w-content-max grid-cols-1 sm:grid-cols-[minmax(auto,20rem)_1fr] mt-14"
+            class="w-full relative mx-auto grid max-w-content-max grid-cols-1 sm:grid-cols-[minmax(auto,20rem)_1fr] mt-4"
         >
             <!-- Permanent facets for large devices -->
-            <div name="sidebar" class="relative hidden sm:block sm:max-w-96 lg:min-w-[420px]">
+            <div name="sidebar" class="relative hidden sm:block sm:max-w-96">
                 <div name="stickysidey" class="">
                     <FacetSidebar
                         v-model:model-value="selectedFacets"
@@ -88,7 +88,8 @@ const {
                         <SelectedFacetsOverview v-model="selectedFacets" :facets="availableFacetsFormatted" />
                         <div class="flex flex-col gap-6">
                             <SearchInfoPanel v-model:direction="sortDirection" v-model:sort="sort">
-                                {{ getSearchResultsCount }} {{ $t('searchBar.datasets.found') }}
+                                <span class="font-semibold text-primary-600">{{ getSearchResultsCount }}</span>
+                                <span class="font-normal pl-1">{{ $t('searchBar.datasets.found') }}</span>
                             </SearchInfoPanel>
                         </div>
                         <SearchItems

@@ -9,7 +9,8 @@
 import Sidebar from 'primevue/sidebar';
 
 // import { ref, toRef } from 'vue'
-import { useDcatApSearch } from './sdk';
+import { useDcatApSearch } from '@/sdk';
+
 import { useDatasetSearchView } from './useDatasetsSearchView';
 import { useSearchParams } from './useSearchParams';
 import { useSelectedFacets } from './useSelectedFacets';
@@ -67,10 +68,10 @@ const {
             />
         </Sidebar>
         <div
-            class="w-full relative mx-auto grid max-w-content-max grid-cols-1 sm:grid-cols-[minmax(auto,20rem)_1fr] mt-14"
+            class="w-full relative mx-auto grid max-w-content-max grid-cols-1 sm:grid-cols-[minmax(auto,20rem)_1fr] mt-4"
         >
             <!-- Permanent facets for large devices -->
-            <div name="sidebar" class="relative hidden sm:block sm:max-w-96 lg:min-w-[420px]">
+            <div name="sidebar" class="relative hidden sm:block sm:max-w-96">
                 <div name="stickysidey" class="">
                     <FacetSidebar
                         v-model:model-value="selectedFacets"
@@ -90,7 +91,8 @@ const {
                         <SelectedFacetsOverview v-model="selectedFacets" :facets="availableFacetsFormatted" />
                         <div class="flex flex-col gap-6">
                             <SearchInfoPanel v-model:direction="sortDirection" v-model:sort="sort">
-                                {{ getSearchResultsCount }} {{ $t('searchBar.datasets.found') }}
+                                <span class="font-semibold text-primary-600">{{ getSearchResultsCount }}</span>
+                                <span class="font-normal pl-1">{{ $t('searchBar.datasets.found') }}</span>
                             </SearchInfoPanel>
                         </div>
                         <SearchItems
