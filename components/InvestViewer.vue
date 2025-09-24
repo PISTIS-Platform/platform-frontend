@@ -80,7 +80,7 @@ const numberOfSharesError = computed(() => {
 
 <template>
     <UProgress v-if="retrieveStatus === 'pending'" animation="carousel" color="primary" />
-    <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full my-8 text-gray-600">
+    <div class="justify-center items-center max-w-7xl w-full text-gray-600">
         <PageContainer>
             <ErrorCard
                 v-if="retrieveError"
@@ -107,7 +107,7 @@ const numberOfSharesError = computed(() => {
                                     <span class="text-gray-400 uppercase text-xs font-semibold">{{
                                         $t('invest.assetDescription')
                                     }}</span>
-                                    <span>{{ investmentPlan.description }}</span>
+                                    <span class="text-base">{{ investmentPlan.description }}</span>
                                 </div>
                             </div>
                         </div>
@@ -126,7 +126,7 @@ const numberOfSharesError = computed(() => {
                                         $t('invest.validUntil')
                                     }}</span>
                                     <span
-                                        ><span class="text-lg">{{
+                                        ><span class="text-base">{{
                                             dayjs(investmentPlan.dueDate).format('DD MMM YYYY')
                                         }}</span></span
                                     >
@@ -136,7 +136,7 @@ const numberOfSharesError = computed(() => {
                                         $t('invest.availableShares')
                                     }}</span>
                                     <span
-                                        ><span class="text-lg"
+                                        ><span class="text-base"
                                             >{{ investmentPlan.remainingShares }} /
                                             {{ investmentPlan.totalShares }}</span
                                         >
@@ -150,7 +150,7 @@ const numberOfSharesError = computed(() => {
                                         $t('invest.maxPerInvestor')
                                     }}</span>
                                     <span
-                                        ><span class="text-lg">{{ investmentPlan.maxShares }}</span> shares</span
+                                        ><span class="text-base">{{ investmentPlan.maxShares }}</span> shares</span
                                     >
                                 </div>
                                 <div class="flex gap-1 flex-col">
@@ -158,7 +158,7 @@ const numberOfSharesError = computed(() => {
                                         $t('invest.sharePercentage')
                                     }}</span>
                                     <span
-                                        ><span class="text-lg"
+                                        ><span class="text-base"
                                             >{{
                                                 (investmentPlan.percentageOffer / investmentPlan.totalShares).toFixed(
                                                     3,
@@ -175,7 +175,7 @@ const numberOfSharesError = computed(() => {
                                         $t('invest.sharePrice')
                                     }}</span>
                                     <span
-                                        ><span class="text-lg">{{ investmentPlan.price }} EUR</span> per share</span
+                                        ><span class="text-base">{{ investmentPlan.price }} €</span> per share</span
                                     >
                                 </div>
                             </div>
@@ -226,14 +226,17 @@ const numberOfSharesError = computed(() => {
                                         }}</span>
                                     </template>
                                 </UInput>
-                                <span class="text-nowrap font-semibold"
-                                    >Total {{ state.sharesToPurchase * investmentPlan.price }} EUR</span
+                                <span class="text-nowrap font-semibold text-gray-500 items-start"
+                                    >Total
+                                    <span class="text-primary font-bold text-xl ml-1">
+                                        {{ state.sharesToPurchase * investmentPlan.price }} €</span
+                                    ></span
                                 >
                             </div>
                         </UFormGroup>
 
                         <UButton
-                            class="cursor-pointer"
+                            class="cursor-pointer px-8"
                             size="lg"
                             type="submit"
                             :disabled="numberOfSharesError"
