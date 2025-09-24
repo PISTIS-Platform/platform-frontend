@@ -61,8 +61,6 @@ watch(
 
         //reactive for license schema
         licenseIsFree.value = props.isFree;
-
-        //reactive for license schema
         isOneOff.value = props.monetizationDetails.type === 'one-off';
     },
     { deep: true },
