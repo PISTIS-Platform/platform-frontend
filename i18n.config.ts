@@ -821,7 +821,7 @@ export default defineI18nConfig(() => ({
                         goodScoring: 'Good',
                         excellentScoring: 'Excellent',
                     },
-                    publisher: 'Publisher',
+                    publisher: 'Data Provider',
                     license: 'Licences',
                     keywords: 'Keywords',
                     categories: 'Categories',
