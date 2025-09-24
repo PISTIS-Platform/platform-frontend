@@ -64,7 +64,7 @@ const isOwned = computed(() => {
 const monetizationData = ref();
 const offerId = ref('');
 const feedbackUrl = computed(
-    () => `${config.public.factoryUrl}/marketplace/usage-analytics/${props.datasetId}/questionnaire`,
+    () => `/marketplace/usage-analytics/${props.datasetId}/questionnaire`,
 );
 
 const setDistributionID = async (data) => {
