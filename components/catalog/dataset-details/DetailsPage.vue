@@ -266,7 +266,12 @@ const investOpen = ref(false);
                                         variant="outline"
                                         label="Quality Assessment"
                                         :to="{
-                                            path: `/srv/catalog/datasets/${datasetId}/quality`,
+                                            path: '/catalog/dataset-details/data-quality',
+                                            query: {
+                                                datasetId,
+                                                title,
+                                                subtitle,
+                                            },
                                             external: true,
                                         }"
                                     />

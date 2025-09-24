@@ -1,8 +1,8 @@
 <!-- eslint-disable prettier/prettier -->
 <template>
-    <div class="bg-gray-100 text-gray-800 font-inter">
+    <div class="text-gray-800">
         <!-- Main Content -->
-        <main class="container mx-auto p-6">
+        <main class="container mx-auto p-1">
             <div class="flex justify-between">
                 <!-- Back Button -->
                 <button class="-ml-6 mt-[10px] px-4 py-1 cursor-pointer" @click="router.back()">
@@ -16,13 +16,10 @@
                 </button>
             </div>
             <!-- Title Section -->
-            <DetailsPageHeader class="my-5" :headline="headline" :title="title" :subtitle="subtitle">
-                <template #subtitle>
-                    <slot name="subtitle" :subtitle="subtitle">
-                        <span>{{ subtitle }}</span>
-                    </slot>
-                </template>
-            </DetailsPageHeader>
+            <h3 class="mt-5 text-4xl text-primary-600 font-semibold">{{ title }}</h3>
+            <h5 class="mb-5 text-lg">
+                <span class="italic">by</span> <span class="font-semibold">{{ subtitle }}</span>
+            </h5>
 
             <section class="mb-10">
                 <h3 class="text-2xl font-semibold text-gray-700 mb-2">Metadata quality</h3>
@@ -45,7 +42,7 @@
                         <h4 class="text-xl font-semibold text-pistis-700 mb-4">{{ card.title }}</h4>
                         <ul class="space-y-3 text-sm">
                             <li v-for="line in card.items" :key="line.title" class="flex justify-between items-center">
-                                <span>{{ Object.keys(line)[0] }}</span>
+                                <span class="wrap-anywhere">{{ Object.keys(line)[0] }}</span>
                                 <span class="metadata-value bg-pistis-300 font-bold">{{
                                     line[Object.keys(line)[0]]
                                 }}</span>
@@ -267,7 +264,7 @@ import PhCaretLeft from '~icons/ph/caret-left';
 const router = useRouter();
 const route = useRoute();
 
-const { datasetId, title, headline, subtitle } = route.query;
+const { datasetId, title, subtitle } = route.query;
 
 const metricData = ref({});
 const relevantMetrics = ref([]);
@@ -322,6 +319,10 @@ onMounted(() => {
 
 <style scoped>
 /* Metadata highlights */
+.wrap-anywhere {
+    overflow-wrap: anywhere;
+}
+
 .metadata-value {
     background-color: #c5c8ff;
     padding: 0.125rem 0.5rem;
