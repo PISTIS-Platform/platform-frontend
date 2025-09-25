@@ -9,7 +9,11 @@
         <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
             <div class="flex items-center gap-4">
                 <label class="font-semibold text-gray-700 text-sm">Select Dataset:</label>
-                <select v-model="selectedDataset" class="border rounded px-3 py-2 text-sm">
+                <select
+                    v-model="selectedDataset"
+                    class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    @change="$event.target.blur()"
+                >
                     <option v-for="ds in datasets" :key="ds.id" :value="ds">
                         {{ getDatasetDisplayTitle(ds) }}
                     </option>
@@ -19,12 +23,15 @@
         <!-- Zones -->
         <div class="flex flex-col md:flex-row gap-8 min-h-[500px]">
             <!-- Available Rules Zone -->
-            <section class="flex-1 bg-white rounded-lg shadow p-6 border-2 border-indigo-700">
+            <section class="flex-1 bg-white rounded-lg shadow p-6 border-2 border-indigo-600">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-semibold text-gray-800">Available Rules</h2>
                     <div class="flex items-center gap-2">
                         <label class="text-sm font-medium text-gray-600">Filter by Dimension:</label>
-                        <select v-model="selectedDimension" class="border rounded px-2 py-1 text-sm">
+                        <select
+                            v-model="selectedDimension"
+                            class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
                             <option value="all">All Dimensions</option>
                             <option v-for="dim in dimensions" :key="dim" :value="dim">{{ capitalize(dim) }}</option>
                         </select>
@@ -33,13 +40,18 @@
                 <div>
                     <div v-for="(rules, dimension) in filteredRulesByDimension" :key="dimension" class="mb-4">
                         <div
-                            class="font-semibold text-gray-700 mb-2 flex items-center cursor-pointer"
+                            :class="[
+                                'font-semibold flex items-center justify-between px-4 py-2 mb-3 rounded-md shadow-sm transition-colors duration-200 cursor-pointer',
+                                expandedDimensions[dimension]
+                                    ? 'bg-indigo-50 text-indigo-800'
+                                    : 'bg-white hover:bg-gray-100 text-gray-800',
+                            ]"
                             @click="toggleDimension(dimension)"
                         >
                             <span>{{ capitalize(dimension) }}</span>
-                            <span class="ml-2 text-xs text-gray-400">{{
-                                expandedDimensions[dimension] ? '▼' : '▶'
-                            }}</span>
+                            <span class="text-sm">
+                                {{ expandedDimensions[dimension] ? '▾' : '▸' }}
+                            </span>
                         </div>
                         <div v-show="expandedDimensions[dimension]">
                             <div
@@ -60,7 +72,7 @@
 
             <!-- Selected Rules Zone -->
             <section
-                class="flex-1 bg-white rounded-lg shadow p-6 border-2 border-indigo-700"
+                class="flex-1 bg-white rounded-lg shadow p-6 border-2 border-indigo-600"
                 @dragover.prevent
                 @drop="onDrop"
             >
