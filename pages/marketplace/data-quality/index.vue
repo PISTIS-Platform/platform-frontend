@@ -1,31 +1,40 @@
-<!-- filepath: src/App.vue -->
 <template>
-    <div class="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-8">
+    <div class="w-full mx-auto px-4 py-8 flex flex-col gap-8">
         <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-center border-b border-gray-200 pb-4 mb-6">
             <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">Data Quality Rules Configuration</h1>
         </header>
         <!-- Dataset Selector -->
         <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
-            <div class="flex items-center gap-4">
-                <label class="font-semibold text-gray-700 text-sm">Select Dataset:</label>
-                <select
-                    v-model="selectedDataset"
-                    class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    @change="$event.target.blur()"
-                >
-                    <option v-for="ds in datasets" :key="ds.id" :value="ds">
-                        {{ getDatasetDisplayTitle(ds) }}
-                    </option>
-                </select>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <label class="font-semibold text-gray-700 text-sm">Select Dataset:</label>
+                    <select
+                        v-model="selectedDataset"
+                        class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        @change="$event.target.blur()"
+                    >
+                        <option v-for="ds in datasets" :key="ds.id" :value="ds">
+                            {{ getDatasetDisplayTitle(ds) }}
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <button
+                        class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
+                        @click="exportStagedRules"
+                    >
+                        Send Query
+                    </button>
+                </div>
             </div>
         </section>
         <!-- Zones -->
         <div class="flex flex-col md:flex-row gap-8 min-h-[500px]">
             <!-- Available Rules Zone -->
-            <section class="flex-1 bg-white rounded-lg shadow p-6 border-2 border-indigo-600">
+            <section class="flex-1 bg-white rounded-lg shadow p-6 border">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold text-gray-800">Available Rules</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">Available Quality Rules</h2>
                     <div class="flex items-center gap-2">
                         <label class="text-sm font-medium text-gray-600">Filter by Dimension:</label>
                         <select
@@ -43,7 +52,7 @@
                             :class="[
                                 'font-semibold flex items-center justify-between px-4 py-2 mb-3 rounded-md shadow-sm transition-colors duration-200 cursor-pointer',
                                 expandedDimensions[dimension]
-                                    ? 'bg-indigo-50 text-indigo-800'
+                                    ? 'bg-gray-100'
                                     : 'bg-white hover:bg-gray-100 text-gray-800',
                             ]"
                             @click="toggleDimension(dimension)"
@@ -71,25 +80,17 @@
             </section>
 
             <!-- Selected Rules Zone -->
-            <section
-                class="flex-1 bg-white rounded-lg shadow p-6 border-2 border-indigo-600"
-                @dragover.prevent
-                @drop="onDrop"
-            >
-                <div class="flex justify-between items-center mb-4">
+            <section class="flex-1 bg-white rounded-lg shadow p-6 border" @dragover.prevent @drop="onDrop">
+                <div class="flex items-center mb-4 justify-between">
                     <h2 class="text-lg font-semibold text-gray-800">Selected Rules</h2>
-                    <button
-                        class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
-                        @click="exportStagedRules"
-                    >
-                        Send Query
-                    </button>
-                    <button
-                        class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
-                        @click="clearAllRules"
-                    >
-                        Clear All
-                    </button>
+                    <div class="flex gap-1">
+                        <button
+                            class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                            @click="clearAllRules"
+                        >
+                            Clear All
+                        </button>
+                    </div>
                 </div>
                 <div class="min-h-[300px] bg-gray-50 rounded p-3 border border-dashed border-gray-300">
                     <div v-if="selectedRules.length === 0" class="text-gray-400 italic text-center mt-8">
@@ -356,36 +357,35 @@ function toggleDimension(dimension) {
 
 // Add rule to selected
 function addRuleToSelected(rule) {
-    const alreadySelected = selectedRules.value.find((r) => r.id === rule.id);
-    if (!alreadySelected) {
-        const details = ruleDetails[rule.id];
-        const specificFields = details?.fields || [];
+    const details = ruleDetails[rule.id];
+    const specificFields = details?.fields || [];
 
-        const specificDataDefaults = {};
-        specificFields.forEach((field) => {
-            if (field.type === 'checkbox') {
-                specificDataDefaults[field.id] = false;
-            } else if (field.type === 'number') {
-                specificDataDefaults[field.id] = null;
-            } else {
-                specificDataDefaults[field.id] = '';
-            }
-        });
+    const specificDataDefaults = {};
+    specificFields.forEach((field) => {
+        if (field.type === 'checkbox') {
+            specificDataDefaults[field.id] = false;
+        } else if (field.type === 'number') {
+            specificDataDefaults[field.id] = null;
+        } else {
+            specificDataDefaults[field.id] = '';
+        }
+    });
 
-        selectedRules.value.push({
-            id: rule.id,
-            type: rule.name,
-            name: '',
-            description: '',
-            mostly: 1.0,
-            specificData: specificDataDefaults,
-        });
-    }
+    // Generate a unique ID for each rule instance
+    const uniqueInstanceId = `${rule.id}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
 
-    const existing = selectedRules.value.find((r) => r.id === rule.id);
-    if (existing) {
-        selectRule(existing);
-    }
+    const newRuleInstance = {
+        id: uniqueInstanceId,
+        ruleTypeId: rule.id, // Track the original rule's ID
+        type: rule.name,
+        name: '',
+        description: '',
+        mostly: 1.0,
+        specificData: specificDataDefaults,
+    };
+
+    selectedRules.value.push(newRuleInstance);
+    selectRule(newRuleInstance);
 }
 
 // Select rule for editing
@@ -429,8 +429,8 @@ function validateRuleFields(rule) {
         isValid: true,
     };
 
-    const { specificData, id } = rule;
-    const ruleDef = ruleDetails[id];
+    const { specificData } = rule;
+    const ruleDef = ruleDetails[rule.ruleTypeId];
 
     if (!ruleDef || !ruleDef.fields) return result;
 
@@ -481,12 +481,16 @@ function capitalize(str) {
 // Rule-specific fields
 const ruleSpecificFields = computed(() => {
     if (!selectedRule.value) return [];
-    const details = ruleDetails[selectedRule.value.id];
+    const details = ruleDetails[selectedRule.value.ruleTypeId];
     return details?.fields || [];
 });
 
 // Export selectedRules to GX structure
 async function exportStagedRules() {
+    if (!selectedDataset.value) {
+        showNotification('Please select a dataset to query.');
+        return;
+    }
     if (selectedRules.value.length == 0) {
         showNotification('No quality rules selected.');
         return;
@@ -496,7 +500,7 @@ async function exportStagedRules() {
     invalidRuleIds.value = new Set(invalids.map((r) => r.id));
     console.log(invalidRuleIds);
     if (invalids.length > 0) {
-        showNotification('Please complete all rule configurations before exporting.');
+        showNotification('Please complete all rule configurations.');
         return;
     }
 
