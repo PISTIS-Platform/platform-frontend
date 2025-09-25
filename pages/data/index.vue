@@ -15,6 +15,7 @@ const DATA_CHECK_IN_API_METHOD = i18n.t('data.dataCheckInApiMethod');
 const dataset_format = ['csv', 'json', 'tsv', 'parquet', 'xml', 'xlsx'];
 const http_methods = ['GET', 'POST'];
 const periodicity = ['hourly', 'daily', 'monthly'];
+const datasetCategoryOptions = ['International issues', 'Agriculture, fisheries, forestry and food', 'Population and society', 'Provisional data', 'Health', 'Transport', 'Education, culture and sport', 'Justice, legal system and public safety', 'Science and technology', 'Regions and cities', 'Energy', 'Government and public sector', 'Environment', 'Economy and finance'];
 
 const listServices = ref([
     {
@@ -132,6 +133,7 @@ let fileUpload = ref<File | null>(null);
 const runId = ref('None');
 const wfRunTimeSpecific = ref('');
 const wfPeriodicity = ref('');
+const datasetCategory = ref('');
 
 const onDrag = () => {
     runId.value = 'None';
@@ -225,7 +227,8 @@ const runJobConfigurator = async (services: [string]) => {
     /*formData.append('workflow', jsonContent.value);*/
     formData.append('workflow', JSON.stringify(services));
     formData.append('dataset_description', datasetDescription.value);
-    formData.append('dataset_name', datasetName.value);
+    formData.append('dataset_name', datasetName.value);    
+    formData.append('dataset_category', datasetCategory.value);
     formData.append('encrytion', datasetEncrytion.value);
     formData.append('gdpr_checker', gdprChecking.value);
 
@@ -238,6 +241,10 @@ const runJobConfigurator = async (services: [string]) => {
             throw new Error('No dataset name provided.');
             /* } else if (!datasetDescription.value) {
             throw new Error('No dataset description provided.'); */
+        } else if (!datasetCategory.value) {
+            throw new Error(
+                'No category has been selected for the dataset, please select one category.',
+            );
         } else if (services.length == 0) {
             throw new Error(
                 'No service has been selected for the workflow definition, please select at least one service.',
@@ -319,6 +326,21 @@ const runJobConfigurator = async (services: [string]) => {
                         type="text"
                         class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
                     />
+                </div>
+                <!-- New datasetCategory dropdown -->
+                <div class="rounded-md w-full flex">
+                    <label for="datasetCategory" class="mt-4 block text-sm font-medium text-neutral-700 w-40">
+                        Dataset Category
+                    </label>
+
+                    <USelectMenu
+                        id="datasetCategorySelect"
+                        v-model="datasetCategory"
+                        :options="datasetCategoryOptions"
+                        placeholder=" Select Category ... "
+                        class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
+                    >
+                    </USelectMenu>
                 </div>
                 <div class="container w-full flex">
                     <div class="container w-full flex">
