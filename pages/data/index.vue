@@ -329,9 +329,9 @@ const runJobConfigurator = async (services: [string]) => {
                 </div>
                 <!-- New datasetCategory dropdown -->
                 <div class="rounded-md w-full flex">
-                    <label for="datasetCategory" class="mt-4 block text-sm font-medium text-neutral-700 w-40">
-                        Dataset Category
-                    </label>
+                    <label for="datasetCategory" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
+                        $t('data.datasetCategory')
+                    }}</label>
 
                     <USelectMenu
                         id="datasetCategorySelect"
