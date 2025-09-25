@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import * as R from 'ramda';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
@@ -17,9 +18,6 @@ const router = useRouter();
 const { t } = useI18n();
 const submitError = ref(false);
 const submitSuccess = ref(false);
-const {
-    public: { factoryUrl },
-} = useRuntimeConfig();
 
 const selectedAsset = ref<
     { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
@@ -47,16 +45,21 @@ watch(dataset, () => {
     }
 });
 
+const sortByDateDesc = R.sortWith([R.descend(R.prop('modified'))]);
+
 const transformedDatasets = computed(() => {
     if (!datasetsData.value || !datasetsData.value.length) {
         return [];
     }
-    return datasetsData.value.map((dataset: Record<string, any>) => ({
-        id: dataset.id,
-        title: dataset.title.en,
-        description: dataset.description.en,
-        distributions: dataset.distributions,
-    }));
+    return sortByDateDesc(
+        datasetsData.value.map((dataset: Record<string, any>) => ({
+            id: dataset.id,
+            title: dataset.title.en,
+            description: dataset.description.en,
+            distributions: dataset.distributions,
+            modified: dataset.modified,
+        })),
+    );
 });
 
 const transformSingleDataset = (dataset: Record<string, any>) => ({
@@ -279,12 +282,7 @@ const submitAll = async () => {
         });
         submitStatus.value = 'success';
         await delay(3);
-        await navigateTo(`${factoryUrl}/catalog/dataset-details/${newAssetId}?pm=cloud&locale=en`, {
-            open: {
-                target: '_blank',
-            },
-            // external: true,
-        });
+        await navigateTo(`/marketplace/dataset-details/${newAssetId}?pm=cloud`);
         submitStatus.value = '';
         router.push({ name: 'home' });
     } catch (error) {

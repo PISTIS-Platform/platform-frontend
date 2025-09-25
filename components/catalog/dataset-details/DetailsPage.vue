@@ -281,7 +281,7 @@ const investOpen = ref(false);
                                         color="secondary"
                                         variant="solid"
                                         label="Publish Data"
-                                        :to="`/data/publish-data/${datasetId}`"
+                                        :to="`/catalog/publish-data?id=${datasetId}`"
                                     />
                                     <UButton
                                         v-if="catalog === 'acquired-data'"
