@@ -474,7 +474,7 @@ const ruleSpecificFields = computed(() => {
 });
 
 // Export selectedRules to GX structure
-function exportStagedRules() {
+async function exportStagedRules() {
     if (selectedRules.value.length == 0) {
         showNotification('No quality rules selected.');
         return;
@@ -519,6 +519,30 @@ function exportStagedRules() {
     console.log('Exported Rules JSON:', jsonString);
 
     // Make call to the factory DQA @ ${fatoryURL.value}/srv/data-quality-assessor/api/dqa/query/
+    const endpoint = `${factoryURL.value}srv/data-quality-assessor/api/dqa/query/`;
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: jsonString,
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Server error:', errorText);
+            showNotification('Failed to send query. See console for details.');
+        } else {
+            const result = await response.json();
+            console.log('Server response:', result);
+            showNotification('Query successfully sent!');
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+        showNotification('An error occurred while sending the query.');
+    }
 }
 
 function hasMissingDetails(rule) {
