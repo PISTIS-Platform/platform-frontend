@@ -260,21 +260,21 @@ const investOpen = ref(false);
                                         query: { id: accessID, pm: pistisMode, url: backendUrl },
                                     }"
                                 />
+                                <UButton
+                                    size="sm"
+                                    variant="outline"
+                                    label="Quality Assessment"
+                                    :to="{
+                                        path: '/catalog/dataset-details/data-quality',
+                                        query: {
+                                            datasetId,
+                                            title,
+                                            subtitle,
+                                        },
+                                        external: true,
+                                    }"
+                                />
                                 <template v-if="pistisMode === 'factory'">
-                                    <UButton
-                                        size="sm"
-                                        variant="outline"
-                                        label="Quality Assessment"
-                                        :to="{
-                                            path: '/catalog/dataset-details/data-quality',
-                                            query: {
-                                                datasetId,
-                                                title,
-                                                subtitle,
-                                            },
-                                            external: true,
-                                        }"
-                                    />
                                     <UButton
                                         v-if="catalog === 'my-data'"
                                         size="sm"
