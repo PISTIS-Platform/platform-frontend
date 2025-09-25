@@ -8,10 +8,6 @@ import { toast } from 'vue-sonner';
 import { useDataTruncator } from '@/composables/useDataTruncator';
 import PhCaretLeft from '~icons/ph/caret-left';
 
-import LinkedDataSelector from './LinkedDataSelector.vue';
-
-// import LinkedDataSelector from '../base/links/LinkedDataSelector.vue';
-
 // import MatchmakingServiceView from '../matchmaking-service/MatchmakingServiceView.vue';
 // import MonetizationView from '../monetization/MonetizationView.vue';
 
@@ -151,14 +147,21 @@ const getUserFactory = async () => {
     }
 };
 
-const _buyRequest = async (factoryPrefix) => {
+const buyRequest = async () => {
+    const offer = monetizationData.value?.purchase_offer?.[0] || {};
+    const seller = metadata.value.result?.monetization?.[0] || {};
+    const title = Object.values(metadata.value.result?.title ?? {})[0] ?? '';
+
+    const url = `https://${factoryPrefix.value}.${config.public.cloudUrl.replace(/^https?:\/\//, '')}/srv/smart-contract-execution-engine/api/scee/storePurchase`;
+    console.log('url', url);
+    console.log('url', url);
     const promise = axios.post(
-        `https://${factoryPrefix}.${config.public.cloudUrl.replace(/^https?:\/\//, '')}/srv/smart-contract-execution-engine/api/scee/storePurchase`,
+        url,
         {
             assetId: props.datasetId,
-            assetFactory: monetizationData.value?.purchase_offer[0].publisher?.organization_id,
-            sellerId: metadata.value.result?.monetization[0]?.seller_id,
-            price: monetizationData.value?.purchase_offer[0].price,
+            assetFactory: offer.publisher?.organization_id ?? '',
+            sellerId: seller.seller_id ?? '',
+            price: offer.price ?? 0,
         },
         {
             headers: {
@@ -170,16 +173,15 @@ const _buyRequest = async (factoryPrefix) => {
 
     toast.promise(promise, {
         loading: 'Processing your purchase...',
-        success: () => `Successfully purchased ${Object.values(metadata.value.result?.title)[0]}`,
-        error: (error) => {
-            return error?.response?.data?.reason || 'An error occurred while processing your request.';
-        },
+        success: () => `Successfully purchased ${title}`,
+        error: (err) => err?.response?.data?.reason || 'An error occurred while processing your request.',
     });
 
     try {
-        // const response = await promise;
-    } catch (error) {
-        console.error(error);
+        const res = await promise;
+        console.log('Purchase complete', res.data);
+    } catch (err) {
+        console.error('Purchase failed', err);
     }
 };
 
@@ -242,7 +244,6 @@ const investOpen = ref(false);
                                 <span>Back</span>
                             </Typography>
                         </button>
-                        <LinkedDataSelector :resource-id="datasetId" resource="datasets" />
                     </div>
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-row items-center justify-between">
@@ -341,7 +342,7 @@ const investOpen = ref(false);
                     </UCard>
                 </div>
 
-                <div v-if="pistisMode === 'cloud'" class="flex flex-col gap-4 w-96">
+                <div v-if="pistisMode === 'cloud'" class="flex flex-col gap-4 w-96 sticky top-20 self-start">
                     <template v-if="hasPurchaseOffer">
                         <div
                             v-if="monetizationData.purchase_offer[0].type === 'subscription'"
@@ -366,7 +367,7 @@ const investOpen = ref(false);
                         </div>
                         <div
                             v-else
-                            class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
+                            class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg relative"
                         >
                             <div class="flex justify-between items-center">
                                 <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
@@ -376,10 +377,12 @@ const investOpen = ref(false);
                                 </div>
                             </div>
 
-                            <UButton variant="solid" size="lg" color="secondary" block>
-                                <span v-if="price">Buy</span>
-                                <span v-else>Get</span>
-                            </UButton>
+                            <div class="sticky top-0 z-50">
+                                <UButton variant="solid" size="lg" color="secondary" block @click="buyRequest">
+                                    <span v-if="price">Buy</span>
+                                    <span v-else>Get</span>
+                                </UButton>
+                            </div>
                         </div>
                     </template>
                     <div
