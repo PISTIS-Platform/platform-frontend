@@ -34,7 +34,7 @@
                 <!-- Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div
-                        v-for="card in relevantMetrics"
+                        v-for="card in relevantDatasetMetrics"
                         :key="card.title"
                         :class="` bg-gray-200 border border-gray-500 p-6 rounded-lg shadow-lg`"
                     >
@@ -258,7 +258,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 
-import { getMetricsData } from '~/components/catalog/dataset-details/DataQualityService';
+import { getDatasetMetrics, getDistributionsMetrics } from '~/components/catalog/dataset-details/DataQualityService';
 import PhCaretLeft from '~icons/ph/caret-left';
 
 const router = useRouter();
@@ -266,29 +266,131 @@ const route = useRoute();
 
 const { datasetId, title, subtitle } = route.query;
 
-const metricData = ref({});
-const relevantMetrics = ref([]);
+const datasetMetrics = ref({});
+const relevantDatasetMetrics = ref([]);
+const distributionsMetrics = ref({});
+const relevantDistributionsMetrics = ref([]);
 
-const loadData = async () => {
+const loadDatasetMetrics = async () => {
     try {
-        const response = await getMetricsData(datasetId);
-        metricData.value = response.result.results[0][0];
-        relevantMetrics.value = [
+        const response = await getDatasetMetrics(datasetId);
+        const raw = response.result.results[0];
+        datasetMetrics.value = raw;
+
+        // helper to pick percentage/boolean arrays into "xx %" or "yes/no"
+        const pickMetric = (value) => {
+            if (Array.isArray(value)) {
+                // e.g. [ { name:'yes', percentage:100 }, { name:'no', percentage:0 } ]
+                const yes = value.find((v) => v.name === 'yes');
+                if (yes && typeof yes.percentage === 'number') return `${yes.percentage} %`;
+                // or treat as plain string list
+                return value.length ? JSON.stringify(value) : 'N/A';
+            }
+            if (typeof value === 'boolean') return value ? 'yes' : 'no';
+            if (value && typeof value === 'object' && Object.keys(value).length === 0) return 'N/A';
+            return value ?? 'N/A';
+        };
+
+        relevantDatasetMetrics.value = [
             {
                 title: 'Accessibility',
-                items: metricData.value.accessibility,
+                items: [
+                    { 'Download URL': pickMetric(raw.accessibility?.[0]?.downloadUrlAvailability) },
+                    { 'Most frequent accessing status codes': pickMetric(raw.accessibility?.[1]?.accessUrlStatusCode) },
+                    {
+                        'Most frequent distribution status codes': pickMetric(
+                            raw.accessibility?.[2]?.downloadUrlStatusCode,
+                        ),
+                    },
+                ],
             },
             {
-                title: 'Contextuality',
-                items: metricData.value.contextuality,
-            },
-            {
-                title: 'Interoperability',
-                items: metricData.value.interoperability,
+                title: 'Findability',
+                items: [
+                    { 'Keyword usage': pickMetric(raw.findability?.[0]?.keywordAvailability) },
+                    { Categories: pickMetric(raw.findability?.[1]?.categoryAvailability) },
+                    { 'Geo search': pickMetric(raw.findability?.[2]?.spatialAvailability) },
+                    { 'Time based search': pickMetric(raw.findability?.[3]?.temporalAvailability) },
+                ],
             },
             {
                 title: 'Reusability',
-                items: metricData.value.reusability,
+                items: [
+                    { 'Access restrictions': pickMetric(raw.reusability?.[0]?.accessRightsAvailability) },
+                    { 'License information': pickMetric(raw.reusability?.[1]?.licenceAvailability) },
+                    {
+                        'Access restrictions vocabulary': pickMetric(
+                            raw.reusability?.[2]?.accessRightsVocabularyAlignment,
+                        ),
+                    },
+                    { 'Contact point': pickMetric(raw.reusability?.[3]?.contactPointAvailability) },
+                    { Publisher: pickMetric(raw.reusability?.[4]?.publisherAvailability) },
+                ],
+            },
+            {
+                title: 'Interoperability',
+                items: [
+                    { 'DCAT-AP compliance': pickMetric(raw.interoperability?.[0]?.dcatApCompliance) },
+                    { Format: pickMetric(raw.interoperability?.[1]?.formatAvailability) },
+                    { 'Media type': pickMetric(raw.interoperability?.[2]?.mediaTypeAvailability) },
+                    {
+                        'Format / Media type from Vocabulary': pickMetric(
+                            raw.interoperability?.[3]?.formatMediaTypeVocabularyAlignment,
+                        ),
+                    },
+                ],
+            },
+            {
+                title: 'Contextuality',
+                items: [
+                    { 'File size': pickMetric(raw.contextuality?.[0]?.byteSizeAvailability) },
+                    { 'Rights Vocabulary': pickMetric(raw.contextuality?.[1]?.rightsAvailability) },
+                    // dataset dates
+                    {
+                        'Spatial data of issue': pickMetric(raw.findability?.[2]?.spatialAvailability),
+                    },
+                    {
+                        'Distribution Modification date': pickMetric(
+                            raw.contextuality?.[3]?.distributions?.[0]?.dateModifiedAvailability,
+                        ),
+                    },
+                    {
+                        'Temporal data of issue': pickMetric(
+                            raw.contextuality?.[3]?.distributions?.[1]?.dateIssuedAvailability,
+                        ),
+                    },
+                ],
+            },
+        ];
+    } catch (error) {
+        console.error('Loading data failed:', error);
+    }
+};
+
+const loadDistributionsMetrics = async () => {
+    try {
+        const response = await getDistributionsMetrics(datasetId);
+        distributionsMetrics.value = response.result.results[0][0];
+        relevantDistributionsMetrics.value = [
+            {
+                title: 'Accessibility',
+                items: datasetMetrics.value.accessibility,
+            },
+            {
+                title: 'Contextuality',
+                items: datasetMetrics.value.contextuality,
+            },
+            {
+                title: 'Findability',
+                items: datasetMetrics.value.findability,
+            },
+            {
+                title: 'Interoperability',
+                items: datasetMetrics.value.interoperability,
+            },
+            {
+                title: 'Reusability',
+                items: datasetMetrics.value.reusability,
             },
         ];
     } catch (error) {
@@ -313,7 +415,8 @@ const items = [
 ];
 
 onMounted(() => {
-    loadData();
+    loadDatasetMetrics();
+    loadDistributionsMetrics();
 });
 </script>
 
