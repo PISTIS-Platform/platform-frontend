@@ -34,7 +34,7 @@
                 <!-- Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div
-                        v-for="card in relevantMetrics"
+                        v-for="card in relevantDatasetMetrics"
                         :key="card.title"
                         :class="` bg-gray-200 border border-gray-500 p-6 rounded-lg shadow-lg`"
                     >
@@ -53,12 +53,13 @@
             </section>
 
             <!-- Distribution Quality Section -->
-            <section class="mb-10">
-                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Metadata Quality</h3>
+            <!-- Hide for now, until backend API is ready -->
+            <section v-if="false" class="mb-10">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Quality</h3>
                 <p class="text-gray-600 mb-6">
-                    The following lists the quality measurement of all distributions of the dataset.
-                    <!-- For more information, see our
-                    <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>. -->
+                    The following lists the quality measurement of all distributions of the dataset. For more
+                    information, see our
+                    <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>.
                 </p>
 
                 <div class="space-y-4">
@@ -147,7 +148,7 @@
 
             <!-- Distribution Quality Section -->
             <section class="mb-10">
-                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Data Quality</h3>
+                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Meta Data Quality</h3>
                 <p class="text-gray-600 mb-6">
                     The following lists the quality measurement of all distributions of the dataset.
                     <!-- For more information, see our
@@ -156,91 +157,26 @@
 
                 <div class="space-y-4">
                     <!-- NUXT ACCORDIOUNS -->
-                    <UAccordion :items="items" type="multiple">
-                        <template #item>
+                    <UAccordion :items="accordionItems" type="multiple">
+                        <!-- Custom body for every accordion panel -->
+                        <template #item="{ item }">
                             <div class="p-4 text-gray-700">
-                                <div class="accordion-content p-3 text-sm text-gray-500">
+                                <div class="accordion-content p-3 text-sm text-gray-600">
                                     <div class="space-y-5">
-                                        <!-- Accuracy Details -->
-                                        <div>
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">Accuracy</h5>
+                                        <div v-for="section in item.sections" :key="section.title">
+                                            <h5 class="text-md font-semibold text-gray-700 mb-2">
+                                                {{ section.title }}
+                                            </h5>
                                             <ul class="space-y-2 pl-2">
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToBeInSet (Type Object)</span>
-                                                    <span class="distribution-metadata-value">0.97</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToBeInSet (Disponibilité)</span>
-                                                    <span class="distribution-metadata-value">1.0</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <!-- Consistency Details -->
-                                        <div>
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">Consistency</h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToMatchRegexList (N° Voie Pair)</span>
-                                                    <span class="distribution-metadata-value">0.95</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToMatchRegexList (N° Voie Impair)</span>
-                                                    <span class="distribution-metadata-value">0.93</span>
-                                                </li>
-                                                <!-- Add more mock reusability metrics if needed -->
-                                            </ul>
-                                        </div>
-                                        <!-- Completeness Details -->
-                                        <div>
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">Completeness</h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToNotBeNull (Modèle)</span>
-                                                    <span class="distribution-metadata-value">0.99</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToNotBeNull (N° Voie Pair)</span>
-                                                    <span class="distribution-metadata-value">0.18</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToNotBeNull (N° Voie Impair)</span>
-                                                    <span class="distribution-metadata-value">0.20</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <!-- Uniqueness Details -->
-                                        <div>
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">Uniqueness</h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToBeUnique (Identifiant)</span>
-                                                    <span class="distribution-metadata-value">1.0</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <!-- Validity Details -->
-                                        <div>
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">Validity</h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectTableColumnsToMatchSet</span>
-                                                    <span class="distribution-metadata-value">1.0</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectTableRowCountToEqual</span>
-                                                    <span class="distribution-metadata-value">1.0</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectTableColumnCountToEqual</span>
-                                                    <span class="distribution-metadata-value">1.0</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToBeOfType (Type Object)</span>
-                                                    <span class="distribution-metadata-value">1.0</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>ExpectColumnValuesToBeOfType (Modèle)</span>
-                                                    <span class="distribution-metadata-value">1.0</span>
+                                                <li
+                                                    v-for="line in section.items"
+                                                    :key="line.title"
+                                                    class="flex justify-between items-center"
+                                                >
+                                                    <span>{{ line.title }}</span>
+                                                    <span class="distribution-metadata-value font-bold">
+                                                        {{ line.value }}
+                                                    </span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -258,62 +194,142 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 
-import { getMetricsData } from '~/components/catalog/dataset-details/DataQualityService';
+import { useRoute, useRouter } from '#imports';
+import { getDatasetMetrics, getDistributionsMetrics } from '~/components/catalog/dataset-details/DataQualityService';
 import PhCaretLeft from '~icons/ph/caret-left';
 
 const router = useRouter();
-const route = useRoute();
+const { datasetId, title, subtitle } = useRoute().query;
 
-const { datasetId, title, subtitle } = route.query;
+const datasetMetrics = ref({});
+const relevantDatasetMetrics = ref([]);
+const relevantDistributionsMetrics = ref([]);
+const accordionItems = ref([]);
 
-const metricData = ref({});
-const relevantMetrics = ref([]);
-
-const loadData = async () => {
-    try {
-        const response = await getMetricsData(datasetId);
-        metricData.value = response.result.results[0][0];
-        relevantMetrics.value = [
-            {
-                title: 'Accessibility',
-                items: metricData.value.accessibility,
-            },
-            {
-                title: 'Contextuality',
-                items: metricData.value.contextuality,
-            },
-            {
-                title: 'Interoperability',
-                items: metricData.value.interoperability,
-            },
-            {
-                title: 'Reusability',
-                items: metricData.value.reusability,
-            },
-        ];
-    } catch (error) {
-        console.error('Loading data failed:', error);
+/* helpers function */
+const fmt = (v) => {
+    if (Array.isArray(v)) {
+        if (v.length === 0) return 'N/A';
+        const yes = v.find((x) => x.name === 'yes');
+        return yes?.percentage != null ? `${yes.percentage} %` : JSON.stringify(v);
     }
+    if (typeof v === 'boolean') return v ? 'yes' : 'no';
+    if (v && typeof v === 'object' && !Object.keys(v).length) return 'N/A';
+    return v ?? 'N/A';
 };
 
-// MockItems
-const items = [
-    // {
-    //     label: 'dist.csv',
-    //     icon: 'i-lucide-box',
-    // },
-    // {
-    //     label: 'dist.zip',
-    //     icon: 'i-lucide-box',
-    // },
-    // {
-    //     label: 'dist.json',
-    //     icon: 'i-lucide-box',
-    // },
-];
+/* dataset metrics */
+async function loadDatasetMetrics() {
+    try {
+        const raw = (await getDatasetMetrics(datasetId)).result.results[0];
+        datasetMetrics.value = raw;
+
+        const sec = (title, arr) => ({ title, items: arr });
+
+        relevantDatasetMetrics.value = [
+            sec('Accessibility', [
+                { 'Download URL': fmt(raw.accessibility?.[0]?.downloadUrlAvailability) },
+                { 'Most frequent accessing status codes': fmt(raw.accessibility?.[1]?.accessUrlStatusCode) },
+                { 'Most frequent distribution status codes': fmt(raw.accessibility?.[2]?.downloadUrlStatusCode) },
+            ]),
+            sec('Findability', [
+                { 'Keyword usage': fmt(raw.findability?.[0]?.keywordAvailability) },
+                { Categories: fmt(raw.findability?.[1]?.categoryAvailability) },
+                { 'Geo search': fmt(raw.findability?.[2]?.spatialAvailability) },
+                { 'Time based search': fmt(raw.findability?.[3]?.temporalAvailability) },
+            ]),
+            sec('Reusability', [
+                { 'Access restrictions': fmt(raw.reusability?.[0]?.accessRightsAvailability) },
+                { 'License information': fmt(raw.reusability?.[1]?.licenceAvailability) },
+                { 'Access restrictions vocabulary': fmt(raw.reusability?.[2]?.accessRightsVocabularyAlignment) },
+                { 'Contact point': fmt(raw.reusability?.[3]?.contactPointAvailability) },
+                { Publisher: fmt(raw.reusability?.[4]?.publisherAvailability) },
+            ]),
+            sec('Interoperability', [
+                { 'DCAT-AP compliance': fmt(raw.interoperability?.[0]?.dcatApCompliance) },
+                { Format: fmt(raw.interoperability?.[1]?.formatAvailability) },
+                { 'Media type': fmt(raw.interoperability?.[2]?.mediaTypeAvailability) },
+                {
+                    'Format / Media type from Vocabulary': fmt(
+                        raw.interoperability?.[3]?.formatMediaTypeVocabularyAlignment,
+                    ),
+                },
+            ]),
+            sec('Contextuality', [
+                { 'File size': fmt(raw.contextuality?.[0]?.byteSizeAvailability) },
+                { 'Rights Vocabulary': fmt(raw.contextuality?.[1]?.rightsAvailability) },
+                { 'Spatial data of issue': fmt(raw.findability?.[2]?.spatialAvailability) },
+                {
+                    'Distribution Modification date': fmt(
+                        raw.contextuality?.[3]?.distributions?.[0]?.dateModifiedAvailability,
+                    ),
+                },
+                { 'Temporal data of issue': fmt(raw.contextuality?.[3]?.distributions?.[1]?.dateIssuedAvailability) },
+            ]),
+        ];
+    } catch (e) {
+        console.error('Loading dataset metrics failed:', e);
+    }
+}
+
+/* distribution metrics */
+async function loadDistributionsMetrics() {
+    try {
+        const distributions = (await getDistributionsMetrics(datasetId)).result.results.flat();
+        relevantDistributionsMetrics.value = distributions;
+
+        accordionItems.value = distributions.map((d) => ({
+            label: d.info?.['distribution-title'] || d.info?.['distribution-id'] || 'Unknown distribution',
+            icon: 'i-lucide-box',
+            sections: [
+                {
+                    title: 'Accessibility',
+                    items: [
+                        { title: 'Download URL', value: fmt(d.accessibility?.[0]?.downloadUrlAvailability) },
+                        {
+                            title: 'Most frequent accessURL status code',
+                            value: fmt(d.accessibility?.[1]?.accessUrlStatusCode),
+                        },
+                        {
+                            title: 'Most frequent downloadURL status code',
+                            value: fmt(d.accessibility?.[2]?.downloadUrlStatusCode),
+                        },
+                    ],
+                },
+                {
+                    title: 'Reusability',
+                    items: [{ title: 'License information', value: fmt(d.reusability?.[0]?.licenceAvailability) }],
+                },
+                {
+                    title: 'Contextuality',
+                    items: [
+                        { title: 'File size', value: fmt(d.contextuality?.[0]?.byteSizeAvailability) },
+                        { title: 'Rights', value: fmt(d.contextuality?.[1]?.rightsAvailability) },
+                        { title: 'Modification date', value: fmt(d.contextuality?.[2]?.dateModifiedAvailability) },
+                        { title: 'Date of issue', value: fmt(d.contextuality?.[3]?.dateIssuedAvailability) },
+                    ],
+                },
+                {
+                    title: 'Interoperability',
+                    items: [
+                        { title: 'Format', value: fmt(d.interoperability?.[0]?.formatAvailability) },
+                        { title: 'Media type', value: fmt(d.interoperability?.[1]?.mediaTypeAvailability) },
+                        {
+                            title: 'Format/Media type from vocabulary',
+                            value: fmt(d.interoperability?.[2]?.formatMediaTypeVocabularyAlignment),
+                        },
+                    ],
+                },
+            ],
+        }));
+    } catch (e) {
+        console.error('Loading distribution metrics failed:', e);
+    }
+}
 
 onMounted(() => {
-    loadData();
+    loadDatasetMetrics();
+    loadDistributionsMetrics();
 });
 </script>
 
