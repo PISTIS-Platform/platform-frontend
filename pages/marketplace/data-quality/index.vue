@@ -29,6 +29,28 @@
                 </div>
             </div>
         </section>
+        <section v-if="queryResult" class="bg-white rounded-lg shadow p-6 border border-gray-200">
+            <table class="min-w-full text-sm text-left text-gray-700">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th>Dimension</th>
+                        <th>Score (0-1)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="row in dimensionRows"
+                        :key="row.dimension"
+                        :class="row.score === 1 ? 'bg-green-50' : row.score === 0 ? 'bg-red-50' : 'bg-gray-50'"
+                    >
+                        <td class="capitalize">{{ row.dimension }}</td>
+                        <td>{{ typeof row.score === 'number' ? row.score.toFixed(2) : '—' }}</td>
+                        <td>{{ row.status }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
         <!-- Zones -->
         <div class="flex flex-col md:flex-row gap-8 min-h-[500px]">
             <!-- Available Rules Zone -->
@@ -278,6 +300,7 @@ watch(selectedDataset, (newVal) => {
     console.log('accessURL:', accessURL.value);
     console.log('fileType:', fileType.value);
     console.log('table:', table.value);
+    queryResult.value = null;
 });
 
 function getDatasetDisplayTitle(dataset) {
@@ -322,6 +345,22 @@ const selectedRule = ref(null);
 const notification = ref('');
 const invalidFields = ref(new Set());
 const invalidRuleIds = ref(new Set());
+const queryResult = ref(null);
+const dimensionRows = computed(() => {
+    if (!queryResult.value || !queryResult.value.content) return [];
+
+    const scores = queryResult.value.content.dimension_scores || {};
+
+    return dimensions.map((dimension) => {
+        const score = scores[dimension];
+
+        return {
+            dimension,
+            score: score,
+            status: score === null ? 'Not Evaluated' : score === 1 ? '✅ Pass' : score === 0 ? '❌ Fail' : '',
+        };
+    });
+});
 
 // Drag & Drop
 function onDragStart(ruleId) {
@@ -551,8 +590,8 @@ async function exportStagedRules() {
             console.error('Server error:', errorText);
             showNotification('Failed to send query. See console for details.');
         } else {
-            const result = await response.json();
-            console.log('Server response:', result);
+            queryResult.value = await response.json();
+            console.log('Server response:', queryResult.value);
             showNotification('Query successfully sent!');
         }
     } catch (error) {
