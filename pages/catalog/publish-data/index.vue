@@ -4,7 +4,6 @@ import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
-import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
@@ -25,24 +24,22 @@ const selectedAsset = ref<
 
 const hasRouteAssetId = computed(() => !!route.query.id);
 
-const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
-    $fetch('/api/datasets/get-all'),
-);
+const {
+    data: datasetsData,
+    status: datasetsStatus,
+    refresh,
+} = useAsyncData<Record<string, any>>(() => $fetch('/api/datasets/get-all'), { immediate: !hasRouteAssetId.value });
 
-const { data: dataset, status: singleDatasetStatus } = useAsyncData<Record<string, any>>(
-    () =>
-        $fetch('/api/datasets/get-specific', {
-            query: { id: route.query.id },
-        }),
-    {
-        immediate: !!route.query.id,
+const { data: dataset, status: singleDatasetStatus } = useFetch<Record<string, any>>(`/api/datasets/get-specific`, {
+    immediate: hasRouteAssetId.value,
+    query: { id: route.query.id },
+    onResponse({ response }) {
+        if (R.isNil(response._data)) {
+            refresh();
+        } else {
+            selectedAsset.value = transformSingleDataset(response._data);
+        }
     },
-);
-
-watch(dataset, () => {
-    if (dataset.value) {
-        selectedAsset.value = transformSingleDataset(dataset.value);
-    }
 });
 
 const sortByDateDesc = R.sortWith([R.descend(R.prop('modified'))]);
@@ -180,19 +177,21 @@ const licenseDetails = ref<Partial<licenseType>>({
     license: '',
     extraTerms: '',
     contractTerms: '',
-    limitNumber: '',
-    limitFrequency: '',
     isExclusive: false,
     region: '',
-    transferable: '',
-    termDate: '',
+    duration: '',
+    perpetual: '',
+    transferable: 'non-transferable',
     additionalRenewalTerms: '',
     nonRenewalDays: '',
     contractBreachDays: '',
     personalDataTerms: '',
+    noUseWithBlacklistedDatasets: false,
+    numOfResell: null,
+    numOfShare: null,
 });
 
-const { isWorldwide, isPerpetual, hasPersonalData, licenseSchema } = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema();
 
 // access policies
 let policyData: Array<AccessPolicyDetails> = [];
@@ -238,7 +237,6 @@ const submitAll = async () => {
             originalAssetId: selectedAsset.value?.id,
             organizationId: runtimeConfig.public?.orgId,
             organizationName: accountData.value?.user.orgName,
-            ...assetOfferingDetails.value,
             ...monetizationDetails.value,
             distributionId: assetOfferingDetails.value.selectedDistribution.id,
             title: assetOfferingDetails.value.title,
@@ -251,13 +249,13 @@ const submitAll = async () => {
             license: licenseDetails.value.license,
             extraTerms: licenseDetails.value.extraTerms,
             contractTerms: licenseDetails.value.contractTerms,
-            limitNumber: licenseDetails.value.limitNumber,
-            limitFrequency: licenseDetails.value.limitFrequency,
             canEdit: false, //FIXME: Where do we get this?
             region: licenseDetails.value.region?.join(', '),
             isExclusive: licenseDetails.value.isExclusive,
             transferable: licenseDetails.value.transferable,
-            termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
+            duration: typeof licenseDetails.value.duration === 'number' ? licenseDetails.value.duration : null,
+            perpetual: typeof licenseDetails.value.duration === 'string' ? licenseDetails.value.duration : null,
+            noUseWithBlacklistedDatasets: licenseDetails.value.noUseWithBlacklistedDatasets,
             additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
             nonRenewalDays: licenseDetails.value.nonRenewalDays,
             contractBreachDays: licenseDetails.value.contractBreachDays,
@@ -270,8 +268,8 @@ const submitAll = async () => {
                 policyData: policyData,
             },
             sellerId: accountData.value?.user.sub,
-            numOfResell: 0,
-            numOfShare: 0,
+            numOfResell: licenseDetails.value.numOfResell,
+            numOfShare: licenseDetails.value.numOfShare,
         };
     }
 
@@ -291,14 +289,6 @@ const submitAll = async () => {
 
     return body;
 };
-
-const limitFrequencySelections = computed(() => [
-    { title: t('perHour'), value: DownloadFrequency.HOUR },
-    { title: t('perDay'), value: DownloadFrequency.DAY },
-    { title: t('perWeek'), value: DownloadFrequency.WEEK },
-    { title: t('perMonth'), value: DownloadFrequency.MONTH },
-    { title: t('perYear'), value: DownloadFrequency.YEAR },
-]);
 
 const steps = computed(() => [
     { name: t('data.designer.nav.selectDataset'), isActive: selectedAsset.value },
@@ -349,8 +339,6 @@ const changeStep = async (stepNum: number) => {
                 terms: licenseDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
                 price: monetizationDetails.value.price,
-                limitNumber: licenseDetails.value.limitNumber,
-                limitFrequency: licenseDetails.value.limitFrequency,
                 subscriptionFrequency:
                     monetizationDetails.value.type === 'subscription'
                         ? monetizationDetails.value.subscriptionFrequency
@@ -410,7 +398,7 @@ const changeStep = async (stepNum: number) => {
         />
         <div>
             <div class="w-full flex items-center justify-end gap-4">
-                <UButton size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
+                <UButton v-if="selectedAsset" size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
             </div>
         </div>
     </div>
@@ -430,7 +418,6 @@ const changeStep = async (stepNum: number) => {
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
-            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
@@ -443,7 +430,6 @@ const changeStep = async (stepNum: number) => {
             :is-free="isFree"
             @change-page="changeStep"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
-            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
@@ -465,8 +451,6 @@ const changeStep = async (stepNum: number) => {
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
         :license-details="licenseDetails"
-        :limit-frequency-selections="limitFrequencySelections"
-        :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
         :has-personal-data="hasPersonalData"
         :submit-status="submitStatus"

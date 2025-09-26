@@ -1,6 +1,5 @@
 <script setup lang="ts">
 //monetizationDetails
-import dayjs from 'dayjs';
 
 const props = defineProps({
     monetizationDetails: {
@@ -17,7 +16,8 @@ const props = defineProps({
     },
 });
 
-import { LicenseCode } from '~/constants/licenses';
+import { countries } from '~/constants/countries';
+import { durations, LicenseCode } from '~/constants/licenses';
 
 const detailsChanged = computed(() => [props.monetizationDetails, props.licenseDetails, props.assetOfferingDetails]);
 
@@ -47,6 +47,24 @@ watch(
     },
     { deep: true },
 );
+
+const { durationSelections } = useLicenseSchema();
+
+const durationTextDisplay = computed(() => {
+    const found = durationSelections.find(
+        (selection: { value: string; label: string }) => selection.value === props.licenseDetails.duration,
+    );
+
+    if (found?.value === durations.PERPETUAL) {
+        return `perpetually`;
+    }
+
+    if (found?.value === durations.PERPETUAL_REVOCABLE) {
+        return `perpetually (with the ability to be revoked by the seller)`;
+    }
+
+    return `for ${found?.label}`;
+});
 </script>
 
 <template>
@@ -165,16 +183,19 @@ watch(
                                 and the Data Recipient, the Data Provider hereby grants the Data Recipient a(n)
                                 {{ licenseDetails.isExclusive ? 'exclusive' : 'non-exclusive' }},
                                 {{
-                                    licenseDetails.region
-                                        ? `available in ${licenseDetails.region}`
+                                    licenseDetails.region.length >= 1
+                                        ? `available in ${licenseDetails.region
+                                              .map((region: string) => countries[region])
+                                              .slice(0, licenseDetails.region.length - 1)
+                                              .join(', ')} and ${countries[licenseDetails.region.at(-1)]}`
                                         : 'available worldwide'
-                                }}, {{ licenseDetails.transferable }},
-                                {{
-                                    licenseDetails.termDate
-                                        ? `valid until ${dayjs(licenseDetails.termDate).format('DD MMMM YYYY')}`
-                                        : 'perpetual'
+                                }}, {{ licenseDetails.transferable }}, valid {{ durationTextDisplay
+                                }}{{
+                                    licenseDetails.noUseWithBlacklistedDatasets
+                                        ? ', not possible to use with blacklisted datasets'
+                                        : ''
                                 }}
-                                license to access, copy and process the Data Set for the following purpose(s)
+                                license, to access, copy and process the Data Set for the following purpose(s)
                                 (hereinafter ‘Permitted Purposes’):
                             </p>
 
@@ -243,11 +264,7 @@ watch(
                             <p>
                                 <strong>Term.</strong>
                                 These terms and the license granted herein, shall be valid
-                                {{
-                                    licenseDetails.termDate
-                                        ? `until ${dayjs(licenseDetails.termDate).format('DD MMMM YYYY')}`
-                                        : 'perpetually'
-                                }}
+                                {{ durationTextDisplay }}
                                 and shall be automatically renewed
                                 <span v-if="licenseDetails.additionalRenewalTerms"
                                     >for an additional term of {{ licenseDetails.additionalRenewalTerms }}</span

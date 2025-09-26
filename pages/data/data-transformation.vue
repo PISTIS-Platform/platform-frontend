@@ -187,9 +187,12 @@ const togglePanel = (index: number) => {
             <h2 class="big-bold-title">Transformation catalog</h2>
             <div v-if="elements && elements.length > 0" class="panels-container">
                 <div v-for="(element, index) in elements" :key="index" class="panel">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <h3 v-if="element.content.title" style="margin-right: 8px; display: flex; align-items: center">
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div style="display: flex; align-items: center">
+                            <h3
+                                v-if="element.content.title"
+                                style="margin-right: 8px; display: flex; align-items: center"
+                            >
                                 {{ element.content.title }}
                                 <span class="tooltip-container">
                                     <Icon
@@ -216,7 +219,7 @@ const togglePanel = (index: number) => {
                         <Icon
                             :icon="expandedPanels[index] ? 'mdi:chevron-up' : 'mdi:chevron-down'"
                             class="dropdown-icon"
-                            style="cursor: pointer; font-size: 1.5em;"
+                            style="cursor: pointer; font-size: 1.5em"
                             @click="togglePanel(index)"
                         />
                     </div>
@@ -234,7 +237,12 @@ const togglePanel = (index: number) => {
                                             v-if="paramSchema.description"
                                             icon="heroicons:information-circle"
                                             class="info-icon"
-                                            style="cursor: pointer; font-size: 1.1em; margin-left: 4px; margin-right: 4px"
+                                            style="
+                                                cursor: pointer;
+                                                font-size: 1.1em;
+                                                margin-left: 4px;
+                                                margin-right: 4px;
+                                            "
                                             @mouseover="hoveredParamIndex = `${index}-${key}`"
                                             @mouseleave="hoveredParamIndex = null"
                                         />
@@ -473,7 +481,6 @@ const togglePanel = (index: number) => {
     border-bottom: 1px solid #eee;
     padding-bottom: 8px;
 }
-
 
 .panel button {
     background-color: #5732d0cc;
