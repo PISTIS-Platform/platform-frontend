@@ -13,7 +13,6 @@ const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/
 });
 
 const route = useRoute();
-const router = useRouter();
 const { t } = useI18n();
 const submitError = ref(false);
 const submitSuccess = ref(false);
@@ -280,9 +279,8 @@ const submitAll = async () => {
         });
         submitStatus.value = 'success';
         await delay(3);
-        await navigateTo(`/marketplace/dataset-details/${newAssetId}?pm=cloud`);
         submitStatus.value = '';
-        router.push({ name: 'home' });
+        await navigateTo(`/marketplace/dataset-details/${newAssetId}?pm=cloud`);
     } catch (error) {
         submitStatus.value = 'error';
     }
