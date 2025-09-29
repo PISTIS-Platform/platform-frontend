@@ -4,8 +4,8 @@ import { z } from 'zod';
 import { durations, LicenseCode } from '~/constants/licenses';
 
 export const useLicenseSchema = (monetizationDetailsRef: Ref) => {
-    const isFree = computed(() => monetizationDetailsRef.value.price === 0);
-    const isOneOff = computed(() => monetizationDetailsRef.value.type === 'one-off');
+    const isFree = computed(() => monetizationDetailsRef?.value?.price === 0);
+    const isOneOff = computed(() => monetizationDetailsRef?.value?.type === 'one-off');
 
     const { t } = useI18n();
     const isWorldwide = ref(false);
