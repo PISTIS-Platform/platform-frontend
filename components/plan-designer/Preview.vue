@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import * as R from 'ramda';
+
 const { t } = useI18n();
-import dayjs from 'dayjs';
 
 defineProps({
     assetOfferingDetails: {
@@ -19,14 +20,6 @@ defineProps({
         type: Object as PropType<Record<string, any>[]>,
         required: true,
     },
-    limitFrequencySelections: {
-        type: Array<Record<string, any>>,
-        required: true,
-    },
-    isPerpetual: {
-        type: Boolean,
-        required: true,
-    },
     isWorldwide: {
         type: Boolean,
         required: true,
@@ -42,6 +35,8 @@ defineProps({
 });
 
 import { LicenseCode } from '~/constants/licenses';
+
+const { durationSelections } = useLicenseSchema();
 
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
 
@@ -157,17 +152,11 @@ const subscriptionMapping: Record<string, string> = {
                         <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
                         <span>{{ licenseDetails.license }}</span>
                     </div>
-                    <div v-if="licenseDetails.license !== LicenseCode.NFT" class="flex gap-2 flex-col">
+                    <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{
-                            $t('data.designer.downloadLimit') + ' & ' + $t('frequency')
+                            $t('data.designer.noUseWithBlacklistedDatasets')
                         }}</span>
-                        <span>{{
-                            licenseDetails.limitNumber +
-                            ' ' +
-                            $t('times') +
-                            ' ' +
-                            limitFrequencySelections.find((item) => item.value === licenseDetails.limitFrequency)?.title
-                        }}</span>
+                        <span>{{ licenseDetails.noUseWithBlacklistedDatasets }}</span>
                     </div>
                 </div>
                 <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex items-start w-full">
@@ -195,11 +184,11 @@ const subscriptionMapping: Record<string, string> = {
                         <span>{{ licenseDetails.transferable }}</span>
                     </div>
                     <div class="flex gap-2 flex-col w-1/2">
-                        <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.termDate') }}</span>
+                        <span class="text-sm font-semibold text-gray-400">{{
+                            $t('data.designer.duration.title')
+                        }}</span>
                         <span>{{
-                            isPerpetual
-                                ? $t('data.designer.perpetual')
-                                : dayjs(licenseDetails.termDate).format('DD/MM/YYYY')
+                            durationSelections.find((item) => item.value === licenseDetails.duration)?.label
                         }}</span>
                     </div>
                 </div>
@@ -230,6 +219,14 @@ const subscriptionMapping: Record<string, string> = {
                         $t('data.designer.additionalRenewalTerms')
                     }}</span>
                     <span>{{ licenseDetails.additionalRenewalTerms }}</span>
+                </div>
+                <div v-if="!R.isNil(licenseDetails.numOfResell)" class="flex gap-2 flex-col">
+                    <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.numberOfResell') }}</span>
+                    <span>{{ `${licenseDetails.numOfResell} ${$t('times')}` }}</span>
+                </div>
+                <div v-if="!R.isNil(licenseDetails.numOfShare)" class="flex gap-2 flex-col">
+                    <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.numberOfShare') }}</span>
+                    <span>{{ `${licenseDetails.numOfShare} ${$t('times')}` }}</span>
                 </div>
             </div>
         </UCard>

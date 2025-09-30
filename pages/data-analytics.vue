@@ -6,9 +6,9 @@ const routes = ref([
 </script>
 
 <template>
-    <ShellLayout :navigation="routes">
+    <ShellLayoutIframe :navigation="routes">
         <div class="w-full h-full flex flex-col justify-start">
             <NuxtPage />
         </div>
-    </ShellLayout>
+    </ShellLayoutIframe>
 </template>

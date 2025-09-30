@@ -8,10 +8,6 @@ import { toast } from 'vue-sonner';
 import { useDataTruncator } from '@/composables/useDataTruncator';
 import PhCaretLeft from '~icons/ph/caret-left';
 
-import LinkedDataSelector from './LinkedDataSelector.vue';
-
-// import LinkedDataSelector from '../base/links/LinkedDataSelector.vue';
-
 // import MatchmakingServiceView from '../matchmaking-service/MatchmakingServiceView.vue';
 // import MonetizationView from '../monetization/MonetizationView.vue';
 
@@ -63,9 +59,7 @@ const isOwned = computed(() => {
 });
 const monetizationData = ref();
 const offerId = ref('');
-const feedbackUrl = computed(() =>
-    offerId.value ? `${config.public.cloudUrl}/usage-analytics/responses?assetId=${offerId.value}` : '#',
-);
+const feedbackUrl = computed(() => `/marketplace/usage-analytics/${props.datasetId}/questionnaire`);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -117,6 +111,7 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
+        console.log(metadata.value);
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
@@ -152,14 +147,21 @@ const getUserFactory = async () => {
     }
 };
 
-const buyRequest = async (factoryPrefix) => {
+const buyRequest = async () => {
+    const offer = monetizationData.value?.purchase_offer?.[0] || {};
+    const seller = metadata.value.result?.monetization?.[0] || {};
+    const title = Object.values(metadata.value.result?.title ?? {})[0] ?? '';
+
+    const url = `https://${factoryPrefix.value}.${config.public.cloudUrl.replace(/^https?:\/\//, '')}/srv/smart-contract-execution-engine/api/scee/storePurchase`;
+    console.log('url', url);
+    console.log('url', url);
     const promise = axios.post(
-        `https://${factoryPrefix}.${config.public.cloudUrl.replace(/^https?:\/\//, '')}/srv/smart-contract-execution-engine/api/scee/storePurchase`,
+        url,
         {
             assetId: props.datasetId,
-            assetFactory: monetizationData.value?.purchase_offer[0].publisher?.organization_id,
-            sellerId: metadata.value.result?.monetization[0]?.seller_id,
-            price: monetizationData.value?.purchase_offer[0].price,
+            assetFactory: offer.publisher?.organization_id ?? '',
+            sellerId: seller.seller_id ?? '',
+            price: offer.price ?? 0,
         },
         {
             headers: {
@@ -171,16 +173,15 @@ const buyRequest = async (factoryPrefix) => {
 
     toast.promise(promise, {
         loading: 'Processing your purchase...',
-        success: () => `Successfully purchased ${Object.values(metadata.value.result?.title)[0]}`,
-        error: (error) => {
-            return error?.response?.data?.reason || 'An error occurred while processing your request.';
-        },
+        success: () => `Successfully purchased ${title}`,
+        error: (err) => err?.response?.data?.reason || 'An error occurred while processing your request.',
     });
 
     try {
-        // const response = await promise;
-    } catch (error) {
-        console.error(error);
+        const res = await promise;
+        console.log('Purchase complete', res.data);
+    } catch (err) {
+        console.error('Purchase failed', err);
     }
 };
 
@@ -190,17 +191,12 @@ onMounted(() => {
 });
 
 // Dataset desecription truncator "show more"
-const {
-    data: truncatedDescription,
-    toggle: toggleDescription,
-    isTruncated: isDescriptionTruncated,
-    isTruncationNeeded: isDescriptionTruncationNeeded,
-} = useDataTruncator({
+const { data: truncatedDescription, isTruncated: isDescriptionTruncated } = useDataTruncator({
     data: computed(() => props.descriptionMarkup || ''),
     limit: 550,
 });
 
-const truncatedEllipsedDescription = computed(() => {
+const _truncatedEllipsedDescription = computed(() => {
     if (toValue(isDescriptionTruncated)) {
         return `${truncatedDescription.value}...`;
     }
@@ -216,9 +212,15 @@ const truncatedEllipsedDescription = computed(() => {
 //   data: getFormattedDistributions,
 //   limit: 7,
 // })
+
+const investOpen = ref(false);
 </script>
 
 <template>
+    <UModal v-model="investOpen" :ui="{ width: 'sm:max-w-5xl', overlay: { background: 'bg-gray-800/75' } }">
+        <InvestViewer :asset-id="props.datasetId" @close-modal="investOpen = false" />
+    </UModal>
+
     <div v-if="error" class="grid size-full place-content-center bg-bg-base">
         <KCard class="size-96">
             <template #title> Fehler </template>
@@ -227,173 +229,182 @@ const truncatedEllipsedDescription = computed(() => {
             </template>
         </KCard>
     </div>
-    <div class="container mx-auto p-8 pt-4">
-        <div class="mx-auto w-full max-w-content-max space-y-12 pt-1">
+    <div class="container mx-auto">
+        <div class="mx-auto w-full max-w-content-max pt-1">
             <section name="dsd-header" class="flex flex-col gap-6">
                 <!-- Go previous page -->
                 <div class="flex flex-col gap-6">
                     <div class="flex justify-between">
-                        <button class="-ml-6 mt-[10px] px-4 py-1 cursor-pointer" @click="router.back()">
+                        <button class="-ml-6 px-4 py-1 cursor-pointer" @click="router.back()">
                             <Typography
                                 variant="paragraph-1"
                                 class="flex items-center gap-2 text-primary hover:text-primary-hover"
                             >
                                 <PhCaretLeft />
-                                <span>back</span>
+                                <span>Back</span>
                             </Typography>
                         </button>
-                        <LinkedDataSelector :resource-id="datasetId" resource="datasets" />
                     </div>
-                    <DetailsPageHeader :headline="headline" :title="title" :subtitle="subtitle">
-                        <template #subtitle>
-                            <slot name="subtitle" :subtitle="subtitle">
-                                <span>{{ subtitle }}</span>
-                                <!-- <RouterLink
-                                    :to="{ name: 'Datasets', query: { catalog: resultEnhanced?.getCatalogId } }"
-                                    class="by-link"
-                                /> -->
-                            </slot>
-                        </template>
-                    </DetailsPageHeader>
-                </div>
-                <!-- Metadata -->
-                <slot name="metadata">
-                    <div class="flex flex-col justify-between md:flex-row">
-                        <SummaryBox
-                            v-for="(s, i) in summary"
-                            :key="i"
-                            class="mb-4 mr-4 flex-1"
-                            :title="s.title"
-                            :text="s.text || '-'"
-                        />
-                        <!-- <SummaryBox class="mb-4 mr-4 flex-1" title="Datenbereitsteller" :text="resultEnhanced?.getPublisher?.name || '-'" />
-              <SummaryBox class="mb-4 mr-4 flex-1" title="Aktualisiert" :text="resultEnhanced?.getModified || '-'" /> -->
-                    </div>
-                </slot>
-            </section>
-            <section>
-                <TabGroup
-                    :tabs="[
-                        {
-                            id: 'dataset',
-                            title: 'Info',
-                            content: truncatedEllipsedDescription || '',
-                        },
-                    ]"
-                    class="ring-1 ring-gray-200 shadow rounded-lg"
-                >
-                    <template #default="{ id, content }">
-                        <template v-if="id === 'dataset'">
-                            <div class="flex flex-col gap-4">
-                                <div>
-                                    <Typography as="h5" variant="by-heading-4" class="mb-8">
-                                        <slot name="about-this-dataset"> About this dataset </slot>
-                                    </Typography>
-                                    <Typography as="p" variant="by-copy-small-regular">
-                                        <div class="markdown-content" v-html="content" />
-                                    </Typography>
-                                </div>
-                                <button
-                                    v-if="isDescriptionTruncationNeeded"
-                                    class="grid w-full place-content-center"
-                                    @click="toggleDescription"
-                                >
-                                    <div
-                                        class="flex flex-col items-center justify-center text-primary text-xs/6 font-bold"
-                                    >
-                                        <span>Mehr lesen</span>
-                                        <i v-if="isDescriptionTruncated" class="icon-[ph--caret-down]" />
-                                        <i v-else class="icon-[ph--caret-up]" />
-                                    </div>
-                                </button>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex flex-row items-center justify-between">
+                            <h3 class="text-4xl text-primary-600 font-semibold">{{ title }}</h3>
+                            <div class="flex flex-row gap-2">
+                                <UButton
+                                    size="sm"
+                                    variant="outline"
+                                    :label="$t('buttons.dataLineage')"
+                                    :to="{
+                                        path:
+                                            pistisMode === 'cloud'
+                                                ? '/marketplace/dataset-details/data-lineage'
+                                                : '/catalog/dataset-details/data-lineage',
+                                        query: { id: accessID, pm: pistisMode, url: backendUrl },
+                                    }"
+                                />
+                                <UButton
+                                    size="sm"
+                                    variant="outline"
+                                    label="Quality Assessment"
+                                    :to="{
+                                        path: '/catalog/dataset-details/data-quality',
+                                        query: {
+                                            datasetId,
+                                            title,
+                                            subtitle,
+                                        },
+                                        external: true,
+                                    }"
+                                />
+                                <template v-if="pistisMode === 'factory'">
+                                    <UButton
+                                        v-if="catalog === 'my-data'"
+                                        size="sm"
+                                        color="secondary"
+                                        variant="solid"
+                                        label="Publish Data"
+                                        :to="`/catalog/publish-data?id=${datasetId}`"
+                                    />
+                                    <UButton
+                                        v-if="catalog === 'acquired-data'"
+                                        size="sm"
+                                        color="secondary"
+                                        variant="outline"
+                                        label="Rate Dataset"
+                                        :to="feedbackUrl"
+                                    ></UButton>
+                                </template>
+                                <template v-if="pistisMode === 'factory' && catalog === 'acquired-data'"></template>
                             </div>
-                        </template>
-                    </template>
-                </TabGroup>
+                        </div>
+                        <h5 class="text-lg">
+                            <span class="italic">by</span> <span class="font-semibold">{{ subtitle }}</span>
+                        </h5>
+                    </div>
+                </div>
             </section>
-            <!-- Cloud (Marketplace) -->
-            <div v-if="pistisMode === 'cloud'">
-                <section class="container custom_nav_container flex">
-                    <div class="btn_holder flex gap-5 flex-wrap">
-                        <a v-if="hasPurchaseOffer" :href="'#'" class="" @click.prevent="buyRequest(factoryPrefix)">
-                            <KButton size="small"
-                                >Buy<span v-if="price">&nbsp;{{ price + '€' }}</span></KButton
-                            >
-                        </a>
-                        <a v-if="hasInvestmentOffer" :href="`${config.public.factoryUrl}/invest/${datasetId}`" class="">
-                            <KButton size="small">Invest</KButton>
-                        </a>
-                        <a :href="feedbackUrl" class="">
-                            <KButton v-if="!isOwned" size="small">Provide Feedback</KButton>
-                        </a>
-                    </div>
-                    <!-- Data Lineage (Button placements should be discussed together)-->
-                    <div class="ml-5">
-                        <NuxtLink
-                            :to="{
-                                path: '/my-data/catalog/dataset-details/data-lineage',
-                                query: { id: accessID, pm: pistisMode, url: backendUrl },
-                            }"
-                            class=""
+
+            <section class="flex flex-row gap-8 items-start mt-4">
+                <div class="w-full space-y-8">
+                    <UCard
+                        :ui="{
+                            base: ['w-full flex flex-col transition-[flex-grow] duration-300 ease-in-out relative'],
+                        }"
+                    >
+                        <template #header>
+                            <SubHeading title="About this dataset" />
+                        </template>
+
+                        <SummaryBox title="Description">
+                            <template #text>
+                                <div v-html="descriptionMarkup" />
+                            </template>
+                        </SummaryBox>
+
+                        <div class="mt-4">
+                            <slot name="additional-info"></slot>
+                        </div>
+                    </UCard>
+
+                    <UCard v-if="pistisMode === 'cloud'">
+                        <template #header>
+                            <SubHeading :title="$t('monetization.header')" />
+                        </template>
+                        <MonetizationView :data="monetizationData" :offer-type="offerType" />
+                    </UCard>
+
+                    <slot name="sections"></slot>
+
+                    <UCard v-if="pistisMode === 'cloud'">
+                        <template #header>
+                            <SubHeading :title="$t('matchmakingService.recommendationsHeader')" />
+                        </template>
+                        <MatchingDatasetDetails :dataset-id="datasetId" />
+                    </UCard>
+                </div>
+
+                <div v-if="pistisMode === 'cloud'" class="flex flex-col gap-4 w-96 sticky top-20 self-start">
+                    <template v-if="hasPurchaseOffer">
+                        <div
+                            v-if="monetizationData.purchase_offer[0].type === 'subscription'"
+                            class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
                         >
-                            <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                        </NuxtLink>
+                            <div class="flex justify-between items-center">
+                                <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
+                                <div class="text-3xl font-bold text-primary-700">
+                                    {{ price }} &euro;
+                                    <span class="font-medium text-lg text-neutral-500">
+                                        /
+                                        {{
+                                            monetizationData.purchase_offer[0].subscription_frequency === 'yearly'
+                                                ? 'year'
+                                                : 'month'
+                                        }}</span
+                                    >
+                                </div>
+                            </div>
+
+                            <UButton variant="solid" size="lg" color="emerald" block>Subscribe</UButton>
+                        </div>
+                        <div
+                            v-else
+                            class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg relative"
+                        >
+                            <div class="flex justify-between items-center">
+                                <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
+                                <div class="text-3xl font-bold text-primary-700">
+                                    <span v-if="price">{{ price }} &euro;</span>
+                                    <span v-else>FREE</span>
+                                </div>
+                            </div>
+
+                            <div class="sticky top-0 z-50">
+                                <UButton variant="solid" size="lg" color="secondary" block @click="buyRequest">
+                                    <span v-if="price">Buy</span>
+                                    <span v-else>Get</span>
+                                </UButton>
+                            </div>
+                        </div>
+                    </template>
+                    <div
+                        v-if="hasInvestmentOffer"
+                        class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
+                            <div class="text-3xl font-bold text-primary-700">
+                                {{ price }} &euro;
+                                <span class="font-medium text-lg text-neutral-500"> / share</span>
+                            </div>
+                        </div>
+
+                        <UButton variant="solid" size="lg" color="primary" block @click="investOpen = !investOpen"
+                            >Invest</UButton
+                        >
                     </div>
-                </section>
-            </div>
-            <!-- Factory (My Data) -->
-            <div v-else-if="pistisMode === 'factory'">
-                <section class="container custom_nav_container">
-                    <template v-if="catalog === 'my-data'">
-                        <div class="btn_holder flex gap-5 flex-wrap">
-                            <!-- Data Lineage -->
-                            <NuxtLink
-                                :to="{
-                                    path: '/my-data/catalog/dataset-details/data-lineage',
-                                    query: { id: accessID, pm: pistisMode, url: backendUrl },
-                                }"
-                                class=""
-                            >
-                                <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                            </NuxtLink>
 
-                            <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
-                                ><KButton size="small">Quality Assessment</KButton></a
-                            >
-                            <a :href="`/data/publish-data/${datasetId}`" class="link"
-                                ><KButton size="small">Publish Data</KButton></a
-                            >
-                        </div>
-                    </template>
-                    <template v-if="catalog === 'acquired-data'">
-                        <div class="btn_holder flex gap-5 flex-wrap">
-                            <!-- Data Lineage -->
-                            <NuxtLink
-                                :to="{
-                                    path: '/my-data/catalog/dataset-details/data-lineage',
-
-                                    query: { id: accessID, pm: pistisMode, url: backendUrl },
-                                }"
-                                class=""
-                            >
-                                <KButton size="small">{{ $t('buttons.dataLineage') }}</KButton>
-                            </NuxtLink>
-
-                            <a :href="`/srv/catalog/datasets/${datasetId}/quality`" class="link"
-                                ><KButton size="small">Quality Assessment</KButton></a
-                            >
-                            <a :href="feedbackUrl" class="link"><KButton size="small">Provide Feedback</KButton></a>
-                        </div>
-                    </template>
-                </section>
-            </div>
-            <slot name="sections"> </slot>
-            <div v-if="pistisMode === 'cloud'" class="bg-white p-6 rounded-lg ring-1 ring-gray-200 shadow">
-                <MonetizationView :data="monetizationData" :offer-type="offerType" />
-            </div>
-            <div v-if="pistisMode === 'cloud'" class="bg-white p-6 rounded-lg ring-1 ring-gray-200 shadow">
-                <MatchmakingServiceView :dataset-id="datasetId" />
-            </div>
+                    <UButton v-if="!isOwned" size="sm" variant="link" block :to="feedbackUrl">Provide Feedback</UButton>
+                </div>
+            </section>
         </div>
     </div>
 </template>

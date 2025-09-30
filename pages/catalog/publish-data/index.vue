@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import * as R from 'ramda';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
-import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
@@ -12,44 +12,77 @@ const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/
     query: { page: '' },
 });
 
-// const { showSuccessMessage } = useAlertMessage();
-const router = useRouter();
+const route = useRoute();
 const { t } = useI18n();
 const submitError = ref(false);
 const submitSuccess = ref(false);
-const route = useRoute();
-const assetId = route.params.id;
-const {
-    public: { factoryUrl },
-} = useRuntimeConfig();
 
-const selected = ref<
+const selectedAsset = ref<
     { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
 >(undefined);
 
-const { data: dataset, status: datasetsStatus } = useAsyncData<Record<string, any>>(() =>
-    $fetch('/api/datasets/get-specific', { query: { id: assetId } }),
-);
+const hasRouteAssetId = computed(() => !!route.query.id);
 
-const { data: isAssetOnMarketplace } = useFetch(`api/datasets/is-on-marketplace`, {
-    query: {
-        query: encodeURIComponent(
-            `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX pst: <https://www.pistis-project.eu/ns/voc#> ASK { ?offer rdf:type pst:Offer ; pst:originalId "${assetId}" .}`,
-        ),
+const {
+    data: datasetsData,
+    status: datasetsStatus,
+    refresh,
+} = useAsyncData<Record<string, any>>(() => $fetch('/api/datasets/get-all'), { immediate: !hasRouteAssetId.value });
+
+const { data: dataset, status: singleDatasetStatus } = useFetch<Record<string, any>>(`/api/datasets/get-specific`, {
+    immediate: hasRouteAssetId.value,
+    query: { id: route.query.id },
+    onResponse({ response }) {
+        if (R.isNil(response._data)) {
+            refresh();
+        } else {
+            selectedAsset.value = transformSingleDataset(response._data);
+        }
     },
 });
 
-watch(dataset, () => {
-    if (!dataset.value) return;
-    selected.value = {
-        id: dataset?.value.id,
-        title: dataset.value.title.en || 'N/A',
-        description: dataset.value.description.en || 'N/A',
-        distributions: dataset.value.distributions,
-    };
-    assetOfferingDetails.value.title = selected.value.title;
-    assetOfferingDetails.value.description = selected.value.description;
-    assetOfferingDetails.value.distributions = selected?.value.distributions?.map((item) => ({
+const sortByDateDesc = R.sortWith([R.descend(R.prop('modified'))]);
+
+const transformedDatasets = computed(() => {
+    if (!datasetsData.value || !datasetsData.value.length) {
+        return [];
+    }
+    return sortByDateDesc(
+        datasetsData.value.map((dataset: Record<string, any>) => ({
+            id: dataset.id,
+            title: dataset.title.en,
+            description: dataset.description.en,
+            distributions: dataset.distributions,
+            modified: dataset.modified,
+        })),
+    );
+});
+
+const transformSingleDataset = (dataset: Record<string, any>) => ({
+    id: dataset.id,
+    title: dataset.title.en,
+    description: dataset.description.en,
+    distributions: dataset.distributions,
+});
+
+const { data: isAssetOnMarketplace } = useAsyncData(
+    () =>
+        $fetch(`/api/datasets/is-on-marketplace`, {
+            query: {
+                id: selectedAsset.value?.id,
+            },
+        }),
+    {
+        watch: [selectedAsset],
+        immediate: !!selectedAsset.value,
+    },
+);
+
+watch(selectedAsset, () => {
+    if (!selectedAsset.value) return;
+    assetOfferingDetails.value.title = selectedAsset.value.title;
+    assetOfferingDetails.value.description = selectedAsset.value.description;
+    assetOfferingDetails.value.distributions = selectedAsset?.value.distributions?.map((item) => ({
         ...item,
         label: `${item?.title?.en ?? t('data.designer.noTitle')} (${item?.format?.label ?? t('data.designer.unknownFormat')})`,
     }));
@@ -115,7 +148,7 @@ const assetOfferingDetailsSchema = z.object({
 const isAssetOfferingDetailsValid = computed(() => {
     return (
         assetOfferingDetailsSchema.safeParse(assetOfferingDetails.value).success &&
-        assetOfferingDetails?.value.keywords.length > 0
+        assetOfferingDetails?.value.keywords?.length > 0
     );
 });
 
@@ -143,19 +176,21 @@ const licenseDetails = ref<Partial<licenseType>>({
     license: '',
     extraTerms: '',
     contractTerms: '',
-    limitNumber: '',
-    limitFrequency: '',
     isExclusive: false,
     region: '',
-    transferable: '',
-    termDate: '',
+    duration: '',
+    perpetual: '',
+    transferable: 'non-transferable',
     additionalRenewalTerms: '',
     nonRenewalDays: '',
     contractBreachDays: '',
     personalDataTerms: '',
+    noUseWithBlacklistedDatasets: false,
+    numOfResell: null,
+    numOfShare: null,
 });
 
-const { isWorldwide, isPerpetual, hasPersonalData, licenseSchema } = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema();
 
 // access policies
 let policyData: Array<AccessPolicyDetails> = [];
@@ -183,10 +218,10 @@ const submitAll = async () => {
         body = {
             type: 'nft',
             price: monetizationDetails.value.price,
-            assetId,
+            assetId: selectedAsset.value?.id,
             seller: accountData.value?.user.sub,
             nftDetails: {
-                dataset_id: assetId,
+                dataset_id: selectedAsset.value?.id,
                 factory_name: runtimeConfig.factoryName,
                 name: assetOfferingDetails.value.title,
                 description: assetOfferingDetails.value.description,
@@ -198,10 +233,9 @@ const submitAll = async () => {
     } else {
         body = {
             assetId: newAssetId,
-            originalAssetId: selected.value?.id,
+            originalAssetId: selectedAsset.value?.id,
             organizationId: runtimeConfig.public?.orgId,
             organizationName: accountData.value?.user.orgName,
-            ...assetOfferingDetails.value,
             ...monetizationDetails.value,
             distributionId: assetOfferingDetails.value.selectedDistribution.id,
             title: assetOfferingDetails.value.title,
@@ -214,13 +248,13 @@ const submitAll = async () => {
             license: licenseDetails.value.license,
             extraTerms: licenseDetails.value.extraTerms,
             contractTerms: licenseDetails.value.contractTerms,
-            limitNumber: licenseDetails.value.limitNumber,
-            limitFrequency: licenseDetails.value.limitFrequency,
             canEdit: false, //FIXME: Where do we get this?
             region: licenseDetails.value.region?.join(', '),
             isExclusive: licenseDetails.value.isExclusive,
             transferable: licenseDetails.value.transferable,
-            termDate: licenseDetails.value.termDate ?? new Date(86400000000000),
+            duration: typeof licenseDetails.value.duration === 'number' ? licenseDetails.value.duration : null,
+            perpetual: typeof licenseDetails.value.duration === 'string' ? licenseDetails.value.duration : null,
+            noUseWithBlacklistedDatasets: licenseDetails.value.noUseWithBlacklistedDatasets,
             additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
             nonRenewalDays: licenseDetails.value.nonRenewalDays,
             contractBreachDays: licenseDetails.value.contractBreachDays,
@@ -233,8 +267,8 @@ const submitAll = async () => {
                 policyData: policyData,
             },
             sellerId: accountData.value?.user.sub,
-            numOfResell: 0,
-            numOfShare: 0,
+            numOfResell: licenseDetails.value.numOfResell ?? 0,
+            numOfShare: licenseDetails.value.numOfShare ?? 0,
         };
     }
 
@@ -245,14 +279,8 @@ const submitAll = async () => {
         });
         submitStatus.value = 'success';
         await delay(3);
-        await navigateTo(`${factoryUrl}/my-data/catalog/dataset-details/${newAssetId}?pm=cloud&locale=en`, {
-            open: {
-                target: '_blank',
-            },
-            // external: true,
-        });
         submitStatus.value = '';
-        router.push({ name: 'home' });
+        await navigateTo(`/marketplace/dataset-details/${newAssetId}?pm=cloud`);
     } catch (error) {
         submitStatus.value = 'error';
     }
@@ -260,30 +288,31 @@ const submitAll = async () => {
     return body;
 };
 
-const limitFrequencySelections = computed(() => [
-    { title: t('perHour'), value: DownloadFrequency.HOUR },
-    { title: t('perDay'), value: DownloadFrequency.DAY },
-    { title: t('perWeek'), value: DownloadFrequency.WEEK },
-    { title: t('perMonth'), value: DownloadFrequency.MONTH },
-    { title: t('perYear'), value: DownloadFrequency.YEAR },
-]);
-
 const steps = computed(() => [
-    { name: t('data.designer.nav.selectDataset'), isActive: selected.value },
-    { name: t('data.designer.nav.monetizationPlanner'), isActive: selected.value && isAssetOfferingDetailsValid.value },
+    { name: t('data.designer.nav.selectDataset'), isActive: selectedAsset.value },
+    {
+        name: t('data.designer.nav.monetizationPlanner'),
+        isActive: selectedAsset.value && isAssetOfferingDetailsValid.value,
+    },
     {
         name: t('data.designer.nav.licenseSelector'),
-        isActive: selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value,
+        isActive: selectedAsset.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value,
     },
     {
         name: t('data.designer.nav.accessPoliciesEditor'),
         isActive:
-            selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value && isLicenseValid.value,
+            selectedAsset.value &&
+            isAssetOfferingDetailsValid.value &&
+            isMonetizationValid.value &&
+            isLicenseValid.value,
     },
     {
         name: t('data.designer.nav.preview'),
         isActive:
-            selected.value && isAssetOfferingDetailsValid.value && isMonetizationValid.value && isLicenseValid.value,
+            selectedAsset.value &&
+            isAssetOfferingDetailsValid.value &&
+            isMonetizationValid.value &&
+            isLicenseValid.value,
     },
 ]);
 
@@ -308,8 +337,6 @@ const changeStep = async (stepNum: number) => {
                 terms: licenseDetails.value.contractTerms,
                 monetisationMethod: monetizationDetails.value.type,
                 price: monetizationDetails.value.price,
-                limitNumber: licenseDetails.value.limitNumber,
-                limitFrequency: licenseDetails.value.limitFrequency,
                 subscriptionFrequency:
                     monetizationDetails.value.type === 'subscription'
                         ? monetizationDetails.value.subscriptionFrequency
@@ -330,18 +357,46 @@ const changeStep = async (stepNum: number) => {
 
 <template>
     <NavigationSteps :steps="steps" :selected-page="selectedPage" @select-page="changeStep" />
-    <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
+    <UProgress v-if="datasetsStatus === 'pending' || singleDatasetStatus === 'pending'" animation="carousel" />
 
-    <div v-show="selectedPage === 0 && selected" class="w-full h-full text-gray-700 space-y-8">
+    <div
+        v-show="selectedPage === 0 && datasetsStatus !== 'pending' && singleDatasetStatus !== 'pending'"
+        class="w-full h-full text-gray-700 space-y-8"
+    >
+        <UAlert
+            v-if="hasRouteAssetId && !dataset && !selectedAsset"
+            :title="t('data.designer.error.noAssetFound')"
+            color="red"
+            variant="soft"
+            icon="nonicons:not-found-16"
+        />
+        <UCard v-if="!hasRouteAssetId || !dataset">
+            <template #header>
+                <div class="flex items-center gap-4">
+                    <UIcon name="oui:pages-select" class="w-10 h-10 text-gray-500" />
+                    <SubHeading
+                        :title="$t('data.investmentPlanner.datasetSelectorTitle')"
+                        :info="$t('data.investmentPlanner.datasetSelectorInfo')"
+                    />
+                </div>
+            </template>
+            <USelectMenu
+                v-model="selectedAsset"
+                searchable
+                :options="transformedDatasets"
+                option-attribute="title"
+                :placeholder="$t('data.investmentPlanner.datasetSelectorPlaceholder')"
+            />
+        </UCard>
         <DatasetSelector
-            v-if="selected"
-            :selected="selected"
+            v-if="selectedAsset"
+            :selected="selectedAsset"
             :complete-or-query="completeOrQuery"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
         />
         <div>
             <div class="w-full flex items-center justify-end gap-4">
-                <UButton size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
+                <UButton v-if="selectedAsset" size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
             </div>
         </div>
     </div>
@@ -357,11 +412,10 @@ const changeStep = async (stepNum: number) => {
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
-            :asset-on-marketplace="!!isAssetOnMarketplace"
+            :asset-on-marketplace="isAssetOnMarketplace"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
-            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
@@ -374,16 +428,15 @@ const changeStep = async (stepNum: number) => {
             :is-free="isFree"
             @change-page="changeStep"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
-            @update:is-perpetual="(value: boolean) => (isPerpetual = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
         />
     </div>
 
-    <template v-if="selected">
+    <template v-if="selectedAsset">
         <div v-show="selectedPage === 3" class="w-full h-full text-gray-700 space-y-8">
             <AccessPolicyList
                 v-model:policy-data="policyData"
-                :selected="selected"
+                :selected="selectedAsset"
                 @change-page="changeStep"
                 @update:policy-data="(value: AccessPolicyDetails[]) => (policyData = value)"
             />
@@ -396,8 +449,6 @@ const changeStep = async (stepNum: number) => {
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
         :license-details="licenseDetails"
-        :limit-frequency-selections="limitFrequencySelections"
-        :is-perpetual="isPerpetual"
         :is-worldwide="isWorldwide"
         :has-personal-data="hasPersonalData"
         :submit-status="submitStatus"

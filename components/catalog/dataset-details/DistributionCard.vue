@@ -92,7 +92,7 @@ if (titleObject) {
         if (keys.includes('en')) {
             downloadFileName = titleObject.en;
         } else {
-            downloadFileName = titleObject[keys[0]];
+            downloadFileName = titleObject;
         }
     }
 }
@@ -149,7 +149,20 @@ async function downloadFile() {
 </script>
 
 <template>
-    <div class="mb-3 rounded-lg border-b-none bg-white ring-1 ring-gray-200 shadow p-4">
+    <div class="flex flex-col gap-2">
+        <div class="flex flex-row justify-between items-center">
+            <div class="flex items-center font-semibold text-neutral-500 space-x-2">
+                <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
+                <div>{{ title }}</div>
+            </div>
+            <div class="space-x-2">
+                <UBadge v-if="isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
+                <UBadge v-if="isTransformed" color="blue" variant="subtle">Transformed</UBadge>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="false" class="mb-3 rounded-lg border-b-none bg-white ring-1 ring-gray-200 shadow p-4">
         <div>
             <div class="flex items-start justify-between">
                 <Typography as="h2" variant="by-heading-4" class="text-surface-text">

@@ -1,4 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
+import { JWT } from 'next-auth/jwt';
 import KeycloakProvider from 'next-auth/providers/keycloak';
 
 import { NuxtAuthHandler } from '#auth';
@@ -31,6 +32,41 @@ const getUserSub = (profile: any) => {
     return profile.sub || '';
 };
 
+async function refreshAccessToken(token: JWT) {
+    try {
+        if (!token.refresh_token) return token;
+
+        const { access_token, expires_in, id_token } = await $fetch<{
+            access_token: string;
+            expires_in: number;
+            id_token: string;
+        }>(`${keycloak.issuer}/protocol/openid-connect/token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                client_id: keycloak.clientId,
+                client_secret: keycloak.clientSecret,
+                grant_type: 'refresh_token',
+                refresh_token: token.refresh_token,
+            }),
+        });
+
+        return {
+            ...token,
+            access_token,
+            id_token,
+            expires_at: Date.now() + (expires_in - 15) * 1000,
+        };
+    } catch (err) {
+        return {
+            ...token,
+            error: 'RefreshAccessTokenError',
+        };
+    }
+}
+
 export const authOptions = {
     secret: authSecret,
     providers: [
@@ -45,11 +81,16 @@ export const authOptions = {
         jwt: async ({ token, account, user }: any) => {
             if (account && user) {
                 token.access_token = account.access_token;
+                token.refresh_token = account.refresh_token;
                 const decodedJWT = jwtDecode(account.access_token);
                 token.orgId = getUserOrgId(decodedJWT);
                 token.provider = account.provider;
                 token.id_token = account.id_token;
                 token.sub = getUserSub(jwtDecode(account.access_token));
+            }
+
+            if (token.expires_at && Date.now() > token.expires_at) {
+                return await refreshAccessToken(token);
             }
 
             return Promise.resolve(token);

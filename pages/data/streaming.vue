@@ -223,10 +223,10 @@ const showPassword = ref(false);
                             <span class="font-normal font-mono"
                                 ><NuxtLink
                                     class="text-primary-500"
-                                    :to="`${factoryUrl}/my-data/catalog/dataset-details/${data.id}?pm=factory&locale=en`"
+                                    :to="`${factoryUrl}/catalog/dataset-details/${data.id}?pm=factory&locale=en`"
                                     target="_blank"
                                     >{{
-                                        `${factoryUrl}/my-data/catalog/dataset-details/${data.id}?pm=factory&locale=en`
+                                        `${factoryUrl}/catalog/dataset-details/${data.id}?pm=factory&locale=en`
                                     }}</NuxtLink
                                 ></span
                             >

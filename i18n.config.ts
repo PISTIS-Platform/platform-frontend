@@ -369,6 +369,21 @@ export default defineI18nConfig(() => ({
                     state: 'Status',
                 },
                 designer: {
+                    duration: {
+                        title: 'Duration',
+                        oneMonth: '1 month',
+                        threeMonths: '3 months',
+                        sixMonths: '6 months',
+                        oneYear: '1 year',
+                        perpetual: 'Perpetual',
+                        perpetualRevocable: 'Perpetual (Revocable)',
+                    },
+                    numberOfResell: 'Number of times asset can be resold',
+                    numberOfShare: 'Number of times asset can be shared',
+                    error: {
+                        noAssetFound:
+                            'Asset not found or not in your catalog. Please select one from the dropdown below.',
+                    },
                     nav: {
                         selectDataset: 'Dataset Selector',
                         monetizationPlanner: 'Monetization Planner',
@@ -376,6 +391,7 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
+                    noUseWithBlacklistedDatasets: 'No use with blacklisted datasets',
                     nftNotPossible:
                         'This asset is already on the marketplace and therefore cannot be sold as an NFT. Please select a different monetization method.',
                     annual: 'per year',
@@ -466,7 +482,7 @@ export default defineI18nConfig(() => ({
                     saveInvestmentPlan: 'Save Investment Plan',
                     pleaseCheck: 'Please check the form and fill in all required (*) fields',
                     availability: 'Availability',
-                    regionCountry: 'Select a country',
+                    regionCountry: 'Select country/ies',
                     worldwide: 'Worldwide',
                     transferable: 'Transferable',
                     nonTransferable: 'Non-transferable',
@@ -668,8 +684,8 @@ export default defineI18nConfig(() => ({
                 },
             },
             catalog: {
-                catalog: 'My Data',
-                title: 'Catalog',
+                catalog: 'Catalog',
+                title: 'Factory Catalog',
             },
             marketplace: {
                 marketplace: 'Marketplace',
@@ -813,7 +829,7 @@ export default defineI18nConfig(() => ({
                 searchBarPlaceholder: 'Search...',
                 searchButton: 'Search',
                 datasets: {
-                    found: 'Datasets found',
+                    found: 'datasets found',
                 },
             },
             SortSplitButton: {

@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import dayjs from 'dayjs';
 import * as R from 'ramda';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 import { LicenseCode, licenses } from '~/constants/licenses';
-import { DownloadFrequency } from '~/interfaces/download-frequency.enum';
 
 const codeSort = R.sortWith([R.ascend(R.prop('code'))]);
 
@@ -47,11 +45,7 @@ watch(
             resetLicenseDetails({
                 code: LicenseCode.NFT,
                 label: 'NFT License',
-                description: `Consequat deserunt consectetur magna consequat proident. Elit non cupidatat aliqua aute. Commodo commodo sit duis excepteur eiusmod incididunt proident nisi minim tempor consequat aliquip duis deserunt ad. Voluptate fugiat incididunt fugiat anim ipsum sint Lorem exercitation irure qui aliquip dolore elit et dolore.
-
-Labore fugiat pariatur aute. Deserunt sunt qui adipisicing occaecat dolore et culpa nulla aliquip sunt ullamco voluptate consequat. Irure consequat in tempor velit ipsum ullamco exercitation excepteur ut ex fugiat. Ullamco nisi aute culpa dolor consectetur labore aliquip sit anim commodo aliquip. Cillum do quis aute id excepteur exercitation minim voluptate sint irure occaecat.
-
-Labore laborum tempor mollit mollit nostrud esse dolor fugiat. Fugiat eiusmod occaecat minim consectetur irure non magna et culpa adipisicing eu sunt anim in. Proident anim proident eiusmod eu exercitation. Quis nostrud nisi officia consequat pariatur ipsum esse esse labore eu deserunt dolore eiusmod occaecat.`,
+                description: licenses.find((license) => license.code === LicenseCode.NFT)?.description,
             });
         } else {
             if (!props.isFree) {
@@ -87,7 +81,7 @@ const isLicenseValid = computed(() => {
 
 const isAllValid = computed(() => isLicenseValid.value);
 
-const { isWorldwide, isPerpetual, hasPersonalData, licenseSchema } = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema, durationSelections } = useLicenseSchema(monetizationPropComputed);
 
 type licenseType = z.infer<typeof licenseSchema>;
 
@@ -99,11 +93,7 @@ const licenseSelections = computed(() =>
                 {
                     code: LicenseCode.NFT,
                     label: 'NFT License',
-                    description: `Consequat deserunt consectetur magna consequat proident. Elit non cupidatat aliqua aute. Commodo commodo sit duis excepteur eiusmod incididunt proident nisi minim tempor consequat aliquip duis deserunt ad. Voluptate fugiat incididunt fugiat anim ipsum sint Lorem exercitation irure qui aliquip dolore elit et dolore.
-
-Labore fugiat pariatur aute. Deserunt sunt qui adipisicing occaecat dolore et culpa nulla aliquip sunt ullamco voluptate consequat. Irure consequat in tempor velit ipsum ullamco exercitation excepteur ut ex fugiat. Ullamco nisi aute culpa dolor consectetur labore aliquip sit anim commodo aliquip. Cillum do quis aute id excepteur exercitation minim voluptate sint irure occaecat.
-
-Labore laborum tempor mollit mollit nostrud esse dolor fugiat. Fugiat eiusmod occaecat minim consectetur irure non magna et culpa adipisicing eu sunt anim in. Proident anim proident eiusmod eu exercitation. Quis nostrud nisi officia consequat pariatur ipsum esse esse labore eu deserunt dolore eiusmod occaecat.`,
+                    description: licenses.find((license) => license.code === LicenseCode.NFT)?.description,
                 },
             ]
           : [
@@ -130,14 +120,6 @@ const transferableSelections = [
     },
 ];
 
-const limitFrequencySelections = computed(() => [
-    { title: t('perHour'), value: DownloadFrequency.HOUR as string },
-    { title: t('perDay'), value: DownloadFrequency.DAY as string },
-    { title: t('perWeek'), value: DownloadFrequency.WEEK as string },
-    { title: t('perMonth'), value: DownloadFrequency.MONTH as string },
-    { title: t('perYear'), value: DownloadFrequency.YEAR as string },
-]);
-
 const emit = defineEmits([
     'update:license-details-prop',
     'update:is-free',
@@ -155,14 +137,6 @@ const updateWorldwide = (value: boolean) => {
     emit('update:is-worldwide', value);
     if (isWorldwide.value) {
         licenseDetails.value.region = [];
-    }
-};
-
-const updatePerpetual = (value: boolean) => {
-    isPerpetual.value = value;
-    emit('update:is-perpetual', value);
-    if (isPerpetual.value) {
-        licenseDetails.value.termDate = undefined;
     }
 };
 
@@ -193,28 +167,26 @@ const resetLicenseDetails = (license: { code: string; label: string; description
             license: LicenseCode.PISTIS,
             extraTerms: '',
             contractTerms: '',
-            limitNumber: '',
-            limitFrequency: '',
             isExclusive: false,
             region: [],
-            transferable: '',
-            termDate: '',
+            transferable: 'non-transferable',
+            duration: '',
+            perpetual: '',
+            noUseWithBlacklistedDatasets: false,
             additionalRenewalTerms: '',
             nonRenewalDays: '',
             contractBreachDays: '',
             personalDataTerms: '',
+            numOfResell: null,
+            numOfShare: null,
         };
     } else if (license.code === LicenseCode.NFT) {
         licenseDetails.value = {
             license: LicenseCode.NFT,
-            limitNumber: 10,
-            limitFrequency: DownloadFrequency.DAY,
         };
     } else {
         licenseDetails.value = {
             license: license.code,
-            limitNumber: 10,
-            limitFrequency: DownloadFrequency.DAY,
         };
     }
 };
@@ -232,15 +204,13 @@ const customValidate = () => {
     if (!isWorldwide.value && !licenseDetails.value.region.length)
         errors.push({ path: 'region', message: t('val.required') });
     else formRef.value.clear('region');
-    if (!isPerpetual.value && !licenseDetails.value.termDate)
-        errors.push({ path: 'termDate', message: t('val.required') });
+    if (!licenseDetails.value.duration) errors.push({ path: 'duration', message: t('val.required') });
     if (!licenseDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
     if (!licenseDetails.value.nonRenewalDays) errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
     if (!licenseDetails.value.contractBreachDays)
         errors.push({ path: 'contractBreachDays', message: t('val.positive') });
     if (hasPersonalData.value && !licenseDetails.value.personalDataTerms)
         errors.push({ path: 'personalDataTerms', message: t('val.required') });
-
     return errors;
 };
 
@@ -307,184 +277,175 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                             ></USelectMenu>
                         </UFormGroup>
                     </div>
-                    <div v-show="licenseDetails.license !== LicenseCode.NFT" class="flex flex-row gap-4">
-                        <UFormGroup
-                            :label="$t('data.designer.downloadLimit')"
-                            required
-                            name="limitNumber"
-                            class="flex-1"
-                            :ui="{ error: 'absolute -bottom-6' }"
-                            eager-validation
-                        >
-                            <UInput
-                                v-model.number="licenseDetails.limitNumber"
-                                :placeholder="$t('data.designer.downloadLimitPH')"
-                                type="numeric"
-                            >
-                                <template #trailing>
-                                    <span class="text-gray-500 text-xs">{{ $t('times') }}</span>
-                                </template>
-                            </UInput>
-                        </UFormGroup>
-                        <UFormGroup
-                            :label="$t('frequency')"
-                            required
-                            name="limitFrequency"
-                            class="flex-1"
-                            :ui="{ error: 'absolute -bottom-6' }"
-                            eager-validation
-                        >
-                            <USelectMenu
-                                v-model="licenseDetails.limitFrequency"
-                                :placeholder="$t('data.designer.selectFrequency')"
-                                :options="limitFrequencySelections"
-                                value-attribute="value"
-                                option-attribute="title"
-                                ><template #label>
-                                    <span v-if="licenseDetails.limitFrequency" class="truncate">{{
-                                        licenseDetails.limitFrequency
-                                    }}</span>
-                                    <span v-else class="text-gray-400">Select a frequency</span>
-                                </template></USelectMenu
-                            >
-                        </UFormGroup>
-                    </div>
                     <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex flex-col space-y-6">
-                        <div class="flex flex-row gap-4">
-                            <div class="flex flex-1 gap-4">
-                                <UFormGroup
-                                    :label="$t('exclusive')"
+                        <div class="flex flex-1 gap-4">
+                            <UFormGroup
+                                :label="$t('exclusive')"
+                                name="isExclusive"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <UCheckbox
+                                    v-model="licenseDetails.isExclusive"
                                     name="isExclusive"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <UCheckbox
-                                        v-model="licenseDetails.isExclusive"
-                                        name="isExclusive"
-                                        class="mt-2.5 -ml-1 justify-center"
-                                    />
-                                </UFormGroup>
-                                <UFormGroup
-                                    :label="$t('data.designer.availability')"
-                                    name="region"
-                                    :required="!isWorldwide"
-                                    class="w-full"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <USelectMenu
-                                        v-model="licenseDetails.region"
-                                        searchable
-                                        :searchable-placeholder="$t('data.designer.searchForACountry')"
-                                        :options="listOfCountries"
-                                        :placeholder="$t('data.designer.regionCountry')"
-                                        multiple
-                                        :disabled="isWorldwide"
-                                        value-attribute="value"
-                                        option-attribute="label"
-                                        class="disabled:opacity-50"
-                                    />
+                                    class="mt-2.5 -ml-1 justify-center"
+                                />
+                            </UFormGroup>
+                            <UFormGroup
+                                :label="$t('data.designer.noUseWithBlacklistedDatasets')"
+                                name="noUseWithBlacklistedDatasets"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <template #label>
+                                    <div class="w-[220px]">
+                                        {{ $t('data.designer.noUseWithBlacklistedDatasets') }}
+                                    </div>
+                                </template>
+                                <UCheckbox
+                                    v-model="licenseDetails.noUseWithBlacklistedDatasets"
+                                    name="noUseWithBlacklistedDatasets"
+                                    class="mt-2.5 justify-center"
+                                />
+                            </UFormGroup>
+                            <UFormGroup
+                                :label="$t('data.designer.availability')"
+                                name="region"
+                                :required="!isWorldwide"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                class="w-full"
+                                eager-validation
+                            >
+                                <USelectMenu
+                                    v-model="licenseDetails.region"
+                                    searchable
+                                    :searchable-placeholder="$t('data.designer.searchForACountry')"
+                                    :options="listOfCountries"
+                                    :placeholder="$t('data.designer.regionCountry')"
+                                    multiple
+                                    :disabled="isWorldwide"
+                                    value-attribute="value"
+                                    option-attribute="label"
+                                    class="disabled:opacity-50"
+                                />
 
-                                    <template #error="{ error }">
-                                        <span
-                                            :class="[
-                                                error
-                                                    ? 'text-red-500 dark:text-red-400'
-                                                    : 'text-primary-500 dark:text-primary-400',
-                                            ]"
-                                        >
-                                            {{ isWorldwide ? '' : error }}
-                                        </span>
-                                    </template>
-                                </UFormGroup>
-                                <UFormGroup
-                                    :label="$t('data.designer.worldwide')"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <UCheckbox
-                                        :model-value="isWorldwide"
-                                        class="mt-2.5 justify-center"
-                                        @update:model-value="(value: boolean) => updateWorldwide(value)"
-                                    />
-                                </UFormGroup>
-                            </div>
-                            <div class="flex flex-1 gap-4">
-                                <UFormGroup
-                                    :label="$t('data.designer.transferable')"
-                                    required
-                                    name="transferable"
-                                    class="flex-1 text-gray-200"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <USelectMenu
-                                        v-model="licenseDetails.transferable"
-                                        :ui="{
-                                            option: { active: 'text-gray-200' },
-                                            input: 'placeholder:text-gray-200 text-gray-200',
-                                            button: 'text-gray-200',
-                                        }"
-                                        :placeholder="$t('data.designer.transferable')"
-                                        :options="transferableSelections"
-                                        value-attribute="value"
-                                        option-attribute="label"
-                                    ></USelectMenu>
-                                </UFormGroup>
-                                <UFormGroup
-                                    :label="$t('data.designer.termDate')"
-                                    :required="!isPerpetual"
-                                    name="termDate"
-                                    class="text-gray-200"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <UPopover :popper="{ placement: 'bottom-start' }">
-                                        <UButton
-                                            color="white"
-                                            icon="i-heroicons-calendar-days-20-solid"
-                                            :label="
-                                                licenseDetails.termDate
-                                                    ? dayjs(licenseDetails.termDate).format('DD MMMM YYYY')
-                                                    : isPerpetual
-                                                      ? t('data.designer.licenseIsPerpetual')
-                                                      : t('data.designer.pleaseSelectDate')
-                                            "
-                                            :disabled="isPerpetual"
-                                            :class="[
-                                                isPerpetual ? 'opacity-50' : '',
-                                                licenseDetails.termDate ? 'text-gray-700' : 'text-gray-400',
-                                            ]"
-                                        />
-                                        <template #panel="{ close }">
-                                            <DatePicker v-model="licenseDetails.termDate" is-required @close="close" />
-                                        </template>
-                                    </UPopover>
-                                    <template #error="{ error }">
-                                        <span
-                                            :class="[
-                                                error
-                                                    ? 'text-red-500 dark:text-red-400'
-                                                    : 'text-primary-500 dark:text-primary-400',
-                                            ]"
-                                        >
-                                            {{ isPerpetual || licenseDetails.termDate ? '' : error }}
-                                        </span>
-                                    </template>
-                                </UFormGroup>
-                                <UFormGroup
-                                    :label="$t('data.designer.perpetual')"
-                                    :ui="{ error: 'absolute -bottom-6' }"
-                                    eager-validation
-                                >
-                                    <UCheckbox
-                                        :model-value="isPerpetual"
-                                        class="mt-2.5 justify-center"
-                                        @update:model-value="(value: boolean) => updatePerpetual(value)"
-                                    />
-                                </UFormGroup>
-                            </div>
+                                <template #error="{ error }">
+                                    <span
+                                        :class="[
+                                            error
+                                                ? 'text-red-500 dark:text-red-400'
+                                                : 'text-primary-500 dark:text-primary-400',
+                                        ]"
+                                    >
+                                        {{ isWorldwide ? '' : error }}
+                                    </span>
+                                </template>
+                            </UFormGroup>
+                            <UFormGroup
+                                :label="$t('data.designer.worldwide')"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <UCheckbox
+                                    :model-value="isWorldwide"
+                                    class="mt-2.5 justify-center"
+                                    @update:model-value="(value: boolean) => updateWorldwide(value)"
+                                />
+                            </UFormGroup>
+                            <UFormGroup
+                                :label="$t('data.designer.transferable')"
+                                required
+                                name="transferable"
+                                class="text-gray-200 w-full"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <USelectMenu
+                                    v-model="licenseDetails.transferable"
+                                    :ui="{
+                                        option: { active: 'text-gray-200' },
+                                        input: 'placeholder:text-gray-200 text-gray-200',
+                                        button: 'text-gray-200',
+                                    }"
+                                    :placeholder="$t('data.designer.transferable')"
+                                    :options="transferableSelections"
+                                    value-attribute="value"
+                                    option-attribute="label"
+                                ></USelectMenu>
+                            </UFormGroup>
+                            <UFormGroup
+                                :label="$t('data.designer.duration.title')"
+                                name="duration"
+                                required
+                                class="w-full"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <USelectMenu
+                                    v-model="licenseDetails.duration"
+                                    :options="durationSelections"
+                                    :placeholder="$t('data.designer.duration.title')"
+                                    value-attribute="value"
+                                    option-attribute="label"
+                                    class="disabled:opacity-50"
+                                />
+
+                                <template #error="{ error }">
+                                    <span
+                                        :class="[
+                                            error
+                                                ? 'text-red-500 dark:text-red-400'
+                                                : 'text-primary-500 dark:text-primary-400',
+                                        ]"
+                                    >
+                                        {{ error }}
+                                    </span>
+                                </template>
+                            </UFormGroup>
                         </div>
+
+                        <div v-if="monetizationDetails.type === 'one-off' && !isFree" class="flex flex-1 gap-4">
+                            <UFormGroup
+                                :label="$t('data.designer.numberOfResell')"
+                                class="flex-1"
+                                required
+                                name="numOfResell"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <UInput
+                                    v-model.number="licenseDetails.numOfResell"
+                                    :placeholder="$t('data.designer.numberOfResell')"
+                                    type="numeric"
+                                >
+                                    <template #trailing>
+                                        <span class="text-gray-500 text-xs">{{ t('times') }}</span>
+                                    </template>
+                                </UInput>
+                            </UFormGroup>
+                        </div>
+
+                        <div v-if="monetizationDetails.type === 'one-off' && isFree" class="flex flex-1 gap-4">
+                            <UFormGroup
+                                :label="$t('data.designer.numberOfShare')"
+                                class="flex-1"
+                                required
+                                name="numOfShare"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <UInput
+                                    v-model.number="licenseDetails.numOfShare"
+                                    :placeholder="$t('data.designer.numberOfShare')"
+                                    type="numeric"
+                                >
+                                    <template #trailing>
+                                        <span class="text-gray-500 text-xs">{{ t('times') }}</span>
+                                    </template>
+                                </UInput>
+                            </UFormGroup>
+                        </div>
+
                         <UFormGroup
                             :label="$t('termsConditions')"
                             name="extraTerms"

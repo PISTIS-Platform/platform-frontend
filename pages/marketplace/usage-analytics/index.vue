@@ -29,6 +29,7 @@ const columns: { key: string; label: string; sortable: boolean; class?: string }
         key: 'issued',
         label: t('data.usage.created'),
         sortable: true,
+        class: 'w-52',
     },
     {
         key: 'verified',
@@ -51,7 +52,7 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
 </script>
 
 <template>
-    <div class="items-center justify-center w-full px-8 mx-auto max-w-7xl">
+    <div class="items-center justify-center w-full p-1">
         <PageContainer>
             <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" color="primary" />
             <ErrorCard
@@ -83,7 +84,7 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
                         </template>
                         <template #title-data="{ row }">
                             <a
-                                :href="`/my-data/catalog/dataset-details/${row.id}?pm=cloud`"
+                                :href="`/catalog/dataset-details/${row.id}?pm=cloud`"
                                 target="_blank"
                                 class="text-primary"
                                 >{{ row.title }}</a
