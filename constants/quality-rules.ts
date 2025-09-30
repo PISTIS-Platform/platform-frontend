@@ -493,16 +493,15 @@ export const ruleDetails = {
             },
             {
                 id: 'min_value',
-                label: 'Minimum Value (Optional)',
+                label: 'Minimum Value',
                 type: 'number',
                 placeholder: 'The minimum value of the acceptable range for the column maximum.',
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum value of the acceptable range for the column maximum.',
-                required: true,
             },
             {
                 id: 'strict_min',
@@ -530,16 +529,15 @@ export const ruleDetails = {
             },
             {
                 id: 'min_value',
-                label: 'Minimum Value (Optional)',
+                label: 'Minimum Value',
                 type: 'number',
                 placeholder: 'The minimum value of the acceptable range for the column mean.',
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum value of the acceptable range for the column mean.',
-                required: true,
             },
             {
                 id: 'strict_min',
@@ -567,16 +565,15 @@ export const ruleDetails = {
             },
             {
                 id: 'min_value',
-                label: 'Minimum Value (Optional)',
+                label: 'Minimum Value',
                 type: 'number',
                 placeholder: 'The minimum value of the acceptable range for the column median.',
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum value of the acceptable range for the column median.',
-                required: true,
             },
             {
                 id: 'strict_min',
@@ -604,16 +601,15 @@ export const ruleDetails = {
             },
             {
                 id: 'min_value',
-                label: 'Minimum Value (Optional)',
+                label: 'Minimum Value',
                 type: 'number',
                 placeholder: 'The minimum value of the acceptable range for the column minimum.',
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum value of the acceptable range for the column minimum.',
-                required: true,
             },
             {
                 id: 'strict_min',
@@ -692,16 +688,15 @@ export const ruleDetails = {
             },
             {
                 id: 'min_value',
-                label: 'Minimum Value (Optional)',
+                label: 'Minimum Value',
                 type: 'number',
                 placeholder: 'The minimum value of the acceptable range for the column std.',
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum value of the acceptable range for the column std.',
-                required: true,
             },
             {
                 id: 'strict_min',
@@ -729,16 +724,15 @@ export const ruleDetails = {
             },
             {
                 id: 'min_value',
-                label: 'Minimum Value (Optional)',
+                label: 'Minimum Value',
                 type: 'number',
                 placeholder: 'The minimum value of the acceptable range for the column sum.',
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum value of the acceptable range for the column sum.',
-                required: true,
             },
             {
                 id: 'strict_min',
@@ -766,16 +760,15 @@ export const ruleDetails = {
             },
             {
                 id: 'min_value',
-                label: 'Minimum Value (Optional)',
+                label: 'Minimum Value',
                 type: 'number',
                 placeholder: 'The minimum value of the acceptable range for the column entry length.',
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum value of the acceptable range for the column entry length.',
-                required: true,
             },
             {
                 id: 'strict_min',
@@ -980,16 +973,15 @@ export const ruleDetails = {
             },
             {
                 id: 'min_value',
-                label: 'Minimum Value (Optional)',
+                label: 'Minimum Value',
                 type: 'number',
                 placeholder: 'The minimum proportion of unique values (Proportions are on the range 0 to 1)',
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum proportion of unique values (Proportions are on the range 0 to 1)',
-                required: true,
             },
             {
                 id: 'strict_min',
@@ -1017,16 +1009,15 @@ export const ruleDetails = {
             },
             {
                 id: 'min_value',
-                label: 'Minimum Value (Optional)',
+                label: 'Minimum Value',
                 type: 'number',
                 placeholder: 'The minimum number of unique values allowed.',
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum number of unique values allowed.',
-                required: true,
             },
             {
                 id: 'strict_min',
@@ -1212,7 +1203,7 @@ export const ruleDetails = {
             },
             {
                 id: 'max_value',
-                label: 'Maximum Value (Optional)',
+                label: 'Maximum Value',
                 type: 'number',
                 placeholder: 'The maximum number of rows, inclusive.',
                 required: true,
@@ -1248,14 +1239,14 @@ export const ruleDetails = {
 export const commonFields = [
     {
         id: 'rule_name',
-        label: 'Rule Name (Optional)',
+        label: 'Rule Name',
         type: 'text',
         placeholder: 'Enter a custom rule name.',
         required: false,
     },
     {
         id: 'description',
-        label: 'Description (Optional)',
+        label: 'Description',
         type: 'textarea',
         placeholder: 'Enter a description for this rule',
         rows: 3,
@@ -1263,7 +1254,7 @@ export const commonFields = [
     },
     {
         id: 'mostly',
-        label: 'Violation Tolerance (Optional)',
+        label: 'Violation Tolerance',
         type: 'number',
         placeholder: 'Enter proportion of successfully validated rows to pass.',
         default: 1.0,
