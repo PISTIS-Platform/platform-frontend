@@ -38,10 +38,11 @@ function getDatasetDisplayTitle(dataset) {
 
 async function loadDatasets() {
     try {
-        const response = await fetch('https://pistis-market.eu/srv/search/search?filters=dataset&limit=25');
-        const json = await response.json();
-        const rawDatasets = json.result?.results ?? [];
-
+        const { data, error } = await useFetch('https://pistis-market.eu/srv/search/search?filters=dataset&limit=25');
+        if (error.value) {
+            throw error.value;
+        }
+        const rawDatasets = data.value?.result?.results ?? [];
         datasets.value = rawDatasets;
     } catch (err) {
         console.error('Error fetching datasets:', err);
@@ -291,14 +292,14 @@ async function exportStagedRules() {
         file_type: fileType.value,
         data_query: result,
     };
+
     const jsonString = JSON.stringify(dataQueryPayload, null, 2);
     console.log('Exported Rules JSON:', jsonString);
 
-    // Make call to the factory DQA @ ${fatoryURL.value}/srv/data-quality-assessor/api/dqa/query/
     const endpoint = `${factoryURL.value}srv/data-quality-assessor/api/dqa/query/`;
 
     try {
-        const response = await fetch(endpoint, {
+        const { data, error, status } = await useFetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -306,17 +307,16 @@ async function exportStagedRules() {
             body: jsonString,
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Server error:', errorText);
+        if (error.value || status.value >= 400) {
+            console.error('Server error:', error.value);
             showNotification(t('data.quality.notifications.failedQuery'));
         } else {
-            queryResult.value = await response.json();
+            queryResult.value = data.value;
             console.log('Server response:', queryResult.value);
             showNotification(t('data.quality.notifications.successfulQuery'));
         }
-    } catch (error) {
-        console.error('Fetch error:', error);
+    } catch (err) {
+        console.error('Fetch error:', err);
         showNotification(t('data.quality.notifications.fetchError'));
     }
 }
