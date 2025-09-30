@@ -16,7 +16,7 @@ const fileType = ref('');
 watch(selectedDataset, (newVal) => {
     console.log(newVal);
     const distribution = newVal.distributions?.[0];
-    accessURL.value = distribution.access_url?.[0] || t('data.quality.selectedDataset.noAccessURL');
+    accessURL.value = distribution.access_url?.[0] ?? t('data.quality.selectedDataset.noAccessURL');
     const url = new URL(accessURL.value);
     factoryURL.value = `${url.protocol}//${url.host}/`;
     fileType.value = distribution.format.label;
@@ -32,19 +32,19 @@ function getDatasetDisplayTitle(dataset) {
     const dist = dataset.distributions?.[0];
     if (dist?.title?.en) {
         return (
-            (dataset.title?.en || t('data.quality.selectedDataset.untitled')) +
+            (dataset.title?.en ?? t('data.quality.selectedDataset.untitled')) +
             ' | ' +
-            (dist.title?.en || t('data.quality.selectedDataset.noDistribution'))
+            (dist.title?.en ?? t('data.quality.selectedDataset.noDistribution'))
         );
     }
-    return dataset.id || t('data.quality.selectedDataset.noDataset');
+    return dataset.id ?? t('data.quality.selectedDataset.noDataset');
 }
 
 async function loadDatasets() {
     try {
         const response = await fetch('https://pistis-market.eu/srv/search/search?filters=dataset&limit=25');
         const json = await response.json();
-        const rawDatasets = json.result?.results || [];
+        const rawDatasets = json.result?.results ?? [];
 
         datasets.value = rawDatasets;
     } catch (err) {
@@ -70,9 +70,9 @@ const invalidFields = ref(new Set());
 const invalidRuleIds = ref(new Set());
 const queryResult = ref(null);
 const dimensionRows = computed(() => {
-    if (!queryResult.value || !queryResult.value.content) return [];
+    if (!queryResult.value ?? !queryResult.value.content) return [];
 
-    const scores = queryResult.value.content.dimension_scores || {};
+    const scores = queryResult.value.content.dimension_scores ?? {};
 
     return dimensions.map((dimension) => {
         const score = scores[dimension];
@@ -101,7 +101,7 @@ const filteredRulesByDimension = computed(() => {
     if (selectedDimension.value === 'all') {
         // Group by dimension
         return availableRules.reduce((acc, rule) => {
-            acc[rule.dimension] = acc[rule.dimension] || [];
+            acc[rule.dimension] = acc[rule.dimension] ?? [];
             acc[rule.dimension].push(rule);
             return acc;
         }, {});
@@ -120,7 +120,7 @@ function toggleDimension(dimension) {
 // Add rule to selected
 function addRuleToSelected(rule) {
     const details = ruleDetails[rule.id];
-    const specificFields = details?.fields || [];
+    const specificFields = details?.fields ?? [];
 
     const specificDataDefaults = {};
     specificFields.forEach((field) => {
@@ -194,7 +194,7 @@ function validateRuleFields(rule) {
     const { specificData } = rule;
     const ruleDef = ruleDetails[rule.ruleTypeId];
 
-    if (!ruleDef || !ruleDef.fields) return result;
+    if (!ruleDef ?? !ruleDef.fields) return result;
 
     ruleDef.fields.forEach((field) => {
         if (!field.required) return;
@@ -203,9 +203,9 @@ function validateRuleFields(rule) {
         const defaultValue = field.default ?? getDefaultForType(field.type);
 
         const isInvalid =
-            (field.type === 'number' && (currentValue === null || currentValue === '')) ||
-            (typeof currentValue === 'string' && currentValue.trim() === '') ||
-            (Array.isArray(currentValue) && currentValue.length === 0) ||
+            (field.type === 'number' && (currentValue === null ?? currentValue === '')) ??
+            (typeof currentValue === 'string' && currentValue.trim() === '') ??
+            (Array.isArray(currentValue) && currentValue.length === 0) ??
             currentValue === defaultValue;
 
         if (isInvalid) {
@@ -245,7 +245,7 @@ function capitalize(str) {
 const ruleSpecificFields = computed(() => {
     if (!selectedRule.value) return [];
     const details = ruleDetails[selectedRule.value.ruleTypeId];
-    return details?.fields || [];
+    return details?.fields ?? [];
 });
 
 // Export selectedRules to GX structure
@@ -466,7 +466,7 @@ function hasMissingDetails(rule) {
                         ]"
                         @click="selectRule(rule)"
                     >
-                        <div class="font-semibold text-gray-800">{{ rule.name || rule.type }}</div>
+                        <div class="font-semibold text-gray-800">{{ rule.name ?? rule.type }}</div>
                         <div class="text-xs text-gray-500">#{{ idx + 1 }}</div>
                     </div>
                 </div>
@@ -533,7 +533,7 @@ function hasMissingDetails(rule) {
                                 v-if="field.type === 'textarea'"
                                 v-model="selectedRule.specificData[field.id]"
                                 :placeholder="field.placeholder"
-                                :rows="field.rows || 3"
+                                :rows="field.rows ?? 3"
                                 :class="[
                                     'border rounded px-3 py-2 w-full',
                                     invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
