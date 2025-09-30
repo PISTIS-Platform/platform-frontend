@@ -345,8 +345,8 @@ function hasMissingDetails(rule) {
                     }}</label>
                     <select
                         v-model="selectedDataset"
-                        class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        @change="$event.target.blur()"
+                        <!-- class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
+                        @change="$event.target.blur()" -->
                     >
                         <option v-for="ds in datasets" :key="ds.id" :value="ds">
                             {{ getDatasetDisplayTitle(ds) }}
@@ -355,7 +355,7 @@ function hasMissingDetails(rule) {
                 </div>
                 <div>
                     <button
-                        class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
+                        class="bg-pistis-600 text-white px-3 py-1 rounded text-sm hover:bg-pistis-700"
                         @click="exportStagedRules"
                     >
                         {{ t('data.quality.button.sendQuery') }}
@@ -397,7 +397,7 @@ function hasMissingDetails(rule) {
                         }}</label>
                         <select
                             v-model="selectedDimension"
-                            class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
                         >
                             <option value="all">All Dimensions</option>
                             <option v-for="dim in dimensions" :key="dim" :value="dim">{{ capitalize(dim) }}</option>
@@ -424,7 +424,7 @@ function hasMissingDetails(rule) {
                             <div
                                 v-for="rule in rules"
                                 :key="rule.id"
-                                class="bg-indigo-100 border border-indigo-700 rounded mb-2 p-3 cursor-pointer hover:bg-indigo-300"
+                                class="bg-pistis-100 border border-pistis-700 rounded mb-2 p-3 cursor-pointer hover:bg-pistis-300"
                                 draggable="true"
                                 @dragstart="onDragStart(rule.id)"
                                 @click="addRuleToSelected(rule)"
@@ -460,7 +460,7 @@ function hasMissingDetails(rule) {
                         :class="[
                             'bg-white border rounded mb-2 p-3 cursor-pointer transition-colors duration-150',
                             selectedRule && selectedRule.id === rule.id
-                                ? 'border-indigo-600 bg-indigo-100 shadow-inner'
+                                ? 'border-pistis-600 bg-pistis-100 shadow-inner'
                                 : 'border-gray-200 hover:bg-gray-100',
                             invalidRuleIds.has(rule.id) ? 'border-red-500 bg-red-50' : '',
                         ]"
@@ -477,7 +477,7 @@ function hasMissingDetails(rule) {
         <section class="bg-white rounded-lg shadow p-6 mt-6">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Rule Details</h2>
-                <span v-if="selectedRule" class="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-medium">{{
+                <span v-if="selectedRule" class="bg-pistis-500 text-white px-3 py-1 rounded-full text-xs font-medium">{{
                     selectedRule.type
                 }}</span>
             </div>
@@ -586,7 +586,7 @@ function hasMissingDetails(rule) {
                     <div class="flex gap-4">
                         <button
                             type="submit"
-                            class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 flex-1"
+                            class="bg-pistis-500 text-white px-4 py-2 rounded hover:bg-pistis-600 flex-1"
                             @click="saveRuleDetails"
                         >
                             {{ t('data.quality.button.saveDetails') }}
@@ -602,7 +602,7 @@ function hasMissingDetails(rule) {
                 </form>
             </div>
             <div v-else>
-                <p class="text-gray-400">{{ t('data.quality.palceholder.ruleDetails') }}</p>
+                <p class="text-gray-400">{{ t('data.quality.placeholder.ruleDetails') }}</p>
             </div>
         </section>
 
@@ -610,7 +610,7 @@ function hasMissingDetails(rule) {
         <transition name="fade">
             <div
                 v-if="notification"
-                class="fixed bottom-6 right-6 bg-indigo-600 text-white px-6 py-3 rounded shadow-lg z-50"
+                class="fixed bottom-6 right-6 bg-pistis-600 text-white px-6 py-3 rounded shadow-lg z-50"
             >
                 {{ notification }}
             </div>
