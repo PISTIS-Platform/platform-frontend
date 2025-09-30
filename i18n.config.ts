@@ -363,9 +363,9 @@ export default defineI18nConfig(() => ({
                         removeRule: 'Remove Rule',
                     },
                     form: {
-                        ruleName: 'Rule Name (Optional)',
-                        description: 'Description (Optional)',
-                        mostly: 'Violation Tolerance (Optional)',
+                        ruleName: 'Rule Name',
+                        description: 'Description',
+                        mostly: 'Violation Tolerance',
                     },
                     placeholder: {
                         ruleDetails: 'Select a rule to configure it.',
