@@ -1,4 +1,12 @@
-export const availableRules = [
+export type Dimension = 'accuracy' | 'consistency' | 'completeness' | 'uniqueness' | 'validity';
+
+export type Rule = {
+    id: string;
+    name: string;
+    description: string;
+    dimension: Dimension[];
+};
+export const availableRules: Rule[] = [
     // Accuracy rules
     {
         id: 'ExpectColumnDistinctValuesToBeInSet',
