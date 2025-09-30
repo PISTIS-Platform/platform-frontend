@@ -700,7 +700,6 @@ const runJobConfigurator = async (services: [string]) => {
                     .filter(k => k.length > 0)
             )
 );
-alert(formData.get('dataset_keywords') as string);
 
     if (fileUpload.value) {
         formData.append('dataset', fileUpload.value, fileUpload.value.name);
