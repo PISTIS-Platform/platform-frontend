@@ -340,13 +340,13 @@ function hasMissingDetails(rule) {
         <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <label class="font-semibold text-gray-700 text-sm">{{
-                        t('data.quality.headers.selectData')
-                    }}</label>
+                    <label class="font-semibold text-gray-700 text-sm">
+                        {{ t('data.quality.headers.selectData') }}
+                    </label>
                     <select
                         v-model="selectedDataset"
-                        <!-- class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
-                        @change="$event.target.blur()" -->
+                        class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
+                        @change="$event.target.blur()"
                     >
                         <option v-for="ds in datasets" :key="ds.id" :value="ds">
                             {{ getDatasetDisplayTitle(ds) }}
@@ -392,9 +392,9 @@ function hasMissingDetails(rule) {
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-semibold text-gray-800">{{ t('data.quality.headers.availableRules') }}</h2>
                     <div class="flex items-center gap-2">
-                        <label class="text-sm font-medium text-gray-600">{{
-                            t('data.quality.headers.dimFilter')
-                        }}</label>
+                        <label class="text-sm font-medium text-gray-600">
+                            {{ t('data.quality.headers.dimFilter') }}
+                        </label>
                         <select
                             v-model="selectedDimension"
                             class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
@@ -415,10 +415,10 @@ function hasMissingDetails(rule) {
                             ]"
                             @click="toggleDimension(dimension)"
                         >
-                            <span>{{ capitalize(dimension) }}</span>
-                            <span class="text-sm">
+                            <div>{{ capitalize(dimension) }}</div>
+                            <div class="text-sm">
                                 {{ expandedDimensions[dimension] ? '▾' : '▸' }}
-                            </span>
+                            </div>
                         </div>
                         <div v-show="expandedDimensions[dimension]">
                             <div
@@ -477,17 +477,17 @@ function hasMissingDetails(rule) {
         <section class="bg-white rounded-lg shadow p-6 mt-6">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Rule Details</h2>
-                <span v-if="selectedRule" class="bg-pistis-500 text-white px-3 py-1 rounded-full text-xs font-medium">{{
-                    selectedRule.type
-                }}</span>
+                <div v-if="selectedRule" class="bg-pistis-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    {{ selectedRule.type }}
+                </div>
             </div>
             <div v-if="selectedRule">
                 <form @submit.prevent="saveRuleDetails">
                     <!-- Common Fields -->
                     <div class="mb-4">
-                        <label class="block font-semibold text-gray-700 mb-1">{{
-                            t('data.quality.form.ruleName')
-                        }}</label>
+                        <label class="block font-semibold text-gray-700 mb-1">
+                            {{ t('data.quality.form.ruleName') }}
+                        </label>
                         <input
                             v-model="selectedRule.name"
                             class="border rounded px-3 py-2 w-full"
@@ -495,9 +495,9 @@ function hasMissingDetails(rule) {
                         />
                     </div>
                     <div class="mb-4">
-                        <label class="block font-semibold text-gray-700 mb-1">{{
-                            t('data.quality.form.description')
-                        }}</label>
+                        <label class="block font-semibold text-gray-700 mb-1">
+                            {{ t('data.quality.form.description') }}
+                        </label>
                         <textarea
                             v-model="selectedRule.description"
                             class="border rounded px-3 py-2 w-full"
@@ -506,9 +506,9 @@ function hasMissingDetails(rule) {
                         ></textarea>
                     </div>
                     <div class="mb-4">
-                        <label class="block font-semibold text-gray-700 mb-1">{{
-                            t('data.quality.form.mostly')
-                        }}</label>
+                        <label class="block font-semibold text-gray-700 mb-1">
+                            {{ t('data.quality.form.mostly') }}
+                        </label>
                         <input
                             v-model.number="selectedRule.mostly"
                             type="number"
