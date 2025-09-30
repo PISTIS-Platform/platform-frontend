@@ -1,14 +1,11 @@
 <script setup lang="ts">
 const { t } = useI18n();
 import dayjs from 'dayjs';
+import * as R from 'ramda';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 import { navigateTo } from '#app';
-
-const {
-    public: { factoryUrl },
-} = useRuntimeConfig();
 
 const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`, {
     query: { page: '' },
@@ -128,16 +125,21 @@ const {
     server: false,
 });
 
+const sortByDateDesc = R.sortWith([R.descend(R.prop('modified'))]);
+
 const transformedDatasets = computed(() => {
-    if (!datasetsData.value || !datasetsData.value.length) {
+    if (!datasetsData.value || !datasetsData.value?.length) {
         return [];
     }
-    return datasetsData.value.map((dataset: Record<string, any>) => ({
-        id: dataset.id,
-        title: dataset.title.en,
-        description: dataset.description.en,
-        distributions: dataset.distributions,
-    }));
+    return sortByDateDesc(
+        datasetsData.value.map((dataset: Record<string, any>) => ({
+            id: dataset.id,
+            title: dataset.title.en,
+            description: dataset.description.en,
+            distributions: dataset.distributions,
+            modified: dataset.modified,
+        })),
+    );
 });
 
 const steps = computed(() => [
@@ -221,9 +223,7 @@ const submitAll = async () => {
             });
             showSuccessMessage(t('data.investmentPlanner.success'));
             await delay(2);
-            navigateTo(`${factoryUrl}/my-data/catalog/dataset-details/${objToSend.cloudAssetId}?pm=cloud&locale=en`, {
-                external: true,
-            });
+            navigateTo(`/marketplace/dataset-details/${objToSend.cloudAssetId}?pm=cloud`);
         } catch {
             showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlan'));
         }
