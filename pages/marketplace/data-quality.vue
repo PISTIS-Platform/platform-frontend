@@ -198,11 +198,12 @@ function validateRuleFields(rule) {
     if (!ruleDef || !ruleDef.fields) return result;
 
     ruleDef.fields.forEach((field) => {
+        if (!field.required) return;
+
         const currentValue = specificData[field.id];
         const defaultValue = field.default ?? getDefaultForType(field.type);
 
         const isInvalid =
-            (field.type === 'checkbox' && currentValue !== true) ||
             (field.type === 'number' && (currentValue === null || currentValue === '')) ||
             (typeof currentValue === 'string' && currentValue.trim() === '') ||
             (Array.isArray(currentValue) && currentValue.length === 0) ||
@@ -519,10 +520,14 @@ function hasMissingDetails(rule) {
                             placeholder="Enter proportion of successfully validated rows to pass"
                         />
                     </div>
+                    <hr class="my-6 border-t border-gray-300" />
                     <!-- Rule Specific Fields -->
                     <template v-for="field in ruleSpecificFields" :key="field.id">
                         <div class="mb-4">
-                            <label class="block font-semibold text-gray-700 mb-1">{{ field.label }}</label>
+                            <label class="block font-semibold text-gray-700 mb-1">
+                                {{ field.label }}
+                                <span v-if="field.required" class="text-red-500 ml-1">*</span>
+                            </label>
 
                             <!-- Textarea -->
                             <textarea
