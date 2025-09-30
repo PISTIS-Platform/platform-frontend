@@ -265,6 +265,7 @@ export default defineI18nConfig(() => ({
                 datasetName: 'Dataset Name:',
                 workflowRealTimeData: 'Workflow Fetching Data: ',
                 datasetDescription: 'Dataset Description:',
+                datasetKeywords: 'Dataset Keywords:',
                 datasetCategory: 'Dataset Category:',
                 datasetEncrytion: 'Encrypt Dataset:',
                 gdprChecking: 'GDPR Check:',

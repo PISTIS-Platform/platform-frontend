@@ -584,6 +584,7 @@ const listServices = ref([
 const workflowServices = ref([]);
 const datasetName = ref('');
 const datasetDescription = ref('');
+const datasetKeywords = ref('');
 const datasetEncrytion = ref('false');
 const gdprChecking = ref('true');
 let fileUpload = ref<File | null>(null);
@@ -684,10 +685,22 @@ const runJobConfigurator = async (services: [string]) => {
     /*formData.append('workflow', jsonContent.value);*/
     formData.append('workflow', JSON.stringify(services));
     formData.append('dataset_description', datasetDescription.value);
+    // formData.append('dataset_keywords', datasetKeywords.value);
     formData.append('dataset_name', datasetName.value);    
     formData.append('dataset_category', datasetCategory.value.value);
     formData.append('encrytion', datasetEncrytion.value);
     formData.append('gdpr_checker', gdprChecking.value);
+    formData.append('dataset_keywords',
+        Array.isArray(datasetKeywords.value)
+            ? JSON.stringify(datasetKeywords.value)
+            : JSON.stringify(
+                datasetKeywords.value
+                    .split(',')
+                    .map(k => k.trim())
+                    .filter(k => k.length > 0)
+            )
+);
+alert(formData.get('dataset_keywords') as string);
 
     if (fileUpload.value) {
         formData.append('dataset', fileUpload.value, fileUpload.value.name);
@@ -698,6 +711,8 @@ const runJobConfigurator = async (services: [string]) => {
             throw new Error('No dataset name provided.');
             /* } else if (!datasetDescription.value) {
             throw new Error('No dataset description provided.'); */
+            /* } else if (!datasetKeywords.value) {
+            throw new Error('No dataset keywords provided.'); */
         } else if (!datasetCategory.value) {
             throw new Error(
                 'No category has been selected for the dataset, please select one category.',
@@ -784,7 +799,17 @@ const runJobConfigurator = async (services: [string]) => {
                         class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
                     />
                 </div>
-                <!-- New datasetCategory dropdown -->
+                <div class="rounded-md w-full flex">
+                    <label for="datasetKeywords" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
+                        $t('data.datasetKeywords')
+                    }}</label>
+                    <input
+                        id="datasetKeywords"
+                        v-model="datasetKeywords"
+                        type="text"
+                        class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
+                    />
+                </div>
                 <div class="rounded-md w-full flex">
                     <label for="datasetCategory" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
                         $t('data.datasetCategory')
