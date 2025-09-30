@@ -101,6 +101,7 @@ import { useStore } from '@/components/catalog/dataset-details/data-lineage/stor
 
 // Environment configuration
 const route = useRoute();
+const config = useRuntimeConfig();
 const pistisMode = route.query.pm;
 const backendUrl = route.query.url;
 const isFactory = ref(pistisMode === 'factory');
@@ -114,7 +115,13 @@ const { data: session } = useAuth();
 const store = useStore();
 
 store.setPistisMode(pistisMode);
-store.setBackendUrl(backendUrl);
+
+if (pistisMode === 'factory') {
+    store.setBackendUrl(backendUrl);
+}
+if (pistisMode === 'cloud') {
+    store.setBackendUrl(config.public.cloudUrl.replace(/^https?:\/\//, ''));
+}
 
 const token = session.value?.token;
 // Initialize data fetch
