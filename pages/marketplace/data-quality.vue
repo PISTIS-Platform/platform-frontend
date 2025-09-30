@@ -17,7 +17,7 @@ const fileType = ref('');
 watch(selectedDataset, (newVal) => {
     console.log(newVal);
     const distribution = newVal.distributions?.[0];
-    accessURL.value = distribution.access_url?.[0] || t('quality.selectedDataset.noAccessURL');
+    accessURL.value = distribution.access_url?.[0] || t('data.quality.selectedDataset.noAccessURL');
     const url = new URL(accessURL.value);
     factoryURL.value = `${url.protocol}//${url.host}/`;
     fileType.value = distribution.format.label;
@@ -33,12 +33,12 @@ function getDatasetDisplayTitle(dataset) {
     const dist = dataset.distributions?.[0];
     if (dist?.title?.en) {
         return (
-            (dataset.title?.en || t('quality.selectedDataset.untitled')) +
+            (dataset.title?.en || t('data.quality.selectedDataset.untitled')) +
             ' | ' +
-            (dist.title?.en || t('quality.selectedDataset.noDistribution'))
+            (dist.title?.en || t('data.quality.selectedDataset.noDistribution'))
         );
     }
-    return dataset.id || t('quality.selectedDataset.noDataset');
+    return dataset.id || t('data.quality.selectedDataset.noDataset');
 }
 
 async function loadDatasets() {
@@ -177,13 +177,13 @@ function saveRuleDetails() {
     invalidFields.value = validation.invalidFieldIds;
 
     if (!validation.isValid) {
-        showNotification(t('quality.notifications.invalidRuleDetails'));
+        showNotification(t('data.quality.notifications.invalidRuleDetails'));
         invalidRuleIds.value.add(selectedRule.value.id);
         return;
     }
 
     invalidRuleIds.value.delete(selectedRule.value.id);
-    showNotification(t('quality.notifications.validRuleDetails'));
+    showNotification(t('data.quality.notifications.validRuleDetails'));
 }
 
 function validateRuleFields(rule) {
@@ -251,11 +251,11 @@ const ruleSpecificFields = computed(() => {
 // Export selectedRules to GX structure
 async function exportStagedRules() {
     if (!selectedDataset.value) {
-        showNotification(t('quality.notifications.selectDataset'));
+        showNotification(t('data.quality.notifications.selectDataset'));
         return;
     }
     if (selectedRules.value.length == 0) {
-        showNotification(t('quality.notifications.noRulesSelected'));
+        showNotification(t('data.quality.notifications.noRulesSelected'));
         return;
     }
     // Validate all rules before export
@@ -263,7 +263,7 @@ async function exportStagedRules() {
     invalidRuleIds.value = new Set(invalids.map((r) => r.id));
     console.log(invalidRuleIds);
     if (invalids.length > 0) {
-        showNotification(t('quality.notifications.missingConfigurations'));
+        showNotification(t('data.quality.notifications.missingConfigurations'));
         return;
     }
 
@@ -312,15 +312,15 @@ async function exportStagedRules() {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Server error:', errorText);
-            showNotification(t('quality.notifications.failedQuery'));
+            showNotification(t('data.quality.notifications.failedQuery'));
         } else {
             queryResult.value = await response.json();
             console.log('Server response:', queryResult.value);
-            showNotification(t('quality.notifications.successfulQuery'));
+            showNotification(t('data.quality.notifications.successfulQuery'));
         }
     } catch (error) {
         console.error('Fetch error:', error);
-        showNotification(t('quality.notifications.fetchError'));
+        showNotification(t('data.quality.notifications.fetchError'));
     }
 }
 
@@ -334,13 +334,15 @@ function hasMissingDetails(rule) {
     <div class="w-full mx-auto px-4 py-8 flex flex-col gap-8">
         <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-center border-b border-gray-200 pb-4 mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">{{ t('quality.headers.title') }}</h1>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">{{ t('data.quality.headers.title') }}</h1>
         </header>
         <!-- Dataset Selector -->
         <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <label class="font-semibold text-gray-700 text-sm">{{ t('quality.headers.selectData') }}</label>
+                    <label class="font-semibold text-gray-700 text-sm">{{
+                        t('data.quality.headers.selectData')
+                    }}</label>
                     <select
                         v-model="selectedDataset"
                         class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -356,7 +358,7 @@ function hasMissingDetails(rule) {
                         class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
                         @click="exportStagedRules"
                     >
-                        {{ t('quality.button.sendQuery') }}
+                        {{ t('data.quality.button.sendQuery') }}
                     </button>
                 </div>
             </div>
@@ -388,9 +390,11 @@ function hasMissingDetails(rule) {
             <!-- Available Rules Zone -->
             <section class="flex-1 bg-white rounded-lg shadow p-6 border">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold text-gray-800">{{ t('quality.headers.availableRules') }}</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">{{ t('data.quality.headers.availableRules') }}</h2>
                     <div class="flex items-center gap-2">
-                        <label class="text-sm font-medium text-gray-600">{{ t('quality.headers.dimFilter') }}</label>
+                        <label class="text-sm font-medium text-gray-600">{{
+                            t('data.quality.headers.dimFilter')
+                        }}</label>
                         <select
                             v-model="selectedDimension"
                             class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -442,13 +446,13 @@ function hasMissingDetails(rule) {
                             class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
                             @click="clearAllRules"
                         >
-                            {{ t('quality.button.clearAll') }}
+                            {{ t('data.quality.button.clearAll') }}
                         </button>
                     </div>
                 </div>
                 <div class="min-h-[300px] bg-gray-50 rounded p-3 border border-dashed border-gray-300">
                     <div v-if="selectedRules.length === 0" class="text-gray-400 italic text-center mt-8">
-                        Drag rules here to add them
+                        {{ t('data.quality.placeholder.selectedRules') }}
                     </div>
                     <div
                         v-for="(rule, idx) in selectedRules"
@@ -481,7 +485,9 @@ function hasMissingDetails(rule) {
                 <form @submit.prevent="saveRuleDetails">
                     <!-- Common Fields -->
                     <div class="mb-4">
-                        <label class="block font-semibold text-gray-700 mb-1">Rule Name (Optional)</label>
+                        <label class="block font-semibold text-gray-700 mb-1">{{
+                            t('data.quality.form.ruleName')
+                        }}</label>
                         <input
                             v-model="selectedRule.name"
                             class="border rounded px-3 py-2 w-full"
@@ -489,7 +495,9 @@ function hasMissingDetails(rule) {
                         />
                     </div>
                     <div class="mb-4">
-                        <label class="block font-semibold text-gray-700 mb-1">Description (Optional)</label>
+                        <label class="block font-semibold text-gray-700 mb-1">{{
+                            t('data.quality.form.description')
+                        }}</label>
                         <textarea
                             v-model="selectedRule.description"
                             class="border rounded px-3 py-2 w-full"
@@ -498,7 +506,9 @@ function hasMissingDetails(rule) {
                         ></textarea>
                     </div>
                     <div class="mb-4">
-                        <label class="block font-semibold text-gray-700 mb-1">Violation Tolerance (Optional)</label>
+                        <label class="block font-semibold text-gray-700 mb-1">{{
+                            t('data.quality.form.mostly')
+                        }}</label>
                         <input
                             v-model.number="selectedRule.mostly"
                             type="number"
@@ -568,7 +578,7 @@ function hasMissingDetails(rule) {
 
                             <!-- Validation Message -->
                             <p v-if="invalidFields.has(field.id)" class="text-red-500 text-sm mt-1">
-                                This field is required.
+                                {{ t('data.quality.notifications.validationError') }}
                             </p>
                         </div>
                     </template>
@@ -579,20 +589,20 @@ function hasMissingDetails(rule) {
                             class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 flex-1"
                             @click="saveRuleDetails"
                         >
-                            Save Details
+                            {{ t('data.quality.button.saveDetails') }}
                         </button>
                         <button
                             type="button"
                             class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex-1"
                             @click="removeSelectedRule"
                         >
-                            Remove Rule
+                            {{ t('data.quality.button.removeRule') }}
                         </button>
                     </div>
                 </form>
             </div>
             <div v-else>
-                <p class="text-gray-400">Select a rule from the right zone to edit its details.</p>
+                <p class="text-gray-400">{{ t('data.quality.palceholder.ruleDetails') }}</p>
             </div>
         </section>
 

@@ -348,6 +348,7 @@ export default defineI18nConfig(() => ({
                         failedQuery: 'Failed to send query. See console for details.',
                         successfulQuery: 'Query successfully sent!',
                         fetchError: 'An error occurred while sending the query.',
+                        validationError: 'This field is required.',
                     },
                     headers: {
                         title: 'Data Quality Rules Configuration',
@@ -358,6 +359,17 @@ export default defineI18nConfig(() => ({
                     button: {
                         sendQuery: 'Send Query',
                         clearAll: 'Clear All',
+                        saveDetails: 'Save Details',
+                        removeRule: 'Remove Rule',
+                    },
+                    form: {
+                        ruleName: 'Rule Name (Optional)',
+                        description: 'Description (Optional)',
+                        mostly: 'Violation Tolerance (Optional)',
+                    },
+                    placeholder: {
+                        ruleDetails: 'Select a rule to configure it.',
+                        selectedRules: 'Drag rules here to add them.',
                     },
                 },
 
