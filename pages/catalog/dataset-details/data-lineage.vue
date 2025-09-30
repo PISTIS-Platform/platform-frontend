@@ -277,7 +277,7 @@ body,
 .content-wrapper {
     display: flex;
     flex-direction: column;
-    padding: 16px;
+    padding: 12px 8px; /* Reduced left and right padding from 16px to 8px */
     padding-bottom: 20px; /* Increased bottom padding */
     background: #f9f9f9; /* Light gray background */
     border-radius: 12px;
