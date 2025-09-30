@@ -21,10 +21,6 @@ watch(selectedDataset, (newVal) => {
     factoryURL.value = `${url.protocol}//${url.host}/`;
     fileType.value = distribution.format.label;
     table.value = fileType.value === 'SQL';
-    console.log('factoryURL:', factoryURL.value);
-    console.log('accessURL:', accessURL.value);
-    console.log('fileType:', fileType.value);
-    console.log('table:', table.value);
     queryResult.value = null;
 });
 
@@ -194,7 +190,7 @@ function validateRuleFields(rule) {
     const { specificData } = rule;
     const ruleDef = ruleDetails[rule.ruleTypeId];
 
-    if (!ruleDef ?? !ruleDef.fields) return result;
+    if (!ruleDef || !ruleDef.fields) return result;
 
     ruleDef.fields.forEach((field) => {
         if (!field.required) return;
@@ -203,9 +199,9 @@ function validateRuleFields(rule) {
         const defaultValue = field.default ?? getDefaultForType(field.type);
 
         const isInvalid =
-            (field.type === 'number' && (currentValue === null ?? currentValue === '')) ??
-            (typeof currentValue === 'string' && currentValue.trim() === '') ??
-            (Array.isArray(currentValue) && currentValue.length === 0) ??
+            (field.type === 'number' && (currentValue === null || currentValue === '')) ||
+            (typeof currentValue === 'string' && currentValue.trim() === '') ||
+            (Array.isArray(currentValue) && currentValue.length === 0) ||
             currentValue === defaultValue;
 
         if (isInvalid) {
@@ -254,14 +250,15 @@ async function exportStagedRules() {
         showNotification(t('data.quality.notifications.selectDataset'));
         return;
     }
-    if (selectedRules.value.length == 0) {
+
+    if (selectedRules.value.length === 0) {
         showNotification(t('data.quality.notifications.noRulesSelected'));
         return;
     }
-    // Validate all rules before export
+
     const invalids = selectedRules.value.filter(hasMissingDetails);
     invalidRuleIds.value = new Set(invalids.map((r) => r.id));
-    console.log(invalidRuleIds);
+
     if (invalids.length > 0) {
         showNotification(t('data.quality.notifications.missingConfigurations'));
         return;
@@ -468,7 +465,7 @@ function hasMissingDetails(rule) {
                         ]"
                         @click="selectRule(rule)"
                     >
-                        <div class="font-semibold text-gray-800">{{ rule.name ?? rule.type }}</div>
+                        <div class="font-semibold text-gray-800">{{ rule.name || rule.type }}</div>
                         <div class="text-xs text-gray-500">#{{ idx + 1 }}</div>
                     </div>
                 </div>
