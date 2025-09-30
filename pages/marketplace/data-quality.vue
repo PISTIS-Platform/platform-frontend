@@ -440,7 +440,9 @@ function hasMissingDetails(rule) {
             <!-- Selected Rules Zone -->
             <section class="flex-1 bg-white rounded-lg shadow p-6 border" @dragover.prevent @drop="onDrop">
                 <div class="flex items-center mb-4 justify-between">
-                    <h2 class="text-lg font-semibold text-gray-800">Selected Rules</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">
+                        {{ t('data.quality.headers.selectedRules') }}
+                    </h2>
                     <div class="flex gap-1">
                         <button
                             class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"

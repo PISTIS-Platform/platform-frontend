@@ -355,6 +355,7 @@ export default defineI18nConfig(() => ({
                         selectData: ' Select Dataset:',
                         availableRules: 'Available Quality Rules',
                         dimFilter: 'Filter by Dimensions:',
+                        selectedRules: 'Selected Rules',
                     },
                     button: {
                         sendQuery: 'Send Query',
