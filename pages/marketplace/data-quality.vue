@@ -1,5 +1,4 @@
 <script setup>
-import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { availableRules, ruleDetails } from '~/constants/quality-rules';
