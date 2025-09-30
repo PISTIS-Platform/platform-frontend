@@ -333,6 +333,32 @@ export default defineI18nConfig(() => ({
                 },
                 quality: {
                     query: 'Data Quality Query',
+                    selectDataset: {
+                        untitled: 'Untitled',
+                        noDistribution: 'No Distribution Title',
+                        noDataset: 'Untitled Dataset',
+                        noAccessURL: 'No AccessURL',
+                    },
+                    notifications: {
+                        invalidRuleDetails: 'Please update all required fields before saving.',
+                        validRuleDetails: 'Rule details saved successfully!',
+                        selectDataset: 'Please select a dataset to query.',
+                        noRulesSelected: 'No quality rules selected.',
+                        missingConfigurations: 'Please complete all rule configurations.',
+                        failedQuery: 'Failed to send query. See console for details.',
+                        successfulQuery: 'Query successfully sent!',
+                        fetchError: 'An error occurred while sending the query.',
+                    },
+                    headers: {
+                        title: 'Data Quality Rules Configuration',
+                        selectData: ' Select Dataset:',
+                        availableRules: 'Available Quality Rules',
+                        dimFilter: 'Filter by Dimensions:',
+                    },
+                    button: {
+                        sendQuery: 'Send Query',
+                        clearAll: 'Clear All',
+                    },
                 },
 
                 workflow: {

@@ -1,7 +1,11 @@
 <script setup>
 import { computed, reactive, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { availableRules, ruleDetails } from '~/constants/quality-rules';
+// Import i18n
+const { t } = useI18n();
+
 // --- Dataset loading state ---
 const datasets = ref([]);
 const selectedDataset = ref(datasets.value[0]);
@@ -13,7 +17,7 @@ const fileType = ref('');
 watch(selectedDataset, (newVal) => {
     console.log(newVal);
     const distribution = newVal.distributions?.[0];
-    accessURL.value = distribution.access_url?.[0] || 'No AccessURL';
+    accessURL.value = distribution.access_url?.[0] || t('quality.selectedDataset.noAccessURL');
     const url = new URL(accessURL.value);
     factoryURL.value = `${url.protocol}//${url.host}/`;
     fileType.value = distribution.format.label;
@@ -28,9 +32,13 @@ watch(selectedDataset, (newVal) => {
 function getDatasetDisplayTitle(dataset) {
     const dist = dataset.distributions?.[0];
     if (dist?.title?.en) {
-        return (dataset.title?.en || 'Untitled') + ' | ' + (dist.title?.en || 'No Distribution Title');
+        return (
+            (dataset.title?.en || t('quality.selectedDataset.untitled')) +
+            ' | ' +
+            (dist.title?.en || t('quality.selectedDataset.noDistribution'))
+        );
     }
-    return dataset.id || 'Untitled Dataset';
+    return dataset.id || t('quality.selectedDataset.noDataset');
 }
 
 async function loadDatasets() {
@@ -49,12 +57,6 @@ async function loadDatasets() {
 onMounted(() => {
     loadDatasets();
 });
-
-// // computed to get selected dataset's title
-// const selectedDatasetTitle = computed(() => {
-//   const ds = datasets.value.find((d) => d.id === selectedDatasetId.value);
-//   return ds ? ds.title : '';
-// });
 
 // Dimensions
 const dimensions = ['accuracy', 'consistency', 'completeness', 'uniqueness', 'validity'];
@@ -175,13 +177,13 @@ function saveRuleDetails() {
     invalidFields.value = validation.invalidFieldIds;
 
     if (!validation.isValid) {
-        showNotification('Please update all required fields before saving.');
+        showNotification(t('quality.notifications.invalidRuleDetails'));
         invalidRuleIds.value.add(selectedRule.value.id);
         return;
     }
 
     invalidRuleIds.value.delete(selectedRule.value.id);
-    showNotification('Rule details saved successfully!');
+    showNotification(t('quality.notifications.validRuleDetails'));
 }
 
 function validateRuleFields(rule) {
@@ -249,11 +251,11 @@ const ruleSpecificFields = computed(() => {
 // Export selectedRules to GX structure
 async function exportStagedRules() {
     if (!selectedDataset.value) {
-        showNotification('Please select a dataset to query.');
+        showNotification(t('quality.notifications.selectDataset'));
         return;
     }
     if (selectedRules.value.length == 0) {
-        showNotification('No quality rules selected.');
+        showNotification(t('quality.notifications.noRulesSelected'));
         return;
     }
     // Validate all rules before export
@@ -261,7 +263,7 @@ async function exportStagedRules() {
     invalidRuleIds.value = new Set(invalids.map((r) => r.id));
     console.log(invalidRuleIds);
     if (invalids.length > 0) {
-        showNotification('Please complete all rule configurations.');
+        showNotification(t('quality.notifications.missingConfigurations'));
         return;
     }
 
@@ -310,15 +312,15 @@ async function exportStagedRules() {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Server error:', errorText);
-            showNotification('Failed to send query. See console for details.');
+            showNotification(t('quality.notifications.failedQuery'));
         } else {
             queryResult.value = await response.json();
             console.log('Server response:', queryResult.value);
-            showNotification('Query successfully sent!');
+            showNotification(t('quality.notifications.successfulQuery'));
         }
     } catch (error) {
         console.error('Fetch error:', error);
-        showNotification('An error occurred while sending the query.');
+        showNotification(t('quality.notifications.fetchError'));
     }
 }
 
@@ -332,13 +334,13 @@ function hasMissingDetails(rule) {
     <div class="w-full mx-auto px-4 py-8 flex flex-col gap-8">
         <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-center border-b border-gray-200 pb-4 mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">Data Quality Rules Configuration</h1>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">{{ t('quality.headers.title') }}</h1>
         </header>
         <!-- Dataset Selector -->
         <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <label class="font-semibold text-gray-700 text-sm">Select Dataset:</label>
+                    <label class="font-semibold text-gray-700 text-sm">{{ t('quality.headers.selectData') }}</label>
                     <select
                         v-model="selectedDataset"
                         class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -354,7 +356,7 @@ function hasMissingDetails(rule) {
                         class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
                         @click="exportStagedRules"
                     >
-                        Send Query
+                        {{ t('quality.button.sendQuery') }}
                     </button>
                 </div>
             </div>
@@ -386,9 +388,9 @@ function hasMissingDetails(rule) {
             <!-- Available Rules Zone -->
             <section class="flex-1 bg-white rounded-lg shadow p-6 border">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold text-gray-800">Available Quality Rules</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">{{ t('quality.headers.availableRules') }}</h2>
                     <div class="flex items-center gap-2">
-                        <label class="text-sm font-medium text-gray-600">Filter by Dimension:</label>
+                        <label class="text-sm font-medium text-gray-600">{{ t('quality.headers.dimFilter') }}</label>
                         <select
                             v-model="selectedDimension"
                             class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -440,7 +442,7 @@ function hasMissingDetails(rule) {
                             class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
                             @click="clearAllRules"
                         >
-                            Clear All
+                            {{ t('quality.button.clearAll') }}
                         </button>
                     </div>
                 </div>
