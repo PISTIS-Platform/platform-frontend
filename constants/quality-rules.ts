@@ -1,4 +1,5 @@
 export type Dimension = 'accuracy' | 'consistency' | 'completeness' | 'uniqueness' | 'validity';
+export const dimensions: Dimension[] = ['accuracy', 'consistency', 'completeness', 'uniqueness', 'validity'];
 
 export type Rule = {
     id: string;

@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { availableRules, ruleDetails } from '~/constants/quality-rules';
+import type { Dimension } from '~/constants/quality-rules';
+import { availableRules, dimensions, ruleDetails } from '~/constants/quality-rules';
 // Import i18n
 const { t } = useI18n();
 
@@ -55,9 +56,9 @@ onMounted(() => {
 });
 
 // Dimensions
-const dimensions = ['accuracy', 'consistency', 'completeness', 'uniqueness', 'validity'];
+// const dimensions = ['accuracy', 'consistency', 'completeness', 'uniqueness', 'validity'];
 // State
-const selectedDimension = ref('all');
+const selectedDimension = ref<'all' | Dimension>('all');
 const expandedDimensions = reactive({});
 dimensions.forEach((dim) => (expandedDimensions[dim] = false));
 const selectedRules = ref([]);
