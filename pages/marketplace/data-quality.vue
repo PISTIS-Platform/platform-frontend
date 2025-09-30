@@ -521,7 +521,7 @@ function hasMissingDetails(rule) {
                     </div>
                     <hr class="my-6 border-t border-gray-300" />
                     <!-- Rule Specific Fields -->
-                    <template v-for="field in ruleSpecificFields" :key="field.id">
+                    <div v-for="field in ruleSpecificFields" :key="`field-${field.id}`">
                         <div class="mb-4">
                             <label class="block font-semibold text-gray-700 mb-1">
                                 {{ field.label }}
@@ -585,7 +585,7 @@ function hasMissingDetails(rule) {
                                 {{ t('data.quality.notifications.validationError') }}
                             </p>
                         </div>
-                    </template>
+                    </div>
 
                     <div class="flex gap-4">
                         <button
