@@ -343,6 +343,18 @@ export default defineI18nConfig(() => ({
                     dataset_name: 'Dataset',
                 },
                 designer: {
+                    numberOfResell: 'Number of times the dataset can be resold',
+                    numberOfShare: 'Number of times the dataset can be shared',
+                    duration: {
+                        title: 'Duration',
+                        oneMonth: '1 month',
+                        threeMonths: '3 months',
+                        sixMonths: '6 months',
+                        oneYear: '1 year',
+                        perpetual: 'Perpetual',
+                        perpetualRevocable: 'Perpetual (revocable)',
+                    },
+                    noUseWithBlacklistedDatasets: 'No use with blacklisted datasets',
                     error: {
                         noAssetFound: 'No asset found with this ID. Please select one from the dropdown below.',
                     },
