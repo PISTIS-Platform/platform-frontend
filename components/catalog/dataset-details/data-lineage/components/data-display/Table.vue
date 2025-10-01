@@ -751,25 +751,21 @@ const parseDataEnrichment = (enrichment) => {
 </script>
 
 <style scoped>
-/* Remove alternating row colors and set consistent background for all cells */
 tbody tr td {
-    background-color: #ffffff !important; /* White background for all cells */
-    border-left: 3px solid transparent; /* Consistent transparent border */
-    transition: all 0.15s ease-in-out; /* Consistent transition timing */
+    background-color: #ffffff !important;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease-in-out;
 }
 
-/* Modify hover effect to apply consistently across the entire row */
 tbody tr:hover {
     transform: scale(1.005);
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1) !important; /* Add !important to ensure shadow is always visible */
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1) !important;
     cursor: pointer;
-    z-index: 2 !important; /* Increase z-index to ensure the shadow appears above other elements */
-    position: relative; /* Ensure proper stacking context for the shadow */
+    z-index: 2 !important;
+    position: relative;
 }
 
-/* Ensure the hover effect is not canceled for specific cells */
 tbody tr:hover td {
-    /* Apply z-index to make sure the shadow is visible */
     position: relative;
     z-index: 1;
 }
@@ -799,26 +795,26 @@ tbody tr:hover td {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    table-layout: auto; /* Allow columns to size based on content */
+    table-layout: auto;
 }
 
-/* 📌 Table Header - Less bold styling */
+/* 📌 Table Header */
 thead th {
-    font-weight: 400; /* Reduced from 500 */
-    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; /* Removed Bold variants */
+    font-weight: 400;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     background-color: #5632d0;
     color: #fff;
     text-transform: uppercase;
     cursor: pointer;
-    padding: 12px 10px; /* Reduced from 16px 14px */
+    padding: 12px 10px;
     text-align: left;
     transition: background 0.3s ease;
-    white-space: nowrap; /* Prevent line breaks in headers */
-    border-bottom: 2px solid #4528a0; /* Reduced from 3px */
-    letter-spacing: 0.3px; /* Reduced from 0.5px */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Reduced shadow */
-    text-shadow: none; /* Removed text shadow */
-    font-size: 0.85em; /* Reduced header font size */
+    white-space: nowrap;
+    border-bottom: 2px solid #4528a0;
+    letter-spacing: 0.3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-shadow: none;
+    font-size: 0.85em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -828,14 +824,14 @@ thead th {
     display: flex;
     align-items: center;
     white-space: nowrap;
-    font-size: 0.95em; /* Further reduced for compactness */
+    font-size: 0.95em;
 }
 
 /* Styling for header label */
 .header-label {
-    margin-right: 3px; /* Reduced from 6px */
-    font-weight: 400; /* Changed from 200 to 400 */
-    display: inline-block; /* To ensure proper rendering */
+    margin-right: 3px;
+    font-weight: 400;
+    display: inline-block;
 }
 
 /* Styling for sort icon */
@@ -844,10 +840,8 @@ thead th {
     font-size: 0.9em;
     line-height: 1;
     vertical-align: middle;
-    margin-left: 0px; /* Reduced from 6px */
+    margin-left: 0px;
 }
-
-/* Removed hover effect - no longer needed without resize functionality */
 
 /* Column width specifications */
 .version-column {
@@ -875,12 +869,11 @@ thead th {
     min-width: 140px;
 }
 
-/* Add this new style to preserve newlines */
 .operation-description {
-    white-space: normal; /* Changed from pre-line to work with our new formatting */
+    white-space: normal;
     text-align: left;
     word-break: normal;
-    overflow-wrap: break-word; /* Allow long words to break */
+    overflow-wrap: break-word;
     line-height: 1.4;
 }
 
@@ -888,10 +881,10 @@ thead th {
 td {
     word-break: normal;
     overflow-wrap: break-word;
-    padding: 10px 8px; /* Reduced from 14px 12px */
+    padding: 10px 8px;
     border-bottom: 1px solid #eaeaea;
-    transition: all 0.2s ease; /* Standardized transition timing to match other elements */
-    font-size: 0.9em; /* Reduced font size for better fit */
+    transition: all 0.2s ease;
+    font-size: 0.9em;
 }
 
 /* Special styling for version cell with increased specificity */
@@ -904,20 +897,17 @@ td {
     text-align: center;
     font-size: 1.05em;
     border-left: 3px solid transparent;
-    background-color: #ffffff; /* Removed !important flag to allow highlighted backgrounds */
-    transition: all 0.2s ease; /* Standardized transition timing to 0.2s ease */
+    background-color: #ffffff;
+    transition: all 0.2s ease;
 }
 
-/* Update the hover rule for version column - don't override the row hover effect */
 tbody tr:hover td.version-column {
     background-color: #ffffff;
-    /* Don't override the row's box shadow */
 }
 
-/* Ensure highlighted rows don't change version column background */
 tbody tr.highlighted td.version-column {
-    background-color: #ffe0b2 !important; /* Match the highlighted row orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
+    background-color: #ffe0b2 !important;
+    transition: all 0.2s ease !important;
     border-left: 3px solid transparent !important;
 }
 
@@ -927,20 +917,18 @@ tbody tr.highlighted-parent td.version-column {
     border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
 }
 
-/* Special styling for ID cell - keeping consistent background */
+/* Special styling for ID cell */
 td.id-column {
     font-weight: 500;
     color: #333;
     border-left: 3px solid transparent;
-    transition: all 0.2s ease; /* Standardized transition timing */
-    position: relative; /* For absolute positioning of copy hints */
-    /* background-color is already set globally */
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 td.id-column:hover {
-    border-left: 3px solid transparent; /* Keep transparent border on hover */
-    background-color: #ffffff !important; /* Keep white background on hover */
-    /* Don't override the row's box shadow */
+    border-left: 3px solid transparent;
+    background-color: #ffffff !important;
 }
 
 /* Special styling for username cell */
@@ -948,84 +936,76 @@ td.username-column {
     font-weight: 500;
     color: #333;
     border-left: 3px solid transparent;
-    transition: all 0.2s ease; /* Standardized transition timing */
-    position: relative; /* For absolute positioning of copy hints */
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 td.username-column:hover {
-    border-left: 3px solid transparent; /* Keep transparent border on hover */
-    background-color: #ffffff !important; /* Keep white background on hover */
-    /* Don't override the row's box shadow */
+    border-left: 3px solid transparent;
+    background-color: #ffffff !important;
 }
 
-/* Special styling for timestamp cell - with no visual feedback */
+/* Special styling for timestamp cell */
 td.timestamp-column {
     font-weight: 500;
     color: #333;
-    border-left: 3px solid transparent !important; /* Always maintain transparent border */
-    transition: all 0.2s ease; /* Standardized transition timing */
-    /* background-color is already set globally */
+    border-left: 3px solid transparent !important;
+    transition: all 0.2s ease;
 }
 
 td.timestamp-column:hover {
-    border-left: 3px solid transparent !important; /* Force transparent border on hover */
-    background-color: transparent !important; /* Keep transparent background on hover */
+    border-left: 3px solid transparent !important;
+    background-color: transparent !important;
 }
 
-/* Override the hover highlight for timestamp column */
 td.timestamp-column.copyable-cell:hover {
     background-color: transparent !important;
     border-left: 3px solid transparent !important;
-    /* Remove any other hover styling */
 }
 
-/* Override the copyable-cell styling for timestamp - use default cursor */
 td.timestamp-column.copyable-cell {
-    cursor: default; /* Use default cursor, not pointer */
+    cursor: default;
 }
 
 /* Override timestamp column when in copied state */
 td.timestamp-column.copied,
 td.timestamp-column.timestamp-copied {
-    animation: none !important; /* Disable pulse animation */
-    background-color: transparent !important; /* Keep transparent background */
-    border-left: 3px solid transparent !important; /* Keep transparent border */
+    animation: none !important;
+    background-color: transparent !important;
+    border-left: 3px solid transparent !important;
 }
 
 /* Special style for timestamp copy indicator */
 .timestamp-indicator {
-    background-color: rgba(86, 50, 208, 0.9) !important; /* Slightly more transparent */
-    top: -40px !important; /* Position it a bit higher */
+    background-color: rgba(86, 50, 208, 0.9) !important;
+    top: -40px !important;
     font-size: 12px !important;
 }
 
 /* Base styles for all table cells */
 .table td {
-    border-left: 3px solid transparent; /* Consistent transparent border for all cells */
+    border-left: 3px solid transparent;
 }
 
-/* Update highlighting styles to restore orange background */
 tbody tr.highlighted td {
-    background-color: #ffe0b2 !important; /* Orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #ffe0b2 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
 tbody tr.highlighted-parent td {
-    background-color: #fff3e0 !important; /* Light orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #fff3e0 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
-/* Update highlighted-red style to use orange instead of red */
 tbody tr.highlighted-red td {
-    background-color: #ffe0b2 !important; /* Orange background (changed from red #ff6b6b) */
-    color: #333 !important; /* Black text for better contrast (changed from white) */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #ffe0b2 !important;
+    color: #333 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
-/* Add no-results styling */
 .no-results {
     text-align: center;
     padding: 20px;
@@ -1035,11 +1015,10 @@ tbody tr.highlighted-red td {
     border-radius: 4px;
 }
 
-/* Updated copy cell styling for better affordance */
 .copyable-cell {
-    user-select: none; /* Prevent text selection on click */
-    position: relative; /* For positioning the copy indicator */
-    transition: all 0.15s ease-in-out; /* Match transition with row highlights */
+    user-select: none;
+    position: relative;
+    transition: all 0.15s ease-in-out;
 }
 
 /* Only show pointer cursor for ID and username columns */
@@ -1057,22 +1036,21 @@ tbody tr.highlighted-red td {
 /* Override specific hover styles for ID, username and timestamp columns */
 td.id-column:hover,
 td.username-column:hover {
-    border-left: 3px solid transparent; /* Keep transparent border on hover */
-    background-color: #ffffff !important; /* Keep white background on hover */
-    /* DO NOT add position or z-index that would create a new stacking context */
+    border-left: 3px solid transparent;
+    background-color: #ffffff !important;
 }
 
 td.timestamp-column:hover {
-    border-left: 3px solid transparent !important; /* Force transparent border on hover */
-    background-color: transparent !important; /* Keep transparent background on hover */
+    border-left: 3px solid transparent !important;
+    background-color: transparent !important;
 }
 
 /* Ensure highlighted rows take precedence over hover states */
 tbody tr.highlighted td.copyable-cell:hover,
 tbody tr.highlighted-parent td.copyable-cell:hover,
 tbody tr.highlighted-red td.copyable-cell:hover {
-    background-color: inherit !important; /* Inherit the row's background color */
-    border-left: 3px solid transparent !important; /* Use transparent border instead of none */
+    background-color: inherit !important;
+    border-left: 3px solid transparent !important;
 }
 
 /* Copy content layout */
@@ -1084,7 +1062,7 @@ tbody tr.highlighted-red td.copyable-cell:hover {
 
 .cell-text {
     flex: 1;
-    min-width: 0; /* Allow text truncation */
+    min-width: 0;
 }
 
 /* Copy hint tooltip that shows on hover */
@@ -1127,9 +1105,9 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     display: none !important;
 }
 
-/* Copy success hint - shows in the same position as copy-hint */
+/* Copy success hint */
 .copy-success-hint {
-    display: flex !important; /* Force display */
+    display: flex !important;
     align-items: center;
     gap: 2px;
     padding: 2px 5px;
@@ -1145,7 +1123,7 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     top: 3px;
     right: 3px;
     animation: successPulse 0.4s ease-out;
-    z-index: 100; /* Increased from 5 to ensure visibility */
+    z-index: 100;
 }
 
 /* Animation for the copy hint */
@@ -1190,7 +1168,7 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     font-weight: 500;
     pointer-events: none;
     z-index: 10;
-    white-space: nowrap; /* Prevent text wrapping */
+    white-space: nowrap;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     animation: fadeInDown 0.3s ease-out;
     letter-spacing: 0.3px;
@@ -1220,16 +1198,14 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     }
 }
 
-/* Ensure all columns display properly */
 .table th {
-    overflow: visible; /* Allow header text to be fully visible */
+    overflow: visible;
 }
 
 .table td {
-    overflow: visible; /* Allow cell text to be fully visible */
+    overflow: visible;
 }
 
-/* Add enhanced styling for operation descriptions */
 .activity-content {
     display: flex;
     flex-direction: column;
@@ -1241,7 +1217,7 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     color: #333;
     margin-bottom: 4px;
     font-size: 1em;
-    text-transform: uppercase; /* Keep uppercase for CREATE, UPDATE, DELETE */
+    text-transform: uppercase;
     letter-spacing: normal;
 }
 
@@ -1280,7 +1256,6 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     position: relative;
 }
 
-/* Default bullet styling - only for transformations */
 .section-item:has(.item-transformation)::before {
     content: '•';
     position: absolute;
@@ -1289,12 +1264,10 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     font-size: 14px;
 }
 
-/* Remove bullet for items with custom symbols */
 .section-item:has(.item-added, .item-removed, .item-renamed, .item-enrichment, .item-modified)::before {
     content: none;
 }
 
-/* Custom symbols */
 .item-added::before {
     content: '+';
     position: absolute;
@@ -1358,7 +1331,6 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     position: relative;
 }
 
-/* Ensure text color matches symbol color for data changes */
 .section-item .item-added,
 .section-item .item-removed,
 .section-item .item-renamed,
@@ -1384,24 +1356,23 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     color: #333333;
 }
 
-/* Override version column style to ensure it gets highlighted at the same time */
 tbody tr.highlighted td.version-column {
-    background-color: #ffe0b2 !important; /* Match the highlighted row orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #ffe0b2 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
 tbody tr.highlighted-parent td.version-column {
-    background-color: #fff3e0 !important; /* Match the highlighted parent row light orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #fff3e0 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
 tbody tr.highlighted-red td.version-column {
-    background-color: #ffe0b2 !important; /* Match the highlighted row orange background (changed from red) */
-    color: #333 !important; /* Black text for better contrast (changed from white) */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #ffe0b2 !important;
+    color: #333 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
 /* Styling for "No changes" message */
@@ -1456,11 +1427,10 @@ tbody tr.highlighted-red td.version-column {
     padding-left: 8px;
 }
 
-/* New styles for activity column with enhanced details */
 .activity-with-details {
     display: flex;
     flex-direction: column;
-    gap: 6px; /* Increased from 4px */
+    gap: 6px;
 }
 
 .activity-type {
@@ -1501,7 +1471,7 @@ tbody tr.highlighted-red td.version-column {
 }
 
 .detail-intro {
-    color: #444444; /* Changed from #666666 to a darker gray */
+    color: #444444;
     font-size: 0.95em;
     line-height: 1.5;
     margin-bottom: 12px;
@@ -1520,11 +1490,10 @@ tbody tr.highlighted-red td.version-column {
     border-bottom: 2px solid rgba(86, 50, 208, 0.2);
 }
 
-/* Column width adjustment for activity column to accommodate more content */
 .operation-column {
     width: 46%;
-    min-width: max(300px, fit-content); /* Ensure it's at least as wide as the header */
-    max-width: none; /* Allow column to grow wider if needed */
+    min-width: max(300px, fit-content);
+    max-width: none;
 }
 
 /* Ensure operation-description column is removed from view */
@@ -1545,9 +1514,8 @@ tbody tr.highlighted-red .detail-item {
     background-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Adjust spacing in operation column to better display details */
 td.operation-column {
-    padding: 10px 12px; /* Reduced from 16px 18px */
+    padding: 10px 12px;
 }
 
 /* Update detail label styling */

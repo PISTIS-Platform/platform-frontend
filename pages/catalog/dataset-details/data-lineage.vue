@@ -277,16 +277,16 @@ body,
 .content-wrapper {
     display: flex;
     flex-direction: column;
-    padding: 12px 8px; /* Reduced left and right padding from 16px to 8px */
-    padding-bottom: 20px; /* Increased bottom padding */
+    padding: 12px 8px;
+    padding-bottom: 20px;
     background: #f9f9f9; /* Light gray background */
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     margin-top: 0px;
-    height: auto; /* Allow natural height based on content */
+    height: auto;
     min-height: 600px;
-    flex: 0 0 auto; /* Don't stretch to fill available space */
-    overflow: visible; /* Ensure sticky elements can overflow */
+    flex: 0 0 auto;
+    overflow: visible;
 }
 
 /* ========================================
@@ -435,10 +435,10 @@ body,
     grid-column: 1;
     min-width: 0;
     width: 100%;
-    max-width: 350px; /* Add maximum width for tree column */
-    display: flex; /* Ensure flex display for proper sizing */
-    position: relative; /* Needed for sticky positioning */
-    --sticky-top: 20px; /* Initialize custom property */
+    max-width: 350px;
+    display: flex;
+    position: relative;
+    --sticky-top: 20px;
 }
 
 .table-column {
@@ -476,13 +476,13 @@ body,
 /* Add sticky tree column container */
 .tree-column .component-container {
     overflow: hidden; /* Prevent tree from overflowing */
-    padding: 10px; /* Less padding to maximize tree space */
-    height: 500px; /* Set a fixed height for the tree container */
+    padding: 10px;
+    height: 500px;
     min-height: 500px; /* Ensure minimum height */
     max-height: 500px; /* Ensure maximum height */
-    display: flex; /* Use flexbox to ensure proper sizing */
-    flex-direction: column; /* Stack children vertically */
-    position: sticky; /* Make the tree sticky */
+    display: flex;
+    flex-direction: column;
+    position: sticky;
     top: var(--sticky-top, 20px); /* Use custom property with fallback */
     z-index: 1; /* Ensure the tree stays above other content */
 }
@@ -490,12 +490,12 @@ body,
 /* Add specific styles for table container */
 .table-column .component-container {
     overflow: auto; /* Allow scrolling if needed */
-    padding: 20px; /* More comfortable padding for table */
+    padding: 20px;
 }
 
 /* Ensure the tree component fills the container */
 .tree-column .component-container .tree-container {
-    flex: 1; /* Take all available space */
+    flex: 1;
     display: flex;
     flex-direction: column;
 }
@@ -504,9 +504,9 @@ body,
 .chart-wrapper {
     width: 100%;
     height: 100%;
-    overflow: hidden; /* Change from visible to hidden */
+    overflow: hidden;
     position: relative;
-    flex: 1; /* Take remaining space */
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -517,7 +517,7 @@ body,
 .Treant {
     width: 100% !important;
     height: auto !important;
-    max-height: 100% !important; /* Add max-height constraint */
+    max-height: 100% !important;
     transform-origin: top left;
     position: relative;
 }
