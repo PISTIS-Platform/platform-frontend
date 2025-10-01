@@ -5,7 +5,7 @@
         </div>
 
         <div class="content-wrapper tab-content-container">
-            <!-- Tab Headers - Data Integrity tab hidden in cloud mode -->
+            <!-- Tab Headers -->
             <div class="tab-header">
                 <button
                     :class="`tab-btn ${store.displayState === 'tracker' ? 'active' : ''}`"
@@ -20,7 +20,6 @@
                     <span class="tab-icon">🕒</span> Compare Versions
                 </button>
                 <button
-                    v-if="isFactory"
                     :class="`tab-btn ${store.displayState === 'integrity' ? 'active' : ''}`"
                     @click="setDisplayState('integrity')"
                 >
@@ -78,7 +77,7 @@
                             :selected-diff="store.selectedDiff"
                         />
                         <Compare v-if="store.displayState === 'diff'" :cloud-mode="!isFactory" />
-                        <DataIntegrity v-if="store.displayState === 'integrity' && isFactory" :lineage-id="lineageID" />
+                        <DataIntegrity v-if="store.displayState === 'integrity'" :lineage-id="lineageID" />
                     </div>
                 </div>
             </div>
@@ -93,6 +92,7 @@ import { useRoute } from 'vue-router';
 import Compare from '@/components/catalog/dataset-details/data-lineage/components/compare/Compare.vue';
 import CustomTreeComponent from '@/components/catalog/dataset-details/data-lineage/components/data-display/CustomTreeComponent.vue';
 import Table from '@/components/catalog/dataset-details/data-lineage/components/data-display/Table.vue';
+import DataIntegrity from '@/components/catalog/dataset-details/data-lineage/components/integrity/DataIntegrity.vue';
 import { useStore } from '@/components/catalog/dataset-details/data-lineage/stores/store';
 
 // ========================================
