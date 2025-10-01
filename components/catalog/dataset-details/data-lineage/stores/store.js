@@ -141,13 +141,11 @@ export const useStore = defineStore('store', () => {
         }
 
         try {
-            const isCloud = pistisMode.value === 'cloud';
             const url = `${backendUrl.value}/srv/lineage-tracker/get_dataset_family_tree`;
 
             const response = await axios.get(url, {
                 params: {
                     uuid: lineageID,
-                    is_cloud: isCloud,
                 },
                 headers: {
                     Authorization: `Bearer ${token}`,

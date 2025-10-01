@@ -140,16 +140,9 @@ const hashesMatch = computed(() => {
 // INTEGRITY VERIFICATION METHODS
 // ========================================
 
-const route = useRoute();
-const pistisMode = route.query.pm;
-
 const nuxtConfig = useRuntimeConfig();
-let backendUrl = '';
-if (pistisMode === 'factory') {
-    backendUrl = nuxtConfig.public.factoryUrl;
-} else {
-    backendUrl = nuxtConfig.public.cloudUrl;
-}
+// Always use factory URL for blockchain hash, even in cloud mode
+const backendUrl = nuxtConfig.public.factoryUrl;
 
 const { data: session } = useAuth();
 
@@ -290,13 +283,15 @@ onMounted(() => {
     width: 100%;
     gap: 24px;
     overflow-y: auto;
+    padding: 0;
 }
 
 .integrity-section {
     background: #ffffff;
     border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .integrity-section h3 {
@@ -343,17 +338,19 @@ onMounted(() => {
     background: #5632d0;
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(86, 50, 208, 0.2);
 }
 
 .use-button:hover {
     background: #4527b0;
     transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(86, 50, 208, 0.3);
 }
 
 /* Hash Verification Styles */
@@ -367,8 +364,14 @@ onMounted(() => {
 .hash-card {
     border: 1px solid #e9ecef;
     border-radius: 8px;
-    padding: 16px;
+    padding: 20px;
     background: #f8f9fa;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease;
+}
+
+.hash-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .hash-card h4 {
@@ -389,8 +392,8 @@ onMounted(() => {
 .loading-spinner {
     width: 20px;
     height: 20px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #5632d0;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #5632d0;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -442,14 +445,19 @@ onMounted(() => {
     background: #dc3545;
     color: white;
     border: none;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
 .retry-button:hover {
     background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
 .json-input {
@@ -475,18 +483,20 @@ onMounted(() => {
     background: #28a745;
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     transition: all 0.2s ease;
     width: 100%;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
 }
 
 .compute-button:hover:not(:disabled) {
     background: #218838;
     transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
 }
 
 .compute-button:disabled {
@@ -498,9 +508,6 @@ onMounted(() => {
 /* Comparison Result Styles */
 .comparison-result {
     margin-top: 20px;
-    padding: 16px;
-    border-radius: 8px;
-    text-align: center;
 }
 
 .comparison-status {
@@ -510,22 +517,20 @@ onMounted(() => {
     gap: 12px;
     font-size: 16px;
     font-weight: 600;
+    border-radius: 8px;
+    padding: 16px 20px;
 }
 
 .comparison-status.match {
-    color: #28a745;
+    color: #155724;
     background: #d4edda;
     border: 1px solid #c3e6cb;
-    border-radius: 8px;
-    padding: 16px;
 }
 
 .comparison-status.no-match {
-    color: #dc3545;
+    color: #721c24;
     background: #f8d7da;
     border: 1px solid #f5c6cb;
-    border-radius: 8px;
-    padding: 16px;
 }
 
 .status-icon {
