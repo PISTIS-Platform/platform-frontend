@@ -9,7 +9,7 @@ const { t } = useI18n();
 // --- Dataset loading state ---
 const datasets = ref([]);
 const selectedDataset = ref(datasets.value[0]);
-const factoryURL = ref('');
+const ownerFactoryURL = ref('');
 const accessURL = ref('');
 const table = ref(false);
 const fileType = ref('');
@@ -19,7 +19,7 @@ watch(selectedDataset, (newVal) => {
     const distribution = newVal.distributions?.[0];
     accessURL.value = distribution.access_url?.[0] ?? t('data.quality.selectedDataset.noAccessURL');
     const url = new URL(accessURL.value);
-    factoryURL.value = `${url.protocol}//${url.host}/`;
+    ownerFactoryURL.value = `${url.protocol}//${url.host}/`;
     fileType.value = distribution.format.label;
     table.value = fileType.value === 'SQL';
     queryResult.value = null;
@@ -297,7 +297,7 @@ async function exportStagedRules() {
     const jsonString = JSON.stringify(dataQueryPayload, null, 2);
     console.log('Exported Rules JSON:', jsonString);
 
-    const endpoint = `${factoryURL.value}srv/data-quality-assessor/api/dqa/query/`;
+    const endpoint = `${ownerFactoryURL.value}srv/data-quality-assessor/api/dqa/query/`;
 
     try {
         const { data, error, status } = await useFetch(endpoint, {
