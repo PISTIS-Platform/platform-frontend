@@ -104,6 +104,7 @@ const route = useRoute();
 const config = useRuntimeConfig();
 const pistisMode = route.query.pm;
 const backendUrl = route.query.url;
+const datasetFactoryUrl = route.query.url; // URL parameter for dataset factory
 const isFactory = ref(pistisMode === 'factory');
 
 // Route and store setup
@@ -122,6 +123,9 @@ if (pistisMode === 'factory') {
 if (pistisMode === 'cloud') {
     store.setBackendUrl(config.public.cloudUrl.replace(/^https?:\/\//, ''));
 }
+
+// Set dataset factory URL for limited diff endpoint in cloud mode
+store.setDatasetFactoryUrl(datasetFactoryUrl);
 
 const token = session.value?.token;
 // Initialize data fetch

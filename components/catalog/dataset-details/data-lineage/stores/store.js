@@ -6,6 +6,7 @@ import mockData from './mock-lineage.json';
 
 const pistisMode = ref('');
 const backendUrl = ref('');
+const datasetFactoryUrl = ref('');
 
 const setPistisMode = (mode) => {
     pistisMode.value = mode;
@@ -13,6 +14,10 @@ const setPistisMode = (mode) => {
 
 const setBackendUrl = (url) => {
     backendUrl.value = 'https://' + url;
+};
+
+const setDatasetFactoryUrl = (url) => {
+    datasetFactoryUrl.value = url ? 'https://' + url : '';
 };
 
 export const useStore = defineStore('store', () => {
@@ -99,27 +104,43 @@ export const useStore = defineStore('store', () => {
         const token = session.value?.token;
 
         try {
-            const url = `${backendUrl.value}/srv/lineage-tracker/get_datasets_diff`;
             const isCloud = pistisMode.value === 'cloud';
 
-            const response = await axios.get(url, {
-                params: {
-                    uuid_1: id1,
-                    uuid_2: id2,
-                    is_cloud: isCloud,
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                },
-            });
+            // Use different endpoint and URL for cloud mode
+            let url, requestConfig;
+            if (isCloud) {
+                // Cloud mode: use dataset factory URL with limited diff endpoint (no authentication required)
+                url = `${datasetFactoryUrl.value}/srv/lineage-tracker/get_datasets_diff_limit`;
+                requestConfig = {
+                    params: {
+                        uuid_1: id1,
+                        uuid_2: id2,
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                };
+            } else {
+                // Factory mode: use backend URL with full diff endpoint (requires authentication)
+                url = `${backendUrl.value}/srv/lineage-tracker/get_datasets_diff`;
+                requestConfig = {
+                    params: {
+                        uuid_1: id1,
+                        uuid_2: id2,
+                        is_cloud: false,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                };
+            }
+
+            const response = await axios.get(url, requestConfig);
 
             diffData.value = response.data;
-
-            // working with mockdata
-            // const response = mockCompare;
-            // diffData.value = response;
 
             if (import.meta.env.DEV) {
                 console.log('Dataset comparison data received:', diffData.value);
@@ -320,6 +341,7 @@ export const useStore = defineStore('store', () => {
         selectTableFilter,
         loadMockData,
         setBackendUrl,
+        setDatasetFactoryUrl,
 
         // Utilities (exposed for components that need them)
         capitalizeFirstLetter,
