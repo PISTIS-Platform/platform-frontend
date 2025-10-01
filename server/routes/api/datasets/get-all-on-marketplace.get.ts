@@ -15,15 +15,24 @@ export default defineEventHandler(async (event) => {
         is_free: query?.nonFree ? [false] : [],
     };
 
-    const results: any = await $fetch(
-        `${cloudUrl}/srv/search/search?filters=dataset&facets=${encodeURIComponent(JSON.stringify(facets))}`,
-        {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token?.access_token}`,
-            },
-        },
-    );
+    let page = 0;
+    let innerResult: any;
+    let outerResults: Record<string, any>[] = [];
 
-    return results.result.results;
+    do {
+        innerResult = await $fetch<Record<string, any>>(
+            `${cloudUrl}/srv/search/search?page=${page}&limit=1000&filters=dataset&facets=${encodeURIComponent(JSON.stringify(facets))}`,
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token?.access_token}`,
+                },
+            },
+        );
+        page++;
+        innerResult = innerResult?.result?.results;
+        outerResults = outerResults.concat(innerResult);
+    } while (innerResult?.length);
+
+    return outerResults;
 });
