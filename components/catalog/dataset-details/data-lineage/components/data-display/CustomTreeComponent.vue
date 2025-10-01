@@ -12,8 +12,14 @@
         </div>
 
         <div v-if="loading" class="tree-loading">Loading tree...</div>
-        <div v-else class="custom-tree-wrapper" @wheel.prevent="handleZoom" @mousedown="startPan">
-            <div ref="treeElement" class="custom-tree" :style="treeTransformStyle">
+        <div
+            v-else
+            class="custom-tree-wrapper"
+            :class="{ 'is-hidden': !isPrimed }"
+            @wheel.prevent="handleZoom"
+            @mousedown="startPan"
+        >
+            <div ref="treeElement" class="custom-tree" :class="{ 'no-anim': !isPrimed }" :style="treeTransformStyle">
                 <svg ref="treeConnections" class="tree-connections" width="100%" height="100%">
                     <g class="connector-lines"></g>
                 </svg>
@@ -100,6 +106,7 @@ const treeElement = ref(null);
 
 // Loading State
 const loading = ref(true);
+const isPrimed = ref(false); // Controls visibility during initial layout to prevent visual jump
 
 // Zoom and Pan State
 const zoomLevel = ref(1.0);
@@ -117,6 +124,7 @@ const hoveredNode = ref(null);
 const parentNodes = ref([]);
 const nodePositions = ref({});
 const nodePositionsMemo = ref({});
+const treePixelWidth = ref(0); // Calculated width of tree based on node layout
 
 // Tooltip State
 const restrictedTooltip = ref({
@@ -291,7 +299,7 @@ const compareVersions = (a, b) => {
 // POSITION CALCULATION FUNCTIONS
 // ========================================
 
-// Calculate node positions based on their level and index within that level
+// Calculate positions for all nodes in the tree
 const calculateNodePositions = () => {
     if (!treeLevels.value || treeLevels.value.length === 0) return;
 
@@ -299,12 +307,16 @@ const calculateNodePositions = () => {
     sortChildrenByVersion(nodeChildrenMap, nodeMap);
 
     const rootNodes = getRootNodesForPositioning(nodeMap);
-    const subtreeWidths = calculateSubtreeWidths(nodeChildrenMap);
-    const positions = positionAllNodes(nodeMap, nodeChildrenMap, rootNodes, subtreeWidths);
 
-    // Store calculated positions
+    // Use leaf-based column layout for consistent spacing
+    const leafCounts = computeLeafCounts(nodeChildrenMap);
+    const { positions, totalWidthPx } = positionAllNodesLeafColumns(nodeMap, nodeChildrenMap, rootNodes, leafCounts);
+
     nodePositions.value = positions;
     nodePositionsMemo.value = { ...positions };
+
+    // Set tree width based on actual content plus padding
+    treePixelWidth.value = Math.max(totalWidthPx + 100, treeContainer.value?.offsetWidth || 0);
 };
 
 // Build maps for positioning calculations
@@ -347,79 +359,180 @@ const getRootNodesForPositioning = (_nodeMap) => {
     return rootNodes;
 };
 
-// Calculate subtree widths for layout
-const calculateSubtreeWidths = (nodeChildrenMap) => {
-    const subtreeWidths = {};
+// Compute leaf counts for each subtree to determine layout width
+const computeLeafCounts = (nodeChildrenMap) => {
+    const leafCounts = {};
 
-    const calculateWidth = (nodeId) => {
-        if (subtreeWidths[nodeId]) return subtreeWidths[nodeId];
-
-        const children = nodeChildrenMap[nodeId] || [];
-
-        if (children.length === 0) {
-            subtreeWidths[nodeId] = 1.5;
-            return 1.5;
+    const dfs = (id) => {
+        const kids = nodeChildrenMap[id] || [];
+        if (kids.length === 0) {
+            leafCounts[id] = 1; // Leaf node occupies one column
+            return 1;
         }
-
-        let width = 0;
-        for (const childId of children) {
-            width += calculateWidth(childId);
-        }
-
-        subtreeWidths[nodeId] = Math.max(width, 1.5);
-        return subtreeWidths[nodeId];
+        let total = 0;
+        for (const c of kids) total += dfs(c);
+        leafCounts[id] = total;
+        return total;
     };
 
-    // Calculate widths for all nodes
-    Object.keys(nodeChildrenMap).forEach((nodeId) => calculateWidth(nodeId));
-
-    return subtreeWidths;
-};
-
-// Position all nodes based on their subtree widths
-const positionAllNodes = (_nodeMap, nodeChildrenMap, rootNodes, subtreeWidths) => {
-    const positions = {};
-
-    const positionNode = (nodeId, level, startPos, totalWidth) => {
-        const children = nodeChildrenMap[nodeId] || [];
-
-        positions[nodeId] = {
-            x: startPos + totalWidth / 2,
-            y: level,
-            levelIndex: level,
-            nodeIndex: startPos,
-        };
-
-        if (children.length > 0) {
-            let currentPos = startPos;
-            for (const childId of children) {
-                const childWidth = subtreeWidths[childId];
-                positionNode(childId, level + 1, currentPos, childWidth);
-                currentPos += childWidth;
-            }
-        }
-    };
-
-    // Position all root nodes and their subtrees
-    let currentPos = 0;
-    for (const rootNode of rootNodes) {
-        const width = subtreeWidths[rootNode.id];
-        positionNode(rootNode.id, 0, currentPos, width);
-        currentPos += width;
-    }
-
-    // Normalize positions to 0-1 range
-    const totalWidth = currentPos;
-    Object.keys(positions).forEach((nodeId) => {
-        positions[nodeId].x = positions[nodeId].x / Math.max(totalWidth, 1);
+    // Ensure all nodes are processed
+    Object.keys(nodeChildrenMap).forEach((id) => {
+        if (leafCounts[id] == null) dfs(id);
     });
 
-    return positions;
+    return leafCounts;
+};
+
+// Position all nodes using pixel-based leaf column layout
+const positionAllNodesLeafColumns = (nodeMap, nodeChildrenMap, rootNodes, leafCounts) => {
+    const positions = {};
+
+    // Layout constants
+    const COL_W = 60; // Width allocated per leaf column in pixels
+    const ROOT_GUTTER = 40; // Horizontal spacing between separate lineages
+
+    let currentX = 0; // Tracks horizontal position for placing root lineages
+
+    // Recursively position a subtree within its allocated column range
+    const place = (id, level, startCol, endCol) => {
+        const midCol = (startCol + endCol - 1) / 2;
+        positions[id] = {
+            x: midCol * COL_W, // Horizontal position in pixels
+            y: level, // Vertical level (converted to pixels in style)
+            levelIndex: level,
+            nodeIndex: startCol,
+        };
+
+        const kids = nodeChildrenMap[id] || [];
+        if (kids.length === 0) return;
+
+        // Distribute column range among children based on their subtree widths
+        let col = startCol;
+        for (const c of kids) {
+            const span = leafCounts[c];
+            place(c, level + 1, col, col + span);
+            col += span;
+        }
+    };
+
+    // Position each root lineage sequentially from left to right
+    for (let r = 0; r < rootNodes.length; r++) {
+        const root = rootNodes[r];
+        const span = leafCounts[root.id];
+        const startCol = currentX / COL_W;
+        const endCol = startCol + span;
+
+        place(root.id, 0, startCol, endCol);
+
+        // Advance position for next root, adding gutter between lineages
+        currentX += span * COL_W + (r < rootNodes.length - 1 ? ROOT_GUTTER : 0);
+    }
+
+    const totalWidthPx = currentX;
+    return { positions, totalWidthPx };
 };
 
 // ========================================
 // ZOOM AND PAN FUNCTIONS
 // ========================================
+
+// Find DOM elements for all root nodes
+const getRootNodeEls = () => {
+    const roots = processedData.value.filter((n) => !n.derived_from).sort(compareVersions);
+    const els = [];
+    roots.forEach((r) => {
+        const el = treeElement.value?.querySelector(`.tree-node-container[data-node-id="${r.id}"]`);
+        if (el) els.push(el);
+    });
+    return els;
+};
+
+// Center root nodes horizontally and position them near the top of the viewport
+const centerRootAtTop = async ({ zoom = 1, top = 70 } = {}) => {
+    console.log('centerRootAtTop called', {
+        zoom,
+        top,
+        hasContainer: !!treeContainer.value,
+        hasElement: !!treeElement.value,
+    });
+
+    if (!treeContainer.value || !treeElement.value) {
+        console.warn('Missing container or element in centerRootAtTop');
+        return;
+    }
+
+    // Set initial zoom and reset pan for accurate DOM measurements
+    zoomLevel.value = Math.min(Math.max(zoom, ZOOM_LIMITS.min), ZOOM_LIMITS.max);
+    lastZoomLevel.value = zoomLevel.value;
+    panX.value = 0;
+    panY.value = 0;
+    updateSVGTransform();
+
+    // Wait for DOM to update with new transform
+    await nextTick();
+    await new Promise(requestAnimationFrame);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const wrapper = treeContainer.value.querySelector('.custom-tree-wrapper');
+    if (!wrapper) {
+        console.warn('Wrapper not found for centering');
+        return;
+    }
+    const wRect = wrapper.getBoundingClientRect();
+
+    const rootEls = getRootNodeEls();
+    if (rootEls.length === 0) {
+        console.warn(
+            'No root elements found for centering. Available nodes:',
+            treeElement.value?.querySelectorAll('.tree-node-container').length,
+        );
+        console.warn(
+            'Looking for roots:',
+            processedData.value.filter((n) => !n.derived_from).map((n) => n.id),
+        );
+        return;
+    }
+
+    // Measure horizontal center of all root nodes
+    const centersX = rootEls.map((el) => {
+        const r = el.getBoundingClientRect();
+        return r.left + r.width / 2;
+    });
+    const bandMin = Math.min(...centersX);
+    const bandMax = Math.max(...centersX);
+    const bandCenterX = (bandMin + bandMax) / 2;
+
+    // Measure vertical center of first root node
+    const r0 = rootEls[0].getBoundingClientRect();
+    const rootCenterY = r0.top + r0.height / 2;
+
+    // Calculate desired positions
+    const desiredCenterX = wRect.left + wRect.width / 2;
+    const desiredCenterY = wRect.top + top;
+
+    // Calculate pan adjustments needed (in screen pixels)
+    const dx = desiredCenterX - bandCenterX;
+    const dy = desiredCenterY - rootCenterY;
+
+    if (import.meta.env.DEV) {
+        console.log('Root centering debug:', {
+            rootElsCount: rootEls.length,
+            bandCenterX,
+            rootCenterY,
+            desiredCenterX,
+            desiredCenterY,
+            dx,
+            dy,
+            wRect: { left: wRect.left, width: wRect.width },
+            r0: r0,
+        });
+    }
+
+    panX.value += dx;
+    panY.value += dy;
+
+    updateSVGTransform();
+};
 
 // Zoom in while maintaining center focus
 const zoomIn = () => {
@@ -433,334 +546,48 @@ const zoomOut = () => {
     performZoom(newZoom);
 };
 
-// Perform zoom operation with center focus
+// Zoom while keeping the viewport center fixed
 const performZoom = (newZoom) => {
     if (!treeElement.value || newZoom === zoomLevel.value) return;
 
-    const oldZoom = zoomLevel.value;
+    const z0 = zoomLevel.value;
+    const z1 = Math.min(Math.max(newZoom, ZOOM_LIMITS.min), ZOOM_LIMITS.max);
 
-    // Add transforming class for performance
     treeElement.value.classList.add('transforming');
 
-    // Get viewport center
-    const treeWrapper = treeContainer.value.querySelector('.custom-tree-wrapper');
-    const wrapperRect = treeWrapper.getBoundingClientRect();
-    const viewportCenterX = wrapperRect.width / 2;
-    const viewportCenterY = wrapperRect.height / 2;
+    const wrapper = treeContainer.value.querySelector('.custom-tree-wrapper');
+    const rect = wrapper.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
 
-    // Calculate tree center point
-    const treeCenterX = viewportCenterX / oldZoom - panX.value;
-    const treeCenterY = viewportCenterY / oldZoom - panY.value;
+    // Calculate world coordinates of current viewport center
+    const wx = (cx - panX.value) / z0;
+    const wy = (cy - panY.value) / z0;
 
-    // Adjust pan to maintain center
-    panX.value = -treeCenterX + viewportCenterX / newZoom;
-    panY.value = -treeCenterY + viewportCenterY / newZoom;
+    // Adjust pan so the same world point stays at viewport center
+    panX.value = cx - z1 * wx;
+    panY.value = cy - z1 * wy;
 
-    // Update zoom level
-    zoomLevel.value = newZoom;
-    lastZoomLevel.value = newZoom;
+    zoomLevel.value = z1;
+    lastZoomLevel.value = z1;
 
-    // Apply transform
     updateSVGTransform();
 
-    // Remove transforming class
     setTimeout(() => {
         treeElement.value?.classList.remove('transforming');
     }, 100);
 };
 
-// Auto-fit the tree to ensure it's fully visible within the container
-const autoFitTree = () => {
-    if (!treeElement.value || !treeContainer.value) return;
-
-    // Get the tree wrapper dimensions
-    const treeWrapper = treeContainer.value.querySelector('.custom-tree-wrapper');
-    if (!treeWrapper) return;
-
-    const wrapperRect = treeWrapper.getBoundingClientRect();
-    const wrapperWidth = wrapperRect.width;
-    const wrapperHeight = wrapperRect.height;
-
-    // Find all nodes
-    const nodeContainers = treeElement.value.querySelectorAll('.tree-node-container');
-    if (nodeContainers.length === 0) return;
-
-    // First create SVG connectors to ensure they're included in measurements
-    createConnectorsSVG();
-
-    // Reset to a neutral state to get accurate measurements
-    zoomLevel.value = 1.0;
-    lastZoomLevel.value = 1.0;
-    panX.value = 0;
-    panY.value = 0;
-
-    // Apply the neutral transform
-    updateSVGTransform();
-
-    // Ensure the DOM has updated with the neutral transform
-    setTimeout(() => {
-        try {
-            // Get updated wrapper rect after transform
-            const updatedWrapperRect = treeWrapper.getBoundingClientRect();
-
-            // Find the bounding box of all nodes with an extra safety check
-            let minX = Infinity;
-            let maxX = -Infinity;
-            let minY = Infinity;
-            let maxY = -Infinity;
-            let validMeasurements = false;
-
-            // Include all node containers in the bounding box
-            nodeContainers.forEach((container) => {
-                const rect = container.getBoundingClientRect();
-                if (rect.width === 0 || rect.height === 0) return; // Skip invalid elements
-
-                validMeasurements = true;
-
-                // Get position relative to the wrapper
-                const left = rect.left - updatedWrapperRect.left;
-                const top = rect.top - updatedWrapperRect.top;
-                const right = left + rect.width;
-                const bottom = top + rect.height;
-
-                minX = Math.min(minX, left);
-                maxX = Math.max(maxX, right);
-                minY = Math.min(minY, top);
-                maxY = Math.max(maxY, bottom);
-            });
-
-            // Also include SVG connector paths in the bounding box calculation
-            const connectorPaths = treeElement.value.querySelectorAll('.connector-path');
-            connectorPaths.forEach((path) => {
-                try {
-                    const pathRect = path.getBoundingClientRect();
-                    if (pathRect.width === 0 || pathRect.height === 0) return; // Skip invalid elements
-
-                    validMeasurements = true;
-
-                    const left = pathRect.left - updatedWrapperRect.left;
-                    const top = pathRect.top - updatedWrapperRect.top;
-                    const right = left + pathRect.width;
-                    const bottom = top + pathRect.height;
-
-                    minX = Math.min(minX, left);
-                    maxX = Math.max(maxX, right);
-                    minY = Math.min(minY, top);
-                    maxY = Math.max(maxY, bottom);
-                } catch (e) {
-                    // Ignore errors for paths that can't be measured
-                }
-            });
-
-            // Also check the circles (connection endpoints)
-            const connectorCircles = treeElement.value.querySelectorAll('.line-group circle');
-            connectorCircles.forEach((circle) => {
-                try {
-                    const circleRect = circle.getBoundingClientRect();
-                    if (circleRect.width === 0 || circleRect.height === 0) return; // Skip invalid elements
-
-                    validMeasurements = true;
-
-                    const left = circleRect.left - updatedWrapperRect.left;
-                    const top = circleRect.top - updatedWrapperRect.top;
-                    const right = left + circleRect.width;
-                    const bottom = top + circleRect.height;
-
-                    minX = Math.min(minX, left);
-                    maxX = Math.max(maxX, right);
-                    minY = Math.min(minY, top);
-                    maxY = Math.max(maxY, bottom);
-                } catch (e) {
-                    // Ignore errors for circles that can't be measured
-                }
-            });
-
-            // Check if we actually got valid measurements
-            if (!validMeasurements || !isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) {
-                // Use fallback measurements from the direct tree element size
-                minX = 0;
-                minY = 0;
-                maxX = treeElement.value.offsetWidth;
-                maxY = treeElement.value.offsetHeight;
-
-                // If tree element size is also invalid, use wrapper dimensions
-                if (maxX === 0 || maxY === 0) {
-                    maxX = wrapperWidth;
-                    maxY = wrapperHeight;
-                }
-            }
-
-            // Add padding based on tree size - use larger padding for better safety margin
-            const basePadding = 50; // Increased from 40
-            const dynamicPadding = Math.min(
-                Math.max(
-                    basePadding,
-                    Math.floor((maxX - minX) * 0.08), // 8% of width (increased from 5%)
-                    Math.floor((maxY - minY) * 0.08), // 8% of height (increased from 5%)
-                ),
-                120, // Cap at 120px max padding (increased from 100)
-            );
-
-            minX -= dynamicPadding;
-            maxX += dynamicPadding;
-            minY -= dynamicPadding;
-            maxY += dynamicPadding;
-
-            // Calculate the tree's dimensions with padding
-            const treeWidth = maxX - minX;
-            const treeHeight = maxY - minY;
-
-            // Add safety check for zero dimensions
-            if (treeWidth <= 0 || treeHeight <= 0) {
-                // Use fallback dimensions
-                const fallbackWidth = wrapperWidth * 0.8;
-                const fallbackHeight = wrapperHeight * 0.8;
-
-                // Position at center of wrapper
-                panX.value = (wrapperWidth - fallbackWidth) / 2;
-                panY.value = (wrapperHeight - fallbackHeight) / 2;
-                zoomLevel.value = 0.8;
-                lastZoomLevel.value = 0.8;
-
-                // Apply transform and exit
-                updateSVGTransform();
-                setTimeout(() => createConnectorsSVG(), 200);
-                return;
-            }
-
-            // Calculate the exact center point of the tree
-            const treeCenterX = minX + treeWidth / 2;
-            const treeCenterY = minY + treeHeight / 2;
-
-            // Calculate the optimal zoom level to fit the tree
-            const widthRatio = wrapperWidth / treeWidth;
-            const heightRatio = wrapperHeight / treeHeight;
-
-            // Take the smaller ratio to ensure the entire tree fits
-            const optimalZoom = Math.min(widthRatio, heightRatio);
-
-            // Apply a safety factor to prevent edges from being cut off
-            const zoomSafetyFactor = 0.92; // Reduced from 0.95 for more safety margin
-
-            // Allow zoom levels between 0.1 and 1.5
-            const finalZoom = Math.min(Math.max(optimalZoom * zoomSafetyFactor, 0.1), 1.5);
-
-            // Calculate the pan values to center the tree
-            const wrapperCenterX = wrapperWidth / 2;
-            const wrapperCenterY = wrapperHeight / 2;
-
-            const finalPanX = (wrapperCenterX - treeCenterX) / finalZoom;
-            const finalPanY = (wrapperCenterY - treeCenterY) / finalZoom;
-
-            // Apply the calculated values
-            zoomLevel.value = finalZoom;
-            lastZoomLevel.value = finalZoom;
-            panX.value = finalPanX;
-            panY.value = finalPanY;
-
-            // Apply the transform
-            updateSVGTransform();
-
-            // Double-check that everything fits after transformation
-            setTimeout(() => {
-                // Recreate SVG connectors after transform
-                createConnectorsSVG();
-
-                // Verify the fit by checking if any nodes are outside the visible area
-                const visibleRect = treeWrapper.getBoundingClientRect();
-                let allNodesVisible = true;
-
-                // Check node containers
-                nodeContainers.forEach((container) => {
-                    const rect = container.getBoundingClientRect();
-                    if (rect.width === 0 || rect.height === 0) return; // Skip invalid elements
-
-                    // Check if the node is fully visible with more tolerance (increased from 5 to 10)
-                    const isVisible =
-                        rect.left >= visibleRect.left - 10 &&
-                        rect.right <= visibleRect.right + 10 &&
-                        rect.top >= visibleRect.top - 10 &&
-                        rect.bottom <= visibleRect.bottom + 10;
-
-                    if (!isVisible) {
-                        allNodesVisible = false;
-                    }
-                });
-
-                // Also check if connector circles are visible
-                if (allNodesVisible) {
-                    const circles = treeElement.value.querySelectorAll('.line-group circle');
-                    circles.forEach((circle) => {
-                        try {
-                            const rect = circle.getBoundingClientRect();
-                            if (rect.width === 0 || rect.height === 0) return; // Skip invalid elements
-
-                            // Check if the circle is fully visible
-                            const isVisible =
-                                rect.left >= visibleRect.left - 10 &&
-                                rect.right <= visibleRect.right + 10 &&
-                                rect.top >= visibleRect.top - 10 &&
-                                rect.bottom <= visibleRect.bottom + 10;
-
-                            if (!isVisible) {
-                                allNodesVisible = false;
-                            }
-                        } catch (e) {
-                            // Ignore errors
-                        }
-                    });
-                }
-
-                // If not all nodes are visible, apply a more aggressive secondary adjustment
-                if (!allNodesVisible) {
-                    // Reduce zoom by 15% to ensure everything fits (increased from 10%)
-                    const adjustedZoom = finalZoom * 0.85;
-
-                    // Recalculate pan to maintain centering
-                    const adjustedPanX = finalPanX * (finalZoom / adjustedZoom);
-                    const adjustedPanY = finalPanY * (finalZoom / adjustedZoom);
-
-                    // Apply adjusted values
-                    zoomLevel.value = adjustedZoom;
-                    lastZoomLevel.value = adjustedZoom;
-                    panX.value = adjustedPanX;
-                    panY.value = adjustedPanY;
-
-                    // Apply the adjusted transform
-                    updateSVGTransform();
-
-                    // Recreate SVG connectors with final position
-                    setTimeout(() => createConnectorsSVG(), 200);
-                }
-            }, 300);
-        } catch (error) {
-            // Fallback to a very conservative zoom if there's an error
-            const safeZoom = 0.4; // Decreased from 0.5 for even more safety
-            zoomLevel.value = safeZoom;
-            lastZoomLevel.value = safeZoom;
-            panX.value = 0;
-            panY.value = 0;
-
-            if (treeElement.value) {
-                updateSVGTransform();
-                setTimeout(() => createConnectorsSVG(), 200);
-            }
-        }
-    }, 300);
-};
-
-// Helper function to update SVG transform without recreating it
+// Update SVG transform based on current zoom and pan values
 const updateSVGTransform = () => {
     if (!treeElement.value) return;
 
-    // Create transform string once
-    const transformStr = `scale(${zoomLevel.value}) translate(${panX.value}px, ${panY.value}px)`;
+    // Apply translate-then-scale transform order for correct pan behavior
+    const transformStr = `translate(${panX.value}px, ${panY.value}px) scale(${zoomLevel.value})`;
 
-    // Apply the transform to the tree element only - SVG is inside and will inherit transform
     treeElement.value.style.transform = transformStr;
 
-    // IMPORTANT: Fix for alignment during zoom + pan
-    // Make sure the SVG transform origin is set to the same as the tree element
+    // Ensure SVG transform origin matches tree element
     const svg = treeElement.value.querySelector('.tree-connections');
     if (svg) {
         svg.style.transformOrigin = 'top left';
@@ -800,7 +627,7 @@ const startPan = (e) => {
     e.preventDefault();
 };
 
-// Handle pan movement
+// Handle pan movement during mouse drag
 const onPanMove = (e) => {
     if (!isPanning.value) return;
 
@@ -810,9 +637,9 @@ const onPanMove = (e) => {
     lastMouseX.value = e.clientX;
     lastMouseY.value = e.clientY;
 
-    // Update pan position
-    panX.value += dx / zoomLevel.value;
-    panY.value += dy / zoomLevel.value;
+    // Update pan in screen pixels (translate-then-scale means pan is additive)
+    panX.value += dx;
+    panY.value += dy;
 
     updateSVGTransform();
 };
@@ -1027,7 +854,7 @@ const getNodePositionStyle = (node, levelIndex) => {
 
     return {
         position: 'absolute',
-        left: `calc(${pos.x * 100}%)`,
+        left: `${pos.x}px`, // pixel based
         top: `${levelIndex * VERTICAL_GAP}px`,
         transform: 'translate(-50%, -50%)',
         willChange: 'transform',
@@ -1054,7 +881,7 @@ onMounted(() => {
     document.addEventListener('click', handleDocumentClick);
     window.addEventListener('resize', handleWindowResize);
 
-    nextTick(() => {
+    nextTick(async () => {
         if (processedData.value && processedData.value.length > 0) {
             if (import.meta.env.DEV) {
                 console.log('Initializing tree with data:', processedData.value.length, 'nodes');
@@ -1062,16 +889,21 @@ onMounted(() => {
 
             calculateNodePositions();
 
-            setTimeout(() => {
-                autoFitTree();
-                loading.value = false;
+            // Render DOM invisibly to allow measurement without visual jump
+            loading.value = false;
+            await nextTick();
+            await nextTick();
 
-                setTimeout(() => {
-                    createConnectorsSVG();
-                }, 300);
-            }, 200);
+            // Center root nodes while hidden
+            await centerRootAtTop({ zoom: 1, top: 70 });
+            await nextTick();
+            createConnectorsSVG();
+
+            // Reveal tree with transitions enabled
+            isPrimed.value = true;
         } else {
             loading.value = false;
+            isPrimed.value = true;
         }
     });
 });
@@ -1098,20 +930,27 @@ watch(
             return;
         }
 
-        nextTick(() => {
+        nextTick(async () => {
             try {
                 calculateNodePositions();
 
-                setTimeout(() => {
-                    autoFitTree();
-                    loading.value = false;
-
-                    setTimeout(() => {
-                        createConnectorsSVG();
-                    }, 350);
-                }, 150);
-            } catch (err) {
+                // Render DOM invisibly to allow measurement without visual jump
                 loading.value = false;
+                isPrimed.value = false;
+                await nextTick();
+                await nextTick();
+
+                // Center root nodes while hidden
+                await centerRootAtTop({ zoom: 1, top: 70 });
+                await nextTick();
+                createConnectorsSVG();
+
+                // Reveal tree with transitions enabled
+                isPrimed.value = true;
+            } catch (err) {
+                console.error('Error in data watch:', err);
+                loading.value = false;
+                isPrimed.value = true;
             }
         });
     },
@@ -1491,12 +1330,13 @@ const createConnectorsSVG = () => {
     });
 };
 
-// Computed property for tree transform style
+// Computed style for tree transform (zoom and pan)
 const treeTransformStyle = computed(() => {
     return {
-        transform: `scale(${zoomLevel.value}) translate(${panX.value}px, ${panY.value}px)`,
+        transform: `translate(${panX.value}px, ${panY.value}px) scale(${zoomLevel.value})`,
         transformOrigin: 'top left',
         willChange: isPanning.value ? 'transform' : 'auto',
+        width: `${treePixelWidth.value || 0}px`,
     };
 });
 </script>
@@ -1531,6 +1371,11 @@ const treeTransformStyle = computed(() => {
     background: #fafafa;
     flex: 1;
     cursor: grab;
+}
+
+/* Keep layout & measurements, but don't show during init */
+.custom-tree-wrapper.is-hidden {
+    visibility: hidden;
 }
 
 .custom-tree-wrapper.panning {
@@ -1578,12 +1423,17 @@ const treeTransformStyle = computed(() => {
 .custom-tree {
     position: absolute;
     transform-origin: top left;
-    width: 100%;
+    min-width: 100%;
     height: 100%;
     transition: transform 0.2s ease;
     cursor: grab;
     padding: 30px 0 5px 0;
     will-change: transform;
+}
+
+/* No transform animation while we set the first pan/zoom */
+.custom-tree.no-anim {
+    transition: none !important;
 }
 
 .custom-tree.panning {

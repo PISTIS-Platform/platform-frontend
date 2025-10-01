@@ -79,11 +79,10 @@
                     >
                         <div class="copy-content">
                             <div class="activity-with-details">
-                                <span class="cell-text activity-type">{{ getActivityTitle(row.activity) }}</span>
-                                <!-- Create Activity Description -->
-                                <div v-if="row.activity.toUpperCase() === 'CREATE'" class="create-description">
-                                    Dataset was successfully ingested via the Job Configurator and registered in the
-                                    Factory Catalog.
+                                <span class="cell-text activity-type">{{ row.activity }}</span>
+                                <!-- Activity Description -->
+                                <div v-if="row.activity_description" class="create-description">
+                                    {{ row.activity_description }}
                                 </div>
                                 <div
                                     v-if="
@@ -308,24 +307,12 @@ const hasNoOperationChanges = (operationDescription) => {
     );
 };
 
-// Function to get the display title for activity
-const getActivityTitle = (activity) => {
-    const activityUpper = activity.toUpperCase();
-    if (activityUpper === 'CREATE') {
-        return 'DATASET REGISTERED';
-    }
-    if (activityUpper === 'UPDATE') {
-        return 'DATASET UPDATED';
-    }
-    return activityUpper;
-};
-
 // Format activity for copy to clipboard
 const formatActivityForCopy = (row) => {
-    if (row.activity.toUpperCase() === 'CREATE') {
-        return 'DATASET REGISTERED\nDataset was successfully ingested via the Job Configurator and registered in the Factory Catalog.';
+    if (row.activity_description) {
+        return `${row.activity}\n${row.activity_description}`;
     }
-    if (row.activity.toUpperCase() !== 'UPDATE') {
+    if (row.activity !== 'DATASET UPDATED') {
         return row.activity;
     }
 
@@ -432,18 +419,25 @@ const filteredTableData = computed(() => {
             const value = row[header.key];
             if (value === null || value === undefined) return false;
 
-            // Special handling for operation_description
-            if (header.key === 'activity' && row.activity.toUpperCase() === 'UPDATE' && row.operation_description) {
-                // Check in operation_description fields
-                const opDesc = row.operation_description;
-                if (
-                    (opDesc.schema_changes && String(opDesc.schema_changes).toLowerCase().includes(query)) ||
-                    (opDesc.data_changes && String(opDesc.data_changes).toLowerCase().includes(query)) ||
-                    (opDesc.data_transformations &&
-                        String(opDesc.data_transformations).toLowerCase().includes(query)) ||
-                    (opDesc.data_enrichment && String(opDesc.data_enrichment).toLowerCase().includes(query))
-                ) {
+            // Special handling for activity column to also search activity_description and operation_description
+            if (header.key === 'activity') {
+                // Search in activity_description
+                if (row.activity_description && row.activity_description.toLowerCase().includes(query)) {
                     return true;
+                }
+
+                // Search in operation_description
+                if (row.activity === 'DATASET UPDATED' && row.operation_description) {
+                    const opDesc = row.operation_description;
+                    if (
+                        (opDesc.schema_changes && String(opDesc.schema_changes).toLowerCase().includes(query)) ||
+                        (opDesc.data_changes && String(opDesc.data_changes).toLowerCase().includes(query)) ||
+                        (opDesc.data_transformations &&
+                            String(opDesc.data_transformations).toLowerCase().includes(query)) ||
+                        (opDesc.data_enrichment && String(opDesc.data_enrichment).toLowerCase().includes(query))
+                    ) {
+                        return true;
+                    }
                 }
             }
 

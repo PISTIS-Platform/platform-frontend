@@ -46,6 +46,12 @@
                 <button class="retry-button" @click="compareVersions">Retry</button>
             </div>
 
+            <!-- No data available case (diffData is null) -->
+            <div v-else-if="!store.diffData && !store.isLoadingDiff && !store.diffError" class="no-comparison-message">
+                <p>No dataset differences detected between the selected versions.</p>
+                <button class="reset-button" @click="store.resetDiff">Select Different Versions</button>
+            </div>
+
             <!-- Comparison content -->
             <div v-else-if="store.diffData">
                 <!-- Summary section - Always visible in both factory and cloud mode -->
@@ -222,9 +228,10 @@
                         <p class="loading-text">Loading comparison data...</p>
                     </section>
 
-                    <!-- No data message - only show if not ready and not loading -->
-                    <div v-else-if="!ready && !store.isLoadingDiff" class="alert alert-info">
-                        <p>No data available for comparison.</p>
+                    <!-- No differences found (data exists but empty) -->
+                    <div v-else-if="!ready && !store.isLoadingDiff && store.diffData" class="no-comparison-message">
+                        <p>No dataset differences detected between the selected versions.</p>
+                        <button class="reset-button" @click="store.resetDiff">Select Different Versions</button>
                     </div>
                 </div>
             </div>
@@ -1718,5 +1725,28 @@ td.column-removed {
     .page-navigation {
         gap: 8px;
     }
+}
+
+/* No comparison message */
+.no-comparison-message {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 32px;
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.no-comparison-message p {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+}
+
+.no-comparison-message .reset-button {
+    margin-top: 0;
 }
 </style>
