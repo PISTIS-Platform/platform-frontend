@@ -3,17 +3,17 @@
         <h4 class="compare-title">Compare Dataset Versions{{ getVersionTitle }}</h4>
 
         <div v-if="store.selectedDiff.length < 2" class="instructions-panel">
-            <div class="alert alert-orange">
-                <h5>How to Compare Versions</h5>
+            <div class="instructions-card">
+                <h4>How to Compare Versions</h4>
                 <p>To compare two dataset versions:</p>
                 <ol>
                     <li>Click on any two dataset nodes in the dataset family tree</li>
                     <li>Click anywhere outside the tree to reset your selections</li>
                 </ol>
-                <div>
-                    Selected versions: <b>{{ store.selectedDiff.length }} of 2</b>
+                <div class="selection-status">
+                    Selected versions: <strong>{{ store.selectedDiff.length }} of 2</strong>
                 </div>
-                <button v-if="store.selectedDiff.length === 1" class="btn btn-secondary mt-2" @click="store.resetDiff">
+                <button v-if="store.selectedDiff.length === 1" class="reset-button" @click="store.resetDiff">
                     Reset Selection
                 </button>
             </div>
@@ -21,11 +21,13 @@
 
         <!-- Show selection message only if we're not actively comparing yet -->
         <div v-else-if="store.selectedDiff.length === 2 && !isComparing" class="comparison-panel">
-            <div class="alert alert-success mb-3">
-                <h5>Versions Selected</h5>
+            <div class="success-card">
+                <h4>Versions Selected</h4>
                 <p>You've selected two versions for comparison.</p>
-                <button class="btn btn-secondary" @click="store.resetDiff">Reset Selection</button>
-                <button class="btn btn-primary ms-2" @click="compareVersions">Compare</button>
+                <div class="button-group">
+                    <button class="reset-button" @click="store.resetDiff">Reset Selection</button>
+                    <button class="compare-button" @click="compareVersions">Compare</button>
+                </div>
             </div>
         </div>
 
@@ -38,17 +40,17 @@
             </div>
 
             <!-- Error state -->
-            <div v-else-if="store.diffError" class="alert alert-danger">
-                <h5>Error</h5>
+            <div v-else-if="store.diffError" class="error-card">
+                <h4>Error</h4>
                 <p>{{ store.diffError }}</p>
-                <button class="btn btn-primary" @click="compareVersions">Retry</button>
+                <button class="retry-button" @click="compareVersions">Retry</button>
             </div>
 
             <!-- Comparison content -->
             <div v-else-if="store.diffData">
                 <!-- Summary section - Always visible in both factory and cloud mode -->
                 <div class="comparison-summary">
-                    <div class="d-flex flex-wrap gap-2 pt-1 px-3">
+                    <div class="d-flex gap-2 pt-1 px-3">
                         <div class="summary-item columns-added">
                             <span class="badge bg-success">Cols +</span>
                             <span class="count">{{
@@ -235,10 +237,6 @@ import { computed, onMounted, ref, watch } from 'vue';
 
 import { useStore } from '@/components/catalog/dataset-details/data-lineage/stores/store';
 
-// ========================================
-// COMPONENT PROPS & STATE
-// ========================================
-
 const _props = defineProps({
     cloudMode: {
         type: Boolean,
@@ -249,17 +247,9 @@ const _props = defineProps({
 const store = useStore();
 const isComparing = ref(false);
 
-// ========================================
-// PAGINATION STATE
-// ========================================
-
 const currentPage = ref(1);
 const rowsPerPage = ref(50);
 const rowsPerPageOptions = [25, 50, 100, 200];
-
-// ========================================
-// COMPUTED PROPERTIES
-// ========================================
 
 const getVersionTitle = computed(() => {
     if (store.selectedDiff.length === 2 && store.tableData) {
@@ -272,12 +262,10 @@ const getVersionTitle = computed(() => {
     return '';
 });
 
-// Get version information from the store's tableData
 const _getVersionInfo = (id) => {
     return store.tableData ? store.tableData[id] : null;
 };
 
-// Computed property to get dataset names for the comparison message
 const getDatasetNames = computed(() => {
     if (store.selectedDiff.length === 2 && store.tableData) {
         const dataset1Info = store.tableData[store.selectedDiff[0]];
@@ -976,7 +964,10 @@ watch(
 onMounted(() => {
     if (store.selectedDiff.length === 2) {
         isComparing.value = true;
-        compareVersions();
+        // Only fetch if we don't already have the data
+        if (!store.diffData) {
+            compareVersions();
+        }
     }
 });
 
@@ -1048,36 +1039,242 @@ const _getColumnType = (columnName, datasetKey) => {
 <style scoped>
 .compare-container {
     width: 100%;
-    padding: 15px;
+    padding: 0;
 }
 
-/* Custom alert styling to match dataset node hover color */
-.alert-orange {
-    background-color: #ffe0b2;
-    border-color: #ffb74d;
-    color: #6d4c41;
-}
-
-/* Custom spinner color to match orange theme */
+/* Custom spinner color to match theme */
 .spinner-pistis {
-    color: #ffb74d;
+    color: #5632d0;
 }
 
 .compare-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: #374151;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .instructions-panel {
     max-width: 800px;
-    margin: 0 auto;
+    margin: 0 auto 20px;
+}
+
+/* Instructions card styling - matching Dataset Lineage page design */
+.instructions-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.instructions-card h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.instructions-card h4::before {
+    content: 'ℹ️';
+    font-size: 20px;
+}
+
+.instructions-card p {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 16px 0;
+    line-height: 1.6;
+}
+
+.instructions-card ol {
+    font-size: 14px;
+    color: #555;
+    margin: 0 0 20px 0;
+    padding-left: 20px;
+    line-height: 1.7;
+}
+
+.instructions-card ol li {
+    margin-bottom: 10px;
+    padding-left: 8px;
+}
+
+.instructions-card ol li::marker {
+    color: #5632d0;
+    font-weight: 600;
+}
+
+.selection-status {
+    font-size: 14px;
+    color: #333;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.selection-status::before {
+    content: '✓';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: #5632d0;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.selection-status strong {
+    color: #5632d0;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.reset-button {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+}
+
+.reset-button:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
 }
 
 .comparison-panel {
     width: 100%;
     margin-top: 20px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Success card styling - matching Dataset Lineage page design */
+.success-card {
+    background: #ffffff;
+    border: 1px solid #c3e6cb;
+    border-left: 4px solid #28a745;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.success-card h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #155724;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.success-card h4::before {
+    content: '✓';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #28a745;
+    color: white;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.success-card p {
+    font-size: 14px;
+    color: #155724;
+    margin: 0 0 20px 0;
+    line-height: 1.6;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.compare-button {
+    background: #5632d0;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(86, 50, 208, 0.2);
+}
+
+.compare-button:hover {
+    background: #4527b0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(86, 50, 208, 0.3);
+}
+
+/* Error card styling - matching Dataset Lineage page design */
+.error-card {
+    background: #ffffff;
+    border: 1px solid #f5c6cb;
+    border-left: 4px solid #dc3545;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.error-card h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #721c24;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.error-card h4::before {
+    content: '⚠️';
+    font-size: 22px;
+}
+
+.error-card p {
+    font-size: 14px;
+    color: #721c24;
+    margin: 0 0 20px 0;
+    line-height: 1.6;
+}
+
+.error-card .retry-button {
+    background: #dc3545;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+}
+
+.error-card .retry-button:hover {
+    background: #c82333;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
 .btn-primary {
@@ -1098,26 +1295,38 @@ const _getColumnType = (columnName, datasetKey) => {
 }
 
 .comparison-summary {
-    padding-bottom: 24px;
+    padding-bottom: 12px;
     position: relative;
 }
 
 .comparison-summary .d-flex {
-    padding: 8px 0 0 0;
+    padding: 4px 0 0 0;
     justify-content: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: row;
 }
 
 .summary-item {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 16px;
-    border-radius: 6px;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 8px;
     min-width: 100px;
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.summary-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .summary-item.added,
@@ -1129,26 +1338,45 @@ const _getColumnType = (columnName, datasetKey) => {
     border-color: #e9ecef;
 }
 
-/* Badge styling to match table highlighting colors */
+/* Badge styling - improved with better padding, keeping original colors */
 .badge.bg-success {
-    background-color: rgba(50, 220, 103, 0.4) !important;
-    color: #000 !important;
+    background-color: rgba(50, 220, 103, 0.85) !important;
+    color: #000000 !important;
+    padding: 4px 10px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: 5px !important;
+    box-shadow: 0 1px 3px rgba(50, 220, 103, 0.3);
+    letter-spacing: 0.3px;
 }
 
 .badge.bg-danger {
-    background-color: rgba(255, 87, 74, 0.4) !important;
-    color: #000 !important;
+    background-color: rgba(255, 87, 74, 0.85) !important;
+    color: #000000 !important;
+    padding: 4px 10px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: 5px !important;
+    box-shadow: 0 1px 3px rgba(255, 87, 74, 0.3);
+    letter-spacing: 0.3px;
 }
 
 .badge.bg-info {
-    background-color: rgba(33, 182, 204, 0.4) !important;
-    color: #000 !important;
+    background-color: rgba(33, 182, 204, 0.85) !important;
+    color: #000000 !important;
+    padding: 4px 10px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: 5px !important;
+    box-shadow: 0 1px 3px rgba(33, 182, 204, 0.3);
+    letter-spacing: 0.3px;
 }
 
 .summary-item .count {
     font-size: 1.25rem;
-    font-weight: 600;
-    margin-top: 8px;
+    font-weight: 700;
+    margin-top: 6px;
+    color: #333;
 }
 
 .table-responsive {
@@ -1158,7 +1386,7 @@ const _getColumnType = (columnName, datasetKey) => {
 .comparison-container {
     overflow-x: auto;
     max-width: 100%;
-    margin-top: 15px;
+    margin-top: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
     border-radius: 6px;
 }
