@@ -9,12 +9,10 @@
                     <th
                         v-for="(header, index) in props.headers"
                         :key="index"
-                        ref="headerRefs"
                         class="table_head sortable"
                         scope="col"
                         :class="getColumnClass(header.key)"
-                        :style="{ width: columnWidths[header.key] || null }"
-                        @click="!isResizeOperation && sortTable(header.key)"
+                        @click="sortTable(header.key)"
                     >
                         <div class="header-content">
                             <span class="header-label"
@@ -24,13 +22,6 @@
                                 {{ sortOrder === 'asc' ? '▲' : '▼' }}
                             </span>
                         </div>
-                        <!-- Resizable handle -->
-                        <div
-                            class="resize-handle"
-                            @mousedown.stop.prevent="startResize($event, header.key, index)"
-                            @touchstart.stop.prevent="startResize($event, header.key, index)"
-                            @click.stop.prevent=""
-                        ></div>
                     </th>
                 </tr>
             </thead>
@@ -56,14 +47,29 @@
                     <td class="text-center align-middle version-column">{{ row.version }}</td>
                     <td
                         class="align-middle id-column copyable-cell"
-                        :title="row.id + '\nClick to copy'"
                         :class="{ copied: lastCopied === `${rowIndex}-id` }"
                         @click="copyToClipboard(row.id, rowIndex, 'id')"
+                        @mouseleave="clearHoverSuppression"
                     >
-                        <div class="copy-content">
-                            <span class="cell-text">{{ row.id }}</span>
-                        </div>
-                        <span v-if="lastCopied === `${rowIndex}-id`" class="copy-indicator">Copied</span>
+                        <span class="cell-text">{{ row.id }}</span>
+                        <span v-if="suppressHoverHint !== `${rowIndex}-id`" class="copy-hint">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Click to copy
+                        </span>
+                        <span v-if="lastCopied === `${rowIndex}-id`" class="copy-success-hint">Copied!</span>
                     </td>
                     <td
                         class="align-middle operation-column copyable-cell"
@@ -73,7 +79,12 @@
                     >
                         <div class="copy-content">
                             <div class="activity-with-details">
-                                <span class="cell-text activity-type">{{ row.activity.toUpperCase() }}</span>
+                                <span class="cell-text activity-type">{{ getActivityTitle(row.activity) }}</span>
+                                <!-- Create Activity Description -->
+                                <div v-if="row.activity.toUpperCase() === 'CREATE'" class="create-description">
+                                    Dataset was successfully ingested via the Job Configurator and registered in the
+                                    Factory Catalog.
+                                </div>
                                 <div
                                     v-if="
                                         row.operation_description && !hasNoOperationChanges(row.operation_description)
@@ -194,25 +205,43 @@
                                 </div>
                                 <!-- No changes message for Update activity with no actual changes -->
                                 <div
-                                    v-if="row.activity === 'Update' && hasNoOperationChanges(row.operation_description)"
+                                    v-if="
+                                        row.activity.toUpperCase() === 'UPDATE' &&
+                                        hasNoOperationChanges(row.operation_description)
+                                    "
                                     class="no-changes-message"
                                 >
                                     No schema changes, data changes, data transformations, or data enrichments detected.
                                 </div>
                             </div>
                         </div>
-                        <span v-if="lastCopied === `${rowIndex}-activity`" class="copy-indicator">Copied</span>
+                        <span v-if="lastCopied === `${rowIndex}-activity`" class="copy-indicator">Copied!</span>
                     </td>
                     <td
                         class="align-middle username-column copyable-cell"
-                        :title="row.username + '\nClick to copy'"
                         :class="{ copied: lastCopied === `${rowIndex}-username` }"
                         @click="copyToClipboard(row.username, rowIndex, 'username')"
+                        @mouseleave="clearHoverSuppression"
                     >
-                        <div class="copy-content">
-                            <span class="cell-text">{{ row.username }}</span>
-                        </div>
-                        <span v-if="lastCopied === `${rowIndex}-username`" class="copy-indicator">Copied</span>
+                        <span class="cell-text">{{ row.username }}</span>
+                        <span v-if="suppressHoverHint !== `${rowIndex}-username`" class="copy-hint">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Click to copy
+                        </span>
+                        <span v-if="lastCopied === `${rowIndex}-username`" class="copy-success-hint">Copied!</span>
                     </td>
                     <td
                         class="align-middle timestamp-column copyable-cell"
@@ -224,7 +253,7 @@
                             <span class="cell-text">{{ row.timestamp }}</span>
                         </div>
                         <span v-if="lastCopied === `${rowIndex}-timestamp`" class="copy-indicator timestamp-indicator"
-                            >Copied</span
+                            >Copied!</span
                         >
                     </td>
                 </tr>
@@ -264,16 +293,8 @@ const props = defineProps({
 // Track which cell was last copied
 const lastCopied = ref(null);
 
-// Add a flag to track if we're completing a resize operation
-const isResizeOperation = ref(false);
-
-// Track column widths - initialize with default values
-const columnWidths = ref({});
-const headerRefs = ref([]);
-const isResizing = ref(false);
-const currentResizingColumn = ref(null);
-const startX = ref(0);
-const startWidth = ref(0);
+// Track which cell should suppress hover hint (after copy, until mouse leaves)
+const suppressHoverHint = ref(null);
 
 // Helper function to check if operation description has no actual changes
 const hasNoOperationChanges = (operationDescription) => {
@@ -287,17 +308,32 @@ const hasNoOperationChanges = (operationDescription) => {
     );
 };
 
+// Function to get the display title for activity
+const getActivityTitle = (activity) => {
+    const activityUpper = activity.toUpperCase();
+    if (activityUpper === 'CREATE') {
+        return 'DATASET REGISTERED';
+    }
+    if (activityUpper === 'UPDATE') {
+        return 'DATASET UPDATED';
+    }
+    return activityUpper;
+};
+
 // Format activity for copy to clipboard
 const formatActivityForCopy = (row) => {
-    if (row.activity !== 'Update') {
+    if (row.activity.toUpperCase() === 'CREATE') {
+        return 'DATASET REGISTERED\nDataset was successfully ingested via the Job Configurator and registered in the Factory Catalog.';
+    }
+    if (row.activity.toUpperCase() !== 'UPDATE') {
         return row.activity;
     }
 
     if (hasNoOperationChanges(row.operation_description)) {
-        return 'Update\nNo schema changes, data changes, data transformations, or data enrichments detected.';
+        return 'DATASET UPDATED\nNo schema changes, data changes, data transformations, or data enrichments detected.';
     }
 
-    let result = 'Update';
+    let result = 'DATASET UPDATED';
 
     if (row.operation_description.schema_changes) {
         result += `\nSchema Changes: ${row.operation_description.schema_changes}`;
@@ -323,81 +359,17 @@ const formatActivityTooltip = (row) => {
     return formatActivityForCopy(row);
 };
 
-// Function to start column resizing
-const startResize = (event, key, index) => {
-    // Since we're using .stop.prevent in the template, we don't need these here
-    // But keeping them for robustness in case the template modifiers are removed
-    event.stopPropagation();
-    event.preventDefault();
-
-    // Set the resize operation flag
-    isResizeOperation.value = true;
-
-    // Handle both mouse and touch events
-    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-
-    isResizing.value = true;
-    currentResizingColumn.value = key;
-    startX.value = clientX;
-
-    // Get current width of the column
-    const headerEl = headerRefs.value[index];
-    startWidth.value = headerEl.offsetWidth;
-
-    // Add event listeners for resize
-    document.addEventListener('mousemove', handleResize);
-    document.addEventListener('touchmove', handleResize);
-    document.addEventListener('mouseup', stopResize);
-    document.addEventListener('touchend', stopResize);
-
-    // Add a resizing class to the body to disable text selection
-    document.body.classList.add('resizing');
-};
-
-// Function to handle column resizing
-const handleResize = (event) => {
-    if (!isResizing.value) return;
-
-    // Handle both mouse and touch events
-    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-
-    const delta = clientX - startX.value;
-    const newWidth = Math.max(50, startWidth.value + delta) + 'px'; // Minimum width of 50px
-
-    // Update column width
-    columnWidths.value[currentResizingColumn.value] = newWidth;
-};
-
-// Function to stop column resizing
-const stopResize = (event) => {
-    if (event) {
-        event.stopPropagation(); // Prevent the click event from triggering the sort
-        event.preventDefault();
-    }
-
-    isResizing.value = false;
-    document.removeEventListener('mousemove', handleResize);
-    document.removeEventListener('touchmove', handleResize);
-    document.removeEventListener('mouseup', stopResize);
-    document.removeEventListener('touchend', stopResize);
-
-    // Remove the resizing class from the body
-    document.body.classList.remove('resizing');
-
-    // Reset the resize operation flag after a brief delay
-    // This ensures the flag is still active when the click event fires
-    setTimeout(() => {
-        isResizeOperation.value = false;
-    }, 100);
-};
-
 // Function to copy text to clipboard with visual feedback
 const copyToClipboard = (text, rowIndex, columnType) => {
     navigator.clipboard
         .writeText(text)
         .then(() => {
             // Set the last copied cell identifier
-            lastCopied.value = `${rowIndex}-${columnType}`;
+            const cellId = `${rowIndex}-${columnType}`;
+            lastCopied.value = cellId;
+            // Suppress hover hint for this cell until mouse leaves
+            suppressHoverHint.value = cellId;
+
             // Provide haptic feedback if available (mobile devices)
             if (window.navigator && window.navigator.vibrate) {
                 window.navigator.vibrate(50); // Short vibration for tactile feedback
@@ -410,6 +382,11 @@ const copyToClipboard = (text, rowIndex, columnType) => {
         .catch((err) => {
             console.error('Error copying text: ', err);
         });
+};
+
+// Function to clear hover hint suppression when mouse leaves cell
+const clearHoverSuppression = () => {
+    suppressHoverHint.value = null;
 };
 
 // Function to determine column classes based on column key
@@ -456,7 +433,7 @@ const filteredTableData = computed(() => {
             if (value === null || value === undefined) return false;
 
             // Special handling for operation_description
-            if (header.key === 'activity' && row.activity === 'Update' && row.operation_description) {
+            if (header.key === 'activity' && row.activity.toUpperCase() === 'UPDATE' && row.operation_description) {
                 // Check in operation_description fields
                 const opDesc = row.operation_description;
                 if (
@@ -494,30 +471,6 @@ const sortedTableData = computed(() => {
 // Ensure the table is sorted on mount
 onMounted(() => {
     sortTable('version');
-
-    // Initialize default column widths based on CSS class settings
-    props.headers.forEach((header) => {
-        // Set initial widths based on column type
-        switch (header.key) {
-            case 'version':
-                columnWidths.value[header.key] = '12%';
-                break;
-            case 'id':
-                columnWidths.value[header.key] = '13%';
-                break;
-            case 'activity':
-                columnWidths.value[header.key] = '46%';
-                break;
-            case 'username':
-                columnWidths.value[header.key] = '13%';
-                break;
-            case 'timestamp':
-                columnWidths.value[header.key] = '16%';
-                break;
-            default:
-                columnWidths.value[header.key] = 'auto';
-        }
-    });
 });
 
 // Function to highlight added and removed items
@@ -798,25 +751,21 @@ const parseDataEnrichment = (enrichment) => {
 </script>
 
 <style scoped>
-/* Remove alternating row colors and set consistent background for all cells */
 tbody tr td {
-    background-color: #ffffff !important; /* White background for all cells */
-    border-left: 3px solid transparent; /* Consistent transparent border */
-    transition: all 0.15s ease-in-out; /* Consistent transition timing */
+    background-color: #ffffff !important;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease-in-out;
 }
 
-/* Modify hover effect to apply consistently across the entire row */
 tbody tr:hover {
     transform: scale(1.005);
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1) !important; /* Add !important to ensure shadow is always visible */
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1) !important;
     cursor: pointer;
-    z-index: 2 !important; /* Increase z-index to ensure the shadow appears above other elements */
-    position: relative; /* Ensure proper stacking context for the shadow */
+    z-index: 2 !important;
+    position: relative;
 }
 
-/* Ensure the hover effect is not canceled for specific cells */
 tbody tr:hover td {
-    /* Apply z-index to make sure the shadow is visible */
     position: relative;
     z-index: 1;
 }
@@ -846,25 +795,26 @@ tbody tr:hover td {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    table-layout: fixed; /* Force the browser to respect column widths */
+    table-layout: auto;
 }
 
-/* 📌 Table Header - Less bold styling */
+/* 📌 Table Header */
 thead th {
-    font-weight: 400; /* Reduced from 500 */
-    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; /* Removed Bold variants */
+    font-weight: 400;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     background-color: #5632d0;
     color: #fff;
     text-transform: uppercase;
     cursor: pointer;
-    padding: 16px 14px;
+    padding: 12px 10px;
     text-align: left;
     transition: background 0.3s ease;
-    white-space: nowrap; /* Prevent line breaks in headers */
-    border-bottom: 2px solid #4528a0; /* Reduced from 3px */
-    letter-spacing: 0.3px; /* Reduced from 0.5px */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Reduced shadow */
-    text-shadow: none; /* Removed text shadow */
+    white-space: nowrap;
+    border-bottom: 2px solid #4528a0;
+    letter-spacing: 0.3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-shadow: none;
+    font-size: 0.85em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -874,14 +824,14 @@ thead th {
     display: flex;
     align-items: center;
     white-space: nowrap;
-    font-size: 1.05em; /* Reduced from 1.2em */
+    font-size: 0.95em;
 }
 
 /* Styling for header label */
 .header-label {
-    margin-right: 6px;
-    font-weight: 400; /* Changed from 200 to 400 */
-    display: inline-block; /* To ensure proper rendering */
+    margin-right: 3px;
+    font-weight: 400;
+    display: inline-block;
 }
 
 /* Styling for sort icon */
@@ -890,53 +840,40 @@ thead th {
     font-size: 0.9em;
     line-height: 1;
     vertical-align: middle;
-    margin-left: 6px;
-}
-
-thead th.sortable:hover {
-    background-color: #4528a0;
-    box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.3);
+    margin-left: 0px;
 }
 
 /* Column width specifications */
 .version-column {
-    width: 12%;
-    min-width: 120px;
+    width: 8%;
+    min-width: 80px;
 }
 
 .id-column {
-    width: 13%;
+    width: 15%;
     min-width: 120px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .operation-column {
-    width: 46%;
-    min-width: 300px;
-    max-width: none; /* Allow column to grow wider if needed */
+    width: 35%;
+    min-width: 250px;
 }
 
 .username-column {
-    width: 13%;
-    min-width: 120px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 15%;
+    min-width: 100px;
 }
 
 .timestamp-column {
-    width: 16%;
+    width: 20%;
     min-width: 140px;
 }
 
-/* Add this new style to preserve newlines */
 .operation-description {
-    white-space: normal; /* Changed from pre-line to work with our new formatting */
+    white-space: normal;
     text-align: left;
     word-break: normal;
-    overflow-wrap: break-word; /* Allow long words to break */
+    overflow-wrap: break-word;
     line-height: 1.4;
 }
 
@@ -944,9 +881,10 @@ thead th.sortable:hover {
 td {
     word-break: normal;
     overflow-wrap: break-word;
-    padding: 14px 12px;
+    padding: 10px 8px;
     border-bottom: 1px solid #eaeaea;
-    transition: all 0.2s ease; /* Standardized transition timing to match other elements */
+    transition: all 0.2s ease;
+    font-size: 0.9em;
 }
 
 /* Special styling for version cell with increased specificity */
@@ -959,20 +897,17 @@ td {
     text-align: center;
     font-size: 1.05em;
     border-left: 3px solid transparent;
-    background-color: #ffffff; /* Removed !important flag to allow highlighted backgrounds */
-    transition: all 0.2s ease; /* Standardized transition timing to 0.2s ease */
+    background-color: #ffffff;
+    transition: all 0.2s ease;
 }
 
-/* Update the hover rule for version column - don't override the row hover effect */
 tbody tr:hover td.version-column {
     background-color: #ffffff;
-    /* Don't override the row's box shadow */
 }
 
-/* Ensure highlighted rows don't change version column background */
 tbody tr.highlighted td.version-column {
-    background-color: #ffe0b2 !important; /* Match the highlighted row orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
+    background-color: #ffe0b2 !important;
+    transition: all 0.2s ease !important;
     border-left: 3px solid transparent !important;
 }
 
@@ -982,19 +917,18 @@ tbody tr.highlighted-parent td.version-column {
     border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
 }
 
-/* Special styling for ID cell - keeping consistent background */
+/* Special styling for ID cell */
 td.id-column {
     font-weight: 500;
     color: #333;
     border-left: 3px solid transparent;
-    transition: all 0.2s ease; /* Standardized transition timing */
-    /* background-color is already set globally */
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 td.id-column:hover {
-    border-left: 3px solid #5632d0;
-    background-color: #ffffff !important; /* Keep white background on hover */
-    /* Don't override the row's box shadow */
+    border-left: 3px solid transparent;
+    background-color: #ffffff !important;
 }
 
 /* Special styling for username cell */
@@ -1002,84 +936,76 @@ td.username-column {
     font-weight: 500;
     color: #333;
     border-left: 3px solid transparent;
-    transition: all 0.2s ease; /* Standardized transition timing */
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 td.username-column:hover {
-    border-left: 3px solid #5632d0;
-    background-color: #ffffff !important; /* Keep white background on hover */
-    /* Don't override the row's box shadow */
+    border-left: 3px solid transparent;
+    background-color: #ffffff !important;
 }
 
-/* Special styling for timestamp cell - with no visual feedback */
+/* Special styling for timestamp cell */
 td.timestamp-column {
     font-weight: 500;
     color: #333;
-    border-left: 3px solid transparent !important; /* Always maintain transparent border */
-    transition: all 0.2s ease; /* Standardized transition timing */
-    /* background-color is already set globally */
+    border-left: 3px solid transparent !important;
+    transition: all 0.2s ease;
 }
 
 td.timestamp-column:hover {
-    border-left: 3px solid transparent !important; /* Force transparent border on hover */
-    background-color: transparent !important; /* Keep transparent background on hover */
-    cursor: pointer; /* Show pointer cursor only */
+    border-left: 3px solid transparent !important;
+    background-color: transparent !important;
 }
 
-/* Override the hover highlight for timestamp column */
 td.timestamp-column.copyable-cell:hover {
     background-color: transparent !important;
     border-left: 3px solid transparent !important;
-    /* Remove any other hover styling */
 }
 
-/* Override the copyable-cell styling for timestamp */
 td.timestamp-column.copyable-cell {
-    cursor: pointer !important; /* Use pointer cursor */
+    cursor: default;
 }
 
 /* Override timestamp column when in copied state */
 td.timestamp-column.copied,
 td.timestamp-column.timestamp-copied {
-    animation: none !important; /* Disable pulse animation */
-    background-color: transparent !important; /* Keep transparent background */
-    border-left: 3px solid transparent !important; /* Keep transparent border */
+    animation: none !important;
+    background-color: transparent !important;
+    border-left: 3px solid transparent !important;
 }
 
 /* Special style for timestamp copy indicator */
 .timestamp-indicator {
-    background-color: rgba(86, 50, 208, 0.9) !important; /* Slightly more transparent */
-    top: -40px !important; /* Position it a bit higher */
+    background-color: rgba(86, 50, 208, 0.9) !important;
+    top: -40px !important;
     font-size: 12px !important;
 }
 
 /* Base styles for all table cells */
 .table td {
-    border-left: 3px solid transparent; /* Consistent transparent border for all cells */
+    border-left: 3px solid transparent;
 }
 
-/* Update highlighting styles to restore orange background */
 tbody tr.highlighted td {
-    background-color: #ffe0b2 !important; /* Orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #ffe0b2 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
 tbody tr.highlighted-parent td {
-    background-color: #fff3e0 !important; /* Light orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #fff3e0 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
-/* Update highlighted-red style to use orange instead of red */
 tbody tr.highlighted-red td {
-    background-color: #ffe0b2 !important; /* Orange background (changed from red #ff6b6b) */
-    color: #333 !important; /* Black text for better contrast (changed from white) */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #ffe0b2 !important;
+    color: #333 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
-/* Add no-results styling */
 .no-results {
     text-align: center;
     padding: 20px;
@@ -1089,52 +1015,143 @@ tbody tr.highlighted-red td {
     border-radius: 4px;
 }
 
-/* Updated copy cell styling for better affordance */
 .copyable-cell {
-    user-select: none; /* Prevent text selection on click */
-    position: relative; /* For positioning the copy indicator */
-    cursor: pointer !important; /* Always show copy cursor */
-    transition: all 0.15s ease-in-out; /* Match transition with row highlights */
+    user-select: none;
+    position: relative;
+    transition: all 0.15s ease-in-out;
 }
 
-/* Add a subtle background to indicate it's interactive, but don't override row effects */
-.copyable-cell:hover {
-    background-color: rgba(86, 50, 208, 0.05); /* Light purple background */
-    border-left: 3px solid #5632d0;
-    /* DO NOT add position or z-index here - they would create a new stacking context */
+/* Only show pointer cursor for ID and username columns */
+.id-column.copyable-cell,
+.username-column.copyable-cell {
+    cursor: pointer !important;
+}
+
+/* Use default cursor for non-copyable columns */
+.version-column,
+.operation-column.copyable-cell {
+    cursor: default !important;
 }
 
 /* Override specific hover styles for ID, username and timestamp columns */
 td.id-column:hover,
 td.username-column:hover {
-    border-left: 3px solid #5632d0;
-    background-color: #ffffff !important; /* Keep white background on hover */
-    /* DO NOT add position or z-index that would create a new stacking context */
+    border-left: 3px solid transparent;
+    background-color: #ffffff !important;
 }
 
 td.timestamp-column:hover {
-    border-left: 3px solid transparent !important; /* Force transparent border on hover */
-    background-color: transparent !important; /* Keep transparent background on hover */
-    cursor: pointer; /* Show pointer cursor only */
+    border-left: 3px solid transparent !important;
+    background-color: transparent !important;
 }
 
 /* Ensure highlighted rows take precedence over hover states */
 tbody tr.highlighted td.copyable-cell:hover,
 tbody tr.highlighted-parent td.copyable-cell:hover,
 tbody tr.highlighted-red td.copyable-cell:hover {
-    background-color: inherit !important; /* Inherit the row's background color */
-    border-left: 3px solid transparent !important; /* Use transparent border instead of none */
+    background-color: inherit !important;
+    border-left: 3px solid transparent !important;
 }
 
 /* Copy content layout */
 .copy-content {
-    display: flex;
-    align-items: center;
     position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .cell-text {
     flex: 1;
+    min-width: 0;
+}
+
+/* Copy hint tooltip that shows on hover */
+.copy-hint {
+    display: none;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 5px;
+    background-color: #5632d0;
+    color: white;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(86, 50, 208, 0.3);
+    pointer-events: none;
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    animation: fadeInScale 0.15s ease-out;
+    z-index: 5;
+}
+
+.copy-hint svg {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+}
+
+/* Show copy hint on hover for ID and username columns */
+.id-column:hover .copy-hint,
+.username-column:hover .copy-hint {
+    display: flex;
+}
+
+/* Hide copy hint when cell is in copied state or recently copied */
+.copyable-cell.copied .copy-hint,
+.id-column:has(.copy-success-hint) .copy-hint,
+.username-column:has(.copy-success-hint) .copy-hint {
+    display: none !important;
+}
+
+/* Copy success hint */
+.copy-success-hint {
+    display: flex !important;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 5px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(40, 167, 69, 0.3);
+    pointer-events: none;
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    animation: successPulse 0.4s ease-out;
+    z-index: 100;
+}
+
+/* Animation for the copy hint */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Success pulse animation */
+@keyframes successPulse {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Copy indicator tooltip */
@@ -1151,7 +1168,7 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     font-weight: 500;
     pointer-events: none;
     z-index: 10;
-    white-space: nowrap; /* Prevent text wrapping */
+    white-space: nowrap;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     animation: fadeInDown 0.3s ease-out;
     letter-spacing: 0.3px;
@@ -1181,68 +1198,14 @@ tbody tr.highlighted-red td.copyable-cell:hover {
     }
 }
 
-/* Enhanced copy feedback animation */
-.copied {
-    animation: clickPulse 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+.table th {
+    overflow: visible;
 }
 
-@keyframes clickPulse {
-    0% {
-        background-color: transparent;
-        transform: scale(1);
-    }
-    30% {
-        background-color: rgba(86, 50, 208, 0.15);
-        transform: scale(0.98);
-    }
-    60% {
-        background-color: rgba(86, 50, 208, 0.1);
-        transform: scale(1.01);
-    }
-    100% {
-        background-color: transparent;
-        transform: scale(1);
-    }
-}
-
-/* Resizable columns */
-.table_head {
-    position: relative;
-}
-
-.resize-handle {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 6px;
-    height: 100%;
-    cursor: col-resize;
-    z-index: 1;
-}
-
-.resize-handle:hover,
-.resize-handle:active {
-    background-color: rgba(255, 255, 255, 0.4);
-}
-
-/* Prevent text selection during resize */
-body.resizing {
-    cursor: col-resize !important;
-    user-select: none;
-}
-
-body.resizing * {
-    cursor: col-resize !important;
-}
-
-/* Ensure all columns can be resized properly */
-.table th,
 .table td {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
 }
 
-/* Add enhanced styling for operation descriptions */
 .activity-content {
     display: flex;
     flex-direction: column;
@@ -1254,7 +1217,7 @@ body.resizing * {
     color: #333;
     margin-bottom: 4px;
     font-size: 1em;
-    text-transform: uppercase; /* Keep uppercase for CREATE, UPDATE, DELETE */
+    text-transform: uppercase;
     letter-spacing: normal;
 }
 
@@ -1293,7 +1256,6 @@ body.resizing * {
     position: relative;
 }
 
-/* Default bullet styling - only for transformations */
 .section-item:has(.item-transformation)::before {
     content: '•';
     position: absolute;
@@ -1302,12 +1264,10 @@ body.resizing * {
     font-size: 14px;
 }
 
-/* Remove bullet for items with custom symbols */
 .section-item:has(.item-added, .item-removed, .item-renamed, .item-enrichment, .item-modified)::before {
     content: none;
 }
 
-/* Custom symbols */
 .item-added::before {
     content: '+';
     position: absolute;
@@ -1371,7 +1331,6 @@ body.resizing * {
     position: relative;
 }
 
-/* Ensure text color matches symbol color for data changes */
 .section-item .item-added,
 .section-item .item-removed,
 .section-item .item-renamed,
@@ -1397,24 +1356,23 @@ body.resizing * {
     color: #333333;
 }
 
-/* Override version column style to ensure it gets highlighted at the same time */
 tbody tr.highlighted td.version-column {
-    background-color: #ffe0b2 !important; /* Match the highlighted row orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #ffe0b2 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
 tbody tr.highlighted-parent td.version-column {
-    background-color: #fff3e0 !important; /* Match the highlighted parent row light orange background */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #fff3e0 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
 tbody tr.highlighted-red td.version-column {
-    background-color: #ffe0b2 !important; /* Match the highlighted row orange background (changed from red) */
-    color: #333 !important; /* Black text for better contrast (changed from white) */
-    transition: all 0.2s ease !important; /* Standardized transition timing */
-    border-left: 3px solid transparent !important; /* Keep transparent border during transitions */
+    background-color: #ffe0b2 !important;
+    color: #333 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
 }
 
 /* Styling for "No changes" message */
@@ -1428,6 +1386,19 @@ tbody tr.highlighted-red td.version-column {
     font-style: italic;
     text-align: left;
     border-left: 3px solid #aaa;
+    margin: 4px 0;
+}
+
+/* Styling for "Create" activity description */
+.create-description {
+    font-size: 0.95em;
+    line-height: 1.4;
+    padding: 8px 10px;
+    background-color: rgba(86, 50, 208, 0.05);
+    border-radius: 4px;
+    color: #444;
+    text-align: left;
+    border-left: 3px solid #5632d0;
     margin: 4px 0;
 }
 
@@ -1456,11 +1427,10 @@ tbody tr.highlighted-red td.version-column {
     padding-left: 8px;
 }
 
-/* New styles for activity column with enhanced details */
 .activity-with-details {
     display: flex;
     flex-direction: column;
-    gap: 6px; /* Increased from 4px */
+    gap: 6px;
 }
 
 .activity-type {
@@ -1501,7 +1471,7 @@ tbody tr.highlighted-red td.version-column {
 }
 
 .detail-intro {
-    color: #444444; /* Changed from #666666 to a darker gray */
+    color: #444444;
     font-size: 0.95em;
     line-height: 1.5;
     margin-bottom: 12px;
@@ -1520,11 +1490,10 @@ tbody tr.highlighted-red td.version-column {
     border-bottom: 2px solid rgba(86, 50, 208, 0.2);
 }
 
-/* Column width adjustment for activity column to accommodate more content */
 .operation-column {
     width: 46%;
-    min-width: 300px;
-    max-width: none; /* Allow column to grow wider if needed */
+    min-width: max(300px, fit-content);
+    max-width: none;
 }
 
 /* Ensure operation-description column is removed from view */
@@ -1545,9 +1514,8 @@ tbody tr.highlighted-red .detail-item {
     background-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Adjust spacing in operation column to better display details */
 td.operation-column {
-    padding: 16px 18px;
+    padding: 10px 12px;
 }
 
 /* Update detail label styling */
