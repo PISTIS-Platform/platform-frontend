@@ -59,37 +59,27 @@
                     <div class="d-flex gap-2 pt-1 px-3">
                         <div class="summary-item columns-added">
                             <span class="badge bg-success">Cols +</span>
-                            <span class="count">{{
-                                store.diffData?.diff?.schema_changes?.columns_added?.length || 0
-                            }}</span>
+                            <span class="count">{{ store.diffData?.diff?.complete_summary?.cols_added || 0 }}</span>
                         </div>
                         <div class="summary-item columns-removed">
                             <span class="badge bg-danger">Cols -</span>
-                            <span class="count">{{
-                                store.diffData?.diff?.schema_changes?.columns_removed?.length || 0
-                            }}</span>
+                            <span class="count">{{ store.diffData?.diff?.complete_summary?.cols_removed || 0 }}</span>
                         </div>
                         <div class="summary-item columns-renamed">
                             <span class="badge bg-info">Cols Δ</span>
-                            <span class="count">{{
-                                store.diffData?.diff?.schema_changes?.columns_changed?.length || 0
-                            }}</span>
+                            <span class="count">{{ store.diffData?.diff?.complete_summary?.cols_renamed || 0 }}</span>
                         </div>
                         <div class="summary-item rows-added">
                             <span class="badge bg-success">Rows +</span>
-                            <span class="count">{{ store.diffData?.diff?.data_changes?.rows_added?.length || 0 }}</span>
+                            <span class="count">{{ store.diffData?.diff?.complete_summary?.rows_added || 0 }}</span>
                         </div>
                         <div class="summary-item rows-removed">
                             <span class="badge bg-danger">Rows -</span>
-                            <span class="count">{{
-                                store.diffData?.diff?.data_changes?.rows_removed?.length || 0
-                            }}</span>
+                            <span class="count">{{ store.diffData?.diff?.complete_summary?.rows_removed || 0 }}</span>
                         </div>
                         <div class="summary-item values-modified">
                             <span class="badge bg-info">Values Δ</span>
-                            <span class="count">{{
-                                store.diffData?.diff?.data_changes?.values_modified?.length || 0
-                            }}</span>
+                            <span class="count">{{ store.diffData?.diff?.complete_summary?.vals_modified || 0 }}</span>
                         </div>
                     </div>
                 </div>

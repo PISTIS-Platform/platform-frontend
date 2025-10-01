@@ -103,6 +103,7 @@ import { useStore } from '@/components/catalog/dataset-details/data-lineage/stor
 const route = useRoute();
 const pistisMode = route.query.pm;
 const backendUrl = route.query.url;
+const datasetFactoryUrl = route.query.url; // URL parameter for dataset factory
 const isFactory = ref(pistisMode === 'factory');
 
 // Route and store setup
@@ -115,6 +116,7 @@ const store = useStore();
 
 store.setPistisMode(pistisMode);
 store.setBackendUrl(backendUrl);
+store.setDatasetFactoryUrl(datasetFactoryUrl);
 
 const token = session.value?.token;
 // Initialize data fetch

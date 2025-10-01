@@ -1,263 +1,273 @@
 <template>
-    <div>
+    <div class="table-wrapper">
         <!-- Global Search Input -->
         <input v-model="searchQuery" type="text" class="global-search" placeholder="Search lineage table..." />
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th
-                        v-for="(header, index) in props.headers"
-                        :key="index"
-                        class="table_head sortable"
-                        scope="col"
-                        :class="getColumnClass(header.key)"
-                        @click="sortTable(header.key)"
-                    >
-                        <div class="header-content">
-                            <span class="header-label"
-                                ><strong>{{ header.label }}</strong></span
-                            >
-                            <span v-if="sortKey === header.key" class="sort-icon">
-                                {{ sortOrder === 'asc' ? '▲' : '▼' }}
-                            </span>
-                        </div>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Show "No records found" when search returns empty results -->
-                <tr v-if="filteredTableData.length === 0">
-                    <td :colspan="props.headers.length" class="no-results">No records match your search</td>
-                </tr>
-
-                <!-- Render Table Rows -->
-                <tr
-                    v-for="(row, rowIndex) in filteredTableData"
-                    :key="rowIndex"
-                    :class="{
-                        highlighted: String(row.id) === String(hoveredRow) && !props.useRedHighlight,
-                        'highlighted-parent':
-                            hoveredParents.map(String).includes(String(row.id)) && !props.useRedHighlight,
-                        'highlighted-red':
-                            (String(row.id) === String(hoveredRow) && props.useRedHighlight) ||
-                            props.selectedDiff.map(String).includes(String(row.id)),
-                    }"
-                >
-                    <td class="text-center align-middle version-column">{{ row.version }}</td>
-                    <td
-                        class="align-middle id-column copyable-cell"
-                        :class="{ copied: lastCopied === `${rowIndex}-id` }"
-                        @click="copyToClipboard(row.id, rowIndex, 'id')"
-                        @mouseleave="clearHoverSuppression"
-                    >
-                        <span class="cell-text">{{ row.id }}</span>
-                        <span v-if="suppressHoverHint !== `${rowIndex}-id`" class="copy-hint">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            Click to copy
-                        </span>
-                        <span v-if="lastCopied === `${rowIndex}-id`" class="copy-success-hint">Copied!</span>
-                    </td>
-                    <td
-                        class="align-middle operation-column copyable-cell"
-                        :title="formatActivityTooltip(row) + '\nClick to copy'"
-                        :class="{ copied: lastCopied === `${rowIndex}-activity` }"
-                        @click="copyToClipboard(formatActivityForCopy(row), rowIndex, 'activity')"
-                    >
-                        <div class="copy-content">
-                            <div class="activity-with-details">
-                                <span class="cell-text activity-type">{{ row.activity }}</span>
-                                <!-- Activity Description -->
-                                <div v-if="row.activity_description" class="create-description">
-                                    {{ row.activity_description }}
-                                </div>
-                                <div
-                                    v-if="
-                                        row.operation_description && !hasNoOperationChanges(row.operation_description)
-                                    "
-                                    class="update-details"
+        <div class="table-scroll-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th
+                            v-for="(header, index) in props.headers"
+                            :key="index"
+                            class="table_head sortable"
+                            scope="col"
+                            :class="getColumnClass(header.key)"
+                            @click="sortTable(header.key)"
+                        >
+                            <div class="header-content">
+                                <span class="header-label"
+                                    ><strong>{{ header.label }}</strong></span
                                 >
-                                    <!-- Data Enrichment -->
-                                    <div v-if="row.operation_description.data_enrichment" class="detail-item">
-                                        <div class="detail-header">
-                                            <span class="detail-intro">
-                                                <strong>Data Enrichment:</strong>
-                                                {{
-                                                    parseDataEnrichment(row.operation_description.data_enrichment).intro
-                                                }}
-                                            </span>
-                                        </div>
-                                        <ul class="section-items-list">
-                                            <li
-                                                v-for="(change, index) in parseDataEnrichment(
-                                                    row.operation_description.data_enrichment,
-                                                ).changes"
-                                                :key="'enrich-' + index"
-                                                class="section-item"
-                                            >
-                                                <span class="item-enrichment">
-                                                    {{ change.oldName }} → {{ change.newName }}
-                                                </span>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                <span v-if="sortKey === header.key" class="sort-icon">
+                                    {{ sortOrder === 'asc' ? '▲' : '▼' }}
+                                </span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Show "No records found" when search returns empty results -->
+                    <tr v-if="filteredTableData.length === 0">
+                        <td :colspan="props.headers.length" class="no-results">No records match your search</td>
+                    </tr>
 
-                                    <!-- Data Transformations -->
-                                    <div v-if="row.operation_description.data_transformations" class="detail-item">
-                                        <div class="detail-header">
-                                            <span class="detail-intro">
-                                                <strong>Data Transformations:</strong>
-                                                {{
-                                                    parseDataTransformations(
-                                                        row.operation_description.data_transformations,
-                                                    ).intro
-                                                }}
-                                            </span>
-                                        </div>
-                                        <ul class="section-items-list">
-                                            <li
-                                                v-for="(change, index) in parseDataTransformations(
-                                                    row.operation_description.data_transformations,
-                                                ).changes"
-                                                :key="'transform-' + index"
-                                                class="section-item"
-                                            >
-                                                <span class="item-transformation">
-                                                    {{ change.description }}: {{ change.details }}
-                                                </span>
-                                            </li>
-                                        </ul>
+                    <!-- Render Table Rows -->
+                    <tr
+                        v-for="(row, rowIndex) in filteredTableData"
+                        :key="rowIndex"
+                        :class="{
+                            highlighted: String(row.id) === String(hoveredRow) && !props.useRedHighlight,
+                            'highlighted-parent':
+                                hoveredParents.map(String).includes(String(row.id)) && !props.useRedHighlight,
+                            'highlighted-red':
+                                (String(row.id) === String(hoveredRow) && props.useRedHighlight) ||
+                                props.selectedDiff.map(String).includes(String(row.id)),
+                        }"
+                    >
+                        <td class="text-center align-middle version-column">{{ row.version }}</td>
+                        <td
+                            class="align-middle id-column copyable-cell"
+                            :class="{ copied: lastCopied === `${rowIndex}-id` }"
+                            @click="copyToClipboard(row.id, rowIndex, 'id')"
+                            @mouseleave="clearHoverSuppression"
+                        >
+                            <span class="cell-text">{{ row.id }}</span>
+                            <span v-if="suppressHoverHint !== `${rowIndex}-id`" class="copy-hint">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Click to copy
+                            </span>
+                            <span v-if="lastCopied === `${rowIndex}-id`" class="copy-success-hint">Copied!</span>
+                        </td>
+                        <td
+                            class="align-middle operation-column copyable-cell"
+                            :title="formatActivityTooltip(row) + '\nClick to copy'"
+                            :class="{ copied: lastCopied === `${rowIndex}-activity` }"
+                            @click="copyToClipboard(formatActivityForCopy(row), rowIndex, 'activity')"
+                        >
+                            <div class="copy-content">
+                                <div class="activity-with-details">
+                                    <span class="cell-text activity-type">{{ row.activity }}</span>
+                                    <!-- Activity Description -->
+                                    <div v-if="row.activity_description" class="create-description">
+                                        {{ row.activity_description }}
                                     </div>
-
-                                    <!-- Schema Changes -->
                                     <div
                                         v-if="
-                                            row.operation_description.schema_changes &&
-                                            !row.operation_description.data_enrichment
+                                            row.operation_description &&
+                                            !hasNoOperationChanges(row.operation_description)
                                         "
-                                        class="detail-item"
+                                        class="update-details"
                                     >
-                                        <div class="detail-header">
-                                            <span class="detail-intro">
-                                                <strong>Schema Changes:</strong>
-                                                {{ parseSchemaChanges(row.operation_description.schema_changes).intro }}
-                                            </span>
-                                        </div>
-                                        <ul class="section-items-list">
-                                            <li
-                                                v-for="(change, index) in parseSchemaChanges(
-                                                    row.operation_description.schema_changes,
-                                                ).changes"
-                                                :key="'schema-' + index"
-                                                class="section-item"
-                                                :class="change.type"
-                                            >
-                                                <template v-if="change.type === 'renamed'">
-                                                    <span class="item-renamed"
-                                                        >{{ change.oldName }} → {{ change.newName }}</span
-                                                    >
-                                                </template>
-                                                <template v-else>
-                                                    <span :class="'item-' + change.type">{{ change.text }}</span>
-                                                </template>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <!-- Data Changes -->
-                                    <div v-if="row.operation_description.data_changes" class="detail-item">
-                                        <div class="detail-header">
-                                            <span class="detail-intro">
-                                                <strong>Data Changes:</strong>
-                                                {{ parseDataChanges(row.operation_description.data_changes).intro }}
-                                            </span>
-                                        </div>
-                                        <ul class="section-items-list">
-                                            <li
-                                                v-for="(change, index) in parseDataChanges(
-                                                    row.operation_description.data_changes,
-                                                ).changes"
-                                                :key="'data-' + index"
-                                                class="section-item"
-                                            >
-                                                <span :class="'item-' + change.type">
-                                                    {{ change.count }} value(s) {{ change.type }} in column '{{
-                                                        change.column
-                                                    }}'
+                                        <!-- Data Enrichment -->
+                                        <div v-if="row.operation_description.data_enrichment" class="detail-item">
+                                            <div class="detail-header">
+                                                <span class="detail-intro">
+                                                    <strong>Data Enrichment:</strong>
+                                                    {{
+                                                        parseDataEnrichment(row.operation_description.data_enrichment)
+                                                            .intro
+                                                    }}
                                                 </span>
-                                            </li>
-                                        </ul>
+                                            </div>
+                                            <ul class="section-items-list">
+                                                <li
+                                                    v-for="(change, index) in parseDataEnrichment(
+                                                        row.operation_description.data_enrichment,
+                                                    ).changes"
+                                                    :key="'enrich-' + index"
+                                                    class="section-item"
+                                                >
+                                                    <span class="item-enrichment">
+                                                        {{ change.oldName }} → {{ change.newName }}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Data Transformations -->
+                                        <div v-if="row.operation_description.data_transformations" class="detail-item">
+                                            <div class="detail-header">
+                                                <span class="detail-intro">
+                                                    <strong>Data Transformations:</strong>
+                                                    {{
+                                                        parseDataTransformations(
+                                                            row.operation_description.data_transformations,
+                                                        ).intro
+                                                    }}
+                                                </span>
+                                            </div>
+                                            <ul class="section-items-list">
+                                                <li
+                                                    v-for="(change, index) in parseDataTransformations(
+                                                        row.operation_description.data_transformations,
+                                                    ).changes"
+                                                    :key="'transform-' + index"
+                                                    class="section-item"
+                                                >
+                                                    <span class="item-transformation">
+                                                        {{ change.description }}: {{ change.details }}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Schema Changes -->
+                                        <div
+                                            v-if="
+                                                row.operation_description.schema_changes &&
+                                                !row.operation_description.data_enrichment
+                                            "
+                                            class="detail-item"
+                                        >
+                                            <div class="detail-header">
+                                                <span class="detail-intro">
+                                                    <strong>Schema Changes:</strong>
+                                                    {{
+                                                        parseSchemaChanges(row.operation_description.schema_changes)
+                                                            .intro
+                                                    }}
+                                                </span>
+                                            </div>
+                                            <ul class="section-items-list">
+                                                <li
+                                                    v-for="(change, index) in parseSchemaChanges(
+                                                        row.operation_description.schema_changes,
+                                                    ).changes"
+                                                    :key="'schema-' + index"
+                                                    class="section-item"
+                                                    :class="change.type"
+                                                >
+                                                    <template v-if="change.type === 'renamed'">
+                                                        <span class="item-renamed"
+                                                            >{{ change.oldName }} → {{ change.newName }}</span
+                                                        >
+                                                    </template>
+                                                    <template v-else>
+                                                        <span :class="'item-' + change.type">{{ change.text }}</span>
+                                                    </template>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Data Changes -->
+                                        <div v-if="row.operation_description.data_changes" class="detail-item">
+                                            <div class="detail-header">
+                                                <span class="detail-intro">
+                                                    <strong>Data Changes:</strong>
+                                                    {{ parseDataChanges(row.operation_description.data_changes).intro }}
+                                                </span>
+                                            </div>
+                                            <ul class="section-items-list">
+                                                <li
+                                                    v-for="(change, index) in parseDataChanges(
+                                                        row.operation_description.data_changes,
+                                                    ).changes"
+                                                    :key="'data-' + index"
+                                                    class="section-item"
+                                                >
+                                                    <span :class="'item-' + change.type">
+                                                        {{ change.count }} value(s) {{ change.type }} in column '{{
+                                                            change.column
+                                                        }}'
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                </div>
-                                <!-- No changes message for Update activity with no actual changes -->
-                                <div
-                                    v-if="
-                                        row.activity.toUpperCase() === 'UPDATE' &&
-                                        hasNoOperationChanges(row.operation_description)
-                                    "
-                                    class="no-changes-message"
-                                >
-                                    No schema changes, data changes, data transformations, or data enrichments detected.
+                                    <!-- No changes message for Update activity with no actual changes -->
+                                    <div
+                                        v-if="
+                                            row.activity.toUpperCase() === 'UPDATE' &&
+                                            hasNoOperationChanges(row.operation_description)
+                                        "
+                                        class="no-changes-message"
+                                    >
+                                        No schema changes, data changes, data transformations, or data enrichments
+                                        detected.
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <span v-if="lastCopied === `${rowIndex}-activity`" class="copy-indicator">Copied!</span>
-                    </td>
-                    <td
-                        class="align-middle username-column copyable-cell"
-                        :class="{ copied: lastCopied === `${rowIndex}-username` }"
-                        @click="copyToClipboard(row.username, rowIndex, 'username')"
-                        @mouseleave="clearHoverSuppression"
-                    >
-                        <span class="cell-text">{{ row.username }}</span>
-                        <span v-if="suppressHoverHint !== `${rowIndex}-username`" class="copy-hint">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            Click to copy
-                        </span>
-                        <span v-if="lastCopied === `${rowIndex}-username`" class="copy-success-hint">Copied!</span>
-                    </td>
-                    <td
-                        class="align-middle timestamp-column copyable-cell"
-                        :title="row.timestamp + '\nClick to copy'"
-                        :class="{ 'timestamp-copied': lastCopied === `${rowIndex}-timestamp` }"
-                        @click="copyToClipboard(row.timestamp, rowIndex, 'timestamp')"
-                    >
-                        <div class="copy-content">
-                            <span class="cell-text">{{ row.timestamp }}</span>
-                        </div>
-                        <span v-if="lastCopied === `${rowIndex}-timestamp`" class="copy-indicator timestamp-indicator"
-                            >Copied!</span
+                            <span v-if="lastCopied === `${rowIndex}-activity`" class="copy-indicator">Copied!</span>
+                        </td>
+                        <td
+                            class="align-middle username-column copyable-cell"
+                            :class="{ copied: lastCopied === `${rowIndex}-username` }"
+                            @click="copyToClipboard(row.username, rowIndex, 'username')"
+                            @mouseleave="clearHoverSuppression"
                         >
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                            <span class="cell-text">{{ row.username }}</span>
+                            <span v-if="suppressHoverHint !== `${rowIndex}-username`" class="copy-hint">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Click to copy
+                            </span>
+                            <span v-if="lastCopied === `${rowIndex}-username`" class="copy-success-hint">Copied!</span>
+                        </td>
+                        <td
+                            class="align-middle timestamp-column copyable-cell"
+                            :title="row.timestamp + '\nClick to copy'"
+                            :class="{ 'timestamp-copied': lastCopied === `${rowIndex}-timestamp` }"
+                            @click="copyToClipboard(row.timestamp, rowIndex, 'timestamp')"
+                        >
+                            <div class="copy-content">
+                                <span class="cell-text">{{ row.timestamp }}</span>
+                            </div>
+                            <span
+                                v-if="lastCopied === `${rowIndex}-timestamp`"
+                                class="copy-indicator timestamp-indicator"
+                                >Copied!</span
+                            >
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </template>
 
@@ -745,6 +755,21 @@ const parseDataEnrichment = (enrichment) => {
 </script>
 
 <style scoped>
+/* Table wrapper to contain everything */
+.table-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Scroll container for the table */
+.table-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
 tbody tr td {
     background-color: #ffffff !important;
     border-left: 3px solid transparent;
@@ -789,7 +814,8 @@ tbody tr:hover td {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    table-layout: auto;
+    table-layout: fixed;
+    min-width: 800px; /* Ensure table has minimum width for horizontal scroll */
 }
 
 /* 📌 Table Header */
