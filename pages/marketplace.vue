@@ -3,6 +3,7 @@ const routes = ref([
     { name: 'marketplace.pistisMarketplace', to: '/marketplace?pm=cloud' },
     { name: 'market.market', to: '/marketplace/market-insights' },
     { name: 'data.usage.analytics', to: '/marketplace/usage-analytics' },
+    { name: 'data.quality.query', to: '/marketplace/data-quality' },
 ]);
 </script>
 
