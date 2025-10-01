@@ -66,6 +66,7 @@ const searchUrl = url + '/srv/search/';
 
 const isTransformed = ref();
 const isAnonymized = ref();
+const isEncrypted = ref();
 
 const fetchMetadata = async () => {
     try {
@@ -74,6 +75,7 @@ const fetchMetadata = async () => {
         catalog.value = data.result.catalog.id;
         isTransformed.value = data.result.distributions.some((transformation) => transformation?.is_transformed);
         isAnonymized.value = data.result.distributions.some((anonymization) => anonymization?.is_anonymized);
+        isEncrypted.value = data.result.distributions.some((encryption) => encryption?.is_encrypted);
     } catch (error) {
         console.error('Error fetching the metadata. ERROR: ', error);
     }
@@ -158,6 +160,7 @@ async function downloadFile() {
             <div class="space-x-2">
                 <UBadge v-if="isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
                 <UBadge v-if="isTransformed" color="blue" variant="subtle">Transformed</UBadge>
+                <UBadge v-if="isEncrypted" color="yellow" variant="subtle">Encrypted</UBadge>
             </div>
         </div>
     </div>
