@@ -333,6 +333,48 @@ export default defineI18nConfig(() => ({
                             'Could not retrieve datasets available for investment. An error has occurred.',
                     },
                 },
+                quality: {
+                    query: 'Data Quality Query',
+                    selectDataset: {
+                        untitled: 'Untitled',
+                        noDistribution: 'No Distribution Title',
+                        noDataset: 'Untitled Dataset',
+                        noAccessURL: 'No AccessURL',
+                    },
+                    notifications: {
+                        invalidRuleDetails: 'Please update all required fields before saving.',
+                        validRuleDetails: 'Rule details saved successfully!',
+                        selectDataset: 'Please select a dataset to query.',
+                        noRulesSelected: 'No quality rules selected.',
+                        missingConfigurations: 'Please complete all rule configurations.',
+                        failedQuery: 'Failed to send query. See console for details.',
+                        successfulQuery: 'Query successfully sent!',
+                        fetchError: 'An error occurred while sending the query.',
+                        validationError: 'This field is required.',
+                    },
+                    headers: {
+                        title: 'Data Quality Rules Configuration',
+                        selectData: ' Select Dataset:',
+                        availableRules: 'Available Quality Rules',
+                        dimFilter: 'Filter by Dimensions:',
+                        selectedRules: 'Selected Rules',
+                    },
+                    button: {
+                        sendQuery: 'Send Query',
+                        clearAll: 'Clear All',
+                        saveDetails: 'Save Details',
+                        removeRule: 'Remove Rule',
+                    },
+                    form: {
+                        ruleName: 'Rule Name',
+                        description: 'Description',
+                        mostly: 'Violation Tolerance',
+                    },
+                    placeholder: {
+                        ruleDetails: 'Select a rule to configure it.',
+                        selectedRules: 'Drag rules here to add them.',
+                    },
+                },
 
                 workflow: {
                     runId: 'Run ID',

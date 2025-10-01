@@ -814,8 +814,7 @@ tbody tr:hover td {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    table-layout: fixed;
-    min-width: 800px; /* Ensure table has minimum width for horizontal scroll */
+    table-layout: auto;
 }
 
 /* 📌 Table Header */
