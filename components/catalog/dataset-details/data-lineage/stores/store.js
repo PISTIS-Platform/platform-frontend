@@ -201,6 +201,17 @@ export const useStore = defineStore('store', () => {
     // DATA PROCESSING UTILITIES
     // ========================================
 
+    // Helper function to transform activity to display text
+    const transformActivityToDisplay = (operation) => {
+        const operationUpper = String(operation).toUpperCase();
+        if (operationUpper === 'CREATE') {
+            return 'DATASET REGISTERED';
+        } else if (operationUpper === 'UPDATE') {
+            return 'DATASET UPDATED';
+        }
+        return operation || 'Unknown';
+    };
+
     const parseTableData = (apiData) => {
         const tempVersionedObject = {};
 
@@ -214,10 +225,19 @@ export const useStore = defineStore('store', () => {
                 // Combine user_group and username into display string
                 const userDisplay = record.user_group ? `${record.user_group} ${record.username}` : record.username;
 
+                // Add description for CREATE operations
+                const operationUpper = String(record.operation).toUpperCase();
+                let activityDescription = null;
+                if (operationUpper === 'CREATE') {
+                    activityDescription =
+                        'Dataset was successfully ingested via the Job Configurator and registered in the Factory Catalog.';
+                }
+
                 tempVersionedObject[recordId] = {
                     id: recordId,
                     version: record.version,
-                    activity: record.operation || 'Unknown',
+                    activity: transformActivityToDisplay(record.operation),
+                    activity_description: activityDescription,
                     operation_description: record.operation_description,
                     username: userDisplay,
                     timestamp: formatDate(record.timestamp),
