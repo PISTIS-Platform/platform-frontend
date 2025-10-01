@@ -1,11 +1,5 @@
 <script setup lang="ts">
-// import SearchInfoPanel from '@/components/base/search-info-panel/SearchInfoPanel.vue'
-// import FacetSidebar from '@/components/facet-sidebar/FacetSidebar.vue'
-// import SelectedFacetsOverview from '@/components/selected-facets-overview/SelectedFacetsOverview.vue'
-
-// import FacetBurgerButton from '@/views/search/FacetBurgerButton.vue'
-// import SearchBar from '@/views/search/SearchBar.vue'
-// import SearchItems from '@/views/search/SearchItems.vue'
+import { useQueryClient } from '@tanstack/vue-query';
 import Sidebar from 'primevue/sidebar';
 
 import { useDatasetSearchView } from '@/pages/catalog/useDatasetsSearchView';
@@ -13,6 +7,8 @@ import { useSearchParams } from '@/pages/catalog/useSearchParams';
 import { useSelectedFacets } from '@/pages/catalog/useSelectedFacets';
 // import { ref, toRef } from 'vue'
 import { useDcatApSearch } from '@/sdk';
+
+const queryClient = useQueryClient();
 
 // const route = useRoute();
 // const pistisMode = computed(() => route.query.pistisMode || 'factory');
@@ -48,6 +44,10 @@ const {
     selectedFacets,
     searchParams,
     hubSearchQueryDefinition: useDcatApSearch,
+});
+
+onMounted(() => {
+    queryClient.invalidateQueries();
 });
 </script>
 
