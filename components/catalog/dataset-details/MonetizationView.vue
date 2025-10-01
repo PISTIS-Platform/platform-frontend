@@ -37,7 +37,7 @@ const items = computed(() => {
         });
     }
 
-    if (props.data?.investment_offer_offer?.[0]) {
+    if (props.data?.investment_offer?.[0]) {
         tabs.push({ label: 'Investment', slot: 'investment' });
     }
 
