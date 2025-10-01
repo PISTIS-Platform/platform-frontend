@@ -265,6 +265,8 @@ export default defineI18nConfig(() => ({
                 datasetName: 'Dataset Name:',
                 workflowRealTimeData: 'Workflow Fetching Data: ',
                 datasetDescription: 'Dataset Description:',
+                datasetKeywords: 'Dataset Keywords:',
+                datasetCategory: 'Dataset Category:',
                 datasetEncrytion: 'Encrypt Dataset:',
                 gdprChecking: 'GDPR Check:',
                 workflowDefinition: 'Workflow Definition:',
@@ -338,8 +340,13 @@ export default defineI18nConfig(() => ({
                     end_date: 'End Date',
                     run_type: 'Run Type',
                     state: 'Status',
+                    action: 'Action',
+                    periodicity: 'Periodicty',
+                    dataset_name: 'Dataset',
                 },
                 designer: {
+                    numberOfResell: 'Number of times the dataset can be resold',
+                    numberOfShare: 'Number of times the dataset can be shared',
                     duration: {
                         title: 'Duration',
                         oneMonth: '1 month',
@@ -347,13 +354,11 @@ export default defineI18nConfig(() => ({
                         sixMonths: '6 months',
                         oneYear: '1 year',
                         perpetual: 'Perpetual',
-                        perpetualRevocable: 'Perpetual (Revocable)',
+                        perpetualRevocable: 'Perpetual (revocable)',
                     },
-                    numberOfResell: 'Number of times asset can be resold',
-                    numberOfShare: 'Number of times asset can be shared',
+                    noUseWithBlacklistedDatasets: 'No use with blacklisted datasets',
                     error: {
-                        noAssetFound:
-                            'Asset not found or not in your catalog. Please select one from the dropdown below.',
+                        noAssetFound: 'No asset found with this ID. Please select one from the dropdown below.',
                     },
                     nav: {
                         selectDataset: 'Dataset Selector',
@@ -362,7 +367,6 @@ export default defineI18nConfig(() => ({
                         accessPoliciesEditor: 'Access Policies Editor',
                         preview: 'Preview',
                     },
-                    noUseWithBlacklistedDatasets: 'No use with blacklisted datasets',
                     nftNotPossible:
                         'This asset is already on the marketplace and therefore cannot be sold as an NFT. Please select a different monetization method.',
                     annual: 'per year',
@@ -453,7 +457,7 @@ export default defineI18nConfig(() => ({
                     saveInvestmentPlan: 'Save Investment Plan',
                     pleaseCheck: 'Please check the form and fill in all required (*) fields',
                     availability: 'Availability',
-                    regionCountry: 'Select country/ies',
+                    regionCountry: 'Select a country',
                     worldwide: 'Worldwide',
                     transferable: 'Transferable',
                     nonTransferable: 'Non-transferable',
