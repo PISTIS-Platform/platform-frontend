@@ -244,6 +244,7 @@ const investOpen = ref(false);
                                 <span>Back</span>
                             </Typography>
                         </button>
+                        <LinkedDataSelector :resource-id="datasetId" resource="datasets" />
                     </div>
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-row items-center justify-between">
