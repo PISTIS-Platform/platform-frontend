@@ -765,6 +765,7 @@ const parseDataEnrichment = (enrichment) => {
 .table-wrapper {
     width: 100%;
     max-width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -837,7 +838,9 @@ thead th {
     padding: 12px 10px;
     text-align: left;
     transition: background 0.3s ease;
-    white-space: nowrap;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     border-bottom: 2px solid #4528a0;
     letter-spacing: 0.3px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
