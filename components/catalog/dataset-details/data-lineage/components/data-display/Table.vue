@@ -758,6 +758,7 @@ const parseDataEnrichment = (enrichment) => {
 /* Table wrapper to contain everything */
 .table-wrapper {
     width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -766,7 +767,8 @@ const parseDataEnrichment = (enrichment) => {
 /* Scroll container for the table */
 .table-scroll-container {
     width: 100%;
-    overflow-x: auto;
+    max-width: 100%;
+    overflow-x: hidden;
     overflow-y: visible;
 }
 
@@ -814,7 +816,7 @@ tbody tr:hover td {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    table-layout: auto;
+    table-layout: fixed;
 }
 
 /* 📌 Table Header */
@@ -828,7 +830,9 @@ thead th {
     padding: 12px 10px;
     text-align: left;
     transition: background 0.3s ease;
-    white-space: nowrap;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     border-bottom: 2px solid #4528a0;
     letter-spacing: 0.3px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -842,7 +846,8 @@ thead th {
 .header-content {
     display: flex;
     align-items: center;
-    white-space: nowrap;
+    white-space: normal;
+    word-wrap: break-word;
     font-size: 0.95em;
 }
 
@@ -865,27 +870,22 @@ thead th {
 /* Column width specifications */
 .version-column {
     width: 8%;
-    min-width: 80px;
 }
 
 .id-column {
     width: 15%;
-    min-width: 120px;
 }
 
 .operation-column {
     width: 35%;
-    min-width: 250px;
 }
 
 .username-column {
     width: 15%;
-    min-width: 100px;
 }
 
 .timestamp-column {
     width: 20%;
-    min-width: 140px;
 }
 
 .operation-description {
@@ -1511,7 +1511,6 @@ tbody tr.highlighted-red td.version-column {
 
 .operation-column {
     width: 46%;
-    min-width: max(300px, fit-content);
     max-width: none;
 }
 
