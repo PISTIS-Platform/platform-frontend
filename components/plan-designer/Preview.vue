@@ -3,7 +3,9 @@ import * as R from 'ramda';
 
 const { t } = useI18n();
 
-defineProps({
+const { showErrorMessage } = useAlertMessage();
+
+const props = defineProps({
     assetOfferingDetails: {
         type: Object as PropType<Record<string, any>>,
         required: true,
@@ -32,18 +34,19 @@ defineProps({
         type: String,
         required: true,
     },
+    bodyToSend: {
+        type: Object as PropType<Record<string, any>>,
+        required: true,
+    },
 });
+
+const monetizationDetails = computed(() => props.monetizationDetails);
+const bodyToSend = computed(() => props.bodyToSend);
 
 const valuationRating = ref('A');
 const numberRating = ref(0.96);
 
-const valuationData = {
-    utility: 0.52,
-    usability: 0.75,
-    profit: 0.35,
-    something: 0.8,
-    somethingElse: 0.9,
-};
+const valuationData = ref();
 
 const valuationColors: Record<string, string> = {
     A: 'green',
@@ -65,14 +68,33 @@ const loadingValuation = ref(false);
 
 const getValuationData = async () => {
     loadingValuation.value = true;
-    await delay(3);
-    loadingValuation.value = false;
-    showValuationData.value = true;
+    try {
+        const result = await $fetch(`/api/datasets/get-valuation-data`, {
+            method: 'POST',
+            body: bodyToSend.value,
+        });
+        valuationRating.value = result.data.rating;
+        numberRating.value = result.data.agg_score;
+        valuationData.value = {
+            accessibility: result.data.accessibility_score,
+            availability: result.data.availability_score,
+            format: result.data.format_score,
+            age: result.data.age_score,
+            legal: result.data.legal_score,
+            dqa: result.data.dqa_score,
+            dua: result.data.dua_score,
+        };
+        showValuationData.value = true;
+    } catch (error) {
+        showErrorMessage(t('data.designer.valuation.error'));
+    } finally {
+        loadingValuation.value = false;
+    }
 };
 
 import { LicenseCode } from '~/constants/licenses';
 
-const { durationSelections } = useLicenseSchema();
+const { durationSelections } = useLicenseSchema(monetizationDetails);
 
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
 

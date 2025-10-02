@@ -169,7 +169,7 @@ const licenseDetails = ref<Partial<licenseType>>({
     numOfShare: null,
 });
 
-const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema(monetizationDetails);
 
 // access policies
 let policyData: Array<AccessPolicyDetails> = [];
@@ -188,6 +188,46 @@ const defaultPolicy: AccessPolicyDetails = {
 policyData.push(defaultPolicy);
 
 const submitStatus = ref();
+
+const bodyToSend = computed(() => ({
+    assetId: newAssetId,
+    originalAssetId: selectedAsset.value?.id,
+    organizationId: runtimeConfig.public?.orgId,
+    organizationName: accountData.value?.user.orgName,
+    ...monetizationDetails.value,
+    distributionId: assetOfferingDetails.value.selectedDistribution.id,
+    title: assetOfferingDetails.value.title,
+    description: assetOfferingDetails.value.description,
+    keywords: assetOfferingDetails.value.keywords,
+    type: monetizationDetails.value.type,
+    subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
+    updateFrequency: monetizationDetails.value.updateFrequency,
+    price: monetizationDetails.value.price,
+    license: licenseDetails.value.license,
+    extraTerms: licenseDetails.value.extraTerms,
+    contractTerms: licenseDetails.value.contractTerms,
+    canEdit: false, //FIXME: Where do we get this?
+    region: licenseDetails.value?.region ? licenseDetails.value?.region?.join(', ') : '',
+    isExclusive: licenseDetails.value.isExclusive,
+    transferable: licenseDetails.value.transferable,
+    duration: typeof licenseDetails.value.duration === 'number' ? licenseDetails.value.duration : null,
+    perpetual: typeof licenseDetails.value.duration === 'string' ? licenseDetails.value.duration : null,
+    noUseWithBlacklistedDatasets: licenseDetails.value.noUseWithBlacklistedDatasets,
+    additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
+    nonRenewalDays: licenseDetails.value.nonRenewalDays,
+    contractBreachDays: licenseDetails.value.contractBreachDays,
+    containsPersonalData: hasPersonalData.value,
+    personalDataTerms: licenseDetails.value.personalDataTerms,
+    accessPolicies: {
+        assetId: newAssetId,
+        assetTitle: assetOfferingDetails.value.title,
+        assetDescription: assetOfferingDetails.value.description,
+        policyData: policyData,
+    },
+    sellerId: accountData.value?.user.sub,
+    numOfResell: licenseDetails.value.numOfResell ?? 0,
+    numOfShare: licenseDetails.value.numOfShare ?? 0,
+}));
 
 const submitAll = async () => {
     submitStatus.value = 'pending';
@@ -210,45 +250,7 @@ const submitAll = async () => {
             },
         };
     } else {
-        body = {
-            assetId: newAssetId,
-            originalAssetId: selectedAsset.value?.id,
-            organizationId: runtimeConfig.public?.orgId,
-            organizationName: accountData.value?.user.orgName,
-            ...monetizationDetails.value,
-            distributionId: assetOfferingDetails.value.selectedDistribution.id,
-            title: assetOfferingDetails.value.title,
-            description: assetOfferingDetails.value.description,
-            keywords: assetOfferingDetails.value.keywords,
-            type: monetizationDetails.value.type,
-            subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
-            updateFrequency: monetizationDetails.value.updateFrequency,
-            price: monetizationDetails.value.price,
-            license: licenseDetails.value.license,
-            extraTerms: licenseDetails.value.extraTerms,
-            contractTerms: licenseDetails.value.contractTerms,
-            canEdit: false, //FIXME: Where do we get this?
-            region: licenseDetails.value.region?.join(', '),
-            isExclusive: licenseDetails.value.isExclusive,
-            transferable: licenseDetails.value.transferable,
-            duration: typeof licenseDetails.value.duration === 'number' ? licenseDetails.value.duration : null,
-            perpetual: typeof licenseDetails.value.duration === 'string' ? licenseDetails.value.duration : null,
-            noUseWithBlacklistedDatasets: licenseDetails.value.noUseWithBlacklistedDatasets,
-            additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
-            nonRenewalDays: licenseDetails.value.nonRenewalDays,
-            contractBreachDays: licenseDetails.value.contractBreachDays,
-            containsPersonalData: hasPersonalData.value,
-            personalDataTerms: licenseDetails.value.personalDataTerms,
-            accessPolicies: {
-                assetId: newAssetId,
-                assetTitle: assetOfferingDetails.value.title,
-                assetDescription: assetOfferingDetails.value.description,
-                policyData: policyData,
-            },
-            sellerId: accountData.value?.user.sub,
-            numOfResell: licenseDetails.value.numOfResell ?? 0,
-            numOfShare: licenseDetails.value.numOfShare ?? 0,
-        };
+        body = bodyToSend.value;
     }
 
     try {
@@ -295,7 +297,7 @@ const steps = computed(() => [
     },
 ]);
 
-const selectedPage = ref(4);
+const selectedPage = ref(0);
 
 const handlePageSelectionBackwards = (value: number) => {
     selectedPage.value = value;
@@ -424,6 +426,7 @@ const changeStep = async (stepNum: number) => {
 
     <Preview
         v-if="selectedPage === 4"
+        :body-to-send="bodyToSend"
         :policy-data="policyData"
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"
