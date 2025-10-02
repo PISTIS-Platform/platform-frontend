@@ -43,8 +43,8 @@ const props = defineProps({
 const monetizationDetails = computed(() => props.monetizationDetails);
 const bodyToSend = computed(() => props.bodyToSend);
 
-const valuationRating = ref('A');
-const numberRating = ref(0.96);
+const valuationRating = ref('');
+const numberRating = ref(0);
 
 const valuationData = ref();
 
