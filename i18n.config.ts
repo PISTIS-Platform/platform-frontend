@@ -387,6 +387,15 @@ export default defineI18nConfig(() => ({
                     dataset_name: 'Dataset',
                 },
                 designer: {
+                    valuation: {
+                        title: 'Data Valuation Rating',
+                        rating: 'Rating',
+                        utility: 'Utility',
+                        usability: 'Usability',
+                        profit: 'Profit',
+                        something: 'Something',
+                        somethingElse: 'Something Else',
+                    },
                     numberOfResell: 'Number of times the dataset can be resold',
                     numberOfShare: 'Number of times the dataset can be shared',
                     duration: {

@@ -94,27 +94,6 @@ watch(selectedAsset, () => {
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
 const newAssetId = uuidV4();
 
-// FAIR data valuation suggestions data
-//TODO: Will probably receive data from the component with its own API call
-
-const _fairValuationInfo = ref<{
-    overallRating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
-    dataQuality: number;
-    technical: number;
-    business: number;
-    legal: number;
-    privacy: number;
-}>({
-    overallRating: 'A',
-    dataQuality: 28,
-    technical: 20,
-    business: 32,
-    legal: 13,
-    privacy: 30,
-});
-
-const _loadingValuation = ref(false);
-
 // data for asset offering details
 
 const assetOfferingDetails = ref<AssetOfferingDetails>({
@@ -316,7 +295,7 @@ const steps = computed(() => [
     },
 ]);
 
-const selectedPage = ref(0);
+const selectedPage = ref(4);
 
 const handlePageSelectionBackwards = (value: number) => {
     selectedPage.value = value;

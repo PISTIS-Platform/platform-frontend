@@ -34,6 +34,31 @@ defineProps({
     },
 });
 
+const valuationRating = ref('A');
+const numberRating = ref(0.96);
+
+const valuationData = {
+    utility: 0.52,
+    usability: 0.75,
+    profit: 0.35,
+    something: 0.8,
+    somethingElse: 0.9,
+};
+
+const valuationColors: Record<string, string> = {
+    A: 'green',
+    B: 'yellow',
+    C: 'orange',
+    D: 'red',
+};
+
+const valuationIcons: Record<string, string> = {
+    A: 'emojione-monotone:letter-a',
+    B: 'emojione-monotone:letter-b',
+    C: 'emojione-monotone:letter-c',
+    D: 'emojione-monotone:letter-d',
+};
+
 import { LicenseCode } from '~/constants/licenses';
 
 const { durationSelections } = useLicenseSchema();
@@ -132,6 +157,43 @@ const subscriptionMapping: Record<string, string> = {
                                       : $t('data.designer.monthly'))
                         }}</span>
                     </div>
+                </div>
+                <div>
+                    <UAlert variant="subtle" :color="valuationColors[valuationRating] ?? 'blue'">
+                        <template #title>
+                            <div class="w-full flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <UIcon
+                                        :name="valuationIcons[valuationRating] ?? 'ic:outline-star'"
+                                        class="w-8 h-8"
+                                    />
+                                    <UButton
+                                        :color="valuationColors[valuationRating] ?? 'blue'"
+                                        class="cursor-default hover:bg-inherit"
+                                        >{{ (numberRating * 10).toFixed(1) }}</UButton
+                                    >
+                                </div>
+                                <div class="flex items-center gap-4 text-gray-600">
+                                    <span class="font-bold text-sm">{{ $t('data.designer.valuation.title') }}</span>
+                                    <UIcon name="streamline-ultimate:rating-star-ribbon-bold" class="w-6 h-6" />
+                                </div>
+                            </div>
+                        </template>
+
+                        <template #description>
+                            <div class="mt-6 grid gap-4 grid-cols-2 md:grid-cols-3 text-gray-600">
+                                <div v-for="key in Object.keys(valuationData)" :key="key" class="flex flex-col gap-2">
+                                    <div class="flex items-center justify-between w-full">
+                                        <span class="font-semibold text-xs">{{
+                                            $t(`data.designer.valuation.${key}`)
+                                        }}</span>
+                                        <span class="font-semibold text-xs">{{ valuationData[key] * 10 }}</span>
+                                    </div>
+                                    <UMeter :value="valuationData[key] * 10" :min="0" :max="10" color="gray" />
+                                </div>
+                            </div>
+                        </template>
+                    </UAlert>
                 </div>
             </div>
         </UCard>
