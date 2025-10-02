@@ -19,8 +19,14 @@
                                 <span class="header-label"
                                     ><strong>{{ header.label }}</strong></span
                                 >
-                                <span v-if="sortKey === header.key" class="sort-icon">
-                                    {{ sortOrder === 'asc' ? '▲' : '▼' }}
+                                <span
+                                    class="sort-icon"
+                                    :class="{
+                                        'sort-icon-visible': sortKey === header.key,
+                                        'sort-icon-invisible': sortKey !== header.key,
+                                    }"
+                                >
+                                    {{ sortKey === header.key ? (sortOrder === 'asc' ? '▲' : '▼') : '▼' }}
                                 </span>
                             </div>
                         </th>
@@ -869,30 +875,36 @@ thead th {
     padding-right: 6px;
 }
 
-/* Column width specifications with min-widths to ensure headers fit */
+/* Sort icon visible state */
+.sort-icon-visible {
+    opacity: 1;
+}
+
+/* Sort icon invisible state - reserves space but not visible */
+.sort-icon-invisible {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Column width specifications */
 .version-column {
     width: 11%;
-    min-width: 0; /* Allow shrinking in fixed layout */
 }
 
 .id-column {
     width: 18%;
-    min-width: 0;
 }
 
 .operation-column {
     width: 38%;
-    min-width: 0;
 }
 
 .username-column {
     width: 17%;
-    min-width: 0;
 }
 
 .timestamp-column {
     width: 16%;
-    min-width: 0;
 }
 
 .operation-description {
