@@ -238,11 +238,11 @@ async function downloadFile() {
                     </div>
                     <!-- <KButton> Preview </KButton> -->
 
-                    <LinkedDataSelector
+                    <!-- <LinkedDataSelector
                         :resource-id="distributionId"
                         resource="distributions"
                         class="text-white dark:text-surface-900 bg-pistis-600 dark:bg-primary-dark hover:bg-primary-hover dark:hover:bg-primary-dark-hover active:bg-primary dark:active:bg-primary-dark-pressed rounded-md border-transparent inline-flex min-w-fit items-center justify-center text-center font-medium align-bottom h-8 text-sm px-4 py-2"
-                    />
+                    /> -->
 
                     <!-- Why is this not showing?? -->
                     <!-- <Dropdown severity="secondary" label="Beschreibung speichern">

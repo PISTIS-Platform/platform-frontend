@@ -758,7 +758,10 @@ const parseDataEnrichment = (enrichment) => {
 /* Table wrapper to contain everything */
 .table-wrapper {
     width: 100%;
+<<<<<<< HEAD
     max-width: 100%;
+=======
+>>>>>>> master
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -767,8 +770,12 @@ const parseDataEnrichment = (enrichment) => {
 /* Scroll container for the table */
 .table-scroll-container {
     width: 100%;
+<<<<<<< HEAD
     max-width: 100%;
     overflow-x: hidden;
+=======
+    overflow-x: auto;
+>>>>>>> master
     overflow-y: visible;
 }
 
