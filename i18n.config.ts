@@ -383,7 +383,7 @@ export default defineI18nConfig(() => ({
                     run_type: 'Run Type',
                     state: 'Status',
                     action: 'Action',
-                    periodicity: 'Periodicty',
+                    periodicity: 'Periodicity',
                     dataset_name: 'Dataset',
                 },
                 designer: {
