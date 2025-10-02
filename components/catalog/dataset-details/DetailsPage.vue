@@ -53,6 +53,7 @@ const organizationId = ref(null);
 const catalog = ref(null);
 const factoryPrefix = ref('');
 const price = ref('');
+const investPrice = ref('');
 const isOwned = computed(() => {
     // True only in datasets that the logged-in user owns
     return organizationId.value === monetizationData.value?.publisher?.organization_id;
@@ -119,6 +120,7 @@ const fetchMetadata = async () => {
 
             price.value = monetizationData.value?.purchase_offer[0].price;
             offerId.value = props.datasetId;
+            investPrice.value = monetizationData.value?.investment_offer[0].price_per_share;
         }
         if (pistisMode == 'factory') {
             offerId.value = metadata.value.result?.offer?.marketplace_offer_id;
@@ -392,7 +394,8 @@ const investOpen = ref(false);
                         <div class="flex justify-between items-center">
                             <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
                             <div class="text-3xl font-bold text-primary-700">
-                                {{ price }} &euro;
+                                <span v-if="investPrice">{{ investPrice }} &euro;</span>
+                                <span v-else>-</span>
                                 <span class="font-medium text-lg text-neutral-500"> / share</span>
                             </div>
                         </div>
