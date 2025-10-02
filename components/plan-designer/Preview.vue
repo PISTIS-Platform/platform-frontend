@@ -174,6 +174,7 @@ const subscriptionMapping: Record<string, string> = {
                         v-if="!showValuationData"
                         :disabled="loadingValuation"
                         class="px-4 py-2 w-44 block"
+                        variant="outline"
                         @click="getValuationData"
                     >
                         <UIcon v-if="loadingValuation" name="svg-spinners:270-ring-with-bg" />
