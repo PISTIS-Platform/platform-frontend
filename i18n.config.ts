@@ -390,6 +390,7 @@ export default defineI18nConfig(() => ({
                     valuation: {
                         title: 'Data Valuation Rating',
                         rating: 'Rating',
+                        show: 'Show Valuation Data',
                         utility: 'Utility',
                         usability: 'Usability',
                         profit: 'Profit',

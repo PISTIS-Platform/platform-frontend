@@ -59,6 +59,17 @@ const valuationIcons: Record<string, string> = {
     D: 'emojione-monotone:letter-d',
 };
 
+const showValuationData = ref(false);
+
+const loadingValuation = ref(false);
+
+const getValuationData = async () => {
+    loadingValuation.value = true;
+    await delay(3);
+    loadingValuation.value = false;
+    showValuationData.value = true;
+};
+
 import { LicenseCode } from '~/constants/licenses';
 
 const { durationSelections } = useLicenseSchema();
@@ -159,7 +170,20 @@ const subscriptionMapping: Record<string, string> = {
                     </div>
                 </div>
                 <div>
-                    <UAlert variant="subtle" :color="valuationColors[valuationRating] ?? 'blue'">
+                    <UButton
+                        v-if="!showValuationData"
+                        :disabled="loadingValuation"
+                        class="px-4 py-2 w-44 block"
+                        @click="getValuationData"
+                    >
+                        <UIcon v-if="loadingValuation" name="svg-spinners:270-ring-with-bg" />
+                        <span v-else>{{ $t('data.designer.valuation.show') }}</span>
+                    </UButton>
+                    <UAlert
+                        v-if="showValuationData"
+                        variant="subtle"
+                        :color="valuationColors[valuationRating] ?? 'blue'"
+                    >
                         <template #title>
                             <div class="w-full flex items-center justify-between">
                                 <div class="flex items-center gap-4">
@@ -189,7 +213,7 @@ const subscriptionMapping: Record<string, string> = {
                                         }}</span>
                                         <span class="font-semibold text-xs">{{ valuationData[key] * 10 }}</span>
                                     </div>
-                                    <UMeter :value="valuationData[key] * 10" :min="0" :max="10" color="gray" />
+                                    <UProgress :value="valuationData[key] * 10" :min="0" :max="10" color="gray" />
                                 </div>
                             </div>
                         </template>
