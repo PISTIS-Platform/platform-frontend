@@ -19,8 +19,14 @@
                                 <span class="header-label"
                                     ><strong>{{ header.label }}</strong></span
                                 >
-                                <span v-if="sortKey === header.key" class="sort-icon">
-                                    {{ sortOrder === 'asc' ? '▲' : '▼' }}
+                                <span
+                                    class="sort-icon"
+                                    :class="{
+                                        'sort-icon-visible': sortKey === header.key,
+                                        'sort-icon-invisible': sortKey !== header.key,
+                                    }"
+                                >
+                                    {{ sortKey === header.key ? (sortOrder === 'asc' ? '▲' : '▼') : '▼' }}
                                 </span>
                             </div>
                         </th>
@@ -759,6 +765,7 @@ const parseDataEnrichment = (enrichment) => {
 .table-wrapper {
     width: 100%;
     max-width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -811,6 +818,7 @@ tbody tr:hover td {
 /* 📌 Table Styling */
 .table {
     width: 100%;
+    max-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 8px;
@@ -838,6 +846,7 @@ thead th {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     text-shadow: none;
     font-size: 0.85em;
+    line-height: 1.3;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -846,14 +855,15 @@ thead th {
 .header-content {
     display: flex;
     align-items: center;
-    white-space: normal;
-    word-wrap: break-word;
+    flex-wrap: nowrap;
+    gap: 2px;
+    white-space: nowrap;
     font-size: 0.95em;
 }
 
 /* Styling for header label */
 .header-label {
-    margin-right: 3px;
+    margin-right: 0px;
     font-weight: 400;
     display: inline-block;
 }
@@ -865,27 +875,39 @@ thead th {
     line-height: 1;
     vertical-align: middle;
     margin-left: 0px;
+    padding-right: 6px;
+}
+
+/* Sort icon visible state */
+.sort-icon-visible {
+    opacity: 1;
+}
+
+/* Sort icon invisible state - reserves space but not visible */
+.sort-icon-invisible {
+    opacity: 0;
+    visibility: hidden;
 }
 
 /* Column width specifications */
 .version-column {
-    width: 8%;
+    width: 11%;
 }
 
 .id-column {
-    width: 15%;
+    width: 18%;
 }
 
 .operation-column {
-    width: 35%;
+    width: 38%;
 }
 
 .username-column {
-    width: 15%;
+    width: 17%;
 }
 
 .timestamp-column {
-    width: 20%;
+    width: 16%;
 }
 
 .operation-description {
