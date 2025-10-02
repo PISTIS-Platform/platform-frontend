@@ -811,6 +811,7 @@ tbody tr:hover td {
 /* 📌 Table Styling */
 .table {
     width: 100%;
+    max-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 8px;
@@ -830,14 +831,13 @@ thead th {
     padding: 12px 10px;
     text-align: left;
     transition: background 0.3s ease;
-    white-space: normal;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+    white-space: nowrap;
     border-bottom: 2px solid #4528a0;
     letter-spacing: 0.3px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     text-shadow: none;
     font-size: 0.85em;
+    line-height: 1.3;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -846,14 +846,15 @@ thead th {
 .header-content {
     display: flex;
     align-items: center;
-    white-space: normal;
-    word-wrap: break-word;
+    flex-wrap: nowrap;
+    gap: 2px;
+    white-space: nowrap;
     font-size: 0.95em;
 }
 
 /* Styling for header label */
 .header-label {
-    margin-right: 3px;
+    margin-right: 0px;
     font-weight: 400;
     display: inline-block;
 }
@@ -865,27 +866,33 @@ thead th {
     line-height: 1;
     vertical-align: middle;
     margin-left: 0px;
+    padding-right: 6px;
 }
 
-/* Column width specifications */
+/* Column width specifications with min-widths to ensure headers fit */
 .version-column {
-    width: 8%;
+    width: 11%;
+    min-width: 0; /* Allow shrinking in fixed layout */
 }
 
 .id-column {
-    width: 15%;
+    width: 18%;
+    min-width: 0;
 }
 
 .operation-column {
-    width: 35%;
+    width: 38%;
+    min-width: 0;
 }
 
 .username-column {
-    width: 15%;
+    width: 17%;
+    min-width: 0;
 }
 
 .timestamp-column {
-    width: 20%;
+    width: 16%;
+    min-width: 0;
 }
 
 .operation-description {
