@@ -297,7 +297,7 @@ const steps = computed(() => [
     },
 ]);
 
-const selectedPage = ref(0);
+const selectedPage = ref(4);
 
 const handlePageSelectionBackwards = (value: number) => {
     selectedPage.value = value;

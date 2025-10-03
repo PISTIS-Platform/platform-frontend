@@ -43,10 +43,13 @@ const props = defineProps({
 const monetizationDetails = computed(() => props.monetizationDetails);
 const bodyToSend = computed(() => props.bodyToSend);
 
-const valuationRating = ref('');
+const valuationRating = ref('A');
 const numberRating = ref(0);
 
-const valuationData = ref({});
+const valuationData = ref({
+    availability: 0.5,
+    accessibility: 0.78,
+});
 
 const valuationColors: Record<string, string> = {
     A: 'green',
@@ -62,7 +65,7 @@ const valuationIcons: Record<string, string> = {
     D: 'emojione-monotone:letter-d',
 };
 
-const showValuationData = ref(false);
+const showValuationData = ref(true);
 
 const loadingValuation = ref(false);
 
@@ -87,13 +90,12 @@ const getValuationData = async () => {
         valuationRating.value = result.data.rating;
         numberRating.value = result.data.agg_score;
         valuationData.value = {
-            accessibility: result.data.accessibility_score,
-            availability: result.data.availability_score,
-            format: result.data.format_score,
-            age: result.data.age_score,
-            legal: result.data.legal_score,
-            dqa: result.data.dqa_score,
-            dua: result.data.dua_score,
+            accessibility: result.data.accessibility_score ?? undefined,
+            availability: result.data.availability_score ?? undefined,
+            format: result.data.format_score ?? undefined,
+            age: result.data.age_score ?? undefined,
+            legal: result.data.legal_score ?? undefined,
+            dqa: result.data.dqa_score ?? undefined,
         };
         showValuationData.value = true;
     } catch (error) {
@@ -227,7 +229,7 @@ const subscriptionMapping: Record<string, string> = {
                                     />
                                     <UButton
                                         :color="valuationColors[valuationRating] ?? 'blue'"
-                                        class="cursor-default hover:bg-inherit"
+                                        :class="`cursor-default hover:bg-${valuationColors[valuationRating]}`"
                                         >{{ (numberRating * 10).toFixed(1) }}</UButton
                                     >
                                 </div>
@@ -246,9 +248,14 @@ const subscriptionMapping: Record<string, string> = {
                                             <span class="font-semibold text-xs">{{
                                                 $t(`data.designer.valuation.${key}`)
                                             }}</span>
-                                            <UTooltip :text="explanations[key]" :popper="{ placement: 'top' }">
-                                                <UIcon name="mdi:information-outline" class="text-pistis-500 h-4 w-4" />
-                                            </UTooltip>
+                                            <UPopover mode="hover" :popper="{ placement: 'top' }" class="mt-1">
+                                                <UIcon name="mdi:information-outline" class="text-gray-500 h-4 w-4" />
+                                                <template #panel>
+                                                    <div class="max-w-xl p-2 flex text-wrap text-xs">
+                                                        {{ explanations[key] }}
+                                                    </div>
+                                                </template>
+                                            </UPopover>
                                         </div>
                                         <span class="font-semibold text-xs">{{
                                             (valuationData[key] * 10).toFixed(1)

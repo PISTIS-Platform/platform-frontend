@@ -393,19 +393,22 @@ export default defineI18nConfig(() => ({
                         show: 'Show Valuation Data',
                         error: 'Error retrieving valuation data',
                         accessibility: 'Accessibility',
-                        accessibilityExplanation: 'Accessibility explanation',
+                        accessibilityExplanation: 'Your data is accessible in the Market via an access URL.',
                         availability: 'Availability',
-                        availabilityExplanation: 'Availability explanation',
+                        availabilityExplanation:
+                            'Your data is available for selling, resharing or transfer through the Market.',
                         format: 'Format',
-                        formatExplanation: 'Format explanation',
+                        formatExplanation:
+                            'The value extraction process depends on the format of your data asset file (tabular, semistructured, unstructured).',
                         age: 'Age',
-                        ageExplanation: 'Age explanation',
+                        ageExplanation:
+                            'The value of data decreases as the data ages. We factor in data maturity and its freshness.',
                         legal: 'Legal',
-                        legalExplanation: 'Legal explanation',
-                        dqa: 'DQA',
-                        dqaExplanation: 'DQA Explanation',
-                        dua: 'DUA',
-                        duaExplanation: 'DUA Explanation',
+                        legalExplanation:
+                            'The permissiveness of the license and the presence of personal data affect the value of the data.',
+                        dqa: 'Data Quality',
+                        dqaExplanation:
+                            'Quality is a key factor for data value. We assess it for relevant metrics: accuracy, consistency, completeness, uniqueness, validity.',
                     },
                     numberOfResell: 'Number of times the dataset can be resold',
                     numberOfShare: 'Number of times the dataset can be shared',
