@@ -94,7 +94,6 @@ const getValuationData = async () => {
                 age_score: number;
                 legal_score: number;
                 dqa_score: number;
-                dua_score: number;
             };
         }>(`/api/datasets/get-valuation-data`, {
             method: 'POST',
