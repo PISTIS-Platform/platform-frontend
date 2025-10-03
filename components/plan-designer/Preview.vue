@@ -277,11 +277,13 @@ const subscriptionMapping: Record<string, string> = {
                                             </UPopover>
                                         </div>
                                         <span class="font-semibold text-xs">{{
-                                            valuationData[key] === 'N/A' ? 'N/A' : (valuationData[key] * 10).toFixed(1)
+                                            valuationData[key] === 'N/A'
+                                                ? 'N/A'
+                                                : ((valuationData[key] as number) * 10).toFixed(1)
                                         }}</span>
                                     </div>
                                     <UProgress
-                                        :value="valuationData[key] === 'N/A' ? 0 : valuationData[key] * 10"
+                                        :value="valuationData[key] === 'N/A' ? 0 : (valuationData[key] as number) * 10"
                                         :min="0"
                                         :max="10"
                                         color="gray"
