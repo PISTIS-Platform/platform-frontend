@@ -671,6 +671,7 @@ const runJobConfigurator = async (services: [string]) => {
     const formData = new FormData();
     let isoDateString = wfRunTimeSpecific.value;
     let periodicity = wfPeriodicity.value;
+    let encryption = datasetEncrytion.value;
 
     if (isoDateString) {
         const date = new Date(wfRunTimeSpecific.value);
@@ -733,7 +734,9 @@ const runJobConfigurator = async (services: [string]) => {
                 if (services[0].method == DATA_CHECK_IN_FILE_METHOD) {
                     wfPeriodicity.value = '';
                     throw new Error('A periodicity type cannot be set for file upload data check-in');
-                }
+                } else if (encryption == 'true') {
+                    throw new Error('Periodic workflows do not support encryption.');
+                }    
             }
         }
 
