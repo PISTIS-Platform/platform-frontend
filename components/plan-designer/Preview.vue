@@ -100,6 +100,12 @@ const getValuationData = async () => {
             method: 'POST',
             body: bodyToSend.value,
         });
+
+        if (result.status !== 'success') {
+            showErrorMessage(t('data.designer.valuation.error'));
+            return;
+        }
+
         valuationRating.value = result?.data?.rating;
         numberRating.value = result?.data?.agg_score;
         valuationData.value = {
