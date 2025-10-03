@@ -87,6 +87,7 @@ watch(
     { deep: true },
 );
 const notificationsNumberText = computed(() => (notificationCount.value > 9 ? '9+' : notificationCount.value));
+
 function isActive(item: any) {
     const targetPath = typeof item.to === 'string' ? item.to : item.to.path;
     const currentPath = route.path;
@@ -214,8 +215,8 @@ function isActive(item: any) {
                             'text-white hover:bg-primary-500 hover:bg-opacity-75',
                             'block rounded-md px-3 py-2 text-base font-medium',
                         ]"
-                        >{{ $t(item.name) }}</DisclosureButton
-                    >
+                        >{{ $t(item.name) }}
+                    </DisclosureButton>
                 </div>
                 <div class="border-t border-primary-700 pb-3 pt-4">
                     <div v-if="status === 'authenticated'" class="flex items-center px-5">
@@ -254,8 +255,8 @@ function isActive(item: any) {
                             :href="item.href"
                             class="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-500 hover:bg-opacity-75"
                         >
-                            {{ $t(item.name) }}</DisclosureButton
-                        >
+                            {{ $t(item.name) }}
+                        </DisclosureButton>
                     </div>
                 </div>
             </DisclosurePanel>

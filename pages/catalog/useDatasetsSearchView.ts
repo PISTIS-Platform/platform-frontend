@@ -27,6 +27,7 @@ interface UseDatasetSearchViewOptions<TF extends string, TM, TS extends Enhanced
     hvdModel?: MaybeRef<boolean>;
     livedataModel?: MaybeRef<boolean>;
     searchInput?: MaybeRef<string>;
+    searchType?: MaybeRef<string>;
     selectedFacets?: MaybeRef<{
         [f in TF]?: string[];
     }>;

@@ -98,7 +98,7 @@ export default defineNuxtConfig({
             enableRefreshOnWindowFocus: true,
         },
         globalAppMiddleware: {
-            isEnabled: false,
+            isEnabled: true,
         },
     },
 

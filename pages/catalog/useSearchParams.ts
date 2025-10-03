@@ -9,6 +9,7 @@ import { useDcatApSearch } from '@/sdk';
 export function useSearchParams(locale?: MaybeRefOrGetter) {
     const { refSyncedWithRouteQuery } = useDcatApSearch();
     const q = refSyncedWithRouteQuery('q', '');
+    const qt = refSyncedWithRouteQuery('qt', 'metadata');
     const limit = refSyncedWithRouteQuery('limit', 10);
     const displayedPage = refSyncedWithRouteQuery('page', 1);
     const page = computed({
@@ -50,6 +51,7 @@ export function useSearchParams(locale?: MaybeRefOrGetter) {
         displayedPage,
         queryParams: {
             q,
+            qt,
             limit,
             page,
             sort: finalComputedSort,
