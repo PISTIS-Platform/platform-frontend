@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const token = await getToken({ event });
 
-    return $fetch(`${factoryUrl}/srv/data-valuation-service`, {
+    return $fetch(`${factoryUrl}/srv/data-valuation-service/api/datavalue`, {
         method: 'POST',
         body,
         headers: {
