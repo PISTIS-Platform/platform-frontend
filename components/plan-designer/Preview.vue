@@ -51,7 +51,7 @@ const valuationData = ref({});
 const valuationColors: Record<string, string> = {
     A: 'green',
     B: 'yellow',
-    C: 'orange',
+    C: 'secondary',
     D: 'red',
 };
 
