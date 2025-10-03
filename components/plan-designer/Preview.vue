@@ -43,13 +43,10 @@ const props = defineProps({
 const monetizationDetails = computed(() => props.monetizationDetails);
 const bodyToSend = computed(() => props.bodyToSend);
 
-const valuationRating = ref('A');
+const valuationRating = ref('');
 const numberRating = ref(0);
 
-const valuationData = ref({
-    availability: 0.5,
-    accessibility: 0.78,
-});
+const valuationData = ref<Record<string, number | string>>({});
 
 const valuationColors: Record<string, string> = {
     A: 'green',
@@ -65,7 +62,7 @@ const valuationIcons: Record<string, string> = {
     D: 'emojione-monotone:letter-d',
 };
 
-const showValuationData = ref(true);
+const showValuationData = ref(false);
 
 const loadingValuation = ref(false);
 
@@ -83,19 +80,35 @@ const explanations = computed<Record<string, string>>(() => {
 const getValuationData = async () => {
     loadingValuation.value = true;
     try {
-        const result = await $fetch(`/api/datasets/get-valuation-data`, {
+        const result = await $fetch<{
+            status: string;
+            data: {
+                distribution_id: string;
+                organization_id: string;
+                is_owner: boolean;
+                agg_score: number;
+                rating: string;
+                accessibility_score: number;
+                availability_score: number;
+                format_score: number;
+                age_score: number;
+                legal_score: number;
+                dqa_score: number;
+                dua_score: number;
+            };
+        }>(`/api/datasets/get-valuation-data`, {
             method: 'POST',
             body: bodyToSend.value,
         });
-        valuationRating.value = result.data.rating;
-        numberRating.value = result.data.agg_score;
+        valuationRating.value = result?.data?.rating;
+        numberRating.value = result?.data?.agg_score;
         valuationData.value = {
-            accessibility: result.data.accessibility_score ?? undefined,
-            availability: result.data.availability_score ?? undefined,
-            format: result.data.format_score ?? undefined,
-            age: result.data.age_score ?? undefined,
-            legal: result.data.legal_score ?? undefined,
-            dqa: result.data.dqa_score ?? undefined,
+            accessibility: result?.data?.accessibility_score ?? 'N/A',
+            availability: result?.data?.availability_score ?? 'N/A',
+            format: result?.data?.format_score ?? 'N/A',
+            age: result?.data?.age_score ?? 'N/A',
+            legal: result?.data?.legal_score ?? 'N/A',
+            dqa: result?.data?.dqa_score ?? 'N/A',
         };
         showValuationData.value = true;
     } catch (error) {
@@ -258,10 +271,15 @@ const subscriptionMapping: Record<string, string> = {
                                             </UPopover>
                                         </div>
                                         <span class="font-semibold text-xs">{{
-                                            (valuationData[key] * 10).toFixed(1)
+                                            valuationData[key] === 'N/A' ? 'N/A' : (valuationData[key] * 10).toFixed(1)
                                         }}</span>
                                     </div>
-                                    <UProgress :value="valuationData[key] * 10" :min="0" :max="10" color="gray" />
+                                    <UProgress
+                                        :value="valuationData[key] === 'N/A' ? 0 : valuationData[key] * 10"
+                                        :min="0"
+                                        :max="10"
+                                        color="gray"
+                                    />
                                 </div>
                             </div>
                         </template>
