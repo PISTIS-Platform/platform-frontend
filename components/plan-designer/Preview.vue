@@ -46,7 +46,7 @@ const bodyToSend = computed(() => props.bodyToSend);
 const valuationRating = ref('');
 const numberRating = ref(0);
 
-const valuationData = ref();
+const valuationData = ref({});
 
 const valuationColors: Record<string, string> = {
     A: 'green',
@@ -65,6 +65,17 @@ const valuationIcons: Record<string, string> = {
 const showValuationData = ref(false);
 
 const loadingValuation = ref(false);
+
+const explanations = computed<Record<string, string>>(() => {
+    const keys = Object.keys(valuationData.value);
+    if (!keys.length) return {};
+    const explanationObject: Record<string, string> = {};
+    keys.forEach((key: string) => {
+        explanationObject[key] = t(`data.designer.valuation.${key}Explanation`);
+    });
+
+    return explanationObject;
+});
 
 const getValuationData = async () => {
     loadingValuation.value = true;
@@ -231,10 +242,17 @@ const subscriptionMapping: Record<string, string> = {
                             <div class="mt-6 grid gap-4 grid-cols-2 md:grid-cols-3 text-gray-600">
                                 <div v-for="key in Object.keys(valuationData)" :key="key" class="flex flex-col gap-2">
                                     <div class="flex items-center justify-between w-full">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-xs">{{
+                                                $t(`data.designer.valuation.${key}`)
+                                            }}</span>
+                                            <UTooltip :text="explanations[key]" :popper="{ placement: 'top' }">
+                                                <UIcon name="mdi:information-outline" class="text-pistis-500 h-4 w-4" />
+                                            </UTooltip>
+                                        </div>
                                         <span class="font-semibold text-xs">{{
-                                            $t(`data.designer.valuation.${key}`)
+                                            (valuationData[key] * 10).toFixed(1)
                                         }}</span>
-                                        <span class="font-semibold text-xs">{{ valuationData[key] * 10 }}</span>
                                     </div>
                                     <UProgress :value="valuationData[key] * 10" :min="0" :max="10" color="gray" />
                                 </div>
