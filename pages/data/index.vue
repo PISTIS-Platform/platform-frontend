@@ -711,8 +711,8 @@ const runJobConfigurator = async (services: [string]) => {
             throw new Error('No dataset name provided.');
             /* } else if (!datasetDescription.value) {
             throw new Error('No dataset description provided.'); */
-            /* } else if (!datasetKeywords.value) {
-            throw new Error('No dataset keywords provided.'); */
+        } else if (!datasetKeywords.value) {
+            throw new Error('No dataset keywords provided.');
         } else if (!datasetCategory.value) {
             throw new Error(
                 'No category has been selected for the dataset, please select one category.',
