@@ -193,20 +193,23 @@ const bodyToSend = computed(() => {
     if (monetizationDetails.value.type === 'nft') {
         return {
             type: 'nft',
-            price: monetizationDetails.value.price,
             assetId: selectedAsset.value?.id,
-            seller: accountData.value?.user.sub,
-            nftDetails: {
-                dataset_id: selectedAsset.value?.id,
-                factory_name: runtimeConfig.factoryName,
-                name: assetOfferingDetails.value.title,
-                description: assetOfferingDetails.value.description,
-                issuerName: 'PISTIS MARKET',
-                nft_license: 'https://pistis-market.eu/...',
-                nft_license_hash: 'abc123def456...',
+            organizationId: runtimeConfig.public?.orgId,
+            organizationName: accountData.value?.user.orgName,
+            price: monetizationDetails.value.price,
+            title: assetOfferingDetails.value.title,
+            description: assetOfferingDetails.value.description,
+            license: licenseDetails.value.license,
+            accessPolicies: {
+                assetId: selectedAsset.value?.id,
+                assetTitle: assetOfferingDetails.value.title,
+                assetDescription: assetOfferingDetails.value.description,
+                policyData: policyData,
             },
+            sellerId: accountData.value?.user.sub,
         };
     }
+
     return {
         assetId: newAssetId,
         originalAssetId: selectedAsset.value?.id,
