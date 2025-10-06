@@ -311,7 +311,7 @@ const subscriptionMapping: Record<string, string> = {
                         <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
                         <span>{{ licenseDetails.license }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.noUseWithBlacklistedDatasets')
                         }}</span>
