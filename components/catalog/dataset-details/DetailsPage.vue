@@ -267,7 +267,10 @@ const investOpen = ref(false);
                                     variant="outline"
                                     label="Quality Assessment"
                                     :to="{
-                                        path: '/marketplace/dataset-details/data-quality',
+                                        path:
+                                            pistisMode === 'cloud'
+                                                ? '/marketplace/dataset-details/data-quality'
+                                                : '/catalog/dataset-details/data-quality',
                                         query: {
                                             datasetId,
                                             title,
