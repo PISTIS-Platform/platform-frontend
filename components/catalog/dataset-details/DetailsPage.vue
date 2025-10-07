@@ -237,12 +237,19 @@ const investOpen = ref(false);
                                 <span>Back</span>
                             </Typography>
                         </button>
+                        <LinkedDataSelector
+                            :resource-id="props.datasetId"
+                            resource="datasets"
+                            class="text-pistis-600 text-sm"
+                        />
                     </div>
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-row items-center justify-between">
                             <h3 class="text-4xl text-primary-600 font-semibold">{{ title }}</h3>
                             <div class="flex flex-row gap-2">
+                                <!-- hide data lineage and quality assessment in marketplace until they work -->
                                 <UButton
+                                    v-if="pistisMode === 'factory'"
                                     size="sm"
                                     variant="outline"
                                     :label="$t('buttons.dataLineage')"
@@ -255,11 +262,12 @@ const investOpen = ref(false);
                                     }"
                                 />
                                 <UButton
+                                    v-if="pistisMode === 'factory'"
                                     size="sm"
                                     variant="outline"
                                     label="Quality Assessment"
                                     :to="{
-                                        path: '/catalog/dataset-details/data-quality',
+                                        path: '/marketplace/dataset-details/data-quality',
                                         query: {
                                             datasetId,
                                             title,

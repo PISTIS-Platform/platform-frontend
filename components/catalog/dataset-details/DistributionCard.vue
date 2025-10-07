@@ -145,16 +145,48 @@ async function downloadFile() {
 </script>
 
 <template>
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col pb-4">
         <div class="flex flex-row justify-between items-center">
-            <div class="flex items-center font-semibold text-neutral-500 space-x-2">
-                <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
-                <div>{{ title }}</div>
+            <div class="flex">
+                <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
+                    <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
+                    <div>{{ title }}</div>
+                </div>
+                <div class="space-x-2">
+                    <UBadge v-if="isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
+                    <UBadge v-if="isTransformed" color="blue" variant="subtle">Transformed</UBadge>
+                    <UBadge v-if="isEncrypted" color="yellow" variant="subtle">Encrypted</UBadge>
+                </div>
             </div>
-            <div class="space-x-2">
-                <UBadge v-if="isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
-                <UBadge v-if="isTransformed" color="blue" variant="subtle">Transformed</UBadge>
-                <UBadge v-if="isEncrypted" color="yellow" variant="subtle">Encrypted</UBadge>
+            <div v-if="pistisMode == 'factory'" class="flex gap-6 flex-wrap">
+                <KButton size="small" @click="downloadFile">
+                    {{ downloadText }}
+                </KButton>
+                <div v-if="catalog === 'my-data'" class="flex gap-6">
+                    <a
+                        :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
+                        target="_blank"
+                        nofollow
+                        noreferrer
+                    >
+                        <UButton size="sm">
+                            Data Enrichment
+                            <!-- <i class="icon-[ph--arrow-square-out]" /> -->
+                        </UButton>
+                    </a>
+
+                    <a
+                        :href="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
+                        target="_blank"
+                        nofollow
+                        noreferrer
+                    >
+                        <KButton size="small">
+                            Anonymize
+                            <!-- <i class="icon-[ph--arrow-square-out]" /> -->
+                        </KButton>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
