@@ -53,6 +53,7 @@ const valuationColors: Record<string, string> = {
     B: 'yellow',
     C: 'secondary',
     D: 'red',
+    E: 'red',
 };
 
 const valuationIcons: Record<string, string> = {
@@ -60,6 +61,7 @@ const valuationIcons: Record<string, string> = {
     B: 'emojione-monotone:letter-b',
     C: 'emojione-monotone:letter-c',
     D: 'emojione-monotone:letter-d',
+    E: 'emojione-monotone:letter-e',
 };
 
 const showValuationData = ref(false);
