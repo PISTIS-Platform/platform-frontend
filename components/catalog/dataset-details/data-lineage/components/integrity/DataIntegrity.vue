@@ -94,6 +94,7 @@ import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 
 import { useStore } from '@/components/catalog/dataset-details/data-lineage/stores/store';
+import { useApiService } from '~/services/apiService';
 
 import JsonViewer from '../data-display/json/JsonViewer.vue';
 
@@ -140,20 +141,20 @@ const hashesMatch = computed(() => {
 // INTEGRITY VERIFICATION METHODS
 // ========================================
 
-const nuxtConfig = useRuntimeConfig();
-// Always use factory URL for blockchain hash, even in cloud mode
-const backendUrl = nuxtConfig.public.factoryUrl;
-
 const { data: session } = useAuth();
 
 const token = session.value?.token;
+
+const route = useRoute();
+const pistisMode = route.query.pm;
+const { getBlockchainHashUrl } = useApiService(pistisMode);
 
 const fetchBlockchainHash = async () => {
     try {
         loadingBlockchainHash.value = true;
         blockchainHashError.value = '';
 
-        const url = `${backendUrl}/srv/lineage-tracker/blockchain-hash`;
+        const url = getBlockchainHashUrl();
 
         const response = await axios.get(url, {
             params: {
