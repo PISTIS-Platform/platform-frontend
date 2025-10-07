@@ -159,9 +159,9 @@ async function downloadFile() {
                 </div>
             </div>
             <div v-if="pistisMode == 'factory'" class="flex gap-6 flex-wrap">
-                <KButton size="small" @click="downloadFile">
+                <UButton size="sm" @click="downloadFile">
                     {{ downloadText }}
-                </KButton>
+                </UButton>
                 <div v-if="catalog === 'my-data'" class="flex gap-6">
                     <a
                         :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
@@ -175,17 +175,11 @@ async function downloadFile() {
                         </UButton>
                     </a>
 
-                    <a
-                        :href="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
-                        target="_blank"
-                        nofollow
-                        noreferrer
-                    >
-                        <KButton size="small">
-                            Anonymize
-                            <!-- <i class="icon-[ph--arrow-square-out]" /> -->
-                        </KButton>
-                    </a>
+                    <UButton
+                        size="sm"
+                        :label="$t('buttons.anonymize')"
+                        :to="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
+                    />
                 </div>
             </div>
         </div>

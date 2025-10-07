@@ -925,6 +925,7 @@ export default defineI18nConfig(() => ({
             },
             buttons: {
                 dataLineage: 'Data Lineage',
+                anonymize: 'Anonymize',
             },
             links: {
                 linkedData: 'Linked Data',
