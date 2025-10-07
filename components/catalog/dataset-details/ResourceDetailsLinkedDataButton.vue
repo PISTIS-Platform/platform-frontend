@@ -5,18 +5,13 @@
 </template>
 
 <script>
-// Import components used in template
-// import config from '@/pages/catalog/config/appConfig';
 const route = useRoute();
 const pistisMode = route.query.pm;
-const config = useRuntimeConfig();
+import { useApiService } from '~/services/apiService';
 
-let hubUrl = '';
-if (pistisMode === 'factory') {
-    hubUrl = config.public.factoryUrl + '/srv/repo/';
-} else {
-    hubUrl = config.public.cloudUrl + '/srv/repo/';
-}
+const { getRepoUrl } = useApiService(pistisMode);
+
+const hubUrl = getRepoUrl();
 
 import AppLink from './AppLink.vue';
 // Import glue-config.js

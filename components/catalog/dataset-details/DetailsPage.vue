@@ -6,12 +6,8 @@ import axios from 'axios';
 import { toast } from 'vue-sonner';
 
 import { useDataTruncator } from '@/composables/useDataTruncator';
+import { useApiService } from '~/services/apiService';
 import PhCaretLeft from '~icons/ph/caret-left';
-
-// import MatchmakingServiceView from '../matchmaking-service/MatchmakingServiceView.vue';
-// import MonetizationView from '../monetization/MonetizationView.vue';
-
-const config = useRuntimeConfig();
 
 const props = withDefaults(
     defineProps<{
@@ -31,20 +27,15 @@ const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
 
+const { getDatasetUrl, getUserFactoryUrl, getFeedbackUrl, getPurchaseUrl } = useApiService(pistisMode);
+
+const datasetUrl = getDatasetUrl(props.datasetId);
+
 const { data: session } = useAuth();
 
 const token = ref(session.value?.token);
 
-let url = '';
-
-if (pistisMode === 'factory') {
-    url = config.public.factoryUrl;
-} else {
-    url = config.public.cloudUrl;
-}
-const searchUrl = url + '/srv/search/';
-
-const userFactoryUrl = config.public.cloudUrl + '/srv/factories-registry/api/factories/user-factory';
+const userFactoryUrl = getUserFactoryUrl();
 const distributionID = ref(null);
 const accessID = ref('');
 const backendUrl = ref('');
@@ -60,7 +51,7 @@ const isOwned = computed(() => {
 });
 const monetizationData = ref();
 const offerId = ref('');
-const feedbackUrl = computed(() => `/marketplace/usage-analytics/${props.datasetId}/questionnaire`);
+const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -108,7 +99,7 @@ const offerType = computed(() => {
 
 const fetchMetadata = async () => {
     try {
-        const response = await fetch(`${searchUrl}datasets/${props.datasetId}`);
+        const response = await fetch(datasetUrl);
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
@@ -154,7 +145,7 @@ const buyRequest = async () => {
     const seller = metadata.value.result?.monetization?.[0] || {};
     const title = Object.values(metadata.value.result?.title ?? {})[0] ?? '';
 
-    const url = `https://${factoryPrefix.value}.${config.public.cloudUrl.replace(/^https?:\/\//, '')}/srv/smart-contract-execution-engine/api/scee/storePurchase`;
+    const url = getPurchaseUrl(factoryPrefix.value);
     console.log('url', url);
     console.log('url', url);
     const promise = axios.post(

@@ -10,27 +10,23 @@ import DOMPurify from 'isomorphic-dompurify';
 import { marked } from 'marked';
 
 import type { EnhancedSearchResult } from '/composables/useDatasetsSearchView';
-
-const config = useRuntimeConfig();
-let appUrl = '';
+import { useApiService } from '~/services/apiService';
 
 export function useDcatApSearch() {
     const route = useRoute();
-    if (route.query.pm === 'factory') {
-        appUrl = config.public.factoryUrl + '/srv/search/';
-    } else {
-        appUrl = config.public.cloudUrl + '/srv/search/';
-    }
+    const pistisMode = route.query.pm;
+    const { getSearchUrl } = useApiService(pistisMode);
+
     return defineHubSearch(
         {
-            baseUrl: appUrl,
+            baseUrl: getSearchUrl(),
             index: 'dataset',
             indexDetails: 'datasets',
             schema: SchemaDataset,
             facets: ['monetizationType', 'is_free', 'categories', 'publisher', 'format', 'license', 'catalog'],
         },
         (dataset, localeInstance) => {
-            const { setup: dcatApDatasetSetup } = dcatApDataset({ baseUrlHubRepo: appUrl ?? '/' });
+            const { setup: dcatApDatasetSetup } = dcatApDataset({ baseUrlHubRepo: getSearchUrl() ?? '/' });
             const baseGetters = dcatApDatasetSetup(dataset, localeInstance);
 
             const getCatalogId = dataset.catalog.id;
@@ -70,14 +66,11 @@ export function useDcatApSearch() {
 
 export function useDcatApCatalogSearch() {
     const route = useRoute();
-    if (route.query.pm === 'factory') {
-        appUrl = config.public.factoryUrl + '/srv/search/';
-    } else {
-        appUrl = config.public.cloudUrl + '/srv/search/';
-    }
+    const pistisMode = route.query.pm;
+    const { getSearchUrl } = useApiService(pistisMode);
     return defineHubSearch(
         {
-            baseUrl: appUrl,
+            baseUrl: getSearchUrl(),
             index: 'catalogue',
             indexDetails: 'catalogues',
             schema: schemaCatalog,
