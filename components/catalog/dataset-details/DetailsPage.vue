@@ -367,7 +367,12 @@ const investOpen = ref(false);
                                 </div>
                             </div>
 
-                            <UButton variant="solid" size="lg" color="emerald" block>Subscribe</UButton>
+                            <div class="sticky top-0 z-50">
+                                <UButton variant="solid" size="lg" color="emerald" block @click="buyRequest">
+                                    <span v-if="price">Subscribe</span>
+                                    <span v-else>Get</span>
+                                </UButton>
+                            </div>
                         </div>
                         <div
                             v-else
