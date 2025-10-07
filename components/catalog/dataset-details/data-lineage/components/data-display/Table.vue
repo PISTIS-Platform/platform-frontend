@@ -19,8 +19,14 @@
                                 <span class="header-label"
                                     ><strong>{{ header.label }}</strong></span
                                 >
-                                <span v-if="sortKey === header.key" class="sort-icon">
-                                    {{ sortOrder === 'asc' ? '▲' : '▼' }}
+                                <span
+                                    class="sort-icon"
+                                    :class="{
+                                        'sort-icon-visible': sortKey === header.key,
+                                        'sort-icon-invisible': sortKey !== header.key,
+                                    }"
+                                >
+                                    {{ sortKey === header.key ? (sortOrder === 'asc' ? '▲' : '▼') : '▼' }}
                                 </span>
                             </div>
                         </th>
@@ -758,6 +764,8 @@ const parseDataEnrichment = (enrichment) => {
 /* Table wrapper to contain everything */
 .table-wrapper {
     width: 100%;
+    max-width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -766,7 +774,8 @@ const parseDataEnrichment = (enrichment) => {
 /* Scroll container for the table */
 .table-scroll-container {
     width: 100%;
-    overflow-x: auto;
+    max-width: 100%;
+    overflow-x: hidden;
     overflow-y: visible;
 }
 
@@ -809,12 +818,13 @@ tbody tr:hover td {
 /* 📌 Table Styling */
 .table {
     width: 100%;
+    max-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    table-layout: auto;
+    table-layout: fixed;
 }
 
 /* 📌 Table Header */
@@ -828,12 +838,15 @@ thead th {
     padding: 12px 10px;
     text-align: left;
     transition: background 0.3s ease;
-    white-space: nowrap;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     border-bottom: 2px solid #4528a0;
     letter-spacing: 0.3px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     text-shadow: none;
     font-size: 0.85em;
+    line-height: 1.3;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -842,13 +855,15 @@ thead th {
 .header-content {
     display: flex;
     align-items: center;
+    flex-wrap: nowrap;
+    gap: 2px;
     white-space: nowrap;
     font-size: 0.95em;
 }
 
 /* Styling for header label */
 .header-label {
-    margin-right: 3px;
+    margin-right: 0px;
     font-weight: 400;
     display: inline-block;
 }
@@ -860,32 +875,39 @@ thead th {
     line-height: 1;
     vertical-align: middle;
     margin-left: 0px;
+    padding-right: 6px;
+}
+
+/* Sort icon visible state */
+.sort-icon-visible {
+    opacity: 1;
+}
+
+/* Sort icon invisible state - reserves space but not visible */
+.sort-icon-invisible {
+    opacity: 0;
+    visibility: hidden;
 }
 
 /* Column width specifications */
 .version-column {
-    width: 8%;
-    min-width: 80px;
+    width: 11%;
 }
 
 .id-column {
-    width: 15%;
-    min-width: 120px;
+    width: 18%;
 }
 
 .operation-column {
-    width: 35%;
-    min-width: 250px;
+    width: 38%;
 }
 
 .username-column {
-    width: 15%;
-    min-width: 100px;
+    width: 17%;
 }
 
 .timestamp-column {
-    width: 20%;
-    min-width: 140px;
+    width: 16%;
 }
 
 .operation-description {
@@ -1511,7 +1533,6 @@ tbody tr.highlighted-red td.version-column {
 
 .operation-column {
     width: 46%;
-    min-width: max(300px, fit-content);
     max-width: none;
 }
 

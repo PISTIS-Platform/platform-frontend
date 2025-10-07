@@ -671,6 +671,7 @@ const runJobConfigurator = async (services: [string]) => {
     const formData = new FormData();
     let isoDateString = wfRunTimeSpecific.value;
     let periodicity = wfPeriodicity.value;
+    let encryption = datasetEncrytion.value;
 
     if (isoDateString) {
         const date = new Date(wfRunTimeSpecific.value);
@@ -710,8 +711,8 @@ const runJobConfigurator = async (services: [string]) => {
             throw new Error('No dataset name provided.');
             /* } else if (!datasetDescription.value) {
             throw new Error('No dataset description provided.'); */
-            /* } else if (!datasetKeywords.value) {
-            throw new Error('No dataset keywords provided.'); */
+        } else if (!datasetKeywords.value) {
+            throw new Error('No dataset keywords provided.');
         } else if (!datasetCategory.value) {
             throw new Error(
                 'No category has been selected for the dataset, please select one category.',
@@ -733,7 +734,9 @@ const runJobConfigurator = async (services: [string]) => {
                 if (services[0].method == DATA_CHECK_IN_FILE_METHOD) {
                     wfPeriodicity.value = '';
                     throw new Error('A periodicity type cannot be set for file upload data check-in');
-                }
+                } else if (encryption == 'true') {
+                    throw new Error('Periodic workflows do not support encryption.');
+                }    
             }
         }
 

@@ -599,27 +599,27 @@ const isRowMatchingRemoved = (row, removedRow) => {
     // Get intersection of fields present in both objects
     const keysToCheck = rowFields.filter((key) => removedFields.includes(key));
 
-    // Required minimum number of matching fields to consider it a match
-    const minMatchingFields = 2;
+    // If there are no common fields, it's not a match
+    if (keysToCheck.length === 0) {
+        return false;
+    }
 
-    // Count the number of matching fields
-    let matchCount = 0;
-
+    // ALL fields must match for it to be considered a removed row
+    // This prevents false positives where only some fields match
     for (const key of keysToCheck) {
         // Normalize values for comparison - treat null and empty string as equivalent
         const rowValue = row[key] === null || row[key] === undefined ? '' : String(row[key]).trim();
         const removedValue =
             removedRow[key] === null || removedRow[key] === undefined ? '' : String(removedRow[key]).trim();
 
-        if (rowValue === removedValue) {
-            matchCount++;
+        // If any field doesn't match, this is not the removed row
+        if (rowValue !== removedValue) {
+            return false;
         }
     }
 
-    // Consider it a match if we have enough matching fields
-    const isMatch = matchCount >= Math.min(minMatchingFields, keysToCheck.length);
-
-    return isMatch;
+    // All fields matched
+    return true;
 };
 
 // Computed property for combined rows from both datasets
@@ -1037,6 +1037,8 @@ const _getColumnType = (columnName, datasetKey) => {
 .compare-container {
     width: 100%;
     padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 /* Custom spinner color to match theme */
@@ -1382,19 +1384,23 @@ const _getColumnType = (columnName, datasetKey) => {
 
 .comparison-container {
     overflow-x: auto;
+    overflow-y: visible;
     max-width: 100%;
+    width: 100%;
     margin-top: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
     border-radius: 6px;
 }
 
 .comparison-table {
-    width: 100%;
+    min-width: 100%;
+    width: max-content;
     border-collapse: separate;
     border-spacing: 0;
     border: none;
     margin: 0;
     font-size: 0.95rem;
+    table-layout: auto;
 }
 
 .comparison-table th,
@@ -1405,6 +1411,9 @@ const _getColumnType = (columnName, datasetKey) => {
     text-align: left;
     vertical-align: middle;
     border-right: 1px solid #e0e0e0;
+    max-width: none;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .comparison-table th:last-child,
