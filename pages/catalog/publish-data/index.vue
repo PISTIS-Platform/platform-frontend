@@ -94,27 +94,6 @@ watch(selectedAsset, () => {
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
 const newAssetId = uuidV4();
 
-// FAIR data valuation suggestions data
-//TODO: Will probably receive data from the component with its own API call
-
-const _fairValuationInfo = ref<{
-    overallRating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
-    dataQuality: number;
-    technical: number;
-    business: number;
-    legal: number;
-    privacy: number;
-}>({
-    overallRating: 'A',
-    dataQuality: 28,
-    technical: 20,
-    business: 32,
-    legal: 13,
-    privacy: 30,
-});
-
-const _loadingValuation = ref(false);
-
 // data for asset offering details
 
 const assetOfferingDetails = ref<AssetOfferingDetails>({
@@ -190,7 +169,7 @@ const licenseDetails = ref<Partial<licenseType>>({
     numOfShare: null,
 });
 
-const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema();
+const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema(monetizationDetails);
 
 // access policies
 let policyData: Array<AccessPolicyDetails> = [];
@@ -210,67 +189,71 @@ policyData.push(defaultPolicy);
 
 const submitStatus = ref();
 
-const submitAll = async () => {
-    submitStatus.value = 'pending';
-    let body;
-
+const bodyToSend = computed(() => {
     if (monetizationDetails.value.type === 'nft') {
-        body = {
+        return {
             type: 'nft',
-            price: monetizationDetails.value.price,
             assetId: selectedAsset.value?.id,
-            seller: accountData.value?.user.sub,
-            nftDetails: {
-                dataset_id: selectedAsset.value?.id,
-                factory_name: runtimeConfig.factoryName,
-                name: assetOfferingDetails.value.title,
-                description: assetOfferingDetails.value.description,
-                issuerName: 'PISTIS MARKET',
-                nft_license: 'https://pistis-market.eu/...',
-                nft_license_hash: 'abc123def456...',
-            },
-        };
-    } else {
-        body = {
-            assetId: newAssetId,
-            originalAssetId: selectedAsset.value?.id,
             organizationId: runtimeConfig.public?.orgId,
             organizationName: accountData.value?.user.orgName,
-            ...monetizationDetails.value,
-            distributionId: assetOfferingDetails.value.selectedDistribution.id,
+            price: monetizationDetails.value.price,
             title: assetOfferingDetails.value.title,
             description: assetOfferingDetails.value.description,
-            keywords: assetOfferingDetails.value.keywords,
-            type: monetizationDetails.value.type,
-            subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
-            updateFrequency: monetizationDetails.value.updateFrequency,
-            price: monetizationDetails.value.price,
             license: licenseDetails.value.license,
-            extraTerms: licenseDetails.value.extraTerms,
-            contractTerms: licenseDetails.value.contractTerms,
-            canEdit: false, //FIXME: Where do we get this?
-            region: licenseDetails.value.region?.join(', '),
-            isExclusive: licenseDetails.value.isExclusive,
-            transferable: licenseDetails.value.transferable,
-            duration: typeof licenseDetails.value.duration === 'number' ? licenseDetails.value.duration : null,
-            perpetual: typeof licenseDetails.value.duration === 'string' ? licenseDetails.value.duration : null,
-            noUseWithBlacklistedDatasets: licenseDetails.value.noUseWithBlacklistedDatasets,
-            additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
-            nonRenewalDays: licenseDetails.value.nonRenewalDays,
-            contractBreachDays: licenseDetails.value.contractBreachDays,
-            containsPersonalData: hasPersonalData.value,
-            personalDataTerms: licenseDetails.value.personalDataTerms,
             accessPolicies: {
-                assetId: newAssetId,
+                assetId: selectedAsset.value?.id,
                 assetTitle: assetOfferingDetails.value.title,
                 assetDescription: assetOfferingDetails.value.description,
                 policyData: policyData,
             },
             sellerId: accountData.value?.user.sub,
-            numOfResell: licenseDetails.value.numOfResell ?? 0,
-            numOfShare: licenseDetails.value.numOfShare ?? 0,
         };
     }
+
+    return {
+        assetId: newAssetId,
+        originalAssetId: selectedAsset.value?.id,
+        organizationId: runtimeConfig.public?.orgId,
+        organizationName: accountData.value?.user.orgName,
+        ...monetizationDetails.value,
+        distributionId: assetOfferingDetails.value.selectedDistribution.id,
+        title: assetOfferingDetails.value.title,
+        description: assetOfferingDetails.value.description,
+        keywords: assetOfferingDetails.value.keywords,
+        type: monetizationDetails.value.type,
+        subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
+        updateFrequency: monetizationDetails.value.updateFrequency,
+        price: monetizationDetails.value.price,
+        license: licenseDetails.value.license,
+        extraTerms: licenseDetails.value.extraTerms,
+        contractTerms: licenseDetails.value.contractTerms,
+        canEdit: false, //FIXME: Where do we get this?
+        region: licenseDetails.value?.region ? licenseDetails.value?.region?.join(', ') : '',
+        isExclusive: licenseDetails.value.isExclusive,
+        transferable: licenseDetails.value.transferable,
+        duration: typeof licenseDetails.value.duration === 'number' ? licenseDetails.value.duration : null,
+        perpetual: typeof licenseDetails.value.duration === 'string' ? licenseDetails.value.duration : null,
+        noUseWithBlacklistedDatasets: licenseDetails.value.noUseWithBlacklistedDatasets,
+        additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
+        nonRenewalDays: licenseDetails.value.nonRenewalDays,
+        contractBreachDays: licenseDetails.value.contractBreachDays,
+        containsPersonalData: hasPersonalData.value,
+        personalDataTerms: licenseDetails.value.personalDataTerms,
+        accessPolicies: {
+            assetId: newAssetId,
+            assetTitle: assetOfferingDetails.value.title,
+            assetDescription: assetOfferingDetails.value.description,
+            policyData: policyData,
+        },
+        sellerId: accountData.value?.user.sub,
+        numOfResell: licenseDetails.value.numOfResell ?? 0,
+        numOfShare: licenseDetails.value.numOfShare ?? 0,
+    };
+});
+
+const submitAll = async () => {
+    submitStatus.value = 'pending';
+    const body = bodyToSend.value;
 
     try {
         await $fetch(`/api/datasets/publish-data`, {
@@ -445,6 +428,7 @@ const changeStep = async (stepNum: number) => {
 
     <Preview
         v-if="selectedPage === 4"
+        :body-to-send="bodyToSend"
         :policy-data="policyData"
         :monetization-details="monetizationDetails"
         :asset-offering-details="assetOfferingDetails"

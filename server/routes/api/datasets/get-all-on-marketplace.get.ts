@@ -1,12 +1,9 @@
-import { getToken } from '#auth';
-
 const {
     public: { cloudUrl },
     organisationFullname,
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    const token = await getToken({ event });
     const query = await getQuery(event);
 
     const facets = {
@@ -24,9 +21,6 @@ export default defineEventHandler(async (event) => {
             `${cloudUrl}/srv/search/search?page=${page}&limit=1000&filters=dataset&facets=${encodeURIComponent(JSON.stringify(facets))}`,
             {
                 method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token?.access_token}`,
-                },
             },
         );
         page++;

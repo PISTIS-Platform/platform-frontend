@@ -3,7 +3,9 @@ import * as R from 'ramda';
 
 const { t } = useI18n();
 
-defineProps({
+const { showErrorMessage } = useAlertMessage();
+
+const props = defineProps({
     assetOfferingDetails: {
         type: Object as PropType<Record<string, any>>,
         required: true,
@@ -32,11 +34,98 @@ defineProps({
         type: String,
         required: true,
     },
+    bodyToSend: {
+        type: Object as PropType<Record<string, any>>,
+        required: true,
+    },
 });
+
+const monetizationDetails = computed(() => props.monetizationDetails);
+const bodyToSend = computed(() => props.bodyToSend);
+
+const valuationRating = ref('');
+const numberRating = ref(0);
+
+const valuationData = ref<Record<string, number | string>>({});
+
+const valuationColors: Record<string, string> = {
+    A: 'green',
+    B: 'yellow',
+    C: 'secondary',
+    D: 'red',
+};
+
+const valuationIcons: Record<string, string> = {
+    A: 'emojione-monotone:letter-a',
+    B: 'emojione-monotone:letter-b',
+    C: 'emojione-monotone:letter-c',
+    D: 'emojione-monotone:letter-d',
+};
+
+const showValuationData = ref(false);
+
+const loadingValuation = ref(false);
+
+const explanations = computed<Record<string, string>>(() => {
+    const keys = Object.keys(valuationData.value);
+    if (!keys.length) return {};
+    const explanationObject: Record<string, string> = {};
+    keys.forEach((key: string) => {
+        explanationObject[key] = t(`data.designer.valuation.${key}Explanation`);
+    });
+
+    return explanationObject;
+});
+
+const getValuationData = async () => {
+    loadingValuation.value = true;
+    try {
+        const result = await $fetch<{
+            status: string;
+            data: {
+                distribution_id: string;
+                organization_id: string;
+                is_owner: boolean;
+                agg_score: number;
+                rating: string;
+                accessibility_score: number;
+                availability_score: number;
+                format_score: number;
+                age_score: number;
+                legal_score: number;
+                dqa_score: number;
+            };
+        }>(`/api/datasets/get-valuation-data`, {
+            method: 'POST',
+            body: bodyToSend.value,
+        });
+
+        if (result.status !== 'success') {
+            showErrorMessage(t('data.designer.valuation.error'));
+            return;
+        }
+
+        valuationRating.value = result?.data?.rating;
+        numberRating.value = result?.data?.agg_score;
+        valuationData.value = {
+            accessibility: result?.data?.accessibility_score ?? 'N/A',
+            availability: result?.data?.availability_score ?? 'N/A',
+            format: result?.data?.format_score ?? 'N/A',
+            age: result?.data?.age_score ?? 'N/A',
+            legal: result?.data?.legal_score ?? 'N/A',
+            dqa: result?.data?.dqa_score ?? 'N/A',
+        };
+        showValuationData.value = true;
+    } catch (error) {
+        showErrorMessage(t('data.designer.valuation.error'));
+    } finally {
+        loadingValuation.value = false;
+    }
+};
 
 import { LicenseCode } from '~/constants/licenses';
 
-const { durationSelections } = useLicenseSchema();
+const { durationSelections } = useLicenseSchema(monetizationDetails);
 
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
 
@@ -133,6 +222,76 @@ const subscriptionMapping: Record<string, string> = {
                         }}</span>
                     </div>
                 </div>
+                <div>
+                    <UButton
+                        v-if="!showValuationData"
+                        :disabled="loadingValuation"
+                        class="px-4 py-2 w-44 block"
+                        variant="outline"
+                        @click="getValuationData"
+                    >
+                        <UIcon v-if="loadingValuation" name="svg-spinners:270-ring-with-bg" />
+                        <span v-else>{{ $t('data.designer.valuation.show') }}</span>
+                    </UButton>
+                    <UAlert
+                        v-if="showValuationData"
+                        variant="subtle"
+                        :color="valuationColors[valuationRating] ?? 'blue'"
+                    >
+                        <template #title>
+                            <div class="w-full flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <UIcon
+                                        :name="valuationIcons[valuationRating] ?? 'ic:outline-star'"
+                                        class="w-8 h-8"
+                                    />
+                                    <UButton
+                                        :color="valuationColors[valuationRating] ?? 'blue'"
+                                        :class="`cursor-default hover:bg-${valuationColors[valuationRating]}`"
+                                        >{{ (numberRating * 10).toFixed(1) }}</UButton
+                                    >
+                                </div>
+                                <div class="flex items-center gap-4 text-gray-600">
+                                    <span class="font-bold text-sm">{{ $t('data.designer.valuation.title') }}</span>
+                                    <UIcon name="streamline-ultimate:rating-star-ribbon-bold" class="w-6 h-6" />
+                                </div>
+                            </div>
+                        </template>
+
+                        <template #description>
+                            <div class="mt-6 grid gap-4 grid-cols-2 md:grid-cols-3 text-gray-600">
+                                <div v-for="key in Object.keys(valuationData)" :key="key" class="flex flex-col gap-2">
+                                    <div class="flex items-center justify-between w-full">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-xs">{{
+                                                $t(`data.designer.valuation.${key}`)
+                                            }}</span>
+                                            <UPopover mode="hover" :popper="{ placement: 'top' }" class="mt-1">
+                                                <UIcon name="mdi:information-outline" class="text-gray-500 h-4 w-4" />
+                                                <template #panel>
+                                                    <div class="max-w-xl p-2 flex text-wrap text-xs">
+                                                        {{ explanations[key] }}
+                                                    </div>
+                                                </template>
+                                            </UPopover>
+                                        </div>
+                                        <span class="font-semibold text-xs">{{
+                                            valuationData[key] === 'N/A'
+                                                ? 'N/A'
+                                                : ((valuationData[key] as number) * 10).toFixed(1)
+                                        }}</span>
+                                    </div>
+                                    <UProgress
+                                        :value="valuationData[key] === 'N/A' ? 0 : (valuationData[key] as number) * 10"
+                                        :min="0"
+                                        :max="10"
+                                        color="gray"
+                                    />
+                                </div>
+                            </div>
+                        </template>
+                    </UAlert>
+                </div>
             </div>
         </UCard>
 
@@ -152,7 +311,7 @@ const subscriptionMapping: Record<string, string> = {
                         <span class="text-sm font-semibold text-gray-400">{{ $t('license') }}</span>
                         <span>{{ licenseDetails.license }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col">
+                    <div v-if="licenseDetails.license === LicenseCode.PISTIS" class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.noUseWithBlacklistedDatasets')
                         }}</span>

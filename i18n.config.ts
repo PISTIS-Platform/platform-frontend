@@ -383,10 +383,33 @@ export default defineI18nConfig(() => ({
                     run_type: 'Run Type',
                     state: 'Status',
                     action: 'Action',
-                    periodicity: 'Periodicty',
+                    periodicity: 'Periodicity',
                     dataset_name: 'Dataset',
                 },
                 designer: {
+                    valuation: {
+                        title: 'Data Valuation Rating',
+                        rating: 'Rating',
+                        show: 'Show Valuation Data',
+                        error: 'Error retrieving valuation data',
+                        accessibility: 'Accessibility',
+                        accessibilityExplanation: 'Your data is accessible in the Market via an access URL.',
+                        availability: 'Availability',
+                        availabilityExplanation:
+                            'Your data is available for selling, resharing or transfer through the Market.',
+                        format: 'Format',
+                        formatExplanation:
+                            'The value extraction process depends on the format of your data asset file (tabular, semistructured, unstructured).',
+                        age: 'Age',
+                        ageExplanation:
+                            'The value of data decreases as the data ages. We factor in data maturity and its freshness.',
+                        legal: 'Legal',
+                        legalExplanation:
+                            'The permissiveness of the license and the presence of personal data affect the value of the data.',
+                        dqa: 'Data Quality',
+                        dqaExplanation:
+                            'Quality is a key factor for data value. We assess it for relevant metrics: accuracy, consistency, completeness, uniqueness, validity.',
+                    },
                     numberOfResell: 'Number of times the dataset can be resold',
                     numberOfShare: 'Number of times the dataset can be shared',
                     duration: {
@@ -414,7 +437,7 @@ export default defineI18nConfig(() => ({
                     annual: 'per year',
                     nftWarning: 'NFT Warning',
                     nftWarningText:
-                        'If you create an NFT, you can not monetize this asset in any other way. Also, the ownership of the asset will be transferred from you to the consumer and the asset will be deleted on your end.',
+                        'If you create an NFT, you cannot monetize this asset in any other way. Also, the ownership of the asset will be transferred from you to the consumer and the asset will be deleted on your end.',
                     changeLicense: 'Change License',
                     searchForACountry: 'Search for a country...',
                     searchForALicense: 'Search for a license...',

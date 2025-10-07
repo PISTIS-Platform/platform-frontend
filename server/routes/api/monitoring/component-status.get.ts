@@ -50,9 +50,6 @@ export default defineEventHandler(async (event) => {
             });
             const search = await $fetch(`${config.public.factoryUrl}/srv/search/health`, {
                 method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token?.access_token}`,
-                },
                 timeout: 5000,
             });
 
