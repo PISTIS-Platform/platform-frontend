@@ -70,7 +70,7 @@ async function refreshAccessToken(token: JWT) {
 export const authOptions = {
     secret: authSecret,
     session: {
-        maxAge: 24 * 60 * 60, // 1 day, as in jwt,
+        maxAge: 24 * 60 * 60, // 1 day, as in jwt
     },
     providers: [
         // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some poin
@@ -91,8 +91,6 @@ export const authOptions = {
                 token.id_token = account.id_token;
                 token.sub = getUserSub(jwtDecode(account.access_token));
             }
-
-            console.log({ token });
 
             if (token.expires_at && Date.now() > token.expires_at) {
                 return await refreshAccessToken(token);
