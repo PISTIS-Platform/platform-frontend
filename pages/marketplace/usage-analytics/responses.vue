@@ -234,9 +234,12 @@ const computedChartData = computed(() =>
                 animation="carousel"
                 color="primary"
             />
-            <ErrorCard
+            <UAlert
                 v-else-if="questionnaireError || error || !data || data.length === 0"
-                :error-msg="
+                icon="nonicons:not-found-16"
+                color="yellow"
+                variant="subtle"
+                :description="
                     questionnaireError?.data?.message || error?.data?.message || t('data.usage.responsesNotFound')
                 "
             />
