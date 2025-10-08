@@ -612,6 +612,7 @@ export default defineI18nConfig(() => ({
                     notAuthorized: "You are not authorized to see this questionnaire's responses.",
                     responsesNotFound: 'Responses to this dataset questionnaire were not found.',
                     responsesFor: 'Responses for asset',
+                    responsesError: 'Error retrieving questionnaire responses',
                     question: 'Question',
                     overallResponses: 'Overall Responses',
                     timeline: 'Timeline',
