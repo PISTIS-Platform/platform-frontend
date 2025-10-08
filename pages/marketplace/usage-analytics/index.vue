@@ -61,7 +61,7 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
             />
             <div v-else class="w-full flex flex-col gap-4 text-gray-600">
                 <SubHeading :title="$t('data.usage.title')" />
-                <UCard class="flex flex-col gap-4 relative">
+                <UCard class="flex flex-col gap-4">
                     <div class="w-full flex justify-end">
                         <UInput
                             v-model="searchString"
