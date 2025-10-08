@@ -163,17 +163,26 @@ async function downloadFile() {
                     {{ downloadText }}
                 </UButton>
                 <div v-if="catalog === 'my-data'" class="flex gap-6">
-                    <a
+                    <!-- <a
                         :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
                         target="_blank"
                         nofollow
                         noreferrer
-                    >
-                        <UButton size="sm">
-                            Data Enrichment
-                            <!-- <i class="icon-[ph--arrow-square-out]" /> -->
-                        </UButton>
-                    </a>
+                    > -->
+                    <UButton
+                        v-if="pistisMode === 'factory'"
+                        size="sm"
+                        label="Data Enrichment"
+                        :to="{
+                            path: '/catalog/dataset-details/data-enrichment',
+                            query: {
+                                datasetId: props.datasetId,
+                                distributionId: props.distributionId,
+                                file_type: props.format,
+                            },
+                        }"
+                    />
+                    <!-- </a> -->
 
                     <UButton
                         size="sm"
