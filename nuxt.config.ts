@@ -94,8 +94,8 @@ export default defineNuxtConfig({
             defaultProvider: 'keycloak',
         },
         session: {
-            enableRefreshPeriodically: 60000,
-            enableRefreshOnWindowFocus: true,
+            maxAge: 30 * 24 * 60 * 60, // default to 30 days
+            updateAge: 60, // refresh every 60 seconds
         },
         globalAppMiddleware: {
             isEnabled: false,
