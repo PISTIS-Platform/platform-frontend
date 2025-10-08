@@ -69,6 +69,9 @@ async function refreshAccessToken(token: JWT) {
 
 export const authOptions = {
     secret: authSecret,
+    session: {
+        maxAge: 7 * 24 * 60 * 60, // 7 days,
+    },
     providers: [
         // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some poin
         KeycloakProvider.default({
