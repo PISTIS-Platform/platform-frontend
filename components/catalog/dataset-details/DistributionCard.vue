@@ -4,16 +4,15 @@ import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-// import config from '@/pages/catalog/config/appConfig';
+import { useApiService } from '~/services/apiService';
+
 import { PropertyTable } from './PropertyTableRow';
 
-// import { useAuthStore } from '../../stores/authStore';
-// import LinkedDataSelector from '../base/links/LinkedDataSelector.vue';
-
 const route = useRoute();
-const config = useRuntimeConfig();
 
 const pistisMode = route.query.pm;
+
+const { getDatasetUrl, getEnrichmentUrl } = useApiService(pistisMode);
 
 interface CardProps {
     title: string;
@@ -56,13 +55,8 @@ const resolvedData = computed(() => {
 });
 
 const catalog = ref(null);
-let url = '';
-if (route.query.pm === 'factory') {
-    url = config.public.factoryUrl;
-} else {
-    url = config.public.cloudUrl;
-}
-const searchUrl = url + '/srv/search/';
+
+const searchUrl = getDatasetUrl(props.datasetId);
 
 const isTransformed = ref();
 const isAnonymized = ref();
@@ -70,7 +64,7 @@ const isEncrypted = ref();
 
 const fetchMetadata = async () => {
     try {
-        const response = await fetch(`${searchUrl}datasets/${props.datasetId}`);
+        const response = await fetch(searchUrl);
         const data = await response.json();
         catalog.value = data.result.catalog.id;
         isTransformed.value = data.result.distributions.some((transformation) => transformation?.is_transformed);
@@ -151,16 +145,51 @@ async function downloadFile() {
 </script>
 
 <template>
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col pb-4">
         <div class="flex flex-row justify-between items-center">
-            <div class="flex items-center font-semibold text-neutral-500 space-x-2">
-                <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
-                <div>{{ title }}</div>
+            <div class="flex">
+                <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
+                    <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
+                    <div>{{ title }}</div>
+                </div>
+                <div class="space-x-2">
+                    <UBadge v-if="isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
+                    <UBadge v-if="isTransformed" color="blue" variant="subtle">Transformed</UBadge>
+                    <UBadge v-if="isEncrypted" color="yellow" variant="subtle">Encrypted</UBadge>
+                </div>
             </div>
-            <div class="space-x-2">
-                <UBadge v-if="isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
-                <UBadge v-if="isTransformed" color="blue" variant="subtle">Transformed</UBadge>
-                <UBadge v-if="isEncrypted" color="yellow" variant="subtle">Encrypted</UBadge>
+            <div v-if="pistisMode == 'factory'" class="flex gap-6 flex-wrap">
+                <UButton size="sm" @click="downloadFile">
+                    {{ downloadText }}
+                </UButton>
+                <div v-if="catalog === 'my-data'" class="flex gap-6">
+                    <!-- <a
+                        :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
+                        target="_blank"
+                        nofollow
+                        noreferrer
+                    > -->
+                    <UButton
+                        v-if="pistisMode === 'factory'"
+                        size="sm"
+                        label="Data Enrichment"
+                        :to="{
+                            path: '/catalog/dataset-details/data-enrichment',
+                            query: {
+                                datasetId: props.datasetId,
+                                distributionId: props.distributionId,
+                                file_type: props.format,
+                            },
+                        }"
+                    />
+                    <!-- </a> -->
+
+                    <UButton
+                        size="sm"
+                        :label="$t('buttons.anonymize')"
+                        :to="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -213,7 +242,7 @@ async function downloadFile() {
 
                     <div v-if="catalog === 'my-data'" class="flex gap-6">
                         <a
-                            :href="`${url}/srv/enrichment-ui/?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${props.format}`"
+                            :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
                             target="_blank"
                             nofollow
                             noreferrer

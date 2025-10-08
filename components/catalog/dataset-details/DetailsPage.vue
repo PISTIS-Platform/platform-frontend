@@ -6,12 +6,8 @@ import axios from 'axios';
 import { toast } from 'vue-sonner';
 
 import { useDataTruncator } from '@/composables/useDataTruncator';
+import { useApiService } from '~/services/apiService';
 import PhCaretLeft from '~icons/ph/caret-left';
-
-// import MatchmakingServiceView from '../matchmaking-service/MatchmakingServiceView.vue';
-// import MonetizationView from '../monetization/MonetizationView.vue';
-
-const config = useRuntimeConfig();
 
 const props = withDefaults(
     defineProps<{
@@ -31,20 +27,15 @@ const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
 
+const { getDatasetUrl, getUserFactoryUrl, getFeedbackUrl, getPurchaseUrl } = useApiService(pistisMode);
+
+const datasetUrl = getDatasetUrl(props.datasetId);
+
 const { data: session } = useAuth();
 
 const token = ref(session.value?.token);
 
-let url = '';
-
-if (pistisMode === 'factory') {
-    url = config.public.factoryUrl;
-} else {
-    url = config.public.cloudUrl;
-}
-const searchUrl = url + '/srv/search/';
-
-const userFactoryUrl = config.public.cloudUrl + '/srv/factories-registry/api/factories/user-factory';
+const userFactoryUrl = getUserFactoryUrl();
 const distributionID = ref(null);
 const accessID = ref('');
 const backendUrl = ref('');
@@ -60,7 +51,7 @@ const isOwned = computed(() => {
 });
 const monetizationData = ref();
 const offerId = ref('');
-const feedbackUrl = computed(() => `/marketplace/usage-analytics/${props.datasetId}/questionnaire`);
+const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -108,7 +99,7 @@ const offerType = computed(() => {
 
 const fetchMetadata = async () => {
     try {
-        const response = await fetch(`${searchUrl}datasets/${props.datasetId}`);
+        const response = await fetch(datasetUrl);
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
@@ -154,7 +145,7 @@ const buyRequest = async () => {
     const seller = metadata.value.result?.monetization?.[0] || {};
     const title = Object.values(metadata.value.result?.title ?? {})[0] ?? '';
 
-    const url = `https://${factoryPrefix.value}.${config.public.cloudUrl.replace(/^https?:\/\//, '')}/srv/smart-contract-execution-engine/api/scee/storePurchase`;
+    const url = getPurchaseUrl(factoryPrefix.value);
     console.log('url', url);
     console.log('url', url);
     const promise = axios.post(
@@ -246,12 +237,19 @@ const investOpen = ref(false);
                                 <span>Back</span>
                             </Typography>
                         </button>
+                        <LinkedDataSelector
+                            :resource-id="props.datasetId"
+                            resource="datasets"
+                            class="text-pistis-600 text-sm"
+                        />
                     </div>
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-row items-center justify-between">
                             <h3 class="text-4xl text-primary-600 font-semibold">{{ title }}</h3>
                             <div class="flex flex-row gap-2">
+                                <!-- hide data lineage and quality assessment in marketplace until they work -->
                                 <UButton
+                                    v-if="pistisMode === 'factory'"
                                     size="sm"
                                     variant="outline"
                                     :label="$t('buttons.dataLineage')"
@@ -264,11 +262,15 @@ const investOpen = ref(false);
                                     }"
                                 />
                                 <UButton
+                                    v-if="pistisMode === 'factory'"
                                     size="sm"
                                     variant="outline"
                                     label="Quality Assessment"
                                     :to="{
-                                        path: '/catalog/dataset-details/data-quality',
+                                        path:
+                                            pistisMode === 'cloud'
+                                                ? '/marketplace/dataset-details/data-quality'
+                                                : '/catalog/dataset-details/data-quality',
                                         query: {
                                             datasetId,
                                             title,
@@ -365,7 +367,12 @@ const investOpen = ref(false);
                                 </div>
                             </div>
 
-                            <UButton variant="solid" size="lg" color="emerald" block>Subscribe</UButton>
+                            <div class="sticky top-0 z-50">
+                                <UButton variant="solid" size="lg" color="emerald" block @click="buyRequest">
+                                    <span v-if="price">Subscribe</span>
+                                    <span v-else>Get</span>
+                                </UButton>
+                            </div>
                         </div>
                         <div
                             v-else

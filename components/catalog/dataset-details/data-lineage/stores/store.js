@@ -2,6 +2,8 @@ import axios from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
+import { useApiService } from '~/services/apiService';
+
 import mockData from './mock-lineage.json';
 
 const pistisMode = ref('');
@@ -11,6 +13,8 @@ const datasetFactoryUrl = ref('');
 const setPistisMode = (mode) => {
     pistisMode.value = mode;
 };
+
+const { getDatasetDiffUrl, getDatasetDiffUrlLimited, getLineageDataUrl } = useApiService(pistisMode);
 
 const setBackendUrl = (url) => {
     backendUrl.value = 'https://' + url;
@@ -110,7 +114,7 @@ export const useStore = defineStore('store', () => {
             let url, requestConfig;
             if (isCloud) {
                 // Cloud mode: use dataset factory URL with limited diff endpoint (no authentication required)
-                url = `${datasetFactoryUrl.value}/srv/lineage-tracker/get_datasets_diff_limit`;
+                url = getDatasetDiffUrlLimited(datasetFactoryUrl.value);
                 requestConfig = {
                     params: {
                         uuid_1: id1,
@@ -123,7 +127,7 @@ export const useStore = defineStore('store', () => {
                 };
             } else {
                 // Factory mode: use backend URL with full diff endpoint (requires authentication)
-                url = `${backendUrl.value}/srv/lineage-tracker/get_datasets_diff`;
+                url = getDatasetDiffUrl(backendUrl.value);
                 requestConfig = {
                     params: {
                         uuid_1: id1,
@@ -162,7 +166,7 @@ export const useStore = defineStore('store', () => {
         }
 
         try {
-            const url = `${backendUrl.value}/srv/lineage-tracker/get_dataset_family_tree`;
+            const url = getLineageDataUrl(backendUrl.value);
 
             const response = await axios.get(url, {
                 params: {
