@@ -115,13 +115,15 @@ const { page, sortBy, searchString, filteredRows, paginatedRows } = useTable(tra
                             ></template
                         >
                     </UTable>
-                    <UPagination
-                        v-if="filteredRows.length > pageCount"
-                        v-model="page"
-                        :page-count="pageCount"
-                        :total="filteredRows.length"
-                        class="absolute bottom-2 right-6"
-                    />
+                    <div class="flex justify-end">
+                        <UPagination
+                            v-if="filteredRows.length > pageCount"
+                            v-model="page"
+                            :page-count="pageCount"
+                            :total="filteredRows.length"
+                            class="bottom-2 right-6"
+                        />
+                    </div>
                 </UCard>
             </div>
         </PageContainer>

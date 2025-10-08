@@ -374,6 +374,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                                 ></USelectMenu>
                             </UFormGroup>
                             <UFormGroup
+                                v-if="monetizationDetails.type !== 'one-off'"
                                 :label="$t('data.designer.duration.title')"
                                 name="duration"
                                 required
@@ -407,7 +408,7 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                         <div v-if="monetizationDetails.type === 'one-off' && !isFree" class="flex flex-1 gap-4">
                             <UFormGroup
                                 :label="$t('data.designer.numberOfResell')"
-                                class="flex-1"
+                                class="w-full"
                                 required
                                 name="numOfResell"
                                 :ui="{ error: 'absolute -bottom-6' }"
@@ -423,12 +424,41 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                                     </template>
                                 </UInput>
                             </UFormGroup>
+                            <UFormGroup
+                                :label="$t('data.designer.duration.title')"
+                                name="duration"
+                                required
+                                class="w-full"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <USelectMenu
+                                    v-model="licenseDetails.duration"
+                                    :options="durationSelections"
+                                    :placeholder="$t('data.designer.duration.title')"
+                                    value-attribute="value"
+                                    option-attribute="label"
+                                    class="disabled:opacity-50"
+                                />
+
+                                <template #error="{ error }">
+                                    <span
+                                        :class="[
+                                            error
+                                                ? 'text-red-500 dark:text-red-400'
+                                                : 'text-primary-500 dark:text-primary-400',
+                                        ]"
+                                    >
+                                        {{ error }}
+                                    </span>
+                                </template>
+                            </UFormGroup>
                         </div>
 
                         <div v-if="monetizationDetails.type === 'one-off' && isFree" class="flex flex-1 gap-4">
                             <UFormGroup
                                 :label="$t('data.designer.numberOfShare')"
-                                class="flex-1"
+                                class="w-full"
                                 required
                                 name="numOfShare"
                                 :ui="{ error: 'absolute -bottom-6' }"
@@ -443,6 +473,35 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                                         <span class="text-gray-500 text-xs">{{ t('times') }}</span>
                                     </template>
                                 </UInput>
+                            </UFormGroup>
+                            <UFormGroup
+                                :label="$t('data.designer.duration.title')"
+                                name="duration"
+                                required
+                                class="w-full"
+                                :ui="{ error: 'absolute -bottom-6' }"
+                                eager-validation
+                            >
+                                <USelectMenu
+                                    v-model="licenseDetails.duration"
+                                    :options="durationSelections"
+                                    :placeholder="$t('data.designer.duration.title')"
+                                    value-attribute="value"
+                                    option-attribute="label"
+                                    class="disabled:opacity-50"
+                                />
+
+                                <template #error="{ error }">
+                                    <span
+                                        :class="[
+                                            error
+                                                ? 'text-red-500 dark:text-red-400'
+                                                : 'text-primary-500 dark:text-primary-400',
+                                        ]"
+                                    >
+                                        {{ error }}
+                                    </span>
+                                </template>
                             </UFormGroup>
                         </div>
 
