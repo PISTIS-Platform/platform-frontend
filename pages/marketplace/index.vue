@@ -37,32 +37,32 @@ let isFetching;
 let showOnlyPublic;
 let doSearch;
 if (searchType.value === 'metadata') {
-  let dsv = useDatasetSearchView({
-    isPublic: true,
-    searchInput,
-    searchType,
-    hvdModel,
-    livedataModel,
-    selectedFacets,
-    searchParams,
-    hubSearchQueryDefinition: useDcatApSearch,
-  });
-  ({
-    availableFacetsFormatted,
-    sort,
-    sortDirection,
-    getSearchResultsCount,
-    datasets,
-    getSearchResultsPagesCount,
-    isLoading,
-    isFetching,
-    showOnlyPublic,
-    doSearch,
-  } = dsv);
+    let dsv = useDatasetSearchView({
+        isPublic: true,
+        searchInput,
+        searchType,
+        hvdModel,
+        livedataModel,
+        selectedFacets,
+        searchParams,
+        hubSearchQueryDefinition: useDcatApSearch,
+    });
+    ({
+        availableFacetsFormatted,
+        sort,
+        sortDirection,
+        getSearchResultsCount,
+        datasets,
+        getSearchResultsPagesCount,
+        isLoading,
+        isFetching,
+        showOnlyPublic,
+        doSearch,
+    } = dsv);
 }
 
 onMounted(() => {
-  queryClient.invalidateQueries();
+    queryClient.invalidateQueries();
 });
 
 const { data: session } = useAuth();
