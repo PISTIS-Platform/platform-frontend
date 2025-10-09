@@ -6,6 +6,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     // Get runtime config and other Nuxt composables
     const config = useRuntimeConfig();
     // const router = useRouter();
+    // const router = useRouter();
 
     // Import other stores (make sure these exist in your Nuxt project)
     const { data: session } = useAuth();
