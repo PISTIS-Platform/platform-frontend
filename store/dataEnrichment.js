@@ -5,7 +5,8 @@ import { useLoadingStore } from '~/components/catalog/dataset-details/data-enric
 export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     // Get runtime config and other Nuxt composables
     const config = useRuntimeConfig();
-    const router = useRouter();
+    // const router = useRouter();
+    // const router = useRouter();
 
     // Import other stores (make sure these exist in your Nuxt project)
     const { data: session } = useAuth();
@@ -70,7 +71,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
 
             initialFileData.value = JSON.parse(JSON.stringify(data));
             fileData.value = data;
-            checkUnsupportedDatatypes(data.data_model.columns);
+            checkUnsupportedDatatypes(data.data_model?.columns);
             loadingStore.loadingSuccess();
         } catch (e) {
             if (process.dev) {
@@ -79,11 +80,11 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 const { mockData } = await import('~/utils/mockData.js');
                 initialFileData.value = mockData;
                 fileData.value = mockData;
-                checkUnsupportedDatatypes(mockData.data_model.columns);
+                checkUnsupportedDatatypes(mockData.data_model?.columns);
                 loadingStore.loadingSuccess();
             } else {
                 console.error(e);
-                await router.push('/');
+                // await router.push('/');
                 error.value = "File couldn't be selected.";
                 loadingStore.loadingError("File couldn't be selected.");
             }
@@ -123,7 +124,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
             liveSearchResult.value = response.properties;
         } catch (e) {
             error.value = 'Live search options could not be fetched.';
-            await router.push('/');
+            // await router.push('/');
             console.error(e);
         }
     };
@@ -176,7 +177,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 toast.error(e.data?.message || 'An error occurred');
             }
 
-            await router.push('/');
+            // await router.push('/');
             error.value = "Dataset couldn't be saved.";
             console.error(e);
         }
