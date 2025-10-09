@@ -151,9 +151,9 @@ const doDataSearch = async () => {
                     :search-type-selector="true"
                 />
                 <div class="flex-1">
-                    <section name="datasets" class="mb-10 flex flex-col gap-6 px-6">
+                    <section name="datasets" class="mb-10 flex flex-col px-6">
                         <SelectedFacetsOverview v-model="selectedFacets" :facets="availableFacetsFormatted" />
-                        <div class="flex flex-col gap-6">
+                        <div class="flex flex-col pb-6">
                             <SearchInfoPanel v-model:direction="sortDirection" v-model:sort="sort">
                                 <span v-if="searchType === 'metadata'" class="font-semibold text-primary-600">{{
                                     getSearchResultsCount

@@ -139,7 +139,11 @@ async function downloadFile() {
         document.body.removeChild(a);
     } catch (error) {
         console.error('Error downloading file:', error);
-        alert('Failed to download the file.');
+        if (props.title === 'Kafka Stream') {
+            alert('This is a streaming dataset and cannot be downloaded yet in Beta release.');
+        } else {
+            alert('Failed to download the file.');
+        }
     }
 }
 </script>

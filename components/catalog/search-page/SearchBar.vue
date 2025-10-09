@@ -29,7 +29,7 @@ const formAction = () => {
                     />
                     <UButton type="submit" size="sm">{{ $t('searchBar.searchButton') }}</UButton>
                 </div>
-                <div v-if="searchTypeSelector" class="flex py-2 px-4">
+                <div v-if="searchTypeSelector" class="flex pt-4 px-2">
                     <SearchType v-model:search-type="searchType" />
                 </div>
                 <!-- <KButton type="submit">

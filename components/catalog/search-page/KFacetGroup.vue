@@ -27,7 +27,7 @@ const {
     isTruncationNeeded,
 } = useDataTruncator<Facet>({
     data: props.facets,
-    limit: 5,
+    limit: props.facets.length,
 });
 
 const panelPreset = {
