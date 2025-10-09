@@ -45,7 +45,7 @@
                         <tfoot>
                             <tr>
                                 <td
-                                    v-for="(column, index) in store.initialFileData?.data_model.columns"
+                                    v-for="(column, index) in store.initialFileData?.data_model?.columns"
                                     :key="index + 'f'"
                                     class="border border-gray-200 p-4 text-gray-500 italic"
                                 >
