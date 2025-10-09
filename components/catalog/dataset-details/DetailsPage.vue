@@ -87,6 +87,8 @@ const hasInvestmentOffer = computed(() => monetizationData.value?.investment_off
 
 const hasPurchaseOffer = computed(() => monetizationData.value?.purchase_offer);
 
+const isNFT = computed(() => monetizationData.value?.purchase_offer[0].type === 'nft');
+
 const offerType = computed(() => {
     const hasInvestment = hasInvestmentOffer.value;
     const hasPurchase = hasPurchaseOffer.value;
@@ -338,7 +340,7 @@ const investOpen = ref(false);
 
                     <slot name="sections"></slot>
 
-                    <UCard v-if="pistisMode === 'cloud'">
+                    <UCard v-if="pistisMode === 'cloud' && !isNFT">
                         <template #header>
                             <SubHeading :title="$t('matchmakingService.recommendationsHeader')" />
                         </template>
