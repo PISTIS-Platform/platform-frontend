@@ -94,53 +94,74 @@ if (titleObject) {
 
 async function downloadFile() {
     const accessUrl = props.downloadUrl;
-    try {
-        console.log('accessUrl', accessUrl, props.format);
+    if (props.title === 'Kafka Stream') {
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
 
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            responseType: 'blob',
-        };
-        if (props.format === 'SQL') {
-            config.params = { JSON_output: 'False' };
+            const response = await axios.get(accessUrl, config);
+
+            const brokerUrl = response.data.url;
+            const topic = response.data.topic;
+
+            alert(
+                `This is a streaming dataset and cannot be downloaded yet in Beta release.\nThis feature will be further developed in v1 and you need a Kafka consumer to get this dataset.\n\nbroker url: ${brokerUrl}\ntopic: ${topic}`,
+            );
+        } catch (error) {
+            console.error('Error fetching Kafka Stream JSON data:', error);
+            alert(
+                'This is a streaming dataset and cannot be downloaded yet in Beta release.\nThis feature will be further developed in v1 and you need a Kafka consumer to get this dataset.',
+            );
         }
+    } else {
+        try {
+            console.log('accessUrl', accessUrl, props.format);
 
-        const response = await axios.get(accessUrl, config);
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                responseType: 'blob',
+            };
+            if (props.format === 'SQL') {
+                config.params = { JSON_output: 'False' };
+            }
 
-        const contentTypeHeader = response.headers['content-type'];
-        const contentType = contentTypeHeader.split(';')[0].trim();
+            const response = await axios.get(accessUrl, config);
 
-        // Map Content-Type to file extensions
-        const mimeToExtensionMap = {
-            'text/csv': 'csv',
-            'application/json': 'json',
-            'application/pdf': 'pdf',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
-            'text/plain': 'txt',
-        };
+            const contentTypeHeader = response.headers['content-type'];
+            const contentType = contentTypeHeader.split(';')[0].trim();
 
-        // Determine the file extension from Content-Type
-        const fileExtension = mimeToExtensionMap[contentType] || 'bin'; // Default to 'bin' for unknown types
-        const fileName = `${downloadFileName}.${fileExtension}`;
-        // Create a Blob URL with the detected Content-Type
-        const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
-        // Create a temporary link and trigger download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName; // Use the dynamically determined filename
-        document.body.appendChild(a);
-        a.click();
+            // Map Content-Type to file extensions
+            const mimeToExtensionMap = {
+                'text/csv': 'csv',
+                'application/json': 'json',
+                'application/pdf': 'pdf',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+                'text/plain': 'txt',
+            };
 
-        // Clean up
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-    } catch (error) {
-        console.error('Error downloading file:', error);
-        if (props.title === 'Kafka Stream') {
-            alert('This is a streaming dataset and cannot be downloaded yet in Beta release.');
-        } else {
+            // Determine the file extension from Content-Type
+            const fileExtension = mimeToExtensionMap[contentType] || 'bin'; // Default to 'bin' for unknown types
+            const fileName = `${downloadFileName}.${fileExtension}`;
+            // Create a Blob URL with the detected Content-Type
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
+            // Create a temporary link and trigger download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName; // Use the dynamically determined filename
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error downloading file:', error);
+
             alert('Failed to download the file.');
         }
     }
