@@ -57,7 +57,6 @@ const resolvedData = computed(() => {
 const catalog = ref(null);
 
 const searchUrl = getDatasetUrl(props.datasetId);
-
 const isTransformed = ref();
 const isAnonymized = ref();
 const isEncrypted = ref();
@@ -173,7 +172,7 @@ async function downloadFile() {
                         nofollow
                         noreferrer
                     > -->
-                    <UButton
+                    <!-- <UButton
                         v-if="pistisMode === 'factory'"
                         size="sm"
                         label="Data Enrichment"
@@ -185,7 +184,14 @@ async function downloadFile() {
                                 file_type: props.format,
                             },
                         }"
-                    />
+                        prefetch="false"
+                    /> -->
+                    <a
+                        :href="`/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${props.format}`"
+                        class="inline-block bg-primary text-white hover:bg-primary-700 px-3 py-1.5 text-sm font-medium rounded shadow transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer text-center"
+                    >
+                        Data Enrichment
+                    </a>
                     <!-- </a> -->
 
                     <UButton
