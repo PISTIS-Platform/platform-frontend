@@ -83,9 +83,15 @@ const licenseOpen = ref(false);
                     </template>
                 </SummaryBox>
 
-                <SummaryBox :title="$t('monetization.termination-date')">
+                <SummaryBox :title="$t('duration')">
                     <template #text>
-                        {{ formatDate(data.purchase_offer[0].term_date) }}
+                        {{ data.purchase_offer[0].duration }}
+                    </template>
+                </SummaryBox>
+
+                <SummaryBox :title="$t('perpetual')">
+                    <template #text>
+                        {{ data.purchase_offer[0].perpetual }}
                     </template>
                 </SummaryBox>
 
@@ -114,9 +120,7 @@ const licenseOpen = ref(false);
                 </SummaryBox>
 
                 <SummaryBox
-                    v-if="
-                        data.purchase_offer[0].personal_data_terms && data.purchase_offer[0].personal_data_terms.length
-                    "
+                    v-if="data.purchase_offer[0].personal_data_terms[0].contains_personal_data === true"
                     :title="$t('monetization.personal-data-terms')"
                     class="md:col-span-3"
                 >
