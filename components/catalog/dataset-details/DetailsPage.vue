@@ -148,8 +148,7 @@ const buyRequest = async () => {
     const title = Object.values(metadata.value.result?.title ?? {})[0] ?? '';
 
     const url = getPurchaseUrl(factoryPrefix.value);
-    console.log('url', url);
-    console.log('url', url);
+    //console.log('url', url);
     const promise = axios.post(
         url,
         {
@@ -177,6 +176,27 @@ const buyRequest = async () => {
         console.log('Purchase complete', res.data);
     } catch (err) {
         console.error('Purchase failed', err);
+    }
+};
+
+const openInsightsResult = async () => {
+    const url = metadata.value?.result?.insights_result;
+    
+    if (!url || !token.value) return;
+
+    try {
+        const res = await axios.get(url, {
+            headers: { Authorization: `Bearer ${token.value}` }
+        });
+        
+        // Create a new window with the HTML content
+        const newWindow = window.open('', '_blank');
+        newWindow.document.open();
+        newWindow.document.write(res.data);
+        newWindow.document.close();
+        
+    } catch (err) {
+        console.error('Failed to load insights result', err);
     }
 };
 
@@ -328,6 +348,29 @@ const investOpen = ref(false);
 
                         <div class="mt-4">
                             <slot name="additional-info"></slot>
+                        </div>
+                        <div class="mt-4">
+                            <!-- TODO: Make this part looks more integrated with "additional-info"-->
+                            <span>
+                                <!-- [v1]: Each keyword should link to search request to find datasets with the same keyword" -->
+                                <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
+                                <p>
+                                    <span style="color: lightgray; font-size: small; font-weight: bold">KEYWORDS</span>
+                                </p>
+                                <p>{{ metadata?.result?.keywords?.map((k) => k.label).join(', ') }}</p>
+                            </span>
+                            <span>
+                                <p>
+                                    <span style="color: lightgray; font-size: small; font-weight: bold"
+                                        >INSIGHTS RESULT</span
+                                    >
+                                </p>
+                                <p>
+                                    <a href="" @click.prevent="openInsightsResult">
+                                        {{ metadata?.result?.insights_result }}
+                                    </a>
+                                </p>
+                            </span>
                         </div>
                     </UCard>
 
