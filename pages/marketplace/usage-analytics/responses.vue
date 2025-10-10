@@ -119,7 +119,11 @@ const {
     status: questionnaireStatus,
     error: questionnaireError,
 } = await useAsyncData<Questionnaire>(`fetchQuestionnaire-asset-${assetId.value}`, () =>
-    $fetch(`/api/usage-analytics/${assetId.value}`),
+    $fetch(`/api/usage-analytics/${assetId.value}`, {
+        query: {
+            forVerifiedBuyers: forVerifiedBuyers.value,
+        },
+    }),
 );
 
 const { data, status, error } = useFetch<QuestionResponse[]>(`/api/usage-analytics/get-answers`, {
