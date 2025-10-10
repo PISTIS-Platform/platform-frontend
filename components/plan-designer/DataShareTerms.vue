@@ -183,10 +183,10 @@ const durationTextDisplay = computed(() => {
                                 and the Data Recipient, the Data Provider hereby grants the Data Recipient a(n)
                                 {{ licenseDetails.isExclusive ? 'exclusive' : 'non-exclusive' }},
                                 {{
-                                    licenseDetails.region.length >= 1
+                                    licenseDetails.region?.length >= 1
                                         ? `available in ${licenseDetails.region
-                                              .map((region: string) => countries[region])
-                                              .slice(0, licenseDetails.region.length - 1)
+                                              ?.map((region: string) => countries[region])
+                                              .slice(0, licenseDetails.region?.length - 1)
                                               .join(', ')} and ${countries[licenseDetails.region.at(-1)]}`
                                         : 'available worldwide'
                                 }}, {{ licenseDetails.transferable }}, valid {{ durationTextDisplay

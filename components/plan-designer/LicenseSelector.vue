@@ -201,7 +201,7 @@ const customValidate = () => {
             errors.push({ path: error.path[0], message: error.message });
         }
     }
-    if (!isWorldwide.value && !licenseDetails.value.region.length)
+    if (!isWorldwide.value && !licenseDetails.value?.region?.length)
         errors.push({ path: 'region', message: t('val.required') });
     else formRef.value.clear('region');
     if (!licenseDetails.value.duration) errors.push({ path: 'duration', message: t('val.required') });

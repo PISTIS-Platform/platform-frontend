@@ -235,13 +235,6 @@ const computedChartData = computed(() =>
                 color="primary"
             />
             <UAlert
-                v-else-if="!data || data.length === 0"
-                icon="nonicons:not-found-16"
-                color="yellow"
-                variant="subtle"
-                :description="t('data.usage.responsesNotFound')"
-            />
-            <UAlert
                 v-else-if="questionnaireError || error"
                 icon="material-symbols:error-outline-rounded"
                 color="red"
@@ -249,6 +242,13 @@ const computedChartData = computed(() =>
                 :description="
                     t('data.usage.responsesError') + (questionnaireError?.data?.message || error?.data?.message)
                 "
+            />
+            <UAlert
+                v-else-if="!data || data.length === 0"
+                icon="nonicons:not-found-16"
+                color="yellow"
+                variant="subtle"
+                :description="t('data.usage.responsesNotFound')"
             />
             <div v-else class="w-full flex flex-col gap-4 text-gray-600">
                 <SubHeading
