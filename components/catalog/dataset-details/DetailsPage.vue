@@ -352,12 +352,15 @@ const investOpen = ref(false);
                         <div class="mt-4">
                             <!-- TODO: Make this part looks more integrated with "additional-info"-->
                             <span>
-                                <!-- [v1]: Each keyword should link to search request to find datasets with the same keyword" -->
-                                <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
                                 <p>
                                     <span style="color: lightgray; font-size: small; font-weight: bold">KEYWORDS</span>
                                 </p>
-                                <p>{{ metadata?.result?.keywords?.map((k) => k.label).join(', ') }}</p>
+                                <!-- [v1]: Each keyword should link to search request to find datasets with the same keyword" -->
+                                <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
+                                <p v-if="metadata?.result?.keywords?.length > 0">
+                                    {{ metadata?.result?.keywords?.map((k) => k.label).join(', ') }}
+                                </p>
+                                <p v-else style="font-style: italic">No keywords available</p>
                             </span>
                             <span>
                                 <p>
@@ -366,9 +369,19 @@ const investOpen = ref(false);
                                     >
                                 </p>
                                 <p>
-                                    <a href="" @click.prevent="openInsightsResult">
-                                        {{ metadata?.result?.insights_result }}
+                                    <!-- TODO: Check if this function is already optimal -->
+                                    <a
+                                        v-if="
+                                            metadata?.result?.insights_result &&
+                                            metadata.result.insights_result !== 'none'
+                                        "
+                                        href=""
+                                        style="color: blue; text-decoration: none"
+                                        @click.prevent="openInsightsResult"
+                                    >
+                                        {{ metadata.result.insights_result }}
                                     </a>
+                                    <span v-else style="font-style: italic"> No insights result available </span>
                                 </p>
                             </span>
                         </div>
