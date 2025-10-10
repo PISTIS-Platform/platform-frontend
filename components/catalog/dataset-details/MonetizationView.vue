@@ -85,13 +85,13 @@ const licenseOpen = ref(false);
 
                 <SummaryBox :title="$t('duration')">
                     <template #text>
-                        {{ data.purchase_offer[0].duration }}
+                        {{ data.purchase_offer[0].duration || '-' }}
                     </template>
                 </SummaryBox>
 
                 <SummaryBox :title="$t('perpetual')">
                     <template #text>
-                        {{ data.purchase_offer[0].perpetual }}
+                        {{ data.purchase_offer[0].perpetual || '-' }}
                     </template>
                 </SummaryBox>
 
@@ -120,7 +120,7 @@ const licenseOpen = ref(false);
                 </SummaryBox>
 
                 <SummaryBox
-                    v-if="data.purchase_offer[0].personal_data_terms[0].contains_personal_data === true"
+                    v-if="data.purchase_offer?.[0]?.personal_data_terms?.[0]?.contains_personal_data === true"
                     :title="$t('monetization.personal-data-terms')"
                     class="md:col-span-3"
                 >
