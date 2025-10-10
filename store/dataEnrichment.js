@@ -57,7 +57,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         loadingStore.loadingPending();
 
         try {
-            const { data } = await $fetch('/get_asset', {
+            const response = await $fetch('/get_asset', {
                 baseURL: apiUrl.value,
                 params: {
                     dataset_id: datasetId.value,
@@ -69,9 +69,9 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 },
             });
 
-            initialFileData.value = JSON.parse(JSON.stringify(data));
-            fileData.value = data;
-            checkUnsupportedDatatypes(data.data_model?.columns);
+            initialFileData.value = JSON.parse(JSON.stringify(response));
+            fileData.value = response;
+            checkUnsupportedDatatypes(response.data_model?.columns);
             loadingStore.loadingSuccess();
         } catch (e) {
             if (process.dev) {
