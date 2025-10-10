@@ -211,7 +211,6 @@ const customValidate = () => {
         errors.push({ path: 'contractBreachDays', message: t('val.positive') });
     if (hasPersonalData.value && !licenseDetails.value.personalDataTerms)
         errors.push({ path: 'personalDataTerms', message: t('val.required') });
-    console.log({ errors });
     return errors;
 };
 
