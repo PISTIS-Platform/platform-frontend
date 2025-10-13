@@ -255,6 +255,8 @@ const submitAll = async () => {
     submitStatus.value = 'pending';
     const body = bodyToSend.value;
 
+    const assetId = monetizationDetails.value.type === 'nft' ? selectedAsset.value?.id : newAssetId;
+
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
@@ -263,7 +265,7 @@ const submitAll = async () => {
         submitStatus.value = 'success';
         await delay(3);
         submitStatus.value = '';
-        await navigateTo(`/marketplace/dataset-details/${newAssetId}?pm=cloud`);
+        await navigateTo(`/marketplace/dataset-details/${assetId}?pm=cloud`);
     } catch (error) {
         submitStatus.value = 'error';
     }
