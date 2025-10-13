@@ -15,7 +15,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     const loadingStore = useLoadingStore();
 
     // URLs from runtime config
-    const catalogueUrl = ref(config.public.factoryUrl + '/srv/catalog/datasets/');
+    const catalogueUrl = ref(config.public.factoryUrl + '/catalog/dataset-details/');
     const apiUrl = ref(config.public.factoryUrl + '/srv/data-enrichment-backend');
 
     // State
@@ -167,7 +167,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
             }
 
             if (datasetId.value && process.client) {
-                window.location.href = `${catalogueUrl.value}${datasetId.value}`;
+                window.location.href = `${catalogueUrl.value}${datasetId.value}` + '?pm=factory';
             }
         } catch (e) {
             loadingStore.loadingSuccess();
