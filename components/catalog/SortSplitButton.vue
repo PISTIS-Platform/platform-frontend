@@ -21,7 +21,7 @@ const checked = computed({
 const sortOptions = computed(() => [
     { name: t('SortSplitButton.sortOptions.modified'), id: 'modified' },
     { name: t('SortSplitButton.sortOptions.relevance'), id: 'relevance' },
-    { name: t('SortSplitButton.sortOptions.title'), id: 'title.de' },
+    { name: t('SortSplitButton.sortOptions.title'), id: 'title.en' },
     { name: t('SortSplitButton.sortOptions.issued'), id: 'issued' },
 ]);
 const sort = defineModel<string>('sort', { default: 'modified' });
@@ -34,6 +34,11 @@ function toggleDropdown() {
 
 function selectOption(id: string) {
     sort.value = id;
+    if (id === 'title.en') {
+        sortDirection.value = 'asc';
+    } else {
+        sortDirection.value = 'desc';
+    }
 }
 
 function toggle() {
@@ -59,7 +64,7 @@ function toggle() {
                     <li
                         class="leading-none m-0 py-3 px-5 font-light dark:bg-primary-400/40 text-black dark:text-white/80 cursor-pointer hover:bg-pistis-100"
                         :class="{ 'bg-pistis-200': option.id === sort }"
-                        @click="selectOption(option.id, option.name)"
+                        @click="selectOption(option.id)"
                     >
                         {{ option.name }}
                     </li>
