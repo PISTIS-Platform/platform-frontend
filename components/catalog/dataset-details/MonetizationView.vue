@@ -71,13 +71,19 @@ const licenseOpen = ref(false);
                     </template>
                 </SummaryBox>
 
-                <SummaryBox :title="$t('monetization.transferable')">
+                <SummaryBox
+                    v-if="data.purchase_offer[0].type?.toLowerCase() !== 'nft'"
+                    :title="$t('monetization.transferable')"
+                >
                     <template #text>
                         {{ data.purchase_offer[0].transferable || '-' }}
                     </template>
                 </SummaryBox>
 
-                <SummaryBox :title="$t('monetization.exclusive')">
+                <SummaryBox
+                    v-if="data.purchase_offer[0].type?.toLowerCase() !== 'nft'"
+                    :title="$t('monetization.exclusive')"
+                >
                     <template #text>
                         {{ data.purchase_offer[0].is_exclusive ? 'Yes' : 'No' || '-' }}
                     </template>
@@ -86,7 +92,8 @@ const licenseOpen = ref(false);
                 <!-- Only DURATION or PERPETUAL should be rendered. Not both -->
                 <SummaryBox
                     v-if="
-                        !data.purchase_offer[0].perpetual || data.purchase_offer[0].perpetual.toLowerCase() === 'none'
+                        data.purchase_offer[0].type?.toLowerCase() !== 'nft' &&
+                        (!data.purchase_offer[0].perpetual || data.purchase_offer[0].perpetual.toLowerCase() === 'none')
                     "
                     :title="$t('duration')"
                 >
@@ -98,7 +105,7 @@ const licenseOpen = ref(false);
                         }}
                     </template>
                 </SummaryBox>
-                <SummaryBox v-else :title="$t('perpetual')">
+                <SummaryBox v-else-if="data.purchase_offer[0].type?.toLowerCase() !== 'nft'" :title="$t('perpetual')">
                     <template #text>
                         {{ data.purchase_offer[0].perpetual }}
                     </template>
@@ -112,13 +119,22 @@ const licenseOpen = ref(false);
                     </template>
                 </SummaryBox>
 
-                <SummaryBox v-if="data.purchase_offer[0].update_frequency" title="Data Updated">
+                <SummaryBox
+                    v-if="
+                        data.purchase_offer[0].type?.toLowerCase() !== 'nft' && data.purchase_offer[0].update_frequency
+                    "
+                    title="Data Updated"
+                >
                     <template #text>
                         {{ data.purchase_offer[0].update_frequency }}
                     </template>
                 </SummaryBox>
 
-                <SummaryBox v-if="data.downloads && data.downloads.length">
+                <SummaryBox
+                    v-if="
+                        data.purchase_offer[0].type?.toLowerCase() !== 'nft' && data.downloads && data.downloads.length
+                    "
+                >
                     <template #text>
                         <ul>
                             <li v-for="(dl, index) in data.downloads" :key="index">
@@ -129,7 +145,10 @@ const licenseOpen = ref(false);
                 </SummaryBox>
 
                 <SummaryBox
-                    v-if="data.purchase_offer?.[0]?.personal_data_terms?.[0]?.contains_personal_data === true"
+                    v-if="
+                        data.purchase_offer[0].type?.toLowerCase() !== 'nft' &&
+                        data.purchase_offer?.[0]?.personal_data_terms?.[0]?.contains_personal_data === true
+                    "
                     :title="$t('monetization.personal-data-terms')"
                     class="md:col-span-3"
                 >
