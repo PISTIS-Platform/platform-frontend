@@ -58,7 +58,7 @@ const chartOptions = {
         tooltip: {
             callbacks: {
                 label: function (context: any) {
-                    let label = context.dataset.label || context.label || '';
+                    let label = context.dataset.label || '';
                     const s = Number(context.formattedValue) === 1 ? '' : 's';
                     const value = context.formattedValue;
                     return `${label}: ${value} response${s}`;
