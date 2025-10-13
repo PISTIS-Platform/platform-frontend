@@ -83,15 +83,24 @@ const licenseOpen = ref(false);
                     </template>
                 </SummaryBox>
 
-                <SummaryBox :title="$t('duration')">
+                <!-- Only DURATION or PERPETUAL should be rendered. Not both -->
+                <SummaryBox
+                    v-if="
+                        !data.purchase_offer[0].perpetual || data.purchase_offer[0].perpetual.toLowerCase() === 'none'
+                    "
+                    :title="$t('duration')"
+                >
                     <template #text>
-                        {{ data.purchase_offer[0].duration || '-' }}
+                        {{
+                            data.purchase_offer[0].duration
+                                ? `${data.purchase_offer[0].duration} ${data.purchase_offer[0].duration === 1 ? 'day' : 'days'}`
+                                : '-'
+                        }}
                     </template>
                 </SummaryBox>
-
-                <SummaryBox :title="$t('perpetual')">
+                <SummaryBox v-else :title="$t('perpetual')">
                     <template #text>
-                        {{ data.purchase_offer[0].perpetual || '-' }}
+                        {{ data.purchase_offer[0].perpetual }}
                     </template>
                 </SummaryBox>
 
