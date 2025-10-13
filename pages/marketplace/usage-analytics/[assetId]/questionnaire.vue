@@ -15,7 +15,7 @@ const {
     pending: loadingQuestionnaire,
     error,
 } = await useAsyncData<Questionnaire>(`fetchQuestionnaire-asset-${route.params.assetId}`, () =>
-    $fetch(`/api/usage-analytics/${route.params.assetId}`),
+    $fetch(`/api/usage-analytics/flex-${route.params.assetId}`),
 );
 
 if (error.value || !questionnaire.value) {
