@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     do {
         innerResult = await $fetch<Record<string, any>>(
-            `${cloudUrl}/srv/search/search?page=${page}&limit=1000&filters=dataset&facets=${encodeURIComponent(JSON.stringify(facets))}`,
+            `${cloudUrl}/srv/search/search?page=${page}&limit=1000&filters=dataset&includes=id,title,description,distributions,modified&facets=${encodeURIComponent(JSON.stringify(facets))}`,
             {
                 method: 'GET',
             },
