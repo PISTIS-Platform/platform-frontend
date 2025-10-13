@@ -58,13 +58,28 @@ const chartOptions = {
         tooltip: {
             callbacks: {
                 label: function (context: any) {
-                    let label = context.dataset.label || '';
+                    let label = context.dataset.label || context.label || '';
+                    const s = Number(context.formattedValue) === 1 ? '' : 's';
+                    const value = context.formattedValue;
+                    return `${label}: ${value} response${s}`;
+                },
+            },
+        },
+    },
+};
 
-                    if (label) {
-                        label += ': ';
-                    }
-                    label += context.formattedValue + ' responses';
-                    return label;
+const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: { x: { display: false }, y: { display: false } },
+    plugins: {
+        tooltip: {
+            callbacks: {
+                label: function (context: any) {
+                    const label = context.label || '';
+                    const s = Number(context.formattedValue) === 1 ? '' : 's';
+                    const value = context.formattedValue;
+                    return `${label}: ${value} response${s}`;
                 },
             },
         },
@@ -272,13 +287,7 @@ const computedChartData = computed(() =>
                                 >{{ $t('data.usage.overallResponses') }}</span
                             >
                             <div v-if="answer.allTime.chartType === 'pie'">
-                                <Pie
-                                    :data="answer.allTime"
-                                    :options="{
-                                        ...chartOptions,
-                                        scales: { x: { display: false }, y: { display: false } },
-                                    }"
-                                />
+                                <Pie :data="answer.allTime" :options="pieChartOptions" />
                             </div>
                             <div v-else>
                                 <Bar
