@@ -33,7 +33,7 @@ export function useSearchParams(locale?: MaybeRefOrGetter) {
         },
     });
     const finalComputedSort = computed(() => {
-        const unrefLocale = toValue(locale) || 'de';
+        const unrefLocale = toValue(locale) || 'en';
         const titleSort = `title.${unrefLocale}+${sortDirection.value}`;
         if (sort.value === 'relevance') return `${computedSort.value},modified+desc,${titleSort}`;
         if (sort.value === 'modified') return `${computedSort.value},relevance+desc,${titleSort}`;

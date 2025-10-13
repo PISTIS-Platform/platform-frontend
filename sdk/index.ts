@@ -41,7 +41,7 @@ export function useDcatApSearch() {
                 getPublisher: baseGetters.getPublisher,
                 getFormats: baseGetters.getFormats || [],
                 getSummary: [
-                    { title: 'updated', text: baseGetters.getIssued || baseGetters.getModified || '' },
+                    { title: 'updated', text: baseGetters.getModified || '' },
                     {
                         title: 'category',
                         text: [
