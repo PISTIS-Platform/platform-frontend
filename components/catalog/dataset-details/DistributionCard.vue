@@ -61,6 +61,8 @@ const isTransformed = ref();
 const isAnonymized = ref();
 const isEncrypted = ref();
 
+const isStream = computed(() => props.title.toLowerCase() === 'kafka stream' && props.format.toLowerCase() === 'csv');
+
 const fetchMetadata = async () => {
     try {
         const response = await fetch(searchUrl);
@@ -182,11 +184,11 @@ async function downloadFile() {
                     <UBadge v-if="isEncrypted" color="yellow" variant="subtle">Encrypted</UBadge>
                 </div>
             </div>
-            <div v-if="pistisMode == 'factory'" class="flex gap-6 flex-wrap">
-                <UButton size="sm" @click="downloadFile">
+            <div v-if="pistisMode == 'factory'" class="flex flex-wrap gap-6">
+                <UButton variant="soft" color="secondary" size="sm" @click="downloadFile">
                     {{ downloadText }}
                 </UButton>
-                <div v-if="catalog === 'my-data'" class="flex gap-6">
+                <div v-if="catalog === 'my-data' && !isStream" class="flex gap-6">
                     <!-- <a
                         :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
                         target="_blank"
@@ -209,7 +211,7 @@ async function downloadFile() {
                     /> -->
                     <a
                         :href="`/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${props.format}`"
-                        class="inline-block bg-primary text-white hover:bg-primary-700 px-3 py-1.5 text-sm font-medium rounded shadow transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer text-center"
+                        class="inline-block bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer text-center"
                     >
                         Data Enrichment
                     </a>
@@ -217,6 +219,7 @@ async function downloadFile() {
 
                     <UButton
                         size="sm"
+                        variant="soft"
                         :label="$t('buttons.anonymize')"
                         :to="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
                     />
