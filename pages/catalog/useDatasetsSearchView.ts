@@ -118,7 +118,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     });
 
     // --- Facets ---
-    const availableFacetsDe = getAvailableFacetsLocalized('de');
+    const availableFacetsDe = getAvailableFacetsLocalized('en');
     const availableFacetsWithoutHvd = computed(() => availableFacetsDe.value?.filter((facet) => facet.id !== 'is_hvd'));
     const availableFacetsFormatted = computed(() => {
         return (
@@ -133,7 +133,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
                                 ? item.title
                                 : !item.title
                                   ? (item.id ?? `item${index}` ?? '')
-                                  : getLocalizedValue({ obj: item.title, fallbackLocale: 'de' }),
+                                  : getLocalizedValue({ obj: item.title, fallbackLocale: 'en' }),
                         count: item.count ?? 0,
                         value: item.id ?? '__value__',
                     })),
