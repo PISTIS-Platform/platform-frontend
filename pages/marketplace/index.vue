@@ -119,7 +119,9 @@ const doDataSearch = async () => {
                 :facets="availableFacetsFormatted"
             />
             <div v-if="searchType === 'data'" class="flex flex-col rounded facets-overlay">
-                <div class="w-80 p-4">Facets are not available when searching directly in data</div>
+                <div class="w-80 p-4 facets-overlay-container">
+                    <div class="p-4 facets-overlay-text">Facets are not available when searching directly in data</div>
+                </div>
             </div>
         </Sidebar>
         <div
@@ -137,7 +139,11 @@ const doDataSearch = async () => {
                         :facets="availableFacetsFormatted"
                     />
                     <div v-if="searchType === 'data'" class="flex flex-col rounded facets-overlay">
-                        <div class="w-80 p-4">Facets are not available when searching directly in data</div>
+                        <div class="w-80 p-4 facets-overlay-container">
+                            <div class="p-4 facets-overlay-text">
+                                Facets are not available when searching directly in data
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -191,8 +197,19 @@ const doDataSearch = async () => {
 .facets-overlay {
     position: relative;
     left: -100%;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.75);
-    color: #ffffff;
+    justify-content: top;
+    background: rgba(255, 255, 255, 0.66);
+    padding-top: 5em;
+    padding-bottom: 5em;
+}
+.facets-overlay-container {
+    position: sticky;
+    top: 10em;
+}
+.facets-overlay-text {
+    background: #e5e5e5;
+    border-radius: 0.75rem;
+    color: #000000;
+    text-align: center;
 }
 </style>
