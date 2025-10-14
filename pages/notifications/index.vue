@@ -75,7 +75,7 @@ const hide = async (id: string | number) => {
                     v-if="!shownNotifications.length"
                     icon="ic:outline-info"
                     color="primary"
-                    variant="soft"
+                    variant="subtle"
                     :description="$t('notifications.noNotifications')"
                 />
             </div>

@@ -331,6 +331,8 @@ export default defineI18nConfig(() => ({
                         couldNotCreateInvestmentPlan: 'Could not create investment plan. An error has occurred.',
                         couldNotRetrieveDatasets:
                             'Could not retrieve datasets available for investment. An error has occurred.',
+                        noAssetsFoundError:
+                            'No compatible assets found for investment planning. Please publish a non-free one-off or subscription plan to the marketplace and come back.',
                     },
                 },
                 quality: {

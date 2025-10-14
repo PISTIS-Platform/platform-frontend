@@ -118,7 +118,7 @@ const {
     data: datasetsData,
     status: datasetsStatus,
     error: datasetsError,
-} = useFetch(`/api/datasets/get-all-on-marketplace`, {
+} = useFetch<Record<string, any>[]>(`/api/datasets/get-all-on-marketplace`, {
     query: {
         nonFree: true,
     },
@@ -242,6 +242,13 @@ const submitAll = async () => {
         variant="subtle"
         :title="t('data.investmentPlanner.errors.couldNotRetrieveDatasets')"
         color="red"
+    />
+    <UAlert
+        v-else-if="!datasetsData || !datasetsData.length"
+        :title="t('data.investmentPlanner.errors.noAssetsFoundError')"
+        color="yellow"
+        variant="subtle"
+        icon="nonicons:not-found-16"
     />
     <div v-else class="w-full text-gray-700 h-full relative">
         <NavigationSteps :steps="steps" :selected-page="selectedPage" @select-page="changeStep" />

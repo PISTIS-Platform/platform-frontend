@@ -352,7 +352,7 @@ const changeStep = async (stepNum: number) => {
             v-if="hasRouteAssetId && !dataset && !selectedAsset"
             :title="t('data.designer.error.noAssetFound')"
             color="red"
-            variant="soft"
+            variant="subtle"
             icon="nonicons:not-found-16"
         />
         <UCard v-if="!hasRouteAssetId || !dataset">
