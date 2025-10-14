@@ -45,10 +45,6 @@ const catalog = ref(null);
 const factoryPrefix = ref('');
 const price = ref('');
 const investPrice = ref('');
-const isOwned = computed(() => {
-    // True only in datasets that the logged-in user owns
-    return organizationId.value === monetizationData.value?.publisher?.organization_id;
-});
 const monetizationData = ref();
 const offerId = ref('');
 const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
@@ -87,6 +83,12 @@ const hasInvestmentOffer = computed(() => monetizationData.value?.investment_off
 
 const hasPurchaseOffer = computed(() => monetizationData.value?.purchase_offer);
 
+const publisherOrganizationId = computed(() => monetizationData.value?.purchase_offer[0]?.publisher?.organization_id);
+
+const isNotOwned = computed(() => {
+    // True only in datasets that the logged-in user owns
+    return organizationId.value !== publisherOrganizationId.value && publisherOrganizationId.value;
+});
 const isNFT = computed(() => monetizationData.value?.purchase_offer[0].type === 'nft');
 
 const offerType = computed(() => {
@@ -181,20 +183,18 @@ const buyRequest = async () => {
 
 const openInsightsResult = async () => {
     const url = metadata.value?.result?.insights_result;
-    
     if (!url || !token.value) return;
 
     try {
         const res = await axios.get(url, {
-            headers: { Authorization: `Bearer ${token.value}` }
+            headers: { Authorization: `Bearer ${token.value}` },
         });
-        
+
         // Create a new window with the HTML content
         const newWindow = window.open('', '_blank');
         newWindow.document.open();
         newWindow.document.write(res.data);
         newWindow.document.close();
-        
     } catch (err) {
         console.error('Failed to load insights result', err);
     }
@@ -404,8 +404,11 @@ const investOpen = ref(false);
                     </UCard>
                 </div>
 
-                <div v-if="pistisMode === 'cloud'" class="flex flex-col gap-4 w-96 sticky top-20 self-start">
-                    <template v-if="hasPurchaseOffer">
+                <div
+                    v-if="pistisMode === 'cloud' && isNotOwned"
+                    class="flex flex-col gap-4 w-96 sticky top-20 self-start"
+                >
+                    <template v-if="hasPurchaseOffer && isNotOwned">
                         <div
                             v-if="monetizationData.purchase_offer[0].type === 'subscription'"
                             class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
@@ -453,7 +456,7 @@ const investOpen = ref(false);
                         </div>
                     </template>
                     <div
-                        v-if="hasInvestmentOffer"
+                        v-if="hasInvestmentOffer && isNotOwned"
                         class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
                     >
                         <div class="flex justify-between items-center">
@@ -470,7 +473,9 @@ const investOpen = ref(false);
                         >
                     </div>
 
-                    <UButton v-if="!isOwned" size="sm" variant="link" block :to="feedbackUrl">Provide Feedback</UButton>
+                    <UButton v-if="hasPurchaseOffer && isNotOwned" size="sm" variant="link" block :to="feedbackUrl"
+                        >Provide Feedback</UButton
+                    >
                 </div>
             </section>
         </div>
