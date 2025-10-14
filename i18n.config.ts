@@ -426,6 +426,8 @@ export default defineI18nConfig(() => ({
                     noUseWithBlacklistedDatasets: 'No use with blacklisted datasets',
                     error: {
                         noAssetFound: 'No asset found with this ID. Please select one from the dropdown below.',
+                        noAssetsFound:
+                            'No assets found in your catalog. Please create/upload at least one and come back.',
                     },
                     nav: {
                         selectDataset: 'Dataset Selector',
