@@ -348,11 +348,10 @@ const investOpen = ref(false);
                         <div class="mt-4">
                             <slot name="additional-info"></slot>
                         </div>
-                        <div class="mt-4">
-                            <!-- TODO: Make this part looks more integrated with "additional-info"-->
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                             <span>
                                 <p>
-                                    <span style="color: lightgray; font-size: small; font-weight: bold">KEYWORDS</span>
+                                    <span class="text-neutral-400 text-xs font-bold">KEYWORDS</span>
                                 </p>
                                 <!-- [v1]: Each keyword should link to search request to find datasets with the same keyword" -->
                                 <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
@@ -363,9 +362,7 @@ const investOpen = ref(false);
                             </span>
                             <span>
                                 <p>
-                                    <span style="color: lightgray; font-size: small; font-weight: bold"
-                                        >INSIGHTS RESULT</span
-                                    >
+                                    <span class="text-neutral-400 text-xs font-bold">INSIGHTS RESULT</span>
                                 </p>
                                 <p>
                                     <!-- TODO: Check if this function is already optimal -->
