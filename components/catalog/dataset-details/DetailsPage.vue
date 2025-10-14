@@ -181,20 +181,19 @@ const buyRequest = async () => {
 
 const openInsightsResult = async () => {
     const url = metadata.value?.result?.insights_result;
-    
+
     if (!url || !token.value) return;
 
     try {
         const res = await axios.get(url, {
-            headers: { Authorization: `Bearer ${token.value}` }
+            headers: { Authorization: `Bearer ${token.value}` },
         });
-        
+
         // Create a new window with the HTML content
         const newWindow = window.open('', '_blank');
         newWindow.document.open();
         newWindow.document.write(res.data);
         newWindow.document.close();
-        
     } catch (err) {
         console.error('Failed to load insights result', err);
     }
