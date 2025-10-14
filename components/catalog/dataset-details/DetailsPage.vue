@@ -105,7 +105,6 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
-        console.log(metadata.value);
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
@@ -181,20 +180,19 @@ const buyRequest = async () => {
 
 const openInsightsResult = async () => {
     const url = metadata.value?.result?.insights_result;
-    
+
     if (!url || !token.value) return;
 
     try {
         const res = await axios.get(url, {
-            headers: { Authorization: `Bearer ${token.value}` }
+            headers: { Authorization: `Bearer ${token.value}` },
         });
-        
+
         // Create a new window with the HTML content
         const newWindow = window.open('', '_blank');
         newWindow.document.open();
         newWindow.document.write(res.data);
         newWindow.document.close();
-        
     } catch (err) {
         console.error('Failed to load insights result', err);
     }
@@ -349,11 +347,10 @@ const investOpen = ref(false);
                         <div class="mt-4">
                             <slot name="additional-info"></slot>
                         </div>
-                        <div class="mt-4">
-                            <!-- TODO: Make this part looks more integrated with "additional-info"-->
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                             <span>
                                 <p>
-                                    <span style="color: lightgray; font-size: small; font-weight: bold">KEYWORDS</span>
+                                    <span class="text-neutral-400 text-xs font-bold">KEYWORDS</span>
                                 </p>
                                 <!-- [v1]: Each keyword should link to search request to find datasets with the same keyword" -->
                                 <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
@@ -364,24 +361,21 @@ const investOpen = ref(false);
                             </span>
                             <span>
                                 <p>
-                                    <span style="color: lightgray; font-size: small; font-weight: bold"
-                                        >INSIGHTS RESULT</span
-                                    >
+                                    <span class="text-neutral-400 text-xs font-bold">INSIGHTS RESULT</span>
                                 </p>
                                 <p>
-                                    <!-- TODO: Check if this function is already optimal -->
                                     <a
                                         v-if="
                                             metadata?.result?.insights_result &&
                                             metadata.result.insights_result !== 'none'
                                         "
                                         href=""
-                                        style="color: blue; text-decoration: none"
+                                        class="text-pistis-500"
                                         @click.prevent="openInsightsResult"
                                     >
                                         {{ metadata.result.insights_result }}
                                     </a>
-                                    <span v-else style="font-style: italic"> No insights result available </span>
+                                    <span v-else class="italic"> No insights result available </span>
                                 </p>
                             </span>
                         </div>
