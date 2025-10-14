@@ -13,7 +13,7 @@ defineProps({
         icon="i-heroicons-exclamation-circle"
         :title="errorMsg"
         color="red"
-        variant="soft"
+        variant="subtle"
     />
     <slot> </slot>
 </template>

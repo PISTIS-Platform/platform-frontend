@@ -27,7 +27,7 @@ const {
     data: datasetsData,
     status: datasetsStatus,
     refresh,
-} = useAsyncData<Record<string, any>>(() => $fetch('/api/datasets/get-all'), { immediate: !hasRouteAssetId.value });
+} = useAsyncData<Record<string, any>[]>(() => $fetch('/api/datasets/get-all'), { immediate: !hasRouteAssetId.value });
 
 const { data: dataset, status: singleDatasetStatus } = useFetch<Record<string, any>>(`/api/datasets/get-specific`, {
     immediate: hasRouteAssetId.value,
@@ -349,10 +349,17 @@ const changeStep = async (stepNum: number) => {
         class="w-full h-full text-gray-700 space-y-8"
     >
         <UAlert
+            v-if="!datasetsData || !datasetsData.length"
+            :title="t('data.designer.error.noAssetsFound')"
+            color="yellow"
+            variant="subtle"
+            icon="nonicons:not-found-16"
+        />
+        <UAlert
             v-if="hasRouteAssetId && !dataset && !selectedAsset"
             :title="t('data.designer.error.noAssetFound')"
             color="red"
-            variant="soft"
+            variant="subtle"
             icon="nonicons:not-found-16"
         />
         <UCard v-if="!hasRouteAssetId || !dataset">

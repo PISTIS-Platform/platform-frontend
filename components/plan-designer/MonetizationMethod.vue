@@ -359,7 +359,7 @@ const customValidate = () => {
                             class="p-6 border border-red-200"
                             :description="$t('data.designer.nftNotPossible')"
                             color="red"
-                            variant="soft"
+                            variant="subtle"
                         />
                         <UAlert
                             class="p-6 border border-yellow-200"
@@ -367,7 +367,7 @@ const customValidate = () => {
                             :title="$t('data.designer.nftWarning')"
                             :description="$t('data.designer.nftWarningText')"
                             color="yellow"
-                            variant="soft"
+                            variant="subtle"
                         />
                         <div class="flex flex-row gap-4">
                             <div class="flex-1 flex gap-4">
