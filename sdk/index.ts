@@ -30,7 +30,7 @@ export function useDcatApSearch() {
             const baseGetters = dcatApDatasetSetup(dataset, localeInstance);
 
             const getCatalogId = dataset.catalog.id;
-            const getCatalogTitle = getTranslationFor(dataset.catalog.title, ['de']);
+            const getCatalogTitle = getTranslationFor(dataset.catalog.title, ['en']);
 
             const getDescriptionMarkup = DOMPurify.sanitize(marked(baseGetters.getDescription || '', { async: false }));
 
@@ -45,7 +45,7 @@ export function useDcatApSearch() {
                     {
                         title: 'category',
                         text: [
-                            ...new Set(baseGetters.getCategories.map((cat) => getTranslationFor(cat.label, 'de'))),
+                            ...new Set(baseGetters.getCategories.map((cat) => getTranslationFor(cat.label, 'en'))),
                         ].join(', '),
                     },
                     { title: 'provider', text: baseGetters.getPublisher?.name || '' },
