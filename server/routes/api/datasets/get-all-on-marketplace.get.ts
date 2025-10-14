@@ -1,6 +1,7 @@
 const {
     public: { cloudUrl },
     organisationFullname,
+    pistisMarketplaceCatalog,
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
@@ -10,6 +11,7 @@ export default defineEventHandler(async (event) => {
         monetizationType: ['one-off', 'subscription'],
         publisher: [organisationFullname],
         is_free: query?.nonFree ? [false] : [],
+        catalog: [pistisMarketplaceCatalog],
     };
 
     let page = 0;
