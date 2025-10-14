@@ -105,7 +105,6 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
-        console.log(metadata.value);
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
@@ -365,19 +364,18 @@ const investOpen = ref(false);
                                     <span class="text-neutral-400 text-xs font-bold">INSIGHTS RESULT</span>
                                 </p>
                                 <p>
-                                    <!-- TODO: Check if this function is already optimal -->
                                     <a
                                         v-if="
                                             metadata?.result?.insights_result &&
                                             metadata.result.insights_result !== 'none'
                                         "
                                         href=""
-                                        style="color: blue; text-decoration: none"
+                                        class="text-pistis-500"
                                         @click.prevent="openInsightsResult"
                                     >
                                         {{ metadata.result.insights_result }}
                                     </a>
-                                    <span v-else style="font-style: italic"> No insights result available </span>
+                                    <span v-else class="italic"> No insights result available </span>
                                 </p>
                             </span>
                         </div>
