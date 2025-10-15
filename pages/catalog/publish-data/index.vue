@@ -349,10 +349,18 @@ const changeStep = async (stepNum: number) => {
             <USelectMenu
                 v-model="selectedAsset"
                 searchable
+                :search-attributes="['title', 'description']"
                 :options="transformedDatasets"
                 option-attribute="title"
                 :placeholder="$t('data.investmentPlanner.datasetSelectorPlaceholder')"
-            />
+            >
+                <template #option="{ option: dataset }">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="font-semibold">{{ dataset.title }}</span>
+                        <span class="text-gray-500 text-sm line-clamp-1">{{ dataset.description }}</span>
+                    </div>
+                </template>
+            </USelectMenu>
         </UCard>
         <DatasetSelector
             v-if="selectedAsset"
