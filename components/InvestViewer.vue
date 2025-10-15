@@ -229,7 +229,6 @@ const numberOfSharesError = computed(() => {
                         >
                             <UTooltip
                                 :prevent="!userHasInvested"
-                                :class="!userHasInvested ? '' : 'cursor-pointer'"
                                 :text="$t('invest.alreadyError')"
                                 :popper="{ placement: 'top' }"
                             >
