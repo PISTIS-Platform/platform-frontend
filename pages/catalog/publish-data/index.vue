@@ -311,33 +311,7 @@ const handlePageSelectionBackwards = (value: number) => {
 
 const changeStep = async (stepNum: number) => {
     selectedPage.value = stepNum;
-    if (stepNum === 4) {
-        //api call to contract template composer
-        //FIXME: Currently getting a 403 for API which this fetch calls
-        const _data = await $fetch(`/api/datasets/get-composed-contract`, {
-            method: 'post',
-            body: {
-                assetId: newAssetId,
-                organizationId: runtimeConfig.public?.orgId,
-                terms: licenseDetails.value.contractTerms,
-                monetisationMethod: monetizationDetails.value.type,
-                price: monetizationDetails.value.price,
-                subscriptionFrequency:
-                    monetizationDetails.value.type === 'subscription'
-                        ? monetizationDetails.value.subscriptionFrequency
-                        : null,
-                updateFrequency:
-                    monetizationDetails.value.type === 'subscription'
-                        ? monetizationDetails.value.updateFrequency
-                        : null,
-            },
-        });
-    }
 };
-
-//NFT Functionality
-
-//TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
 <template>
