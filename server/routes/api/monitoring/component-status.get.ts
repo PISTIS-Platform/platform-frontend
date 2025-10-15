@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
         'Data Quality Assessment': ['/srv/data-quality-assessor/api/health/'],
         'Data Transformation': ['/srv/data-transformation/api/health'],
         'FAIR Data Valuation': [],
-        'Distributed Query': [],
+        'Distributed Query': ['/srv/distributed-query/api/health'],
         'DLT FIAT Wallet': ['/srv/payments/v0/dlt/health_checker'],
         'Encryption/Decryption': ['/srv/encryption-decryption-engine/health'],
         'Factory Data Storage': ['/srv/factory-data-storage/api/health'],
@@ -77,6 +77,11 @@ export default defineEventHandler(async (event) => {
                     timeout: 5000,
                 });
 
+                if (key === 'Distributed Query') {
+                    if (result?.toLowerCase() === 'ok') {
+                        active = 'true';
+                    }
+                }
                 if (result === true) {
                     active = 'true';
                 } else if (result === 'Service is up and running') {
@@ -88,6 +93,8 @@ export default defineEventHandler(async (event) => {
                     result?.status.toLowerCase() === 'success' ||
                     result?.status.toLowerCase() === 'up'
                 ) {
+                    active = 'true';
+                } else if (result?.toLowerCase() === 'ok') {
                     active = 'true';
                 }
             } catch (error) {
