@@ -13,6 +13,58 @@ const ownerFactoryURL = ref('');
 const accessURL = ref('');
 const table = ref(false);
 const fileType = ref('');
+const showTutorial = ref(true);
+const steps = [
+    {
+        label: 'Step 1: Choose a Dataset',
+        content: `
+      <p>Before constructing a query, you must first select a dataset.</p>
+      <ul class="list-disc list-inside">
+        <li>Use the dropdown menu next to <strong>"Select Dataset"</strong> to find and choose a published dataset.</li>
+        <li>Click the dataset name to select it. The selected dataset will then appear in the dropdown.</li>
+      </ul>
+    `,
+    },
+    {
+        label: 'Step 2: Select Quality Rules',
+        content: `
+      <p>Once a dataset is selected, browse the <strong>Available Quality Rules</strong> panel.</p>
+      <p>Rules are grouped into the following five dimensions:</p>
+      <ul class="list-disc list-inside">
+        <li><strong>Accuracy</strong>: Ensures data is correct and meets expected constraints.</li>
+        <li><strong>Consistency</strong>: Verifies consistent data across sources or fields.</li>
+        <li><strong>Completeness</strong>: Checks for missing or null values.</li>
+        <li><strong>Uniqueness</strong>: Ensures values are unique across specified columns.</li>
+        <li><strong>Validity</strong>: Confirms data follows the expected format or type.</li>
+      </ul>
+      <p class="mt-2">To add a rule to your query, drag it from the <strong>Available Quality Rules</strong> panel into the <strong>Selected Rules</strong> panel.</p>
+      <p class="mt-2"><strong>Note:</strong> Rules are not unique—you can add the same rule multiple times to target different columns. For example, <code>ExpectColumnValueToNotBeNull</code> can be reused for multiple fields.</p>
+    `,
+    },
+    {
+        label: 'Step 3: Configure Selected Rules',
+        content: `
+      <p>After adding rules, each must be configured based on its type.</p>
+      <ul class="list-disc list-inside">
+        <li>Click a rule in the <strong>Selected Rules</strong> panel.</li>
+        <li>The <strong>Rule Details</strong> section will appear at the bottom of the page with options.</li>
+        <li>Fill out the required and optional fields.</li>
+        <li>Click <strong>Save Details</strong> to save your configuration.</li>
+      </ul>
+    `,
+    },
+    {
+        label: 'Step 4: Submit the Quality Query',
+        content: `
+      <p>Once all rules are configured, you're ready to run the query.</p>
+      <ul class="list-disc list-inside">
+        <li>Click the <strong>Send Query</strong> button next to the dataset name.</li>
+        <li>This validates and submits your query to the data owner's factory.</li>
+        <li>Results will appear on the same page, usually within seconds.</li>
+      </ul>
+    `,
+    },
+];
 
 watch(selectedDataset, (newVal) => {
     console.log(newVal);
@@ -329,11 +381,32 @@ function hasMissingDetails(rule) {
 </script>
 
 <template>
-    <div class="w-full mx-auto px-4 py-8 flex flex-col gap-8">
+    <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col gap-10">
         <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-center border-b border-gray-200 pb-4 mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">{{ t('data.quality.headers.title') }}</h1>
+        <header
+            class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-300 pb-6"
+        >
+            <h1 class="text-3xl font-semibold text-gray-900">
+                {{ t('data.quality.headers.title') }}
+            </h1>
+            <div class="mb-4 flex justify-end">
+                <UButton size="sm" color="gray" variant="soft" @click="showTutorial = !showTutorial">
+                    {{ showTutorial ? 'Hide Tutorial' : 'Show Tutorial' }}
+                </UButton>
+            </div>
         </header>
+
+        <!-- Tutorial Card -->
+        <UCard v-show="showTutorial" class="shadow-sm border border-gray-200 p-6">
+            <h1 class="text-2xl font-bold mb-6">How to Use the Data Quality Query Page</h1>
+
+            <UAccordion :items="steps">
+                <template #item="{ item }">
+                    <div class="text-gray-700 leading-relaxed" v-html="item.content" />
+                </template>
+            </UAccordion>
+        </UCard>
+
         <!-- Dataset Selector -->
         <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
             <div class="flex justify-between items-center">
