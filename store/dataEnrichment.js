@@ -38,6 +38,9 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     const datasetId = ref(null);
     const distributionId = ref(null);
     const type = ref(null);
+    const savingIsLoading = ref(false);
+
+    const toast = useToast();
 
     // Setters
     const setDatasetId = (id) => {
@@ -159,23 +162,29 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
             });
 
             loadingStore.loadingSuccess();
+            savingIsLoading.value = false;
 
-            // Use Nuxt's toast or notification system
-            const toast = useNuxtApp().$toast;
-            if (toast) {
-                toast.success(response);
-            }
+            toast.add({
+                title: response,
+                color: 'green',
+            });
 
             if (datasetId.value && process.client) {
-                window.location.href = `${catalogueUrl.value}${datasetId.value}` + '?pm=factory';
+                setTimeout(() => {
+                    window.location.href = `${catalogueUrl.value}${datasetId.value}?pm=factory`;
+                }, 3000);
             }
         } catch (e) {
             loadingStore.loadingSuccess();
+            savingIsLoading.value = false;
+            const errorMessage =
+                typeof e.data === 'string' ? e.data : e.data?.message || e.message || "Dataset couldn't be saved.";
 
-            const toast = useNuxtApp().$toast;
-            if (toast) {
-                toast.error(e.data?.message || 'An error occurred');
-            }
+            toast.add({
+                title: errorMessage,
+                icon: 'i-lucide-x-circle',
+                color: 'red',
+            });
 
             // await router.push('/');
             error.value = "Dataset couldn't be saved.";
@@ -185,6 +194,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
 
     const validateAsset = async (fileName) => {
         loadingStore.loadingPending();
+        savingIsLoading.value = true;
 
         const requestData = {
             metadata: {
@@ -196,7 +206,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         };
 
         try {
-            const response = await $fetch('/validate_dataset', {
+            const _response = await $fetch('/validate_dataset', {
                 baseURL: apiUrl.value,
                 method: 'POST',
                 body: requestData,
@@ -212,21 +222,21 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
 
             await saveAsset(fileName);
             loadingStore.loadingSuccess();
-
-            const toast = useNuxtApp().$toast;
-            if (toast) {
-                toast.success(response);
-            }
         } catch (e) {
             loadingStore.loadingSuccess();
+            savingIsLoading.value = false;
+            console.log('Fetch error:', e);
 
-            const toast = useNuxtApp().$toast;
-            if (toast) {
-                toast.error(e.data?.message || 'Validation failed');
-            }
+            const errorMessage =
+                typeof e.data === 'string' ? e.data : e.data?.message || e.message || 'Validation failed';
 
-            error.value = e.message;
-            console.error(e);
+            toast.add({
+                title: errorMessage,
+                icon: 'i-lucide-x-circle',
+                color: 'red',
+            });
+
+            error.value = errorMessage;
         }
     };
 
@@ -338,5 +348,6 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         setDatasetId,
         setDistributionId,
         setfileType,
+        savingIsLoading,
     };
 });

@@ -14,6 +14,7 @@
                     v-if="isValidColumnChoices && fileName"
                     size="md"
                     color="secondary"
+                    :loading="store.savingIsLoading"
                     @click="store.validateAsset(fileName)"
                 >
                     Save and create distribution
