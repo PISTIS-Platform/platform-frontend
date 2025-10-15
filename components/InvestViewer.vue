@@ -67,8 +67,8 @@ const purchaseShares = async () => {
         });
         showSuccessMessage(t('invest.purchaseSuccessful'));
         emit('closeModal');
-    } catch {
-        showErrorMessage(t('invest.couldNotPurchaseShares'));
+    } catch (error) {
+        showErrorMessage(t('invest.couldNotPurchaseShares') + ': ' + (error?.statusMessage || error?.message));
     }
 };
 

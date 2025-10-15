@@ -311,33 +311,7 @@ const handlePageSelectionBackwards = (value: number) => {
 
 const changeStep = async (stepNum: number) => {
     selectedPage.value = stepNum;
-    if (stepNum === 4) {
-        //api call to contract template composer
-        //FIXME: Currently getting a 403 for API which this fetch calls
-        const _data = await $fetch(`/api/datasets/get-composed-contract`, {
-            method: 'post',
-            body: {
-                assetId: newAssetId,
-                organizationId: runtimeConfig.public?.orgId,
-                terms: licenseDetails.value.contractTerms,
-                monetisationMethod: monetizationDetails.value.type,
-                price: monetizationDetails.value.price,
-                subscriptionFrequency:
-                    monetizationDetails.value.type === 'subscription'
-                        ? monetizationDetails.value.subscriptionFrequency
-                        : null,
-                updateFrequency:
-                    monetizationDetails.value.type === 'subscription'
-                        ? monetizationDetails.value.updateFrequency
-                        : null,
-            },
-        });
-    }
 };
-
-//NFT Functionality
-
-//TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
 <template>
@@ -349,16 +323,16 @@ const changeStep = async (stepNum: number) => {
         class="w-full h-full text-gray-700 space-y-8"
     >
         <UAlert
-            v-if="!datasetsData || !datasetsData.length"
-            :title="t('data.designer.error.noAssetsFound')"
-            color="yellow"
+            v-if="hasRouteAssetId && !dataset && !selectedAsset"
+            :title="t('data.designer.error.noAssetFound')"
+            color="red"
             variant="subtle"
             icon="nonicons:not-found-16"
         />
         <UAlert
-            v-if="hasRouteAssetId && !dataset && !selectedAsset"
-            :title="t('data.designer.error.noAssetFound')"
-            color="red"
+            v-if="(!datasetsData || !datasetsData.length) && !hasRouteAssetId"
+            :title="t('data.designer.error.noAssetsFound')"
+            color="yellow"
             variant="subtle"
             icon="nonicons:not-found-16"
         />
@@ -375,10 +349,18 @@ const changeStep = async (stepNum: number) => {
             <USelectMenu
                 v-model="selectedAsset"
                 searchable
+                :search-attributes="['title', 'description']"
                 :options="transformedDatasets"
                 option-attribute="title"
                 :placeholder="$t('data.investmentPlanner.datasetSelectorPlaceholder')"
-            />
+            >
+                <template #option="{ option: dataset }">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="font-semibold">{{ dataset.title }}</span>
+                        <span class="text-gray-500 text-sm line-clamp-1">{{ dataset.description }}</span>
+                    </div>
+                </template>
+            </USelectMenu>
         </UCard>
         <DatasetSelector
             v-if="selectedAsset"
