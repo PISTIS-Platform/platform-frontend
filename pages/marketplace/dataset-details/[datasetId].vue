@@ -135,12 +135,9 @@ const {
                             >
                                 <div class="absolute bottom-0 flex w-full flex-row items-center justify-center">
                                     <div>
-                                        <KButton
-                                            :label="`Show more (${getFormattedDistributions.length})`"
-                                            @click="showAllDistributions"
-                                        >
-                                            <i class="icon-[ph--eye-fill]"></i>
-                                        </KButton>
+                                        <UButton @click="showAllDistributions">
+                                            Show more ({{ getFormattedDistributions.length }})
+                                        </UButton>
                                     </div>
                                 </div>
                             </div>
