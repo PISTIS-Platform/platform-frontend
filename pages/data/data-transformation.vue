@@ -179,10 +179,36 @@ onMounted(() => {
 const togglePanel = (index: number) => {
     expandedPanels.value[index] = !expandedPanels.value[index];
 };
+
+const helpExpanded = ref(false);
+const toggleHelp = () => {
+    helpExpanded.value = !helpExpanded.value;
+};
 </script>
 
 <template>
+    <div class="help-container">
+        <div class="help-header" @click="toggleHelp">
+            <span class="big-bold-title" style="cursor: pointer;">
+            <Icon :icon="helpExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'" class="dropdown-icon" />
+                How to use the data transformation
+                
+            </span>
+        </div>
+        <div v-if="helpExpanded" class="help-content">
+            <p>
+                The Data Transformation Component consists on three different sections:<br>
+                <b>1) Transformation Catalog:</b><br>
+                Located at the top left part of the screen, this section allows the user to choose which transformations will be applied over a dataset. Each transformation includes a descriptive text on the information icon and, when expanded, shows all the optional and mandatory parameters to run that transformation. Once the parameters for a transformation have been defined, remember to clic on "Add Transformation" button to add the current transformation to the Transformation Definition JSON section.<br>
+                <b>2) Transformation Definition JSON:</b><br>
+                Located at the top right part of the screen, this section shows the transformations defined by the user to be applied over a dataset. In this section, the user can remove defined transformations by clicking on the red cross close to each transformation block.<br>
+                <b>3) Transformation Execution:</b><br>
+                Located at the bottom right part of the screen, this section allows the user to select a file from his local machine and apply the defined transformations in the "Transformation Definition JSON" section. The user can also select the output format of the output dataset.
+            </p>
+        </div>
+    </div>
     <div class="main-container">
+    
         <div class="editor-container">
             <h2 class="big-bold-title">Transformation catalog</h2>
             <div v-if="elements && elements.length > 0" class="panels-container">
@@ -453,6 +479,7 @@ const togglePanel = (index: number) => {
             </div>
         </div>
     </div>
+    
 </template>
 
 <style scoped>
