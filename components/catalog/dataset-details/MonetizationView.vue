@@ -19,7 +19,7 @@ const isObject = (value) => {
 const formatDate = (dateStr) => {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
-    return date.toLocaleDateString();
+    return date.toLocaleDateString('en-GB');
 };
 
 const items = computed(() => {
