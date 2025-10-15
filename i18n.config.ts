@@ -207,6 +207,7 @@ export default defineI18nConfig(() => ({
                 keywords: 'Keywords',
                 pay: 'Pay',
                 pleaseError: 'Please choose between %{min} and %{max} shares to purchase.',
+                alreadyError: 'You have already invested in this asset.',
             },
             data: {
                 data: 'Data Ingestion',

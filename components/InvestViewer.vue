@@ -56,6 +56,13 @@ const {
     query: { cloudAssetId: props.assetId },
 });
 
+const { data: userHasInvested, status: hasInvestedStatus } = await useFetch<boolean>(`/api/invest/user-has-invested`, {
+    method: 'POST',
+    body: {
+        assetId: props.assetId,
+    },
+});
+
 const purchaseShares = async () => {
     try {
         await $fetch(`/api/invest/invest`, {
@@ -79,7 +86,11 @@ const numberOfSharesError = computed(() => {
 </script>
 
 <template>
-    <UProgress v-if="retrieveStatus === 'pending'" animation="carousel" color="primary" />
+    <UProgress
+        v-if="retrieveStatus === 'pending' || hasInvestedStatus === 'pending'"
+        animation="carousel"
+        color="primary"
+    />
     <div class="justify-center items-center max-w-7xl w-full text-gray-600">
         <PageContainer>
             <ErrorCard
@@ -235,14 +246,21 @@ const numberOfSharesError = computed(() => {
                             </div>
                         </UFormGroup>
 
-                        <UButton
-                            class="cursor-pointer px-8"
-                            size="lg"
-                            type="submit"
-                            :disabled="numberOfSharesError"
-                            @click="purchaseShares"
-                            >{{ $t('invest.pay') }}</UButton
+                        <UTooltip
+                            :prevent="!userHasInvested"
+                            :class="!userHasInvested ? '' : 'cursor-pointer'"
+                            :ui="{ width: 'max-w-2xl', base: 'text-wrap p-2 h-24' }"
+                            :text="$t('invest.alreadyError')"
                         >
+                            <UButton
+                                class="cursor-pointer px-8"
+                                size="lg"
+                                type="submit"
+                                :disabled="numberOfSharesError || Boolean(userHasInvested)"
+                                @click="purchaseShares"
+                                >{{ $t('invest.pay') }}</UButton
+                            >
+                        </UTooltip>
                     </UForm>
                 </div>
             </UCard>
