@@ -323,16 +323,16 @@ const changeStep = async (stepNum: number) => {
         class="w-full h-full text-gray-700 space-y-8"
     >
         <UAlert
-            v-if="!datasetsData || !datasetsData.length"
-            :title="t('data.designer.error.noAssetsFound')"
-            color="yellow"
+            v-if="hasRouteAssetId && !dataset && !selectedAsset"
+            :title="t('data.designer.error.noAssetFound')"
+            color="red"
             variant="subtle"
             icon="nonicons:not-found-16"
         />
         <UAlert
-            v-if="hasRouteAssetId && !dataset && !selectedAsset"
-            :title="t('data.designer.error.noAssetFound')"
-            color="red"
+            v-if="(!datasetsData || !datasetsData.length) && !hasRouteAssetId"
+            :title="t('data.designer.error.noAssetsFound')"
+            color="yellow"
             variant="subtle"
             icon="nonicons:not-found-16"
         />
