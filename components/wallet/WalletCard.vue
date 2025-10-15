@@ -21,7 +21,13 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    loading: {
+        type: Boolean,
+        default: false,
+    },
 });
+// Number of digits to show while loading
+const digitCount = computed(() => (props.loading ? 4 : 0));
 </script>
 
 <template>
@@ -43,7 +49,11 @@ const props = defineProps({
                         props.textColor,
                     ]"
                 >
-                    {{ props.amount }} {{ props.coin }}
+                    <span v-if="props.loading" class="inline-flex space-x-1.5">
+                        <SpinningDigit v-for="i in digitCount" :key="i" :target-digit="1" :duration="2200" />
+                        <span>{{ props.coin }}</span>
+                    </span>
+                    <span v-else> {{ props.amount }} {{ props.coin }} </span>
                 </div>
             </div>
         </div>
