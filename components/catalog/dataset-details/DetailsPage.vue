@@ -48,6 +48,7 @@ const investPrice = ref('');
 const monetizationData = ref();
 const offerId = ref('');
 const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
+const buyIsLoading = ref(false);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -144,6 +145,7 @@ const getUserFactory = async () => {
 };
 
 const buyRequest = async () => {
+    buyIsLoading.value = true;
     const offer = monetizationData.value?.purchase_offer?.[0] || {};
     const seller = metadata.value.result?.monetization?.[0] || {};
     const title = Object.values(metadata.value.result?.title ?? {})[0] ?? '';
@@ -175,8 +177,10 @@ const buyRequest = async () => {
     try {
         const res = await promise;
         console.log('Purchase complete', res.data);
+        buyIsLoading.value = false;
     } catch (err) {
         console.error('Purchase failed', err);
+        buyIsLoading.value = false;
     }
 };
 
@@ -187,9 +191,9 @@ const openInsightsResult = async () => {
 
     try {
         const res = await axios.get(url, {
-            headers: { Authorization: `Bearer ${token.value}` }
+            headers: { Authorization: `Bearer ${token.value}` },
         });
-        
+
         // Create a new window with the HTML content
         const newWindow = window.open('', '_blank');
         newWindow.document.open();
@@ -425,7 +429,14 @@ const investOpen = ref(false);
                             </div>
 
                             <div class="sticky top-0 z-50">
-                                <UButton variant="solid" size="lg" color="emerald" block @click="buyRequest">
+                                <UButton
+                                    variant="solid"
+                                    size="lg"
+                                    color="emerald"
+                                    block
+                                    :loading="buyIsLoading"
+                                    @click="buyRequest"
+                                >
                                     <span v-if="price">Subscribe</span>
                                     <span v-else>Get</span>
                                 </UButton>
@@ -444,7 +455,14 @@ const investOpen = ref(false);
                             </div>
 
                             <div class="sticky top-0 z-50">
-                                <UButton variant="solid" size="lg" color="secondary" block @click="buyRequest">
+                                <UButton
+                                    variant="solid"
+                                    size="lg"
+                                    color="secondary"
+                                    block
+                                    :loading="buyIsLoading"
+                                    @click="buyRequest"
+                                >
                                     <span v-if="price">Buy</span>
                                     <span v-else>Get</span>
                                 </UButton>
