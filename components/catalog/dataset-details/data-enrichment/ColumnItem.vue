@@ -43,6 +43,7 @@
                     searchable
                     :clear-search-on-close="false"
                     :clearable="false"
+                    :search-attributes="['name', 'dataType']"
                     @update:model-value="selectOption"
                 >
                     <!-- ✅ Selected option display -->

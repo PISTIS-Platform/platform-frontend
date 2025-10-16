@@ -1,8 +1,8 @@
 <template>
     <div>
-        <h1 class="text-center text-2xl font-bold text-primary-600 mb-6">Select columns to change the schema</h1>
+        <h1 class="text-center text-2xl font-bold text-primary-600 mb-16">Select columns to change the schema</h1>
 
-        <div class="flex justify-between items-center mt-4">
+        <div class="flex justify-between items-center">
             <UButton variant="outline" size="md" color="primary" @click="resetAll"> Reset values </UButton>
 
             <div class="flex gap-2 items-center">
@@ -27,7 +27,7 @@
         </div>
 
         <div class="py-4 flex justify-center">
-            <UCard class="table-container mt-4 mb-6 w-full overflow-hidden shadow-lg">
+            <UCard class="table-container mb-6 w-full overflow-hidden shadow-lg">
                 <div class="overflow-x-auto rounded-lg shadow-md">
                     <table class="w-full bg-white">
                         <tr>

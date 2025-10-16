@@ -1,8 +1,8 @@
 <template>
-    <div class="font-montserrat">
-        <h1 class="text-center text-2xl font-bold text-primary-600 mb-6">Select table header</h1>
+    <div>
+        <h1 class="text-center text-2xl font-bold text-primary-600 mb-16">Select table header</h1>
 
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center">
             <UButton variant="outline" color="gray" size="md" icon="i-heroicons-plus" @click="selectHeader('down')">
                 Add a new table header
             </UButton>
