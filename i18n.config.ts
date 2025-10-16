@@ -185,6 +185,10 @@ export default defineI18nConfig(() => ({
                 title: 'Data Analytics',
             },
             invest: {
+                userInvestments: 'User Investments',
+                subtitle: 'Investments you have opted into',
+                investmentsError: 'Could not retrieve user investments',
+                notFoundError: "You haven't made any investments yet.",
                 title: 'Invest In Asset',
                 info: 'Purchase shares in a published asset',
                 assetDetails: 'Asset Details',
