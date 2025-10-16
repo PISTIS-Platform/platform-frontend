@@ -1,23 +1,27 @@
 <template>
     <div>
+        <button class="-ml-6 px-4 py-1 cursor-pointer" @click="backButton">
+            <Typography variant="paragraph-1" class="flex items-center gap-2 text-primary hover:text-primary-hover">
+                <PhCaretLeft />
+                <span>Back</span>
+            </Typography>
+        </button>
         <div v-if="!headerChosen">
             <SelectHeaderTable :toggle-header-chosen="toggleHeaderChosen" />
         </div>
         <div v-else ref="enrichmentRef">
-            <DataEnricher
-                :dataset-id="datasetId"
-                :distribution-id="distributionId"
-                :toggle-header-chosen="toggleHeaderChosen"
-            />
+            <DataEnricher />
         </div>
     </div>
 </template>
 
 <script setup>
 import { useDataEnrichmentStore } from '~/store/dataEnrichment';
+import PhCaretLeft from '~icons/ph/caret-left';
 
 const store = useDataEnrichmentStore();
 
+const router = useRouter();
 const route = useRoute();
 
 const headerChosen = ref(false);
@@ -33,6 +37,14 @@ if (Object.keys(route.query).length !== 0) {
     type.value = route.query.file_type;
 }
 
+function backButton() {
+    if (!headerChosen.value) {
+        router.back();
+    } else {
+        store.restoreOriginalFileData();
+        toggleHeaderChosen();
+    }
+}
 onMounted(() => {
     if (datasetId.value) {
         store.setDatasetId(datasetId.value);

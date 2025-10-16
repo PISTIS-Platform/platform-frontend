@@ -3,10 +3,7 @@
         <h1 class="text-center text-2xl font-bold text-primary-600 mb-6">Select columns to change the schema</h1>
 
         <div class="flex justify-between items-center mt-4">
-            <div class="flex gap-2">
-                <UButton variant="outline" size="md" color="primary" @click.stop="backToHeader"> Back </UButton>
-                <UButton variant="outline" size="md" color="primary" @click="resetAll"> Reset values </UButton>
-            </div>
+            <UButton variant="outline" size="md" color="primary" @click="resetAll"> Reset values </UButton>
 
             <div class="flex gap-2 items-center">
                 <UInput v-model="fileName" size="md" placeholder="Enter distribution name" class="w-48" />
@@ -74,15 +71,6 @@
 <script setup>
 import { useDataEnrichmentStore } from '~/store/dataEnrichment';
 
-const props = defineProps({
-    toggleHeaderChosen: {
-        type: Function,
-        required: true,
-    },
-    datasetId: String,
-    distributionId: String,
-});
-
 const store = useDataEnrichmentStore();
 
 const selected = ref(false);
@@ -101,11 +89,6 @@ const resetAll = () => {
             columnRef.reset();
         }
     });
-};
-
-const backToHeader = () => {
-    store.restoreOriginalFileData();
-    props.toggleHeaderChosen();
 };
 
 // onMounted(() => {
