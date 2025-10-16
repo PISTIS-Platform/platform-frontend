@@ -41,7 +41,7 @@ onMounted(() => {
         store.setDistributionId(distributionId.value);
     }
     if (type.value) {
-        store.setfileType(type.value);
+        store.setFileType(type.value);
     }
     store.selectFile();
 });

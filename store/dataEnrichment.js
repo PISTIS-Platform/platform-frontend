@@ -1,18 +1,14 @@
 import { defineStore } from 'pinia';
 
-import { useLoadingStore } from '~/components/catalog/dataset-details/data-enrichment/stores/loading';
-
 export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     // Get runtime config and other Nuxt composables
     const config = useRuntimeConfig();
     // const router = useRouter();
     // const router = useRouter();
 
-    // Import other stores (make sure these exist in your Nuxt project)
     const { data: session } = useAuth();
 
     const token = ref(session.value?.token);
-    const loadingStore = useLoadingStore();
 
     // URLs from runtime config
     const catalogueUrl = ref(config.public.factoryUrl + '/catalog/dataset-details/');
@@ -21,7 +17,6 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     // State
     const fileData = ref({});
     const initialFileData = ref(null);
-    const error = ref('');
     const unsupportedDataTypes = ref(new Map([['Bigint', 'Integer']]));
     const dataTypeTransformCompatibility = ref({
         String: new Set(['string', 'date', 'dateTime']),
@@ -51,14 +46,12 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         distributionId.value = id;
     };
 
-    const setfileType = (id) => {
+    const setFileType = (id) => {
         type.value = id;
     };
 
     // GET -> file
     async function selectFile() {
-        loadingStore.loadingPending();
-
         try {
             const response = await $fetch('/get_asset', {
                 baseURL: apiUrl.value,
@@ -75,7 +68,6 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
             initialFileData.value = JSON.parse(JSON.stringify(response));
             fileData.value = response;
             checkUnsupportedDatatypes(response.data_model?.columns);
-            loadingStore.loadingSuccess();
         } catch (e) {
             if (process.dev) {
                 console.warn('Using mock data in development mode!');
@@ -84,30 +76,41 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 initialFileData.value = mockData;
                 fileData.value = mockData;
                 checkUnsupportedDatatypes(mockData.data_model?.columns);
-                loadingStore.loadingSuccess();
             } else {
                 console.error(e);
+                const errorMessage =
+                    typeof e.data === 'string' ? e.data : e.data?.message || e.message || "File couldn't be selected.";
+
+                toast.add({
+                    title: errorMessage,
+                    icon: 'i-lucide-x-circle',
+                    color: 'red',
+                });
                 // await router.push('/');
-                error.value = "File couldn't be selected.";
-                loadingStore.loadingError("File couldn't be selected.");
             }
         }
     }
 
     // POST update data-model
     const updateDataModel = async () => {
-        loadingStore.loadingPending();
         try {
             await $fetch('/update_datamodel', {
                 baseURL: apiUrl.value,
                 method: 'POST',
                 timeout: 15000,
             });
-            loadingStore.loadingSuccess();
         } catch (e) {
             console.error(e.message);
-            error.value = 'The latest datamodel could not be fetched.';
-            loadingStore.loadingError('The latest datamodel could not be fetched.');
+            const errorMessage =
+                typeof e.data === 'string'
+                    ? e.data
+                    : e.data?.message || e.message || 'The latest datamodel could not be fetched.';
+
+            toast.add({
+                title: errorMessage,
+                icon: 'i-lucide-x-circle',
+                color: 'red',
+            });
         }
     };
 
@@ -126,7 +129,16 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
             });
             liveSearchResult.value = response.properties;
         } catch (e) {
-            error.value = 'Live search options could not be fetched.';
+            const errorMessage =
+                typeof e.data === 'string'
+                    ? e.data
+                    : e.data?.message || e.message || 'Live search options could not be fetched.';
+
+            toast.add({
+                title: errorMessage,
+                icon: 'i-lucide-x-circle',
+                color: 'red',
+            });
             // await router.push('/');
             console.error(e);
         }
@@ -134,7 +146,6 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
 
     // POST Save Asset
     const saveAsset = async (fileName) => {
-        loadingStore.loadingPending();
         revertUnsupportedDataTypes();
 
         const requestData = {
@@ -161,7 +172,6 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 },
             });
 
-            loadingStore.loadingSuccess();
             savingIsLoading.value = false;
 
             toast.add({
@@ -175,7 +185,6 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 }, 3000);
             }
         } catch (e) {
-            loadingStore.loadingSuccess();
             savingIsLoading.value = false;
             const errorMessage =
                 typeof e.data === 'string' ? e.data : e.data?.message || e.message || "Dataset couldn't be saved.";
@@ -187,13 +196,11 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
             });
 
             // await router.push('/');
-            error.value = "Dataset couldn't be saved.";
             console.error(e);
         }
     };
 
     const validateAsset = async (fileName) => {
-        loadingStore.loadingPending();
         savingIsLoading.value = true;
 
         const requestData = {
@@ -221,9 +228,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
             });
 
             await saveAsset(fileName);
-            loadingStore.loadingSuccess();
         } catch (e) {
-            loadingStore.loadingSuccess();
             savingIsLoading.value = false;
             console.log('Fetch error:', e);
 
@@ -235,13 +240,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 icon: 'i-lucide-x-circle',
                 color: 'red',
             });
-
-            error.value = errorMessage;
         }
-    };
-
-    const setError = (errorMsg) => {
-        error.value = errorMsg;
     };
 
     const checkUnsupportedDatatypes = (payload) => {
@@ -342,12 +341,11 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         setColumnStatus,
         pushFirstHeaderRowDown,
         restoreOriginalFileData,
-        setError,
         saveAsset,
         validateAsset,
         setDatasetId,
         setDistributionId,
-        setfileType,
+        setFileType,
         savingIsLoading,
     };
 });
