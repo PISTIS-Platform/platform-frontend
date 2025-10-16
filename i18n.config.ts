@@ -212,6 +212,12 @@ export default defineI18nConfig(() => ({
                 pay: 'Pay',
                 pleaseError: 'Please choose between %{min} and %{max} shares to purchase.',
                 alreadyError: 'You have already invested in this asset.',
+                datasetTitle: 'Dataset Title',
+                price: 'Price',
+                total: 'Total Amount Invested',
+                dateInvested: 'Date Invested',
+                sharesTitle: 'Shares',
+                viewPlan: 'View Plan',
             },
             data: {
                 data: 'Data Ingestion',

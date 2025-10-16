@@ -31,11 +31,10 @@ export default defineEventHandler(async (event) => {
         price: result.investmentPlan.price,
         total: Number((result.shares * result.investmentPlan.price).toFixed(2)),
         expirationDate: result.investmentPlan.dueDate,
-        //title: result.investmentPlan.title,
-        //description: result.investmentPlan.description,
         title: datasetResults[index].title.en,
         description: datasetResults[index].description.en,
         investmentPlan: result.investmentPlan,
+        date: result.createdAt,
     }));
 
     return finalResults;
