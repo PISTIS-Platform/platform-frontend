@@ -48,18 +48,19 @@ const sort = ref({
 const { page, paginatedRows, sortBy } = useTable(data, pageCount, sort);
 
 const investOpen = ref(false);
-
+const investedShares = ref(0);
 const assetId = ref();
 
-const openModal = (id: string) => {
+const openModal = (id: string, shares: number) => {
     assetId.value = id;
     investOpen.value = true;
+    investedShares.value = shares;
 };
 </script>
 
 <template>
     <UModal v-model="investOpen" :ui="{ width: 'sm:max-w-5xl', overlay: { background: 'bg-gray-800/75' } }">
-        <InvestViewer :asset-id="assetId" hide-buy @close-modal="investOpen = false" />
+        <InvestViewer :asset-id="assetId" hide-buy :shares="investedShares" @close-modal="investOpen = false" />
     </UModal>
     <div class="justify-center items-center max-w-7xl w-full text-gray-600">
         <PageContainer>
@@ -117,7 +118,9 @@ const openModal = (id: string) => {
 
                         <template #view-data="{ row }">
                             <span class="flex justify-center">
-                                <UButton variant="soft" @click="openModal(row.assetId)">{{ $t('view') }}</UButton>
+                                <UButton variant="soft" @click="openModal(row.assetId, row.shares)">{{
+                                    $t('view')
+                                }}</UButton>
                             </span>
                         </template>
 

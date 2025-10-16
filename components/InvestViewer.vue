@@ -21,6 +21,11 @@ const props = defineProps({
         required: false,
         default: false,
     },
+    shares: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
 });
 
 const computedAssetId = computed(() => props.assetId);
@@ -203,7 +208,16 @@ const numberOfSharesError = computed(() => {
                                         $t('invest.sharePrice')
                                     }}</span>
                                     <span
-                                        ><span class="text-base">{{ investmentPlan.price }} €</span> per share</span
+                                        ><span class="text-base">{{ investmentPlan.price }} €</span>
+                                        {{ $t('invest.perShare') }}</span
+                                    >
+                                </div>
+                                <div v-if="props.hideBuy" class="flex gap-1 flex-col">
+                                    <span class="text-gray-400 uppercase text-xs font-semibold">{{
+                                        $t('invest.yourShares')
+                                    }}</span>
+                                    <span
+                                        ><span class="text-base">{{ shares }}</span> {{ $t('invest.shares') }}</span
                                     >
                                 </div>
                             </div>

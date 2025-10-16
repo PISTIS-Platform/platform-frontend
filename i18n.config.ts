@@ -223,6 +223,8 @@ export default defineI18nConfig(() => ({
                 percentage: 'Percentage',
                 becomesActive: 'Becomes active on',
                 status: 'Status',
+                yourShares: 'Your Shares',
+                perShare: 'per share',
             },
             data: {
                 data: 'Data Ingestion',
