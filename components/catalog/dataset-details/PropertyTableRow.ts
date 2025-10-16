@@ -30,7 +30,6 @@ const PropertyTable = defineComponent({
 
         function renderNodes(nodes: PropertyTableEntry[], depth: number = 0): VNodeArrayChildren {
             return nodes.map((data, idx) => {
-                console.log('<<<<<<<<<<DATA', data);
                 if (props.pistisMode === 'cloud' && data.label === 'Link') {
                     return null;
                 }
