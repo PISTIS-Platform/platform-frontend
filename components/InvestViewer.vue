@@ -14,6 +14,8 @@ const props = defineProps({
     },
 });
 
+const computedAssetId = computed(() => props.assetId);
+
 type InvestmentPlan = {
     title: string;
     description: string;
@@ -53,7 +55,18 @@ const {
     error: retrieveError,
 } = await useFetch<InvestmentPlan>(`/api/invest/retrieve-investment-plan`, {
     method: 'GET',
-    query: { cloudAssetId: props.assetId },
+    query: { cloudAssetId: computedAssetId },
+});
+
+const {
+    data: userHasInvested,
+    status: hasInvestedStatus,
+    refresh,
+} = await useFetch<boolean>(`/api/invest/user-has-invested`, {
+    method: 'POST',
+    body: {
+        assetId: computedAssetId,
+    },
 });
 
 const purchaseShares = async () => {
@@ -66,6 +79,7 @@ const purchaseShares = async () => {
             },
         });
         showSuccessMessage(t('invest.purchaseSuccessful'));
+        refresh();
         emit('closeModal');
     } catch (error) {
         showErrorMessage(t('invest.couldNotPurchaseShares') + ': ' + (error?.statusMessage || error?.message));
@@ -79,7 +93,11 @@ const numberOfSharesError = computed(() => {
 </script>
 
 <template>
-    <UProgress v-if="retrieveStatus === 'pending'" animation="carousel" color="primary" />
+    <UProgress
+        v-if="retrieveStatus === 'pending' || hasInvestedStatus === 'pending'"
+        animation="carousel"
+        color="primary"
+    />
     <div class="justify-center items-center max-w-7xl w-full text-gray-600">
         <PageContainer>
             <ErrorCard
@@ -211,38 +229,52 @@ const numberOfSharesError = computed(() => {
                             required
                             eager-validation
                         >
-                            <div class="flex items-center gap-4">
-                                <UInput
-                                    v-model.number="state.sharesToPurchase"
-                                    type="number"
-                                    size="md"
-                                    min="1"
-                                    :max="investmentPlan.maxShares"
-                                    class="w-32"
-                                >
-                                    <template #trailing>
-                                        <span class="text-gray-500 text-xs ml-6">{{
-                                            state.sharesToPurchase === 1 ? $t('invest.share') : $t('invest.shares')
-                                        }}</span>
-                                    </template>
-                                </UInput>
-                                <span class="text-nowrap font-semibold text-gray-500 items-start"
-                                    >Total
-                                    <span class="text-primary font-bold text-xl ml-1">
-                                        {{ state.sharesToPurchase * investmentPlan.price }} €</span
-                                    ></span
-                                >
-                            </div>
+                            <UTooltip
+                                :prevent="!userHasInvested"
+                                :text="$t('invest.alreadyError')"
+                                :popper="{ placement: 'top' }"
+                            >
+                                <div class="flex items-center gap-4">
+                                    <UInput
+                                        v-model.number="state.sharesToPurchase"
+                                        type="number"
+                                        size="md"
+                                        min="1"
+                                        :max="investmentPlan.maxShares"
+                                        class="w-32"
+                                        :disabled="Boolean(userHasInvested)"
+                                    >
+                                        <template #trailing>
+                                            <span class="text-gray-500 text-xs ml-6">{{
+                                                state.sharesToPurchase === 1 ? $t('invest.share') : $t('invest.shares')
+                                            }}</span>
+                                        </template>
+                                    </UInput>
+                                    <span class="text-nowrap font-semibold text-gray-500 items-start"
+                                        >Total
+                                        <span class="text-primary font-bold text-xl ml-1">
+                                            {{ state.sharesToPurchase * investmentPlan.price }} €</span
+                                        ></span
+                                    >
+                                </div>
+                            </UTooltip>
                         </UFormGroup>
 
-                        <UButton
-                            class="cursor-pointer px-8"
-                            size="lg"
-                            type="submit"
-                            :disabled="numberOfSharesError"
-                            @click="purchaseShares"
-                            >{{ $t('invest.pay') }}</UButton
+                        <UTooltip
+                            :prevent="!userHasInvested"
+                            :class="!userHasInvested ? '' : 'cursor-pointer'"
+                            :text="$t('invest.alreadyError')"
+                            :popper="{ placement: 'top' }"
                         >
+                            <UButton
+                                class="cursor-pointer px-8"
+                                size="lg"
+                                type="submit"
+                                :disabled="numberOfSharesError || Boolean(userHasInvested)"
+                                @click="purchaseShares"
+                                >{{ $t('invest.pay') }}</UButton
+                            >
+                        </UTooltip>
                     </UForm>
                 </div>
             </UCard>
