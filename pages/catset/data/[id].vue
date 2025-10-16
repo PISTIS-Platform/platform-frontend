@@ -23,7 +23,7 @@ onMounted(() => {
         navigateTo(`${factoryUrl}/marketplace/dataset-details/${id}?pm=${pistisMode.value}`, { external: true });
     } else {
         pistisMode.value = '';
-        navigateTo(`/`);
+        navigateTo(`${factoryUrl}`, { external: true });
     }
 });
 </script>
