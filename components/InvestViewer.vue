@@ -12,6 +12,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    monetization: {
+        type: Object,
+        required: false,
+    },
 });
 
 const computedAssetId = computed(() => props.assetId);
@@ -76,6 +80,7 @@ const purchaseShares = async () => {
             query: { investmentId: investmentPlan.value?.id },
             body: {
                 numberOfShares: state.sharesToPurchase,
+                ownerFactoryId: props.monetization?.purchase_offer?.[0]?.publisher?.organization_id,
             },
         });
         showSuccessMessage(t('invest.purchaseSuccessful'));
