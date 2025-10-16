@@ -59,7 +59,7 @@ const openModal = (id: string) => {
 
 <template>
     <UModal v-model="investOpen" :ui="{ width: 'sm:max-w-5xl', overlay: { background: 'bg-gray-800/75' } }">
-        <InvestViewer :asset-id="assetId" @close-modal="investOpen = false" />
+        <InvestViewer :asset-id="assetId" hide-buy @close-modal="investOpen = false" />
     </UModal>
     <div class="justify-center items-center max-w-7xl w-full text-gray-600">
         <PageContainer>

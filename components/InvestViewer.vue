@@ -12,6 +12,15 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    monetization: {
+        type: Object,
+        required: false,
+    },
+    hideBuy: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
 });
 
 const computedAssetId = computed(() => props.assetId);
@@ -76,6 +85,7 @@ const purchaseShares = async () => {
             query: { investmentId: investmentPlan.value?.id },
             body: {
                 numberOfShares: state.sharesToPurchase,
+                ownerFactoryId: props.monetization?.purchase_offer?.[0]?.publisher?.organization_id,
             },
         });
         showSuccessMessage(t('invest.purchaseSuccessful'));
@@ -215,7 +225,7 @@ const numberOfSharesError = computed(() => {
                         </div>
                     </UCard>
                 </div>
-                <div class="mt-6 mb-2 flex">
+                <div v-if="!hideBuy" class="mt-6 mb-2 flex">
                     <UForm
                         :submit="purchaseShares"
                         :state="state"
