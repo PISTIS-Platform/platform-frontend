@@ -13,7 +13,7 @@
         </div>
 
         <div class="py-4 flex justify-center">
-            <UCard class="w-full overflow-hidden shadow-lg">
+            <UCard class="table-container mb-6 w-full overflow-hidden shadow-lg">
                 <div class="overflow-x-auto rounded-lg">
                     <table class="w-full border-collapse bg-white text-center">
                         <thead>
@@ -95,15 +95,21 @@ const selectHeader = (option) => {
 </script>
 
 <style scoped>
-.font-montserrat {
+.table-container {
     font-family: 'Montserrat', sans-serif;
+}
+
+.ellipsis-cell {
+    text-align: center;
+    color: #6b7280;
 }
 
 table {
     border-spacing: 0;
+    text-align: center;
 }
 
-thead tr {
-    border-radius: 15px;
+td {
+    border: 0.1px solid #e5e7eb;
 }
 </style>

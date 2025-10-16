@@ -6,11 +6,16 @@
                 <span>Back</span>
             </Typography>
         </button>
-        <div v-if="!headerChosen">
-            <SelectHeaderTable :toggle-header-chosen="toggleHeaderChosen" />
+        <div v-if="isLoading" class="flex flex-col justify-center items-center h-64">
+            <UProgress animation="swing" color="secondary" />
         </div>
-        <div v-else ref="enrichmentRef">
-            <DataEnricher />
+        <div v-else>
+            <div v-if="!headerChosen">
+                <SelectHeaderTable :toggle-header-chosen="toggleHeaderChosen" />
+            </div>
+            <div v-else ref="enrichmentRef">
+                <DataEnricher />
+            </div>
         </div>
     </div>
 </template>
@@ -20,6 +25,8 @@ import { useDataEnrichmentStore } from '~/store/dataEnrichment';
 import PhCaretLeft from '~icons/ph/caret-left';
 
 const store = useDataEnrichmentStore();
+
+const isLoading = ref(true);
 
 const router = useRouter();
 const route = useRoute();
@@ -45,7 +52,7 @@ function backButton() {
         toggleHeaderChosen();
     }
 }
-onMounted(() => {
+onMounted(async () => {
     if (datasetId.value) {
         store.setDatasetId(datasetId.value);
     }
@@ -55,7 +62,11 @@ onMounted(() => {
     if (type.value) {
         store.setFileType(type.value);
     }
-    store.selectFile();
+    try {
+        await store.selectFile();
+    } finally {
+        isLoading.value = false;
+    }
 });
 
 function toggleHeaderChosen() {
