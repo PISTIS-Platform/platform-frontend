@@ -4,6 +4,7 @@ const routes = ref([
     { name: 'market.market', to: '/marketplace/market-insights' },
     { name: 'data.usage.analytics', to: '/marketplace/usage-analytics' },
     { name: 'data.quality.query', to: '/marketplace/data-quality' },
+    { name: 'invest.userInvestments', to: '/marketplace/investments' },
 ]);
 </script>
 
