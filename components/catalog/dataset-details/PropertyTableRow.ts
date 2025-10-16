@@ -10,6 +10,7 @@ const PropertyTable = defineComponent({
         as: { type: [Object, String], default: 'div' },
         root: { type: Boolean, default: false },
         node: { type: Object as PropType<PropertyTableEntryNode>, required: true },
+        pistisMode: String,
     },
     setup(props, { slots }) {
         const node = toRef(props, 'node');
@@ -29,6 +30,10 @@ const PropertyTable = defineComponent({
 
         function renderNodes(nodes: PropertyTableEntry[], depth: number = 0): VNodeArrayChildren {
             return nodes.map((data, idx) => {
+                if (props.pistisMode === 'cloud' && data.label === 'Link') {
+                    return null;
+                }
+
                 const itemSlot = slots.item;
                 if (itemSlot && !isVNodeEmpty(itemSlot?.({ data, idx, depth })))
                     return itemSlot?.({ data, idx, depth });
