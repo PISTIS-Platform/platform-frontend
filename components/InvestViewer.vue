@@ -16,11 +16,6 @@ const props = defineProps({
 
 const computedAssetId = computed(() => props.assetId);
 
-watch(computedAssetId, () => {
-    refreshInvestment();
-    refresh();
-});
-
 type InvestmentPlan = {
     title: string;
     description: string;
@@ -58,7 +53,6 @@ const {
     data: investmentPlan,
     status: retrieveStatus,
     error: retrieveError,
-    refresh: refreshInvestment,
 } = await useFetch<InvestmentPlan>(`/api/invest/retrieve-investment-plan`, {
     method: 'GET',
     query: { cloudAssetId: computedAssetId },
