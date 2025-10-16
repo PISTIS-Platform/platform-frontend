@@ -9,37 +9,25 @@ const config = useRuntimeConfig();
 
 const columns = [
     {
-        key: 'date',
-        label: t('invest.dateInvested'),
-        sortable: true,
-        class: 'text-center w-1/6',
-    },
-    {
         key: 'title',
         label: t('invest.datasetTitle'),
         sortable: true,
     },
     {
-        key: 'shares',
-        label: t('invest.sharesTitle'),
+        key: 'percentage',
+        label: t('invest.percentage'),
         sortable: true,
         class: 'text-center w-1/6',
     },
     {
-        key: 'price',
-        label: t('invest.sharePrice'),
+        key: 'active',
+        label: t('invest.active'),
         sortable: true,
         class: 'text-center w-1/6',
     },
     {
-        key: 'total',
-        label: t('invest.total'),
-        sortable: true,
-        class: 'text-center w-1/6',
-    },
-    {
-        key: 'expirationDate',
-        label: t('invest.validUntil'),
+        key: 'date',
+        label: t('invest.dateInvested'),
         sortable: true,
         class: 'text-center w-1/6',
     },
@@ -115,16 +103,10 @@ const openModal = (id: string) => {
                             </UTooltip>
                         </template>
 
-                        <template #shares-data="{ row }">
-                            <span class="flex justify-center">{{ row.shares }}</span>
-                        </template>
-
-                        <template #price-data="{ row }">
-                            <span class="flex justify-center font-semibold">{{ row.price }} &euro;</span>
-                        </template>
-
-                        <template #total-data="{ row }">
-                            <span class="flex justify-center font-semibold">{{ row.total }} &euro;</span>
+                        <template #percentage-data="{ row }">
+                            <span class="flex justify-center font-semibold"
+                                >{{ ((row.shares / row.investmentPlan.totalShares) * 100).toFixed(2) }}%</span
+                            >
                         </template>
 
                         <template #expirationDate-data="{ row }">
