@@ -17,13 +17,14 @@ onMounted(() => {
 
     if (currentUrl.startsWith(factoryUrl)) {
         pistisMode.value = 'factory';
+        navigateTo(`${factoryUrl}/catalog/dataset-details/${id}?pm=${pistisMode.value}`);
     } else if (currentUrl.startsWith(cloudUrl)) {
         pistisMode.value = 'cloud';
+        navigateTo(`${factoryUrl}/marketplace/dataset-details/${id}?pm=${pistisMode.value}`);
     } else {
         pistisMode.value = '';
+        navigateTo(`/`);
     }
-
-    navigateTo(`/catalog/dataset-details/${id}?pm=${pistisMode.value}`);
 });
 </script>
 
