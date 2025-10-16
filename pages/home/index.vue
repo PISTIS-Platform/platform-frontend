@@ -244,6 +244,7 @@ const outgoing = computed(() => {
                     </UTable>
                     <div class="flex justify-end mt-2">
                         <UPagination
+                            v-if="data && data?.length > 10"
                             v-model="page"
                             :page-count="10"
                             :total="totalCount"
