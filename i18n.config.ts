@@ -78,6 +78,18 @@ export default defineI18nConfig(() => ({
             sortBy: 'Sort By',
             days: 'days',
             created: 'Created',
+            transactions: {
+                title: 'Transactions',
+                date: 'Date',
+                type: 'Incoming/Outgoing',
+                amount: 'Amount',
+                assetName: 'Asset Name',
+                provider: 'Provider',
+                consumer: 'Consumer',
+                inputMessage: 'Search in asset name...',
+                outgoing: 'Outgoing',
+                incoming: 'Incoming',
+            },
             settings: {
                 title: 'Factory Settings',
                 info: 'The settings of your unique factory',

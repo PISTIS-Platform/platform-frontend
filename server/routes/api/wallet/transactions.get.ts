@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const filter = query.searchString ? `&filter[assetName]=$ilike:${query.searchString}` : '';
 
     return $fetch(
-        `${cloudUrl}/srv/transactions-auditor/api/transactions-auditor?page=${query.page}&sortBy=property[${query.sortByColumn}];direction[${query.sortByDirection}]` +
+        `${cloudUrl}/srv/transactions-auditor/api/transactions-auditor/transaction/factory?page=${query.page}&sortBy=property[${query.sortByColumn}];direction[${query.sortByDirection}]` +
             filter,
         {
             headers: {
