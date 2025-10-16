@@ -171,6 +171,7 @@ const {
                         label: 'a',
                         data: resultEnhanced?.getPropertyTable2 || undefined,
                     }"
+                    :pistis-mode="'cloud'"
                 />
             </template>
         </DetailsPage>

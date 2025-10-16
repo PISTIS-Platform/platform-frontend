@@ -180,6 +180,7 @@ const {
                         label: 'a',
                         data: resultEnhanced?.getPropertyTable2 || undefined,
                     }"
+                    :pistis-mode="'factory'"
                 />
             </template>
         </DetailsPage>
