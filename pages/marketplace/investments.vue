@@ -20,8 +20,8 @@ const columns = [
         class: 'text-center w-1/6',
     },
     {
-        key: 'active',
-        label: t('invest.active'),
+        key: 'status',
+        label: t('invest.status'),
         sortable: true,
         class: 'text-center w-1/6',
     },
@@ -118,6 +118,22 @@ const openModal = (id: string) => {
                         <template #view-data="{ row }">
                             <span class="flex justify-center">
                                 <UButton variant="soft" @click="openModal(row.assetId)">{{ $t('view') }}</UButton>
+                            </span>
+                        </template>
+
+                        <template #status-data="{ row }">
+                            <span class="flex justify-center">
+                                <UTooltip
+                                    :prevent="!row.investmentPlan.status"
+                                    :text="`${$t('invest.becomesActive')} ${dayjs(row.investmentPlan.dueDate).format('DD/MM/YYYY')}`"
+                                    :popper="{ placement: 'top' }"
+                                    class="cursor-pointer"
+                                >
+                                    <UBadge v-if="row.investmentPlan.status" variant="soft" color="yellow">{{
+                                        $t('invest.ongoing')
+                                    }}</UBadge>
+                                    <UBadge v-else variant="soft" color="green">{{ $t('invest.active') }}</UBadge>
+                                </UTooltip>
                             </span>
                         </template>
                     </UTable>
