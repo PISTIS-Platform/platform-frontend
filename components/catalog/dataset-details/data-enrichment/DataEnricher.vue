@@ -22,6 +22,7 @@
                 <UTooltip
                     v-else
                     text="A distribution name must be provided, and all property choices need to be fitting before saving"
+                    :ui="{ width: 'max-w-2xl', base: 'text-wrap' }"
                 >
                     <UButton size="md" color="secondary" disabled> Save and create distribution </UButton>
                 </UTooltip>

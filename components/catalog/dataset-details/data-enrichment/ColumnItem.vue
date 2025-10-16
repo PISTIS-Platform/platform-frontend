@@ -7,6 +7,7 @@
                     <UTooltip
                         v-if="!selectedColumn.name"
                         text="Please select one of the suggested properties belonging to the PISTIS Data Model."
+                        :ui="{ width: 'max-w-2xl', base: 'text-wrap' }"
                     >
                         <StatusBubble class="inactive">
                             <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
@@ -16,6 +17,7 @@
                     <UTooltip
                         v-else-if="!transformable"
                         text="The data type of the chosen property and the data type of the data itself do not match/are not convertible. Please choose a fitting property."
+                        :ui="{ width: 'max-w-3xl', base: 'text-wrap' }"
                     >
                         <StatusBubble class="error">
                             <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
@@ -25,6 +27,7 @@
                     <UTooltip
                         v-else
                         text="The data type of the chosen property matches the data type of the data itself."
+                        :ui="{ width: 'max-w-2xl', base: 'text-wrap' }"
                     >
                         <StatusBubble class="success">
                             <UIcon name="i-heroicons-check" class="w-3 h-3" />
