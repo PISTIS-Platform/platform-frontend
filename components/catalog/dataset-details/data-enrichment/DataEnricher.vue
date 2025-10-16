@@ -1,12 +1,9 @@
 <template>
     <div>
-        <h1 class="text-center text-2xl font-bold text-primary-600 mb-6">Select columns to change the schema</h1>
+        <h1 class="text-center text-2xl font-bold text-primary-600 mb-16">Select columns to change the schema</h1>
 
-        <div class="flex justify-between items-center mt-4">
-            <div class="flex gap-2">
-                <UButton variant="outline" size="md" color="primary" @click.stop="backToHeader"> Back </UButton>
-                <UButton variant="outline" size="md" color="primary" @click="resetAll"> Reset values </UButton>
-            </div>
+        <div class="flex justify-between items-center">
+            <UButton variant="outline" size="md" color="primary" @click="resetAll"> Reset values </UButton>
 
             <div class="flex gap-2 items-center">
                 <UInput v-model="fileName" size="md" placeholder="Enter distribution name" class="w-48" />
@@ -22,6 +19,7 @@
                 <UTooltip
                     v-else
                     text="A distribution name must be provided, and all property choices need to be fitting before saving"
+                    :ui="{ width: 'max-w-2xl', base: 'text-wrap' }"
                 >
                     <UButton size="md" color="secondary" disabled> Save and create distribution </UButton>
                 </UTooltip>
@@ -29,7 +27,7 @@
         </div>
 
         <div class="py-4 flex justify-center">
-            <UCard class="table-container mt-4 mb-6 w-full overflow-hidden shadow-lg">
+            <UCard class="table-container mb-6 w-full overflow-hidden shadow-lg">
                 <div class="overflow-x-auto rounded-lg shadow-md">
                     <table class="w-full bg-white">
                         <tr>
@@ -73,15 +71,6 @@
 <script setup>
 import { useDataEnrichmentStore } from '~/store/dataEnrichment';
 
-const props = defineProps({
-    toggleHeaderChosen: {
-        type: Function,
-        required: true,
-    },
-    datasetId: String,
-    distributionId: String,
-});
-
 const store = useDataEnrichmentStore();
 
 const selected = ref(false);
@@ -100,11 +89,6 @@ const resetAll = () => {
             columnRef.reset();
         }
     });
-};
-
-const backToHeader = () => {
-    store.restoreOriginalFileData();
-    props.toggleHeaderChosen();
 };
 
 // onMounted(() => {
