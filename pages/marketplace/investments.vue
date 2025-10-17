@@ -106,7 +106,12 @@ const openModal = (id: string, shares: number) => {
 
                         <template #percentage-data="{ row }">
                             <span class="flex justify-center font-semibold"
-                                >{{ ((row.shares / row.investmentPlan.totalShares) * 100).toFixed(2) }}%</span
+                                >{{
+                                    (
+                                        (row.investmentPlan.percentageOffer / row.investmentPlan.totalShares) *
+                                        row.shares
+                                    ).toFixed(2)
+                                }}%</span
                             >
                         </template>
 

@@ -19,16 +19,15 @@ await useLazyFetch(`/api/wallet`, {
 //cards info data
 const cardInfoData = computed(() => [
     {
-        title: t('transactions.incoming'),
+        title: t('transactions.monthlyIncome'),
         iconName: 'i-heroicons-banknotes-20-solid',
-        amount: incoming.value,
+        amount: incoming.value.toFixed(2),
         textColor: 'text-green-800',
     },
-
     {
-        title: t('transactions.outgoing'),
+        title: t('transactions.monthlyExpenses'),
         iconName: 'i-heroicons-briefcase-solid',
-        amount: outgoing.value,
+        amount: outgoing.value.toFixed(2),
         textColor: 'text-red-800',
     },
     {
@@ -67,13 +66,13 @@ const columns = [
         key: 'factorySellerName',
         label: t('transactions.provider'),
         sortable: true,
-        class: 'text-left w-12',
+        class: 'text-center w-12',
     },
     {
         key: 'factoryBuyerName',
         label: t('transactions.consumer'),
         sortable: true,
-        class: 'text-left w-12',
+        class: 'text-center w-12',
     },
 ];
 
@@ -139,7 +138,7 @@ const outgoing = computed(() => {
     <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full pt-6">
         <ErrorCard v-if="error" :error-msg="error.data?.data?.message" class="mt-6" />
         <PageContainer v-else>
-            <div class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8">
+            <div class="flex flex-col md:flex-row gap-6 w-full">
                 <WalletCard
                     v-for="card in cardInfoData"
                     :key="card.title"
@@ -151,10 +150,10 @@ const outgoing = computed(() => {
                     :loading="isLoadingWallet"
                 />
             </div>
-            <div v-if="transactionsStatus === 'pending'" class="flex flex-col w-full text-lg mt-4">
+            <div v-if="transactionsStatus === 'pending'" class="flex flex-col w-full text-lg mt-6">
                 <UProgress animation="carousel" color="primary" />
             </div>
-            <div v-else class="w-full mt-4">
+            <div v-else class="w-full mt-6">
                 <UCard>
                     <template #header>
                         <div class="flex items-center justify-between w-full">
