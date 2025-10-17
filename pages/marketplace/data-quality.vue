@@ -1,18 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+import * as R from 'ramda';
 
 import type { Dimension } from '~/constants/quality-rules';
 import { availableRules, dimensions, ruleDetails } from '~/constants/quality-rules';
-// Import i18n
-const { t } = useI18n();
 
 // --- Dataset loading state ---
-const datasets = ref([]);
-const selectedDataset = ref(datasets.value[0]);
-const ownerFactoryURL = ref('');
-const accessURL = ref('');
-const table = ref(false);
-const fileType = ref('');
 const showTutorial = ref(true);
 const steps = [
     {
@@ -66,45 +59,56 @@ const steps = [
     },
 ];
 
-watch(selectedDataset, (newVal) => {
-    console.log(newVal);
-    const distribution = newVal.distributions?.[0];
-    accessURL.value = distribution.access_url?.[0] ?? t('data.quality.selectedDataset.noAccessURL');
-    const url = new URL(accessURL.value);
-    ownerFactoryURL.value = `${url.protocol}//${url.host}/`;
-    fileType.value = distribution.format.label;
-    table.value = fileType.value === 'SQL';
+const offerQueryDetails = ref({
+    ownerFactoryURL: '',
+    accessURL: '',
+    fileType: '',
+    table: false,
+});
+
+const selected = ref<
+    | {
+          id: string;
+          title: string;
+          description: string;
+          distributions: Record<string, any>[];
+      }
+    | undefined
+>(undefined);
+
+watch(selected, () => {
+    if (!selected.value) return;
+    const distribution = selected.value.distributions?.[0];
+    offerQueryDetails.value.accessURL = distribution.access_url?.[0];
+    const url = new URL(offerQueryDetails.value.accessURL);
+    offerQueryDetails.value.ownerFactoryURL = `${url.protocol}//${url.host}/`;
+    offerQueryDetails.value.fileType = distribution.format.label;
+    offerQueryDetails.value.table = offerQueryDetails.value.fileType === 'SQL';
     queryResult.value = null;
 });
 
-function getDatasetDisplayTitle(dataset) {
-    const dist = dataset.distributions?.[0];
-    if (dist?.title?.en) {
-        return (
-            (dataset.title?.en ?? t('data.quality.selectedDataset.untitled')) +
-            ' | ' +
-            (dist.title?.en ?? t('data.quality.selectedDataset.noDistribution'))
-        );
-    }
-    return dataset.id ?? t('data.quality.selectedDataset.noDataset');
-}
+const { data: datasetsData } = useFetch<Record<string, any>[]>(`/api/datasets/get-all-foreign-offers`, {
+    query: {
+        nonFree: true,
+    },
+    server: true,
+});
 
-async function loadDatasets() {
-    try {
-        const { data, error } = await useFetch('https://pistis-market.eu/srv/search/search?filters=dataset&limit=25');
-        if (error.value) {
-            throw error.value;
-        }
-        const rawDatasets = data.value?.result?.results ?? [];
-        datasets.value = rawDatasets;
-    } catch (err) {
-        console.error('Error fetching datasets:', err);
-    }
-}
+const sortByDateDesc = R.sortWith([R.descend(R.prop('modified'))]);
 
-// call on mounted
-onMounted(() => {
-    loadDatasets();
+const transformedDatasets = computed(() => {
+    if (!datasetsData.value || !datasetsData.value?.length) {
+        return [];
+    }
+    return sortByDateDesc(
+        datasetsData.value.map((dataset: Record<string, any>) => ({
+            id: dataset.id,
+            title: dataset.title.en,
+            description: dataset.description.en,
+            distributions: dataset.distributions,
+            modified: dataset.modified,
+        })),
+    );
 });
 
 // Dimensions
@@ -300,7 +304,8 @@ const ruleSpecificFields = computed(() => {
 
 // Export selectedRules to GX structure
 async function exportStagedRules() {
-    if (!selectedDataset.value) {
+    console.log(selected.value);
+    if (!selected.value) {
         showNotification(t('data.quality.notifications.selectDataset'));
         return;
     }
@@ -327,7 +332,7 @@ async function exportStagedRules() {
         }
 
         const meta = {
-            offer_id: selectedDataset.value.id,
+            offer_id: selected.value.id,
         };
         if (name) meta.name = name;
         if (description) meta.description = description;
@@ -340,16 +345,17 @@ async function exportStagedRules() {
     });
 
     const dataQueryPayload = {
-        access_url: accessURL.value,
-        table: table.value,
-        file_type: fileType.value,
+        access_url: offerQueryDetails.value.accessURL,
+        table: offerQueryDetails.value.table,
+        file_type: offerQueryDetails.value.fileType,
         data_query: result,
     };
 
     const jsonString = JSON.stringify(dataQueryPayload, null, 2);
     console.log('Exported Rules JSON:', jsonString);
+    console.log(`${offerQueryDetails.value.ownerFactoryURL}srv/data-quality-assessor/api/dqa/query/`);
 
-    const endpoint = `${ownerFactoryURL.value}srv/data-quality-assessor/api/dqa/query/`;
+    const endpoint = `${offerQueryDetails.value.ownerFactoryURL}srv/data-quality-assessor/api/dqa/query/`;
 
     try {
         const { data, error, status } = await useFetch(endpoint, {
@@ -381,318 +387,357 @@ function hasMissingDetails(rule) {
 </script>
 
 <template>
-    <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col gap-10">
-        <!-- Header -->
-        <header
-            class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-300 pb-6"
-        >
-            <h1 class="text-3xl font-semibold text-gray-900">
-                {{ t('data.quality.headers.title') }}
-            </h1>
-            <div class="mb-4 flex justify-end">
-                <UButton size="sm" color="gray" variant="soft" @click="showTutorial = !showTutorial">
-                    {{ showTutorial ? 'Hide Tutorial' : 'Show Tutorial' }}
-                </UButton>
-            </div>
-        </header>
+    <UCard>
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col gap-10">
+            <!-- Header -->
+            <header
+                class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-300 pb-6"
+            >
+                <h3 class="text-4xl font-semibold text-gray-900">
+                    {{ t('data.quality.headers.title') }}
+                </h3>
+                <div class="mb-4 flex justify-end">
+                    <UButton size="sm" color="gray" variant="soft" @click="showTutorial = !showTutorial">
+                        {{ showTutorial ? 'Hide Tutorial' : 'Show Tutorial' }}
+                    </UButton>
+                </div>
+            </header>
 
-        <!-- Tutorial Card -->
-        <UCard v-show="showTutorial" class="shadow-sm border border-gray-200 p-6">
-            <h1 class="text-2xl font-bold mb-6">How to Use the Data Quality Query Page</h1>
+            <!-- Tutorial Card -->
+            <UCard v-show="showTutorial" class="shadow-sm border border-gray-200 p-6">
+                <h1 class="text-2xl mb-6">How to Use the Data Quality Query Page</h1>
 
-            <UAccordion :items="steps">
-                <template #item="{ item }">
-                    <div class="text-gray-700 leading-relaxed" v-html="item.content" />
+                <UAccordion :items="steps">
+                    <template #item="{ item }">
+                        <div class="text-gray-700 leading-relaxed" v-html="item.content" />
+                    </template>
+                </UAccordion>
+            </UCard>
+
+            <!-- Dataset Selector -->
+            <UCard>
+                <template #header>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <UIcon name="oui:pages-select" class="w-10 h-10 text-gray-500" />
+                            <SubHeading
+                                :title="$t('data.quality.headers.dataSelectorTitle')"
+                                :info="$t('data.quality.headers.dataSelectorInfo')"
+                            />
+                        </div>
+                        <div>
+                            <button
+                                class="bg-secondary-500 text-white px-3 py-2 rounded text-sm hover:bg-secondary-600"
+                                @click="exportStagedRules"
+                            >
+                                {{ t('data.quality.button.sendQuery') }}
+                            </button>
+                        </div>
+                    </div>
                 </template>
-            </UAccordion>
-        </UCard>
-
-        <!-- Dataset Selector -->
-        <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <label class="font-semibold text-gray-700 text-sm">
-                        {{ t('data.quality.headers.selectData') }}
-                    </label>
-                    <select
-                        v-model="selectedDataset"
-                        class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
-                        @change="$event.target.blur()"
-                    >
-                        <option v-for="ds in datasets" :key="ds.id" :value="ds">
-                            {{ getDatasetDisplayTitle(ds) }}
-                        </option>
-                    </select>
-                </div>
-                <div>
-                    <button
-                        class="bg-pistis-600 text-white px-3 py-1 rounded text-sm hover:bg-pistis-700"
-                        @click="exportStagedRules"
-                    >
-                        {{ t('data.quality.button.sendQuery') }}
-                    </button>
-                </div>
-            </div>
-        </section>
-        <section v-if="queryResult" class="bg-white rounded-lg shadow p-6 border border-gray-200">
-            <table class="min-w-full text-sm text-left text-gray-700">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th>Dimension</th>
-                        <th>Score (0-1)</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="row in dimensionRows"
-                        :key="row.dimension"
-                        :class="row.score === 1 ? 'bg-green-50' : row.score === 0 ? 'bg-red-50' : 'bg-gray-50'"
-                    >
-                        <td class="capitalize">{{ row.dimension }}</td>
-                        <td>{{ typeof row.score === 'number' ? row.score.toFixed(2) : '—' }}</td>
-                        <td>{{ row.status }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-        <!-- Zones -->
-        <div class="flex flex-col md:flex-row gap-8 min-h-[500px]">
-            <!-- Available Rules Zone -->
-            <section class="flex-1 bg-white rounded-lg shadow p-6 border">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold text-gray-800">{{ t('data.quality.headers.availableRules') }}</h2>
-                    <div class="flex items-center gap-2">
-                        <label class="text-sm font-medium text-gray-600">
-                            {{ t('data.quality.headers.dimFilter') }}
+                <USelectMenu
+                    v-model="selected"
+                    searchable
+                    :search-attributes="['title', 'description']"
+                    :options="transformedDatasets"
+                    option-attribute="title"
+                    :placeholder="$t('data.quality.placeholder.datasetSelector')"
+                >
+                    <template #option="{ option: dataset }">
+                        <div class="flex flex-col gap-0.5">
+                            <span class="font-semibold">{{ dataset.title }}</span>
+                            <span class="text-gray-500 text-sm line-clamp-1">{{ dataset.description }}</span>
+                        </div>
+                    </template>
+                </USelectMenu>
+            </UCard>
+            <!-- <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <label class="font-semibold text-gray-700 text-sm">
+                            {{ t('data.quality.headers.selectData') }}
                         </label>
-                        <select
-                            v-model="selectedDimension"
-                            class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
-                        >
-                            <option value="all">All Dimensions</option>
-                            <option v-for="dim in dimensions" :key="dim" :value="dim">{{ capitalize(dim) }}</option>
+                        <select v-model="selectedDataset"
+                            class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
+                            @change="$event.target.blur()">
+                            <option v-for="ds in datasets" :key="ds.id" :value="ds">
+                                {{ getDatasetDisplayTitle(ds) }}
+                            </option>
                         </select>
                     </div>
-                </div>
-                <div>
-                    <div v-for="(rules, dimension) in filteredRulesByDimension" :key="dimension" class="mb-4">
-                        <div
-                            :class="[
-                                'font-semibold flex items-center justify-between px-4 py-2 mb-3 rounded-md shadow-sm transition-colors duration-200 cursor-pointer',
-                                expandedDimensions[dimension]
-                                    ? 'bg-gray-100'
-                                    : 'bg-white hover:bg-gray-100 text-gray-800',
-                            ]"
-                            @click="toggleDimension(dimension)"
-                        >
-                            <div>{{ capitalize(dimension) }}</div>
-                            <div class="text-sm">
-                                {{ expandedDimensions[dimension] ? '▾' : '▸' }}
-                            </div>
-                        </div>
-                        <div v-show="expandedDimensions[dimension]">
-                            <div
-                                v-for="rule in rules"
-                                :key="rule.id"
-                                class="bg-pistis-100 border border-pistis-700 rounded mb-2 p-3 cursor-pointer hover:bg-pistis-300"
-                                draggable="true"
-                                @dragstart="onDragStart(rule.id)"
-                                @click="addRuleToSelected(rule)"
-                            >
-                                <div class="font-semibold text-gray-800">{{ rule.name }}</div>
-                                <div class="text-xs text-gray-600 mt-1">{{ rule.description }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Selected Rules Zone -->
-            <section class="flex-1 bg-white rounded-lg shadow p-6 border" @dragover.prevent @drop="onDrop">
-                <div class="flex items-center mb-4 justify-between">
-                    <h2 class="text-lg font-semibold text-gray-800">
-                        {{ t('data.quality.headers.selectedRules') }}
-                    </h2>
-                    <div class="flex gap-1">
-                        <button
-                            class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
-                            @click="clearAllRules"
-                        >
-                            {{ t('data.quality.button.clearAll') }}
+                    <div>
+                        <button class="bg-secondary-500 text-white px-3 py-2 rounded text-sm hover:bg-secondary-600"
+                            @click="exportStagedRules">
+                            {{ t('data.quality.button.sendQuery') }}
                         </button>
                     </div>
                 </div>
-                <div class="min-h-[300px] bg-gray-50 rounded p-3 border border-dashed border-gray-300">
-                    <div v-if="selectedRules.length === 0" class="text-gray-400 italic text-center mt-8">
-                        {{ t('data.quality.placeholder.selectedRules') }}
-                    </div>
-                    <div
-                        v-for="(rule, idx) in selectedRules"
-                        :key="rule.id"
-                        :class="[
-                            'bg-white border rounded mb-2 p-3 cursor-pointer transition-colors duration-150',
-                            selectedRule && selectedRule.id === rule.id
-                                ? 'border-pistis-600 bg-pistis-100 shadow-inner'
-                                : 'border-gray-200 hover:bg-gray-100',
-                            invalidRuleIds.has(rule.id) ? 'border-red-500 bg-red-50' : '',
-                        ]"
-                        @click="selectRule(rule)"
-                    >
-                        <div class="font-semibold text-gray-800">{{ rule.name || rule.type }}</div>
-                        <div class="text-xs text-gray-500">#{{ idx + 1 }}</div>
-                    </div>
-                </div>
+            </section> -->
+            <section v-if="queryResult" class="bg-white rounded-lg shadow p-6 border border-gray-200">
+                <table class="min-w-full text-sm text-left text-gray-700">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Score (0-1)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="row in dimensionRows"
+                            :key="row.dimension"
+                            :class="row.score === 1 ? 'bg-green-50' : row.score === 0 ? 'bg-red-50' : 'bg-gray-50'"
+                        >
+                            <td class="capitalize">{{ row.dimension }}</td>
+                            <td>{{ typeof row.score === 'number' ? row.score.toFixed(2) : '—' }}</td>
+                            <td>{{ row.status }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </section>
-        </div>
+            <!-- Zones -->
+            <div class="flex flex-col md:flex-row gap-8 min-h-[500px]">
+                <!-- Available Rules Zone -->
+                <section class="flex-1 bg-white rounded-lg shadow p-6 border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">
+                            {{ t('data.quality.headers.availableRules') }}
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm font-medium text-gray-600">
+                                {{ t('data.quality.headers.dimFilter') }}
+                            </label>
+                            <select
+                                v-model="selectedDimension"
+                                class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
+                            >
+                                <option value="all">All Dimensions</option>
+                                <option v-for="dim in dimensions" :key="dim" :value="dim">{{ capitalize(dim) }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div v-for="(rules, dimension) in filteredRulesByDimension" :key="dimension" class="mb-4">
+                            <div
+                                :class="[
+                                    'font-semibold flex items-center justify-between px-4 py-2 mb-3 rounded-md shadow-sm transition-colors duration-200 cursor-pointer',
+                                    expandedDimensions[dimension]
+                                        ? 'bg-gray-100'
+                                        : 'bg-white hover:bg-gray-100 text-gray-800',
+                                ]"
+                                @click="toggleDimension(dimension)"
+                            >
+                                <div>{{ capitalize(dimension) }}</div>
+                                <div class="text-sm">
+                                    {{ expandedDimensions[dimension] ? '▾' : '▸' }}
+                                </div>
+                            </div>
+                            <div v-show="expandedDimensions[dimension]">
+                                <div
+                                    v-for="rule in rules"
+                                    :key="rule.id"
+                                    class="bg-pistis-100 border border-pistis-700 rounded mb-2 p-3 cursor-pointer hover:bg-pistis-300"
+                                    draggable="true"
+                                    @dragstart="onDragStart(rule.id)"
+                                    @click="addRuleToSelected(rule)"
+                                >
+                                    <div class="font-semibold text-gray-800">{{ rule.name }}</div>
+                                    <div class="text-xs text-gray-600 mt-1">{{ rule.description }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-        <!-- Rule Details Form -->
-        <section class="bg-white rounded-lg shadow p-6 mt-6">
-            <div class="flex justify-between items-center border-b pb-3 mb-4">
-                <h2 class="text-lg font-semibold text-gray-800">Rule Details</h2>
-                <div v-if="selectedRule" class="bg-pistis-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    {{ selectedRule.type }}
-                </div>
+                <!-- Selected Rules Zone -->
+                <section class="flex-1 bg-white rounded-lg shadow p-6 border" @dragover.prevent @drop="onDrop">
+                    <div class="flex items-center mb-4 justify-between">
+                        <h2 class="text-lg font-semibold text-gray-800">
+                            {{ t('data.quality.headers.selectedRules') }}
+                        </h2>
+                        <div class="flex gap-1">
+                            <button
+                                class="bg-primary-500 text-white px-3 py-1 rounded text-sm hover:bg-primary-600"
+                                @click="clearAllRules"
+                            >
+                                {{ t('data.quality.button.clearAll') }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="min-h-[300px] bg-gray-50 rounded p-3 border border-dashed border-gray-300">
+                        <div v-if="selectedRules.length === 0" class="text-gray-400 italic text-center mt-8">
+                            {{ t('data.quality.placeholder.selectedRules') }}
+                        </div>
+                        <div
+                            v-for="(rule, idx) in selectedRules"
+                            :key="rule.id"
+                            :class="[
+                                'bg-white border rounded mb-2 p-3 cursor-pointer transition-colors duration-150',
+                                selectedRule && selectedRule.id === rule.id
+                                    ? 'border-pistis-600 bg-pistis-100 shadow-inner'
+                                    : 'border-gray-200 hover:bg-gray-100',
+                                invalidRuleIds.has(rule.id) ? 'border-red-500 bg-red-50' : '',
+                            ]"
+                            @click="selectRule(rule)"
+                        >
+                            <div class="font-semibold text-gray-800">{{ rule.name || rule.type }}</div>
+                            <div class="text-xs text-gray-500">#{{ idx + 1 }}</div>
+                        </div>
+                    </div>
+                </section>
             </div>
-            <div v-if="selectedRule">
-                <form @submit.prevent="saveRuleDetails">
-                    <!-- Common Fields -->
-                    <div class="mb-4">
-                        <label class="block font-semibold text-gray-700 mb-1">
-                            {{ t('data.quality.form.ruleName') }}
-                        </label>
-                        <input
-                            v-model="selectedRule.name"
-                            class="border rounded px-3 py-2 w-full"
-                            placeholder="Enter a custom rule name"
-                        />
+
+            <!-- Rule Details Form -->
+            <section class="bg-white rounded-lg shadow p-6 mt-6">
+                <div class="flex justify-between items-center border-b pb-3 mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Rule Details</h2>
+                    <div
+                        v-if="selectedRule"
+                        class="bg-pistis-500 text-white px-3 py-1 rounded-full text-xs font-medium"
+                    >
+                        {{ selectedRule.type }}
                     </div>
-                    <div class="mb-4">
-                        <label class="block font-semibold text-gray-700 mb-1">
-                            {{ t('data.quality.form.description') }}
-                        </label>
-                        <textarea
-                            v-model="selectedRule.description"
-                            class="border rounded px-3 py-2 w-full"
-                            rows="3"
-                            placeholder="Enter a description for this rule"
-                        ></textarea>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block font-semibold text-gray-700 mb-1">
-                            {{ t('data.quality.form.mostly') }}
-                        </label>
-                        <input
-                            v-model.number="selectedRule.mostly"
-                            type="number"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            class="border rounded px-3 py-2 w-full"
-                            placeholder="Enter proportion of successfully validated rows to pass"
-                        />
-                    </div>
-                    <hr class="my-6 border-t border-gray-300" />
-                    <!-- Rule Specific Fields -->
-                    <div v-for="field in ruleSpecificFields" :key="`field-${field.id}`">
+                </div>
+                <div v-if="selectedRule">
+                    <form @submit.prevent="saveRuleDetails">
+                        <!-- Common Fields -->
                         <div class="mb-4">
                             <label class="block font-semibold text-gray-700 mb-1">
-                                {{ field.label }}
-                                <span v-if="field.required" class="text-red-500 ml-1">*</span>
+                                {{ t('data.quality.form.ruleName') }}
                             </label>
-
-                            <!-- Textarea -->
-                            <textarea
-                                v-if="field.type === 'textarea'"
-                                v-model="selectedRule.specificData[field.id]"
-                                :placeholder="field.placeholder"
-                                :rows="field.rows ?? 3"
-                                :class="[
-                                    'border rounded px-3 py-2 w-full',
-                                    invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
-                                ]"
-                            ></textarea>
-
-                            <!-- Select -->
-                            <select
-                                v-else-if="field.type === 'select'"
-                                v-model="selectedRule.specificData[field.id]"
-                                :class="[
-                                    'border rounded px-3 py-2 w-full',
-                                    invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
-                                ]"
-                            >
-                                <option v-for="option in field.options" :key="option" :value="option">
-                                    {{ option }}
-                                </option>
-                            </select>
-
-                            <!-- Checkbox -->
-                            <div v-else-if="field.type === 'checkbox'" class="flex items-center">
-                                <input
-                                    v-model="selectedRule.specificData[field.id]"
-                                    type="checkbox"
-                                    class="mr-2"
-                                    :class="invalidFields.has(field.id) ? 'border-red-500 ring-1 ring-red-400' : ''"
-                                />
-                                <span class="text-gray-700 text-sm">{{ field.label }}</span>
-                            </div>
-
-                            <!-- Default input (text/number/etc.) -->
                             <input
-                                v-else
-                                v-model="selectedRule.specificData[field.id]"
-                                :type="field.type"
-                                :placeholder="field.placeholder"
-                                :min="field.min"
-                                :max="field.max"
-                                :step="field.step"
-                                :class="[
-                                    'border rounded px-3 py-2 w-full',
-                                    invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
-                                ]"
+                                v-model="selectedRule.name"
+                                class="border rounded px-3 py-2 w-full"
+                                placeholder="Enter a custom rule name"
                             />
-
-                            <!-- Validation Message -->
-                            <p v-if="invalidFields.has(field.id)" class="text-red-500 text-sm mt-1">
-                                {{ t('data.quality.notifications.validationError') }}
-                            </p>
                         </div>
-                    </div>
+                        <div class="mb-4">
+                            <label class="block font-semibold text-gray-700 mb-1">
+                                {{ t('data.quality.form.description') }}
+                            </label>
+                            <textarea
+                                v-model="selectedRule.description"
+                                class="border rounded px-3 py-2 w-full"
+                                rows="3"
+                                placeholder="Enter a description for this rule"
+                            ></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block font-semibold text-gray-700 mb-1">
+                                {{ t('data.quality.form.mostly') }}
+                            </label>
+                            <input
+                                v-model.number="selectedRule.mostly"
+                                type="number"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                class="border rounded px-3 py-2 w-full"
+                                placeholder="Enter proportion of successfully validated rows to pass"
+                            />
+                        </div>
+                        <hr class="my-6 border-t border-gray-300" />
+                        <!-- Rule Specific Fields -->
+                        <div v-for="field in ruleSpecificFields" :key="`field-${field.id}`">
+                            <div class="mb-4">
+                                <label class="block font-semibold text-gray-700 mb-1">
+                                    {{ field.label }}
+                                    <span v-if="field.required" class="text-red-500 ml-1">*</span>
+                                </label>
 
-                    <div class="flex gap-4">
-                        <button
-                            type="submit"
-                            class="bg-pistis-500 text-white px-4 py-2 rounded hover:bg-pistis-600 flex-1"
-                            @click="saveRuleDetails"
-                        >
-                            {{ t('data.quality.button.saveDetails') }}
-                        </button>
-                        <button
-                            type="button"
-                            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex-1"
-                            @click="removeSelectedRule"
-                        >
-                            {{ t('data.quality.button.removeRule') }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <div v-else>
-                <p class="text-gray-400">{{ t('data.quality.placeholder.ruleDetails') }}</p>
-            </div>
-        </section>
+                                <!-- Textarea -->
+                                <textarea
+                                    v-if="field.type === 'textarea'"
+                                    v-model="selectedRule.specificData[field.id]"
+                                    :placeholder="field.placeholder"
+                                    :rows="field.rows ?? 3"
+                                    :class="[
+                                        'border rounded px-3 py-2 w-full',
+                                        invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
+                                    ]"
+                                ></textarea>
 
-        <!-- Notification -->
-        <transition name="fade">
-            <div
-                v-if="notification"
-                class="fixed bottom-6 right-6 bg-pistis-600 text-white px-6 py-3 rounded shadow-lg z-50"
-            >
-                {{ notification }}
-            </div>
-        </transition>
-    </div>
+                                <!-- Select -->
+                                <select
+                                    v-else-if="field.type === 'select'"
+                                    v-model="selectedRule.specificData[field.id]"
+                                    :class="[
+                                        'border rounded px-3 py-2 w-full',
+                                        invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
+                                    ]"
+                                >
+                                    <option v-for="option in field.options" :key="option" :value="option">
+                                        {{ option }}
+                                    </option>
+                                </select>
+
+                                <!-- Checkbox -->
+                                <div v-else-if="field.type === 'checkbox'" class="flex items-center">
+                                    <input
+                                        v-model="selectedRule.specificData[field.id]"
+                                        type="checkbox"
+                                        class="mr-2"
+                                        :class="invalidFields.has(field.id) ? 'border-red-500 ring-1 ring-red-400' : ''"
+                                    />
+                                    <span class="text-gray-700 text-sm">{{ field.label }}</span>
+                                </div>
+
+                                <!-- Default input (text/number/etc.) -->
+                                <input
+                                    v-else
+                                    v-model="selectedRule.specificData[field.id]"
+                                    :type="field.type"
+                                    :placeholder="field.placeholder"
+                                    :min="field.min"
+                                    :max="field.max"
+                                    :step="field.step"
+                                    :class="[
+                                        'border rounded px-3 py-2 w-full',
+                                        invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
+                                    ]"
+                                />
+
+                                <!-- Validation Message -->
+                                <p v-if="invalidFields.has(field.id)" class="text-red-500 text-sm mt-1">
+                                    {{ t('data.quality.notifications.validationError') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <button
+                                type="submit"
+                                class="bg-secondary-500 text-white px-4 py-2 rounded hover:bg-secondary-600 flex-1"
+                                @click="saveRuleDetails"
+                            >
+                                {{ t('data.quality.button.saveDetails') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600 flex-1"
+                                @click="removeSelectedRule"
+                            >
+                                {{ t('data.quality.button.removeRule') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div v-else>
+                    <p class="text-gray-400">{{ t('data.quality.placeholder.ruleDetails') }}</p>
+                </div>
+            </section>
+
+            <!-- Notification -->
+            <transition name="fade">
+                <div
+                    v-if="notification"
+                    class="fixed bottom-6 right-6 bg-pistis-600 text-white px-6 py-3 rounded shadow-lg z-50"
+                >
+                    {{ notification }}
+                </div>
+            </transition>
+        </div>
+    </UCard>
 </template>
 
 <style>
