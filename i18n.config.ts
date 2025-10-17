@@ -366,8 +366,9 @@ export default defineI18nConfig(() => ({
                         validationError: 'This field is required.',
                     },
                     headers: {
-                        title: 'Data Quality Rules Configuration',
-                        selectData: ' Select Dataset:',
+                        title: 'Query Configuration',
+                        dataSelectorTitle: 'Select a dataset',
+                        dataSelectorInfo: 'Select a published data offer you would like to query',
                         availableRules: 'Available Quality Rules',
                         dimFilter: 'Filter by Dimensions:',
                         selectedRules: 'Selected Rules',
@@ -386,6 +387,7 @@ export default defineI18nConfig(() => ({
                     placeholder: {
                         ruleDetails: 'Select a rule to configure it.',
                         selectedRules: 'Drag rules here to add them.',
+                        datasetSelector: 'Click here to select or search for a published dataset',
                     },
                 },
 
