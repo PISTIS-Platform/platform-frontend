@@ -230,6 +230,13 @@ export default defineI18nConfig(() => ({
                 dateInvested: 'Date Invested',
                 sharesTitle: 'Shares',
                 viewPlan: 'View Plan',
+                active: 'Active',
+                ongoing: 'Ongoing',
+                percentage: 'Percentage',
+                becomesActive: 'Becomes active on',
+                status: 'Status',
+                yourShares: 'Your Shares',
+                perShare: 'per share',
             },
             data: {
                 data: 'Data Ingestion',
