@@ -24,7 +24,6 @@ const cardInfoData = computed(() => [
         amount: incoming.value.toFixed(2),
         textColor: 'text-green-800',
     },
-
     {
         title: t('transactions.monthlyExpenses'),
         iconName: 'i-heroicons-briefcase-solid',
