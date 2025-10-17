@@ -67,13 +67,13 @@ const columns = [
         key: 'factorySellerName',
         label: t('transactions.provider'),
         sortable: true,
-        class: 'text-left w-12',
+        class: 'text-center w-12',
     },
     {
         key: 'factoryBuyerName',
         label: t('transactions.consumer'),
         sortable: true,
-        class: 'text-left w-12',
+        class: 'text-center w-12',
     },
 ];
 
