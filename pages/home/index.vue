@@ -21,14 +21,14 @@ const cardInfoData = computed(() => [
     {
         title: t('transactions.incoming'),
         iconName: 'i-heroicons-banknotes-20-solid',
-        amount: incoming.value,
+        amount: incoming.value.toFixed(2),
         textColor: 'text-green-800',
     },
 
     {
         title: t('transactions.outgoing'),
         iconName: 'i-heroicons-briefcase-solid',
-        amount: outgoing.value,
+        amount: outgoing.value.toFixed(2),
         textColor: 'text-red-800',
     },
     {
