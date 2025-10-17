@@ -139,7 +139,7 @@ const outgoing = computed(() => {
     <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full pt-6">
         <ErrorCard v-if="error" :error-msg="error.data?.data?.message" class="mt-6" />
         <PageContainer v-else>
-            <div class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8">
+            <div class="flex flex-col md:flex-row gap-6 w-full">
                 <WalletCard
                     v-for="card in cardInfoData"
                     :key="card.title"
@@ -151,10 +151,10 @@ const outgoing = computed(() => {
                     :loading="isLoadingWallet"
                 />
             </div>
-            <div v-if="transactionsStatus === 'pending'" class="flex flex-col w-full text-lg mt-4">
+            <div v-if="transactionsStatus === 'pending'" class="flex flex-col w-full text-lg mt-6">
                 <UProgress animation="carousel" color="primary" />
             </div>
-            <div v-else class="w-full mt-4">
+            <div v-else class="w-full mt-6">
                 <UCard>
                     <template #header>
                         <div class="flex items-center justify-between w-full">
