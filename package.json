@@ -63,6 +63,7 @@
         "cors": "^2.8.5",
         "date-fns": "^4.1.0",
         "dayjs": "^1.11.13",
+        "epic-spinners": "^2.0.0",
         "isomorphic-dompurify": "^2.20.0",
         "jwt-decode": "^4.0.0",
         "marked": "^15.0.6",
