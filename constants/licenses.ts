@@ -20,12 +20,14 @@ Elit proident cupidatat Lorem occaecat in magna aliquip et veniam aliqua consect
             'According to the European Commission reuse notice, reuse is authorised, provided the source is acknowledged. The reuse policy of the European Commission is implemented by the Decision of 12 December 2011. The general principle of reuse can be subject to conditions which may be specified in individual copyright notices. Therefore users are advised to refer to the copyright notices of the individual websites maintained under Europa and of the individual documents. Reuse is not applicable to documents subject to intellectual property rights of third parties.',
     },
     {
-        code: 'ISA_OML',
+        code: 'ISA_OML_1_0',
         label: 'ISA Open Metadata Licence 1.0',
-        description: 'N/A',
+        description: `The ISA Open Metadata Licence 1.0 (IOML 1.0) is a permissive open licence created by the European Commission as part of its Interoperability Solutions for European Public Administrations (ISA) Programme.
+
+Its primary purpose is to clearly define the conditions under which metadata—and later, technical and semantic specifications—may be freely shared, used, modified, and adapted for commercial and non-commercial purposes, provided that basic attribution and licensing conditions are met. It is designed to foster the reuse and semantic interoperability of public sector information within the EU.`,
     },
     {
-        code: 'ISA_OML',
+        code: 'ISA_OML_1_1',
         label: 'ISA Open Metadata Licence 1.1',
         description:
             'The ISA Open metadata licence 1.1 is a permissive open licence created by the European Commission to support the publication of technical and semantic specifications. Users are allowed to distribute, copy, adapt or modify the licenced work for any commercial and non-commercial purpose with only a limited set of conditions.',
