@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { HollowDotsSpinner } from 'epic-spinners';
+
 const props = defineProps({
     title: {
         type: String,
@@ -26,8 +28,6 @@ const props = defineProps({
         default: false,
     },
 });
-// Number of digits to show while loading
-const digitCount = computed(() => (props.loading ? 4 : 0));
 </script>
 
 <template>
@@ -49,11 +49,10 @@ const digitCount = computed(() => (props.loading ? 4 : 0));
                         props.textColor,
                     ]"
                 >
-                    <span v-if="props.loading" class="inline-flex space-x-1.5">
-                        <SpinningDigit v-for="i in digitCount" :key="i" :target-digit="1" :duration="2200" />
-                        <span>{{ props.coin }}</span>
-                    </span>
-                    <span v-else> {{ props.amount }} {{ props.coin }} </span>
+                    <div v-if="props.loading" class="h-6 flex items-center">
+                        <hollow-dots-spinner :animation-duration="1000" :dot-size="10" :dots-num="3" color="#5632D0" />
+                    </div>
+                    <div v-else class="h-6">{{ props.amount }} {{ props.coin }}</div>
                 </div>
             </div>
         </div>
