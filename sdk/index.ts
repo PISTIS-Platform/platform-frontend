@@ -9,8 +9,9 @@ import { dcatApDataset, defineHubSearch, getTranslationFor } from '@piveau/sdk-v
 import DOMPurify from 'isomorphic-dompurify';
 import { marked } from 'marked';
 
-import type { EnhancedSearchResult } from '/composables/useDatasetsSearchView';
 import { useApiService } from '~/services/apiService';
+
+import type { EnhancedSearchResult } from '../pages/catalog/useDatasetsSearchView';
 
 export function useDcatApSearch() {
     const route = useRoute();
@@ -58,7 +59,13 @@ export function useDcatApSearch() {
                         ].join(', '),
                     },
                     { title: 'provider', text: baseGetters.getPublisher?.name || '' },
-                    { title: 'license', text: baseGetters.getLicenses?.[0] || '' },
+                    {
+                        title: 'license',
+                        text:
+                            pistisMode === 'cloud'
+                                ? dataset.monetization?.[0]?.purchase_offer?.[0]?.license?.label || ''
+                                : baseGetters.getLicenses?.[0] || '',
+                    },
                 ],
             };
 
