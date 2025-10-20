@@ -11,6 +11,7 @@ export function useSelectedFacets() {
         format: refSyncedWithRouteQueryFacet('format', [] as string[]),
         license: refSyncedWithRouteQueryFacet('license', [] as string[]),
         catalog: refSyncedWithRouteQueryFacet('catalog', [] as string[]),
+        isInvestmentActive: refSyncedWithRouteQueryFacet('investment_offer.is_active', [] as string[]),
     };
 }
 

@@ -23,7 +23,16 @@ export function useDcatApSearch() {
             index: 'dataset',
             indexDetails: 'datasets',
             schema: SchemaDataset,
-            facets: ['monetizationType', 'is_free', 'categories', 'publisher', 'format', 'license', 'catalog'],
+            facets: [
+                'monetizationType',
+                'is_free',
+                'categories',
+                'publisher',
+                'format',
+                'license',
+                'catalog',
+                'investment_offer.is_active',
+            ],
         },
         (dataset, localeInstance) => {
             const { setup: dcatApDatasetSetup } = dcatApDataset({ baseUrlHubRepo: getSearchUrl() ?? '/' });
