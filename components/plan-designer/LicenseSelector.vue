@@ -180,13 +180,10 @@ const resetLicenseDetails = (license: { code: string; label: string; description
             numOfResell: null,
             numOfShare: null,
         };
-    } else if (license.code === LicenseCode.NFT) {
-        licenseDetails.value = {
-            license: LicenseCode.NFT,
-        };
     } else {
         licenseDetails.value = {
             license: license.code,
+            contractTerms: btoa(encodeURIComponent(`<p>${license.description}</p>`)),
         };
     }
 };
