@@ -155,8 +155,6 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         );
     });
 
-    console.log('>>>>>>>>>>>FACETS:', availableFacetsFormatted);
-
     return {
         selectedFacets,
         hvdModel,
