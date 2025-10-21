@@ -944,6 +944,7 @@ export default defineI18nConfig(() => ({
                     },
                     publisher: 'Data Provider',
                     license: 'Licences',
+                    purchaseOfferLicense: 'Licences',
                     keywords: 'Keywords',
                     categories: 'Categories',
                     catalog: 'Catalogues',
