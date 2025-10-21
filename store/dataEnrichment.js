@@ -20,7 +20,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     const unsupportedDataTypes = ref(new Map([['Bigint', 'Integer']]));
     const dataTypeTransformCompatibility = ref({
         String: new Set(['string', 'date', 'dateTime']),
-        Integer: new Set(['string', 'integer', 'double', 'float']),
+        Integer: new Set(['string', 'integer', 'double', 'float', 'int']),
         Double: new Set(['string', 'integer', 'double']),
         Float: new Set(['string', 'float']),
         Date: new Set(['string', 'date', 'dateTime']),
