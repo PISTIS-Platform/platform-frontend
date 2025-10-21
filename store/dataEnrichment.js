@@ -82,7 +82,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                     typeof e.data === 'string' ? e.data : e.data?.message || e.message || "File couldn't be selected.";
 
                 toast.add({
-                    title: errorMessage,
+                    title: 'Something went wrong!',
+                    description: errorMessage,
                     icon: 'i-lucide-x-circle',
                     color: 'red',
                 });
@@ -107,7 +108,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                     : e.data?.message || e.message || 'The latest datamodel could not be fetched.';
 
             toast.add({
-                title: errorMessage,
+                title: 'Something went wrong!',
+                description: errorMessage,
                 icon: 'i-lucide-x-circle',
                 color: 'red',
             });
@@ -135,7 +137,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                     : e.data?.message || e.message || 'Live search options could not be fetched.';
 
             toast.add({
-                title: errorMessage,
+                title: 'Something went wrong!',
+                description: errorMessage,
                 icon: 'i-lucide-x-circle',
                 color: 'red',
             });
@@ -213,6 +216,10 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         };
 
         try {
+            toast.add({
+                title: 'Your distribution is being saved. This might take a few seconds.',
+            });
+
             const _response = await $fetch('/validate_dataset', {
                 baseURL: apiUrl.value,
                 method: 'POST',
@@ -236,7 +243,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 typeof e.data === 'string' ? e.data : e.data?.message || e.message || 'Validation failed';
 
             toast.add({
-                title: errorMessage,
+                title: 'Something went wrong!',
+                description: errorMessage,
                 icon: 'i-lucide-x-circle',
                 color: 'red',
             });
