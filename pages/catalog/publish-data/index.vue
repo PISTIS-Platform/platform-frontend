@@ -166,8 +166,8 @@ const licenseDetails = ref<Partial<licenseType>>({
     contractBreachDays: '',
     personalDataTerms: '',
     noUseWithBlacklistedDatasets: false,
-    numOfResell: null,
-    numOfShare: null,
+    numOfResell: undefined,
+    numOfShare: undefined,
     canEdit: false,
 });
 

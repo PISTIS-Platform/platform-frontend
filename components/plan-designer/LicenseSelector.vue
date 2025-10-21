@@ -188,8 +188,8 @@ const resetLicenseDetails = (
             nonRenewalDays: '',
             contractBreachDays: '',
             personalDataTerms: '',
-            numOfResell: null,
-            numOfShare: null,
+            numOfResell: undefined,
+            numOfShare: undefined,
         };
     } else if (license.code === LicenseCode.NFT) {
         licenseDetails.value = {

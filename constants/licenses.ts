@@ -18,8 +18,8 @@ Elit proident cupidatat Lorem occaecat in magna aliquip et veniam aliqua consect
         label: 'Creative Commons CC0 1.0 Universal',
         description:
             'The person who associated a work with CC0 1.0 has dedicated the work to the public domain by waiving all of his or her rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. One can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission.',
-        numOfResell: null,
-        numOfShare: null,
+        numOfResell: undefined,
+        numOfShare: undefined,
         canEdit: true,
     },
     {
@@ -27,8 +27,8 @@ Elit proident cupidatat Lorem occaecat in magna aliquip et veniam aliqua consect
         label: 'Creative Commons Attribution 4.0 International',
         description:
             "This licence lets others distribute, remix, tweak, and build upon the author's work, even commercially, as long as they credit the author for the original creation. This is the most accommodating of licences offered. Recommended for maximum dissemination and use of licenced materials.",
-        numOfResell: null,
-        numOfShare: null,
+        numOfResell: undefined,
+        numOfShare: undefined,
         canEdit: true,
     },
     {
@@ -37,7 +37,7 @@ Elit proident cupidatat Lorem occaecat in magna aliquip et veniam aliqua consect
         description:
             "This licence lets others remix, tweak, and build upon the author's work non-commercially, and although their new works must also acknowledge the author and be non-commercial, they don’t have to licence their derivative works on the same terms.",
         numOfResell: 0,
-        numOfShare: null,
+        numOfShare: undefined,
         canEdit: true,
     },
 ].map(
