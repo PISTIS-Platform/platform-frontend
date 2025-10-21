@@ -49,6 +49,7 @@ const monetizationData = ref();
 const offerId = ref('');
 const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
 const buyIsLoading = ref(false);
+const isStream = ref(false);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -108,6 +109,7 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
+        isStream.value = metadata.value.result?.distributions[0]?.title?.en === 'Kafka Stream';
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
@@ -275,7 +277,7 @@ const investOpen = ref(false);
                             <div class="flex flex-row gap-2">
                                 <!-- hide data lineage and quality assessment in marketplace until they work -->
                                 <UButton
-                                    v-if="pistisMode === 'factory'"
+                                    v-if="pistisMode === 'factory' && !isStream"
                                     size="sm"
                                     variant="outline"
                                     :label="$t('buttons.dataLineage')"
