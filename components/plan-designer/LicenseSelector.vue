@@ -87,7 +87,7 @@ type licenseType = z.infer<typeof licenseSchema>;
 
 const licenseSelections = computed(() =>
     props.isFree
-        ? codeSort([...licenses])
+        ? codeSort([...licenses]).filter((license) => license.code !== LicenseCode.NFT)
         : props.monetizationDetails.type === 'nft'
           ? [
                 {
