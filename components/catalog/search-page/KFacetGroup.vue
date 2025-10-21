@@ -4,6 +4,7 @@ import Panel from 'primevue/panel';
 
 import { useDataTruncator } from '@/composables/useDataTruncator';
 import PhCaretDown from '~icons/ph/caret-down';
+import PhCaretUp from '~icons/ph/caret-up';
 
 // import type { Facet } from '../../../utils/types';
 // import Typography from '../typography/Typography.vue';
@@ -20,6 +21,8 @@ defineSlots<{
 const model = defineModel<string[]>();
 const collapsed = defineModel<boolean>('collapsed');
 
+const displayedFacets = props.facets.length > 5 ? 5 : props.facets.length;
+
 const {
     data: truncatedFacets,
     toggle: toggleFacetsTruncation,
@@ -27,7 +30,7 @@ const {
     isTruncationNeeded,
 } = useDataTruncator<Facet>({
     data: props.facets,
-    limit: props.facets.length,
+    limit: displayedFacets,
 });
 
 const panelPreset = {
@@ -158,11 +161,11 @@ const panelPreset = {
                 </li>
                 <li v-if="isTruncationNeeded">
                     <button
-                        class="grid max-h-12 w-full place-content-center border-t-0 bg-surface py-2 cursor-pointer rounded-b-lg"
+                        class="grid max-h-12 w-full place-content-center border-t-0 bg-neutral-50 cursor-pointer rounded-b-lg py-1"
                         @click="toggleFacetsTruncation"
                     >
-                        <i v-if="isTruncated" class="icon-[ph--caret-down]" />
-                        <i v-else class="icon-[ph--caret-up]" />
+                        <PhCaretDown v-if="isTruncated" />
+                        <PhCaretUp v-else />
                     </button>
                 </li>
             </ul>
