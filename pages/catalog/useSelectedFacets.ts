@@ -15,6 +15,7 @@ export function useSelectedFacets() {
         [licenseFacetOption]: refSyncedWithRouteQueryFacet('license', [] as string[]),
         catalog: refSyncedWithRouteQueryFacet('catalog', [] as string[]),
         isInvestmentActive: refSyncedWithRouteQueryFacet('investment_offer.is_active', [] as string[]),
+        keywords: refSyncedWithRouteQueryFacet('keywords', [] as string[]),
     };
 }
 

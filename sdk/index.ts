@@ -33,6 +33,7 @@ export function useDcatApSearch() {
                 'license',
                 'catalog',
                 'investment_offer.is_active',
+                'keywords',
             ],
         },
         (dataset, localeInstance) => {
