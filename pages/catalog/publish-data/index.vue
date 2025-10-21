@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
+import { LicenseCode } from '~/constants/licenses';
 import { DatasetKind } from '~/interfaces/dataset.enum';
 import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
@@ -165,8 +166,9 @@ const licenseDetails = ref<Partial<licenseType>>({
     contractBreachDays: '',
     personalDataTerms: '',
     noUseWithBlacklistedDatasets: false,
-    numOfResell: null,
-    numOfShare: null,
+    numOfResell: undefined,
+    numOfShare: undefined,
+    canEdit: false,
 });
 
 const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema(monetizationDetails);
@@ -200,6 +202,7 @@ const bodyToSend = computed(() => {
             title: assetOfferingDetails.value.title,
             description: assetOfferingDetails.value.description,
             license: licenseDetails.value.license,
+            contractTerms: licenseDetails.value.contractTerms,
             accessPolicies: {
                 assetId: selectedAsset.value?.id,
                 assetTitle: assetOfferingDetails.value.title,
@@ -207,6 +210,46 @@ const bodyToSend = computed(() => {
                 policyData: policyData,
             },
             sellerId: accountData.value?.user.sub,
+        };
+    } else if (licenseDetails.value.license === LicenseCode.PISTIS) {
+        return {
+            assetId: newAssetId,
+            originalAssetId: selectedAsset.value?.id,
+            organizationId: runtimeConfig.public?.orgId,
+            organizationName: accountData.value?.user.orgName,
+            ...monetizationDetails.value,
+            distributionId: assetOfferingDetails.value.selectedDistribution.id,
+            title: assetOfferingDetails.value.title,
+            description: assetOfferingDetails.value.description,
+            keywords: assetOfferingDetails.value.keywords,
+            type: monetizationDetails.value.type,
+            subscriptionFrequency: monetizationDetails.value.subscriptionFrequency,
+            updateFrequency: monetizationDetails.value.updateFrequency,
+            price: monetizationDetails.value.price,
+            license: licenseDetails.value.license,
+            extraTerms: licenseDetails.value.extraTerms,
+            contractTerms: licenseDetails.value.contractTerms,
+            canEdit: false,
+            region: licenseDetails.value?.region ? licenseDetails.value?.region?.join(', ') : '',
+            isExclusive: licenseDetails.value.isExclusive,
+            transferable: licenseDetails.value.transferable,
+            duration: typeof licenseDetails.value.duration === 'number' ? licenseDetails.value.duration : null,
+            perpetual: typeof licenseDetails.value.duration === 'string' ? licenseDetails.value.duration : null,
+            noUseWithBlacklistedDatasets: licenseDetails.value.noUseWithBlacklistedDatasets,
+            additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
+            nonRenewalDays: licenseDetails.value.nonRenewalDays,
+            contractBreachDays: licenseDetails.value.contractBreachDays,
+            containsPersonalData: hasPersonalData.value,
+            personalDataTerms: licenseDetails.value.personalDataTerms,
+            accessPolicies: {
+                assetId: newAssetId,
+                assetTitle: assetOfferingDetails.value.title,
+                assetDescription: assetOfferingDetails.value.description,
+                policyData: policyData,
+            },
+            sellerId: accountData.value?.user.sub,
+            numOfResell: licenseDetails.value.numOfResell,
+            numOfShare: licenseDetails.value.numOfShare,
         };
     }
 
@@ -225,20 +268,7 @@ const bodyToSend = computed(() => {
         updateFrequency: monetizationDetails.value.updateFrequency,
         price: monetizationDetails.value.price,
         license: licenseDetails.value.license,
-        extraTerms: licenseDetails.value.extraTerms,
         contractTerms: licenseDetails.value.contractTerms,
-        canEdit: false, //FIXME: Where do we get this?
-        region: licenseDetails.value?.region ? licenseDetails.value?.region?.join(', ') : '',
-        isExclusive: licenseDetails.value.isExclusive,
-        transferable: licenseDetails.value.transferable,
-        duration: typeof licenseDetails.value.duration === 'number' ? licenseDetails.value.duration : null,
-        perpetual: typeof licenseDetails.value.duration === 'string' ? licenseDetails.value.duration : null,
-        noUseWithBlacklistedDatasets: licenseDetails.value.noUseWithBlacklistedDatasets,
-        additionalRenewalTerms: licenseDetails.value.additionalRenewalTerms,
-        nonRenewalDays: licenseDetails.value.nonRenewalDays,
-        contractBreachDays: licenseDetails.value.contractBreachDays,
-        containsPersonalData: hasPersonalData.value,
-        personalDataTerms: licenseDetails.value.personalDataTerms,
         accessPolicies: {
             assetId: newAssetId,
             assetTitle: assetOfferingDetails.value.title,
@@ -246,8 +276,9 @@ const bodyToSend = computed(() => {
             policyData: policyData,
         },
         sellerId: accountData.value?.user.sub,
-        numOfResell: licenseDetails.value.numOfResell ?? 0,
-        numOfShare: licenseDetails.value.numOfShare ?? 0,
+        numOfResell: licenseDetails.value.numOfResell,
+        numOfShare: licenseDetails.value.numOfShare,
+        canEdit: licenseDetails.value.canEdit,
     };
 });
 

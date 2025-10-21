@@ -224,7 +224,7 @@ const subscriptionMapping: Record<string, string> = {
                         }}</span>
                     </div>
                 </div>
-                <div v-if="monetizationDetails.type !== 'nft'">
+                <div v-if="monetizationDetails.type !== 'nft' && monetizationDetails.price !== 0">
                     <UButton
                         v-if="!showValuationData"
                         :disabled="loadingValuation"

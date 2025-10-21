@@ -1,96 +1,33 @@
 <script setup lang="ts">
-const R = useRamda();
-import dayjs from 'dayjs';
-import { useI18n } from 'vue-i18n';
-
-import type { SortOptions } from '~/interfaces/table';
-
 const { t } = useI18n();
-const incoming = ref([
-    {
-        date: '',
-        id: '',
-        amount: '',
-        type: 'Incoming',
-    },
-]);
-const outgoing = ref([
-    {
-        date: '',
-        id: '',
-        amount: '',
-        type: 'Outgoing',
-    },
-]);
+import dayjs from 'dayjs';
+import * as R from 'ramda';
 
-const sort = ref<SortOptions>({
-    column: 'date',
-    direction: 'desc',
-});
+const { data: session } = useAuth();
 
-const currentBalance = ref(null);
+const currentBalance = ref();
+const isLoadingWallet = ref(true);
 
-const monthlyIncome = ref(0);
-const monthlyOutcome = ref(0);
-
-const isHovered = ref();
-const { status: balanceStatus } = await useLazyFetch(`/api/wallet`, {
+await useLazyFetch(`/api/wallet`, {
     method: 'post',
     async onResponse({ response }) {
         currentBalance.value = response._data;
-        await useLazyFetch('/api/wallet/transactions-data', {
-            method: 'post',
-            async onResponse({ response }) {
-                const transactions = response._data;
-                //FIXME: In the future we might show NFTs but not now
-                incoming.value = transactions.incoming
-                    .filter((item) => item.payload.Basic)
-                    .map((item) => {
-                        return {
-                            date: item.included_at,
-                            id: item.transaction_id,
-                            amount: item.payload.Basic.amount,
-                            type: 'Incoming',
-                        };
-                    });
-
-                //FIXME: In the future we might show NFTs but not now
-                outgoing.value = transactions.outgoing
-                    .filter((item) => item.payload.Basic)
-                    .map((item) => {
-                        return {
-                            date: item.included_at,
-                            id: item.transaction_id,
-                            amount: item.payload.Basic.amount,
-                            type: 'Outgoing',
-                        };
-                    });
-                monthlyIncome.value = incoming.value.reduce((sum, transaction) => {
-                    return sum + transaction.amount;
-                }, 0);
-                monthlyOutcome.value = outgoing.value.reduce((sum, transaction) => {
-                    return sum + transaction.amount;
-                }, 0);
-            },
-        });
+        isLoadingWallet.value = false;
     },
 });
-
-const transactionsData = computed(() => [...outgoing.value, ...incoming.value]);
 
 //cards info data
 const cardInfoData = computed(() => [
     {
-        title: t('data.wallet.monthlyIncome'),
+        title: t('transactions.monthlyIncome'),
         iconName: 'i-heroicons-banknotes-20-solid',
-        amount: monthlyIncome.value.toFixed(2),
+        amount: incoming.value.toFixed(2),
         textColor: 'text-green-800',
     },
-
     {
-        title: t('data.wallet.monthlyExpenses'),
+        title: t('transactions.monthlyExpenses'),
         iconName: 'i-heroicons-briefcase-solid',
-        amount: monthlyOutcome.value.toFixed(2),
+        amount: outgoing.value.toFixed(2),
         textColor: 'text-red-800',
     },
     {
@@ -101,65 +38,107 @@ const cardInfoData = computed(() => [
     },
 ]);
 
-const transactionsColumns: any = [
+const columns = [
     {
-        key: 'date',
-        label: 'Date',
+        key: 'createdAt',
+        label: t('transactions.date'),
         sortable: true,
-        direction: 'desc',
-        class: 'w-1/5',
+        class: 'text-center w-12',
     },
-    // {
-    //     key: 'fromTo',
-    //     label: 'Buyer / Seller',
-    //     sortable: true,
-    //     class: 'w-1/4',
-    // },
     {
         key: 'type',
-        label: 'Type',
-        sortable: true,
-        class: 'text-center w-1/5',
+        label: t('transactions.type'),
+        class: 'text-center w-12',
     },
     {
         key: 'amount',
-        label: 'Amount(EUR)',
+        label: t('transactions.amount'),
         sortable: true,
-        class: 'text-center w-1/5',
+        class: 'text-center w-12 text-nowrap',
     },
     {
-        key: 'id',
-        label: 'Transaction ID',
+        key: 'assetName',
+        label: t('transactions.assetName'),
         sortable: true,
-        class: 'w-1/5',
+        class: 'text-left',
+    },
+    {
+        key: 'factorySellerName',
+        label: t('transactions.provider'),
+        sortable: true,
+        class: 'text-center w-12',
+    },
+    {
+        key: 'factoryBuyerName',
+        label: t('transactions.consumer'),
+        sortable: true,
+        class: 'text-center w-12',
     },
 ];
-const pageCount = 10;
 
-const { page, paginatedRows, sortBy } = useTable(transactionsData, pageCount, sort);
+const page = ref(1);
 
-// const fixedAmount = (item: number) => {
-//     return item.toFixed(2);
-// };
-//TODO: Uncomment this in case we add more info in table
-// const truncateId = (item: string, length: number) => {
-//     return item.length > length ? item.slice(0, length) + '...' : item;
-// };
+const data = computed(() => transactionsData.value.data);
+
+const { rows, sortBy, searchString } = useTable(data, 15, {
+    column: 'createdAt',
+    direction: 'desc',
+});
+
+const rawInput = ref('');
+let timeout = null;
+
+//debounce the search bar
+watch(rawInput, (newVal) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        searchString.value = newVal.toLowerCase();
+    }, 500);
+});
+
+const sortByColumn = computed(() => sortBy.value.column);
+const sortByDirection = computed(() => sortBy.value.direction);
+
+const totalCount = computed(() => transactionsData.value.meta.totalItems);
+
+const {
+    data: transactionsData,
+    status: transactionsStatus,
+    error,
+} = useFetch<any>(`/api/wallet/transactions`, {
+    method: 'GET',
+    query: {
+        page,
+        sortByColumn,
+        sortByDirection,
+        searchString,
+    },
+});
+
+const incoming = computed(() => {
+    const list = transactionsData.value?.data ?? [];
+    const orgId = session.value?.orgId;
+    if (!orgId || !Array.isArray(list)) return 0;
+    return list
+        .filter((tx: any) => tx.factorySellerId === orgId)
+        .reduce((acc: number, tx: any) => acc + (tx.amount ?? 0), 0);
+});
+
+const outgoing = computed(() => {
+    const list = transactionsData.value?.data ?? [];
+    const orgId = session.value?.orgId;
+    if (!orgId || !Array.isArray(list)) return 0;
+    return list
+        .filter((tx: any) => tx.factoryBuyerId === orgId)
+        .reduce((acc: number, tx: any) => acc + (tx.amount ?? 0), 0);
+});
 </script>
 
 <template>
-    <PageContainer>
-        <div class="w-full h-full px-6 xl:px-0">
-            <!-- Cards Info -->
-            <div v-if="balanceStatus === 'pending'" class="flex w-full gap-4 mt-8">
-                <USkeleton
-                    v-for="item in new Array(3)"
-                    :key="item"
-                    :ui="{ background: 'bg-gray-200' }"
-                    class="h-[84px] w-full"
-                />
-            </div>
-            <div v-else class="flex flex-col md:flex-row gap-6 lg:gap-8 w-full mt-8">
+    <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full pt-6">
+        <ErrorCard v-if="error" :error-msg="error.data?.data?.message" class="mt-6" />
+        <PageContainer v-else>
+            <div class="flex flex-col md:flex-row gap-6 w-full">
                 <WalletCard
                     v-for="card in cardInfoData"
                     :key="card.title"
@@ -168,64 +147,117 @@ const { page, paginatedRows, sortBy } = useTable(transactionsData, pageCount, so
                     :amount="card.amount"
                     :icon-name="card.iconName"
                     :text-color="card.textColor"
+                    :loading="isLoadingWallet"
                 />
             </div>
-            <!-- Transactions -->
-            <div class="flex flex-col w-full mt-8">
-                <USkeleton
-                    v-if="balanceStatus === 'pending'"
-                    :ui="{ background: 'bg-gray-200' }"
-                    class="w-full h-96 mb-8"
-                />
-                <UCard v-else class="mb-8">
+            <div v-if="transactionsStatus === 'pending'" class="flex flex-col w-full text-lg mt-6">
+                <UProgress animation="carousel" color="primary" />
+            </div>
+            <div v-else class="w-full mt-6">
+                <UCard>
                     <template #header>
-                        <SubHeading :title="$t('data.wallet.transactions.title')" />
+                        <div class="flex items-center justify-between w-full">
+                            <span class="font-bold text-lg">{{ $t('transactions.title') }}</span>
+                            <UInput
+                                v-model="rawInput"
+                                icon="i-heroicons-magnifying-glass-20-solid"
+                                size="md"
+                                color="white"
+                                :trailing="false"
+                                :placeholder="$t('transactions.inputMessage')"
+                                class="w-64"
+                            />
+                        </div>
                     </template>
-                    <UTable v-model:sort="sortBy" :columns="transactionsColumns" :rows="paginatedRows">
-                        <template #date-data="{ row }">
-                            <span>{{ dayjs(row.date).format('DD/MM/YYYY') }}</span>
+
+                    <UTable
+                        v-model:sort="sortBy"
+                        v-model:expand="expand"
+                        :columns="columns"
+                        :rows="rows"
+                        :empty-state="{
+                            icon: 'i-heroicons-circle-stack-20-solid',
+                            label: $t('wallet.noTransactions'),
+                        }"
+                    >
+                        <template #createdAt-data="{ row }">
+                            <span v-if="row.createdAt" class="flex items-center justify-center">{{
+                                dayjs(row.createdAt).format('DD/MM/YYYY')
+                            }}</span>
+                            <span v-else>&mdash;</span>
                         </template>
-                        <template #type-data="{ row }">
-                            <div class="text-center">
-                                <span
-                                    :class="[
-                                        'rounded-md px-4 py-1 font-medium',
-                                        row.type === 'Incoming'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-red-100 text-red-800',
-                                    ]"
-                                    >{{ row.type }}
-                                </span>
-                            </div>
-                        </template>
-                        <template #fromTo-data="{ row }">
-                            <span>{{ row?.from ?? row.to }} </span>
-                        </template>
+
                         <template #amount-data="{ row }">
-                            <div class="text-center font-semibold">
-                                <span>{{ !R.isNil(row?.amount) ? row.amount.toFixed(2) : 'N/A' }}</span>
-                            </div>
+                            <span class="flex items-center justify-center font-bold">
+                                {{ row.amount.toFixed(2) }} EUR
+                            </span>
                         </template>
-                        <template #id-data="{ row }">
-                            <div @mouseover="isHovered = row.id" @mouseleave="isHovered = null">
-                                <!-- <UTooltip arrow :text="row.id">
-                                    {{ truncateId(row.id, 10) }}
-                                </UTooltip> -->
-                                {{ row.id }}
-                            </div>
+
+                        <template #assetName-data="{ row }">
+                            <span class="flex items-center justify-start">
+                                <span>
+                                    <a
+                                        :href="`/marketplace/dataset-details/${row.assetId}?pm=cloud`"
+                                        target="_blank"
+                                        class="text-primary"
+                                        >{{ row.assetName }}</a
+                                    >
+                                </span>
+                            </span>
+                        </template>
+
+                        <template #factorySellerName-data="{ row }">
+                            <UTooltip
+                                :text="row.factorySellerName"
+                                :ui="{ width: 'max-w-lg' }"
+                                :popper="{ placement: 'top' }"
+                                class="flex items-center justify-center"
+                            >
+                                <span class="flex items-center justify-start">
+                                    {{ row.factorySellerName }}
+                                </span>
+                            </UTooltip>
+                        </template>
+
+                        <template #factoryBuyerName-data="{ row }">
+                            <UTooltip
+                                :text="row.factoryBuyerName"
+                                :ui="{ width: 'max-w-lg' }"
+                                :popper="{ placement: 'top' }"
+                                class="flex items-center justify-center"
+                            >
+                                <span class="flex items-center justify-start">
+                                    {{ row.factoryBuyerName }}
+                                </span>
+                            </UTooltip>
+                        </template>
+
+                        <template #type-data="{ row }">
+                            <span class="flex justify-center">
+                                <UBadge v-if="row.factoryBuyerId === session?.orgId" variant="subtle" color="red">{{
+                                    $t('transactions.outgoing')
+                                }}</UBadge>
+                                <UBadge v-else variant="subtle" color="green">{{ $t('transactions.incoming') }}</UBadge>
+                            </span>
                         </template>
                     </UTable>
-                    <!-- Display the pagination only if the total number of transactions is larger than the page count -->
-                    <div v-if="transactionsData && transactionsData?.length > pageCount" class="flex justify-end mt-2">
+                    <div class="flex justify-end mt-2">
                         <UPagination
+                            v-if="data && data?.length > 10"
                             v-model="page"
-                            :page-count="pageCount"
-                            :total="transactionsData?.length"
+                            :page-count="10"
+                            :total="totalCount"
                             :active-button="{ variant: 'outline' }"
                         />
                     </div>
                 </UCard>
             </div>
-        </div>
-    </PageContainer>
+        </PageContainer>
+    </div>
 </template>
+
+<style scoped>
+::v-deep tr td:first-child {
+    width: 50px !important;
+}
+</style>

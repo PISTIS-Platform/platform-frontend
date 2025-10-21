@@ -9,8 +9,9 @@ import { dcatApDataset, defineHubSearch, getTranslationFor } from '@piveau/sdk-v
 import DOMPurify from 'isomorphic-dompurify';
 import { marked } from 'marked';
 
-import type { EnhancedSearchResult } from '/composables/useDatasetsSearchView';
 import { useApiService } from '~/services/apiService';
+
+import type { EnhancedSearchResult } from '../pages/catalog/useDatasetsSearchView';
 
 export function useDcatApSearch() {
     const route = useRoute();
@@ -23,7 +24,16 @@ export function useDcatApSearch() {
             index: 'dataset',
             indexDetails: 'datasets',
             schema: SchemaDataset,
-            facets: ['monetizationType', 'is_free', 'categories', 'publisher', 'format', 'license', 'catalog'],
+            facets: [
+                'monetizationType',
+                'is_free',
+                'categories',
+                'publisher',
+                'format',
+                'license',
+                'catalog',
+                'investment_offer.is_active',
+            ],
         },
         (dataset, localeInstance) => {
             const { setup: dcatApDatasetSetup } = dcatApDataset({ baseUrlHubRepo: getSearchUrl() ?? '/' });
@@ -49,7 +59,13 @@ export function useDcatApSearch() {
                         ].join(', '),
                     },
                     { title: 'provider', text: baseGetters.getPublisher?.name || '' },
-                    { title: 'license', text: baseGetters.getLicenses?.[0] || '' },
+                    {
+                        title: 'license',
+                        text:
+                            pistisMode === 'cloud'
+                                ? dataset.monetization?.[0]?.purchase_offer?.[0]?.license?.label || ''
+                                : baseGetters.getLicenses?.[0] || '',
+                    },
                 ],
             };
 

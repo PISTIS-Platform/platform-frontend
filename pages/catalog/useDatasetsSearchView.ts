@@ -2,7 +2,7 @@ import type { Publisher } from '@piveau/sdk-core';
 import type { HubSearchDefinition } from '@piveau/sdk-vue';
 
 import { useDcatApSearch } from '@/sdk';
-import { getLocalizedValue } from '@/sdk/utils/helpers';
+import { getLocalizedValue } from '~/sdk/utils/helpers';
 
 import { useSearchInput } from './useSearchInput';
 import { useSearchParams } from './useSearchParams';
@@ -126,17 +126,30 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
                 ?.map((facet) => ({
                     id: facet.id,
                     label: t(`datasetFacets.facets.${facet.id}`) ?? facet.id,
-                    items: facet.items.map((item, index) => ({
-                        id: item.id || `${index}`,
-                        label:
+                    items: facet.items.map((item, index) => {
+                        const facetLabel =
                             typeof item.title === 'string'
                                 ? item.title
                                 : !item.title
                                   ? (item.id ?? `item${index}` ?? '')
-                                  : getLocalizedValue({ obj: item.title, fallbackLocale: 'en' }),
-                        count: item.count ?? 0,
-                        value: item.id ?? '__value__',
-                    })),
+                                  : getLocalizedValue({ obj: item.title, fallbackLocale: 'en' });
+
+                        const labelMappings = {
+                            'is_free|true': 'free datasets',
+                            'is_free|false': 'paid datasets',
+                            'isInvestmentActive|true': 'active',
+                        };
+
+                        const labelKey = `${facet.id}|${facetLabel}`;
+                        const label = labelMappings[labelKey] ?? facetLabel;
+
+                        return {
+                            id: item.id || `${index}`,
+                            label,
+                            count: item.count ?? 0,
+                            value: item.id ?? '__value__',
+                        };
+                    }),
                 }))
                 .filter((facet) => Object.keys(unref(selectedFacets)).includes(facet.id)) || []
         );

@@ -9,37 +9,25 @@ const config = useRuntimeConfig();
 
 const columns = [
     {
-        key: 'date',
-        label: t('invest.dateInvested'),
-        sortable: true,
-        class: 'text-center w-1/6',
-    },
-    {
         key: 'title',
         label: t('invest.datasetTitle'),
         sortable: true,
     },
     {
-        key: 'shares',
-        label: t('invest.sharesTitle'),
+        key: 'percentage',
+        label: t('invest.percentage'),
         sortable: true,
         class: 'text-center w-1/6',
     },
     {
-        key: 'price',
-        label: t('invest.sharePrice'),
+        key: 'status',
+        label: t('invest.status'),
         sortable: true,
         class: 'text-center w-1/6',
     },
     {
-        key: 'total',
-        label: t('invest.total'),
-        sortable: true,
-        class: 'text-center w-1/6',
-    },
-    {
-        key: 'expirationDate',
-        label: t('invest.validUntil'),
+        key: 'date',
+        label: t('invest.dateInvested'),
         sortable: true,
         class: 'text-center w-1/6',
     },
@@ -60,18 +48,19 @@ const sort = ref({
 const { page, paginatedRows, sortBy } = useTable(data, pageCount, sort);
 
 const investOpen = ref(false);
-
+const investedShares = ref(0);
 const assetId = ref();
 
-const openModal = (id: string) => {
+const openModal = (id: string, shares: number) => {
     assetId.value = id;
     investOpen.value = true;
+    investedShares.value = shares;
 };
 </script>
 
 <template>
     <UModal v-model="investOpen" :ui="{ width: 'sm:max-w-5xl', overlay: { background: 'bg-gray-800/75' } }">
-        <InvestViewer :asset-id="assetId" @close-modal="investOpen = false" />
+        <InvestViewer :asset-id="assetId" hide-buy :shares="investedShares" @close-modal="investOpen = false" />
     </UModal>
     <div class="justify-center items-center max-w-7xl w-full text-gray-600">
         <PageContainer>
@@ -115,16 +104,15 @@ const openModal = (id: string) => {
                             </UTooltip>
                         </template>
 
-                        <template #shares-data="{ row }">
-                            <span class="flex justify-center">{{ row.shares }}</span>
-                        </template>
-
-                        <template #price-data="{ row }">
-                            <span class="flex justify-center font-semibold">{{ row.price }} &euro;</span>
-                        </template>
-
-                        <template #total-data="{ row }">
-                            <span class="flex justify-center font-semibold">{{ row.total }} &euro;</span>
+                        <template #percentage-data="{ row }">
+                            <span class="flex justify-center font-semibold"
+                                >{{
+                                    (
+                                        (row.investmentPlan.percentageOffer / row.investmentPlan.totalShares) *
+                                        row.shares
+                                    ).toFixed(2)
+                                }}%</span
+                            >
                         </template>
 
                         <template #expirationDate-data="{ row }">
@@ -135,7 +123,25 @@ const openModal = (id: string) => {
 
                         <template #view-data="{ row }">
                             <span class="flex justify-center">
-                                <UButton variant="soft" @click="openModal(row.assetId)">{{ $t('view') }}</UButton>
+                                <UButton variant="soft" @click="openModal(row.assetId, row.shares)">{{
+                                    $t('view')
+                                }}</UButton>
+                            </span>
+                        </template>
+
+                        <template #status-data="{ row }">
+                            <span class="flex justify-center">
+                                <UTooltip
+                                    :prevent="!row.investmentPlan.status"
+                                    :text="`${$t('invest.becomesActive')} ${dayjs(row.investmentPlan.dueDate).format('DD/MM/YYYY')}`"
+                                    :popper="{ placement: 'top' }"
+                                    class="cursor-pointer"
+                                >
+                                    <UBadge v-if="row.investmentPlan.status" variant="soft" color="yellow">{{
+                                        $t('invest.ongoing')
+                                    }}</UBadge>
+                                    <UBadge v-else variant="soft" color="green">{{ $t('invest.active') }}</UBadge>
+                                </UTooltip>
                             </span>
                         </template>
                     </UTable>

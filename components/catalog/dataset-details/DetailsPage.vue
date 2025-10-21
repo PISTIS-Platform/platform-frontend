@@ -239,7 +239,7 @@ const investOpen = ref(false);
 
 <template>
     <UModal v-model="investOpen" :ui="{ width: 'sm:max-w-5xl', overlay: { background: 'bg-gray-800/75' } }">
-        <InvestViewer :asset-id="props.datasetId" @close-modal="investOpen = false" />
+        <InvestViewer :asset-id="props.datasetId" :monetization="monetizationData" @close-modal="investOpen = false" />
     </UModal>
 
     <div v-if="error" class="grid size-full place-content-center bg-bg-base">
