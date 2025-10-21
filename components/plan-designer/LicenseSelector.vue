@@ -156,7 +156,18 @@ const isOpen = ref(false);
 
 const licenseRef = ref<{ code: string; label: string; description?: string } | null>(null);
 
-const resetLicenseDetails = (license: { code: string; label: string; description?: string } | undefined) => {
+const resetLicenseDetails = (
+    license:
+        | {
+              code: string;
+              label: string;
+              description?: string;
+              numOfResell?: number;
+              numOfShare?: number;
+              canEdit?: boolean;
+          }
+        | undefined,
+) => {
     if (!license) return;
 
     isOpen.value = false;
@@ -180,10 +191,18 @@ const resetLicenseDetails = (license: { code: string; label: string; description
             numOfResell: null,
             numOfShare: null,
         };
+    } else if (license.code === LicenseCode.NFT) {
+        licenseDetails.value = {
+            license: license.code,
+            contractTerms: btoa(encodeURIComponent(`<p>${license.description}</p>`)),
+        };
     } else {
         licenseDetails.value = {
             license: license.code,
             contractTerms: btoa(encodeURIComponent(`<p>${license.description}</p>`)),
+            numOfResell: license.numOfResell,
+            numOfShare: license.numOfSell,
+            canEdit: license.canEdit,
         };
     }
 };

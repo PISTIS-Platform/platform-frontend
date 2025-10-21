@@ -168,6 +168,7 @@ const licenseDetails = ref<Partial<licenseType>>({
     noUseWithBlacklistedDatasets: false,
     numOfResell: null,
     numOfShare: null,
+    canEdit: false,
 });
 
 const { isWorldwide, hasPersonalData, licenseSchema } = useLicenseSchema(monetizationDetails);
@@ -228,7 +229,7 @@ const bodyToSend = computed(() => {
             license: licenseDetails.value.license,
             extraTerms: licenseDetails.value.extraTerms,
             contractTerms: licenseDetails.value.contractTerms,
-            canEdit: false, //FIXME: Where do we get this?
+            canEdit: false,
             region: licenseDetails.value?.region ? licenseDetails.value?.region?.join(', ') : '',
             isExclusive: licenseDetails.value.isExclusive,
             transferable: licenseDetails.value.transferable,
@@ -247,8 +248,8 @@ const bodyToSend = computed(() => {
                 policyData: policyData,
             },
             sellerId: accountData.value?.user.sub,
-            numOfResell: licenseDetails.value.numOfResell ?? 0,
-            numOfShare: licenseDetails.value.numOfShare ?? 0,
+            numOfResell: licenseDetails.value.numOfResell,
+            numOfShare: licenseDetails.value.numOfShare,
         };
     }
 
@@ -275,6 +276,9 @@ const bodyToSend = computed(() => {
             policyData: policyData,
         },
         sellerId: accountData.value?.user.sub,
+        numOfResell: licenseDetails.value.numOfResell,
+        numOfShare: licenseDetails.value.numOfShare,
+        canEdit: licenseDetails.value.canEdit,
     };
 });
 
