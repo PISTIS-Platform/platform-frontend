@@ -119,6 +119,10 @@ store.setBackendUrl(backendUrl);
 store.setDatasetFactoryUrl(datasetFactoryUrl);
 
 const token = session.value?.token;
+
+// Reset display state to first tab when navigating to a new lineage page
+store.displayState = 'tracker';
+
 // Initialize data fetch
 store.fetchData(lineageID, token);
 // store.loadMockData();
