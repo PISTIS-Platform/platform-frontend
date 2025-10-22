@@ -1271,26 +1271,37 @@ const _getColumnType = (columnName, datasetKey) => {
 /* Error card styling - matching Dataset Lineage page design */
 .error-card {
     background: #ffffff;
-    border: 1px solid #f5c6cb;
+    border: 1px solid #e2e8f0;
     border-left: 4px solid #dc3545;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+    margin: 16px 0;
 }
 
 .error-card h4 {
     font-size: 20px;
     font-weight: 600;
     color: #721c24;
-    margin: 0 0 8px 0;
+    margin: 0 0 12px 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .error-card h4::before {
     content: '⚠️';
-    font-size: 22px;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    font-size: 16px;
 }
 
 .error-card p {
@@ -1298,16 +1309,32 @@ const _getColumnType = (columnName, datasetKey) => {
     color: #721c24;
     margin: 0 0 20px 0;
     line-height: 1.6;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .error-card .retry-button {
     background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .error-card .retry-button:hover {
     background: #c82333;
+    transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.error-card .retry-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
 }
 
 .btn-primary {
