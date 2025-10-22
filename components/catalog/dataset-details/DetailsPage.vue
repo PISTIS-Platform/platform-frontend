@@ -48,6 +48,7 @@ const investPrice = ref('');
 const monetizationData = ref();
 const offerId = ref('');
 const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
+const rateDatasetUrl = computed(() => getFeedbackUrl(offerId.value));
 const buyIsLoading = ref(false);
 const isStream = ref(false);
 
@@ -322,7 +323,7 @@ const investOpen = ref(false);
                                         color="secondary"
                                         variant="outline"
                                         label="Rate Dataset"
-                                        :to="feedbackUrl"
+                                        :to="rateDatasetUrl"
                                     ></UButton>
                                 </template>
                                 <template v-if="pistisMode === 'factory' && catalog === 'acquired-data'"></template>
