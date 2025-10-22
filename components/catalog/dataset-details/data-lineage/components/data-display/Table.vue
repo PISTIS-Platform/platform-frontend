@@ -217,7 +217,7 @@
                                     <!-- No changes message for Update activity with no actual changes -->
                                     <div
                                         v-if="
-                                            row.activity.toUpperCase() === 'UPDATE' &&
+                                            row.activity === 'DATASET UPDATED' &&
                                             hasNoOperationChanges(row.operation_description)
                                         "
                                         class="no-changes-message"
@@ -688,18 +688,8 @@ const parseDataTransformations = (transformations) => {
         intro = introMatch[1].trim();
     }
 
-    // Split the transformations by looking for lines that start with a dash
-    // This captures the entire transformation item even if it contains colons or commas
-    const transformationItems = transformations.split(/\n\s*-\s+/).slice(1);
-
-    // If no items were found using newlines, try splitting on dash with space directly
-    if (transformationItems.length === 0 && transformations.includes('- ')) {
-        const dashIndex = transformations.indexOf('- ');
-        if (dashIndex > -1) {
-            const item = transformations.substring(dashIndex + 2).trim();
-            transformationItems.push(item);
-        }
-    }
+    // Split by "   - "
+    const transformationItems = transformations.split(/\s{3}-\s+/).slice(1);
 
     // Process each transformation item
     for (const item of transformationItems) {
@@ -1421,12 +1411,11 @@ tbody tr.highlighted-red td.version-column {
     font-size: 0.95em;
     line-height: 1.4;
     padding: 8px 10px;
-    background-color: rgba(240, 240, 250, 0.6);
+    background-color: rgba(86, 50, 208, 0.05);
     border-radius: 4px;
-    color: #555;
-    font-style: italic;
+    color: #444;
     text-align: left;
-    border-left: 3px solid #aaa;
+    border-left: 3px solid #5632d0;
     margin: 4px 0;
 }
 
