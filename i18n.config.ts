@@ -559,6 +559,7 @@ export default defineI18nConfig(() => ({
                     investors: 'investors',
                     saveInvestmentPlan: 'Save Investment Plan',
                     pleaseCheck: 'Please check the form and fill in all required (*) fields',
+                    pleaseKeywords: 'Please enter each keyword by typing a comma or the enter button after it',
                     availability: 'Availability',
                     regionCountry: 'Select a country',
                     worldwide: 'Worldwide',

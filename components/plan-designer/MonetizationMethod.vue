@@ -161,6 +161,9 @@ async function onSubmit(): Promise<void> {
     } else if (isMonetizationValid.value && isAssetOfferingDetailsValid.value) {
         emit('changePage', 2);
     } else {
+        if (props.assetOfferingDetails.keywords.length < 1) {
+            showErrorMessage(t('data.designer.pleaseKeywords'));
+        }
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
