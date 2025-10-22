@@ -113,6 +113,8 @@ const liveSearchResult = computed(() => store.liveSearchResult);
 
 const { selectColumn, setColumnStatus } = store;
 
+const toast = useToast();
+
 // Reactive state
 const search = ref({});
 const selected = ref(false);
@@ -125,30 +127,38 @@ const selectedColumn = ref(props.column);
 const selectOption = (value) => {
     if (!value) return;
 
-    selected.value = true;
-    emit('selected');
+    if (isUnique(value.name)) {
+        selected.value = true;
+        emit('selected');
 
-    const columnId = props.id;
-    const name = value.name;
-    selectedColumn.value = value;
+        const columnId = props.id;
+        const name = value.name;
+        selectedColumn.value = value;
 
-    transformable.value = isTransformable(dataType.value, selectedColumn.value.dataType);
+        transformable.value = isTransformable(dataType.value, selectedColumn.value.dataType);
 
-    setColumnStatus({
-        id: columnId,
-        selected: selected.value,
-        transformable: transformable.value,
-        name: name,
-    });
+        setColumnStatus({
+            id: columnId,
+            selected: selected.value,
+            transformable: transformable.value,
+            name: name,
+        });
 
-    selectColumn({
-        id: columnId,
-        selectedColumn: {
-            dataType: selectedColumn.value.dataType,
-            name: selectedColumn.value.name,
-            nameURI: selectedColumn.value.nameURI,
-        },
-    });
+        selectColumn({
+            id: columnId,
+            selectedColumn: {
+                dataType: selectedColumn.value.dataType,
+                name: selectedColumn.value.name,
+                nameURI: selectedColumn.value.nameURI,
+            },
+        });
+    } else {
+        toast.add({
+            title: 'Warning',
+            description: 'The value of each column property must be unique.',
+            color: 'orange',
+        });
+    }
 };
 
 const isTransformable = (initialType, dataType) => {
@@ -195,6 +205,10 @@ const reset = () => {
             name: '',
         });
     }
+};
+
+const isUnique = (name) => {
+    return !columnsStatus.value.some((column) => column.name.trim().toLowerCase() === name.trim().toLowerCase());
 };
 
 onMounted(() => {
