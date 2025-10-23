@@ -51,6 +51,7 @@ const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
 const rateDatasetUrl = computed(() => getFeedbackUrl(offerId.value));
 const buyIsLoading = ref(false);
 const isStream = ref(false);
+const isLoading = ref(true);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -79,6 +80,8 @@ const setAccessID = async (data) => {
         }
     } catch (error) {
         console.error('Error fetching access ID:', error);
+    } finally {
+        isLoading.value = false;
     }
 };
 
@@ -403,7 +406,7 @@ const investOpen = ref(false);
 
                     <slot name="sections"></slot>
 
-                    <UCard v-if="pistisMode === 'cloud' && !isNFT">
+                    <UCard v-if="pistisMode === 'cloud' && !isLoading && !isNFT">
                         <template #header>
                             <SubHeading :title="$t('matchmakingService.recommendationsHeader')" />
                         </template>
