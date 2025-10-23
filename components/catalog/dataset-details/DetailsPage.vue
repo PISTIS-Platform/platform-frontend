@@ -110,18 +110,22 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
-        isStream.value = metadata.value.result?.distributions[0]?.title?.en === 'Kafka Stream';
+        isStream.value = metadata.value.result?.distributions?.[0]?.title?.en === 'Kafka Stream';
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
-            monetizationData.value = metadata.value.result.monetization[0];
+            const monetization = metadata.value.result?.monetization?.[0];
 
-            price.value = monetizationData.value?.purchase_offer[0].price;
-            offerId.value = props.datasetId;
-            investPrice.value = monetizationData.value?.investment_offer[0].price_per_share;
+            if (monetization) {
+                monetizationData.value = monetization;
+                price.value = monetization.purchase_offer?.[0]?.price ?? null;
+                investPrice.value = monetization.investment_offer?.[0]?.price_per_share ?? null;
+            } else {
+                console.warn('No monetization data available.');
+            }
         }
         if (pistisMode == 'factory') {
-            offerId.value = metadata.value.result?.offer?.marketplace_offer_id;
+            offerId.value = metadata.value.result?.offer?.marketplace_offer_id ?? null;
         }
 
         setAccessID(data);
@@ -278,7 +282,7 @@ const investOpen = ref(false);
                             <div class="flex flex-row gap-2">
                                 <!-- hide data lineage and quality assessment in marketplace until they work -->
                                 <UButton
-                                    v-if="pistisMode === 'factory' && !isStream"
+                                    v-if="!isStream"
                                     size="sm"
                                     variant="outline"
                                     :label="$t('buttons.dataLineage')"
