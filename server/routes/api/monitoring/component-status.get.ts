@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const token = await getToken({ event });
 
     const newServices = {
-        Anonymizer: [],
+        Anonymizer: ['/srv/anonymiser/api/test'],
         'Asset Description Bundler': ['/srv/asset-description-bundler/api/health/'],
         'Contract Inspector': ['/srv/contract-inspector-on-platform/api/health'],
         'Job Configurator': ['/srv/data-check-in/api/health'],
@@ -95,6 +95,8 @@ export default defineEventHandler(async (event) => {
                 ) {
                     active = 'true';
                 } else if (result?.toLowerCase() === 'ok') {
+                    active = 'true';
+                } else if (result?.code === 200) {
                     active = 'true';
                 }
             } catch (error) {
