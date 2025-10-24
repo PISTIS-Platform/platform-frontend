@@ -325,7 +325,7 @@ const investOpen = ref(false);
                                         :to="`/catalog/publish-data?id=${datasetId}`"
                                     />
                                     <UButton
-                                        v-if="catalog === 'acquired-data'"
+                                        v-if="catalog === 'acquired-data' && offerId"
                                         size="sm"
                                         color="secondary"
                                         variant="outline"
