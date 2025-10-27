@@ -215,7 +215,7 @@ const handleLicenseOpen = (value) => {
                 </SummaryBox>
 
                 <SummaryBox :title="$t('monetization.is-active')">
-                    <template #text>{{ data.investment_offer[0].is_active || '-' }}</template>
+                    <template #text>{{ data.investment_offer[0].is_active ? 'active' : 'inactive' }}</template>
                 </SummaryBox>
             </div>
         </template>
