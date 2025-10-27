@@ -27,6 +27,8 @@ const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
 
+const platform = pistisMode === 'cloud' ? 'marketplace' : 'catalog';
+
 const { getDatasetUrl, getUserFactoryUrl, getFeedbackUrl, getPurchaseUrl } = useApiService(pistisMode);
 
 const datasetUrl = getDatasetUrl(props.datasetId);
@@ -364,17 +366,30 @@ const investOpen = ref(false);
                             <slot name="additional-info"></slot>
                         </div>
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                            <span>
-                                <p>
-                                    <span class="text-neutral-400 text-xs font-bold">KEYWORDS</span>
-                                </p>
-                                <!-- [v1]: Each keyword should link to search request to find datasets with the same keyword" -->
-                                <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
-                                <p v-if="metadata?.result?.keywords?.length > 0">
-                                    {{ metadata?.result?.keywords?.map((k) => k.label).join(', ') }}
-                                </p>
-                                <p v-else style="font-style: italic">No keywords available</p>
-                            </span>
+                            <!-- [v1]: Each keyword should link to search request to find datasets with the same keyword" -->
+                            <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
+                            <SummaryBox title="Keywords">
+                                <template #text>
+                                    <div v-if="metadata?.result?.keywords" class="flex gap-x-2">
+                                        <UBadge
+                                            v-for="keyword in metadata?.result?.keywords"
+                                            :key="keyword.id"
+                                            variant="soft"
+                                            size="sm"
+                                            class="cursor-pointer"
+                                            @click="
+                                                router.push({
+                                                    path: `/${platform}`,
+                                                    query: { keywords: keyword.id, pm: pistisMode },
+                                                })
+                                            "
+                                        >
+                                            {{ keyword.label }}
+                                        </UBadge>
+                                    </div>
+                                    <span v-else class="italic"> No keywords available </span>
+                                </template>
+                            </SummaryBox>
                             <span>
                                 <p>
                                     <span class="text-neutral-400 text-xs font-bold">INSIGHTS RESULT</span>

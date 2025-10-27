@@ -12,7 +12,7 @@ import { getLocalizedValue } from '@/sdk/utils/helpers';
 function ensureDatasetId(id: Ref): asserts id is Ref<string> {
     if (typeof toValue(id) !== 'string') throw new Error('id must be a string');
 }
-// const route = useRoute();
+const router = useRouter();
 // const pistisMode = route.query.pm;
 
 // const searchUrl = ref(config);
@@ -165,6 +165,13 @@ const {
                                 :key="category.id"
                                 size="sm"
                                 variant="soft"
+                                class="cursor-pointer"
+                                @click="
+                                    router.push({
+                                        path: '/catalog',
+                                        query: { categories: category.id, pm: 'factory' },
+                                    })
+                                "
                             >
                                 {{ getLocalizedValue({ obj: category.label, fallbackLocale: 'en' }) }}
                             </UBadge>
