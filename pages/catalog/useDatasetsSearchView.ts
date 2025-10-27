@@ -138,6 +138,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
                             'is_free|true': 'free datasets',
                             'is_free|false': 'paid datasets',
                             'isInvestmentActive|true': 'active',
+                            'isInvestmentActive|false': 'inactive',
                         };
 
                         const labelKey = `${facet.id}|${facetLabel}`;
