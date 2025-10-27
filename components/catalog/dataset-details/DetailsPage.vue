@@ -360,7 +360,7 @@ const investOpen = ref(false);
                             <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
                             <SummaryBox title="Keywords">
                                 <template #text>
-                                    <div class="flex gap-x-2">
+                                    <div v-if="metadata?.result?.keywords" class="flex gap-x-2">
                                         <UBadge
                                             v-for="keyword in metadata?.result?.keywords"
                                             :key="keyword.id"
@@ -377,6 +377,7 @@ const investOpen = ref(false);
                                             {{ keyword.label }}
                                         </UBadge>
                                     </div>
+                                    <span v-else class="italic"> No keywords available </span>
                                 </template>
                             </SummaryBox>
                             <span>
