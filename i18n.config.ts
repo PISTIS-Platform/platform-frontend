@@ -987,7 +987,7 @@ export default defineI18nConfig(() => ({
                 'max-shares': 'Max. Shares',
                 'available-shares': 'Available Shares',
                 'total-shares': 'Total Shares',
-                'is-active': 'Active',
+                'is-active': 'Investment Offer Status',
             },
             matchmakingService: {
                 recommendationsHeader: 'Recommended Datasets',
