@@ -117,6 +117,7 @@ const transformedDatasets = computed(() => {
 const selectedDimension = ref<'all' | Dimension>('all');
 const expandedDimensions = reactive({});
 dimensions.forEach((dim) => (expandedDimensions[dim] = false));
+const tempKeyword = ref('');
 const selectedRules = ref([]);
 const selectedRule = ref(null);
 const notification = ref('');
@@ -385,8 +386,6 @@ function hasMissingDetails(rule) {
     return !validation.isValid;
 }
 
-const tempKeyword = ref('');
-
 function addKeyword(fieldId: string) {
     const keyword = tempKeyword.value.trim();
     if (!keyword) return;
@@ -400,7 +399,6 @@ function addKeyword(fieldId: string) {
     }
 
     tempKeyword.value = '';
-    console.log(selectedRule.value.specificData[fieldId]);
 }
 
 function removeKeyword(fieldId: string, index: number) {
