@@ -19,6 +19,7 @@ defineSlots<{
 }>();
 
 const model = defineModel<string[]>();
+
 const collapsed = defineModel<boolean>('collapsed');
 
 const displayedFacets = props.facets.length > 5 ? 5 : props.facets.length;
@@ -32,6 +33,13 @@ const {
     data: props.facets,
     limit: displayedFacets,
 });
+
+const allInvestOffers = ['true', 'false'];
+const isOn = ref(false);
+function toggleSlider() {
+    isOn.value = !isOn.value;
+    model.value = isOn.value ? allInvestOffers : [];
+}
 
 const panelPreset = {
     header: ({ props }: { props: PanelProps }) => ({
@@ -121,9 +129,21 @@ const panelPreset = {
                 }"
             />
         </template>
+        <div
+            v-if="props.title === 'Investment Offer'"
+            class="flex justify-between items-center py-3 text-surface-text px-3 text-sm border-b border-surface-200"
+            :class="{
+                'border-b border-b-primary bg-primary-light font-semibold': isOn,
+            }"
+        >
+            <Typography class="text-sm" :class="{ 'font-semibold': isOn }">all investment offers</Typography>
+            <label class="switch">
+                <button class="slider round" :class="{ active: isOn }" @click="toggleSlider"></button>
+            </label>
+        </div>
         <div class="flex-1 border-b border-neutral-300">
             <ul class="flex flex-col divide-y border-neutral-50">
-                <li v-for="(facet, i) in truncatedFacets" :key="i" class="">
+                <li v-for="(facet, i) in truncatedFacets" :key="i">
                     <label class="relative">
                         <input
                             :id="facet.id"
@@ -176,5 +196,44 @@ const panelPreset = {
 <style>
 .p-panel-content {
     @apply rounded-none p-0 border-0;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.slider {
+    position: relative;
+    cursor: pointer;
+    background-color: #ccc;
+    border: none;
+    border-radius: 34px;
+    width: 100%;
+    height: 100%;
+    transition: background-color 0.4s;
+    padding: 0;
+}
+
+.slider::before {
+    content: '';
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.4s;
+}
+
+.slider.active {
+    @apply bg-primary-500;
+}
+
+.slider.active::before {
+    transform: translateX(18px);
 }
 </style>
