@@ -141,7 +141,7 @@ const panelPreset = {
                 <button class="slider round" :class="{ active: isOn }" @click="toggleSlider"></button>
             </label>
         </div>
-        <div class="flex-1 border-b border-neutral-300">
+        <div v-if="!(props.title === 'Investment Offer' && isOn)" class="flex-1 border-b border-neutral-300">
             <ul class="flex flex-col divide-y border-neutral-50">
                 <li v-for="(facet, i) in truncatedFacets" :key="i">
                     <label class="relative">
