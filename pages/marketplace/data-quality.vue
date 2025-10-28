@@ -384,6 +384,28 @@ function hasMissingDetails(rule) {
     const validation = validateRuleFields(rule);
     return !validation.isValid;
 }
+
+const tempKeyword = ref('');
+
+function addKeyword(fieldId: string) {
+    const keyword = tempKeyword.value.trim();
+    if (!keyword) return;
+
+    if (!Array.isArray(selectedRule.value.specificData[fieldId])) {
+        selectedRule.value.specificData[fieldId] = [];
+    }
+
+    if (!selectedRule.value.specificData[fieldId].includes(keyword)) {
+        selectedRule.value.specificData[fieldId].push(keyword);
+    }
+
+    tempKeyword.value = '';
+    console.log(selectedRule.value.specificData[fieldId]);
+}
+
+function removeKeyword(fieldId: string, index: number) {
+    selectedRule.value.specificData[fieldId].splice(index, 1);
+}
 </script>
 
 <template>
@@ -645,17 +667,46 @@ function hasMissingDetails(rule) {
                                     <span v-if="field.required" class="text-red-500 ml-1">*</span>
                                 </label>
 
-                                <!-- Textarea -->
-                                <textarea
-                                    v-if="field.type === 'textarea'"
-                                    v-model="selectedRule.specificData[field.id]"
-                                    :placeholder="field.placeholder"
-                                    :rows="field.rows ?? 3"
-                                    :class="[
-                                        'border rounded px-3 py-2 w-full',
-                                        invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
-                                    ]"
-                                ></textarea>
+                                <!-- List -->
+                                <div v-if="field.type === 'list'">
+                                    <UInput
+                                        v-model="tempKeyword"
+                                        :placeholder="field.placeholder || 'Type and press Enter'"
+                                        :class="['mb-2', invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '']"
+                                        @keyup.enter.prevent="addKeyword(field.id)"
+                                    />
+                                    <div class="flex flex-wrap gap-3 mt-2 p-1 max-h-[168px] overflow-y-auto">
+                                        <div
+                                            v-for="(keyword, index) in selectedRule.specificData[field.id] || []"
+                                            :key="index"
+                                            class="group inline-flex items-center bg-gray-50 border rounded px-3 py-2 min-h-[44px] mr-2 flex-none max-w-[320px]"
+                                            :title="keyword"
+                                        >
+                                            <div class="truncate text-sm mr-3 max-w-[240px]">{{ keyword }}</div>
+                                            <button
+                                                type="button"
+                                                aria-label="Remove"
+                                                class="ml-2 p-1 rounded text-gray-400 hover:text-red-500 transition-opacity duration-150 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                title="Remove"
+                                                @click="removeKeyword(field.id, index)"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    class="h-4 w-4"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M10 8.586L15.95 2.636a1 1 0 111.414 1.414L11.414 10l5.95 5.95a1 1 0 11-1.414 1.414L10 11.414l-5.95 5.95A1 1 0 012.636 15.95L8.586 10 2.636 4.05A1 1 0 014.05 2.636L10 8.586z"
+                                                        clip-rule="evenodd"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Select -->
                                 <select
@@ -706,7 +757,7 @@ function hasMissingDetails(rule) {
 
                         <div class="flex gap-4">
                             <button
-                                type="submit"
+                                type="button"
                                 class="bg-secondary-500 text-white px-4 py-2 rounded hover:bg-secondary-600 flex-1"
                                 @click="saveRuleDetails"
                             >
