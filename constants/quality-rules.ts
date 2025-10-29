@@ -285,7 +285,7 @@ export const ruleDetails = {
             {
                 id: 'value_set',
                 label: 'Expected Value Set',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'A set of objects used for comparison.',
                 required: true,
                 rows: 4,
@@ -305,7 +305,7 @@ export const ruleDetails = {
             {
                 id: 'value_set',
                 label: 'Expected Value Set',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'A set of objects used for comparison.',
                 required: true,
                 rows: 4,
@@ -325,7 +325,7 @@ export const ruleDetails = {
             {
                 id: 'value_set',
                 label: 'Expected Value Set',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'A set of objects used for comparison.',
                 required: true,
                 rows: 4,
@@ -345,7 +345,7 @@ export const ruleDetails = {
             {
                 id: 'value_set',
                 label: 'Expected Value Set',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'A set of objects used for comparison.',
                 required: true,
                 rows: 4,
@@ -455,7 +455,7 @@ export const ruleDetails = {
             {
                 id: 'value_pair_set',
                 label: 'Valid Pair Set',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'All valid pairs to be matched (list of tuples i.e. [(value_1,value_2),...]',
                 required: true,
                 rows: 4,
@@ -469,7 +469,7 @@ export const ruleDetails = {
                 //TODO: Improve UX, Make proper list.
                 id: 'column_list',
                 label: 'Column List',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'Enter column names separated by commas or newlines',
                 required: true,
                 rows: 3,
@@ -639,7 +639,7 @@ export const ruleDetails = {
             {
                 id: 'value_set',
                 label: 'Expected Value Set',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'A set of objects used for comparison.',
                 required: true,
                 rows: 4,
@@ -665,7 +665,7 @@ export const ruleDetails = {
             {
                 id: 'quartile_ranges', // This needs to be updated to handle dict creation
                 label: 'Quantile Values', // {'quantiles':sorted list, value_ranges: [(lower_value, upper_value)...]}
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'A set of objects used for comparison.',
                 required: true,
                 rows: 4,
@@ -891,7 +891,7 @@ export const ruleDetails = {
             {
                 id: 'value_set',
                 label: 'Expected Value Set',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'A set of objects used for comparison.',
                 required: true,
                 rows: 4,
@@ -1053,7 +1053,7 @@ export const ruleDetails = {
                 //TODO: Improve UX. Make proper list.
                 id: 'column_list',
                 label: 'Column List',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'Set of columns to be checked.',
                 rows: 3,
             },
@@ -1066,7 +1066,7 @@ export const ruleDetails = {
                 //TODO: Improve UX. Make proper list.
                 id: 'column_list',
                 label: 'Column List',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'The column names to evaluate.',
                 rows: 3,
             },
@@ -1099,7 +1099,7 @@ export const ruleDetails = {
                 //TODO: Improve UX. Make this a proper list.
                 id: 'type_list',
                 label: 'Datatype List',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'A list of strings representing the data type that each column should have as entries.',
                 required: true,
                 rows: 4,
@@ -1163,7 +1163,7 @@ export const ruleDetails = {
                 //TODO: Improve UX. Make proper list.
                 id: 'column_list',
                 label: 'Column List',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'The column names, in the correct order.',
                 rows: 3,
                 required: true,
@@ -1177,7 +1177,7 @@ export const ruleDetails = {
                 //TODO: Improve UX. Make proper list.
                 id: 'column_set',
                 label: 'Column Set',
-                type: 'textarea',
+                type: 'list',
                 placeholder: 'The column names, in any order.',
                 rows: 3,
                 required: true,
