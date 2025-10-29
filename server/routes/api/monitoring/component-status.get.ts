@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
         'Identity Wallet': ['/srv/data-factory-user-wallet/health'],
         'Data Quality Assessment': ['/srv/data-quality-assessor/api/health/'],
         'Data Transformation': ['/srv/data-transformation/api/health'],
-        'FAIR Data Valuation': [],
+        'FAIR Data Valuation': ['/srv/data-valuation-service/api/health/'],
         'Distributed Query': ['/srv/distributed-query/api/health'],
         'DLT FIAT Wallet': ['/srv/payments/v0/dlt/health_checker'],
         'Encryption/Decryption': ['/srv/encryption-decryption-engine/health'],
@@ -81,8 +81,7 @@ export default defineEventHandler(async (event) => {
                     if (result?.toLowerCase() === 'ok') {
                         active = 'true';
                     }
-                }
-                if (result === true) {
+                } else if (result === true) {
                     active = 'true';
                 } else if (result === 'Service is up and running') {
                     active = 'true';
