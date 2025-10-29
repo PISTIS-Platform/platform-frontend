@@ -471,6 +471,7 @@ const INSIGHTS_GENERATOR_GENERATE_METHOD = i18n.t('data.insightsGeneratorGenerat
 const DATA_CHECK_IN_API_METHOD = i18n.t('data.dataCheckInApiMethod');
 
 const dataset_format = ['csv', 'json', 'tsv', 'parquet', 'xml', 'xlsx'];
+const dt_formats = ['CSV', 'json', 'xlsx', 'xml'];
 const http_methods = ['GET', 'POST'];
 const periodicity = ['hourly', 'daily', 'monthly'];
 
@@ -536,7 +537,10 @@ const listServices = ref([
         name: DATA_TRANSFORMATION,
         method: DATA_TRANSFORMATION_RUN_METHOD,
         id: 3,
-        params: [{ name: 'transformation_definition', type: 'json', vue: 'input', value: '[]' }],
+        params: [
+            { name: 'transformation_definition', type: 'json', vue: 'input', value: '[]' },
+            { name: 'output_format', type: 'json', vue: 'select', vue_val: dt_formats, value: dt_formats[0] },
+        ],
     },
     { name: INSIGHTS_GENERATOR, method: INSIGHTS_GENERATOR_GENERATE_METHOD, id: 4, params: [] },
     {
