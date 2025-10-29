@@ -1,5 +1,11 @@
 <template>
     <div class="full-height-layout" style="padding-bottom: 0">
+        <button class="-ml-6 px-4 py-2 cursor-pointer" @click="router.back()">
+            <Typography variant="paragraph-1" class="flex items-center gap-2 text-primary hover:text-primary-hover">
+                <PhCaretLeft />
+                <span>Back</span>
+            </Typography>
+        </button>
         <div class="title-container">
             <h2 class="dataset-title">Dataset Lineage</h2>
         </div>
@@ -94,12 +100,14 @@ import CustomTreeComponent from '@/components/catalog/dataset-details/data-linea
 import Table from '@/components/catalog/dataset-details/data-lineage/components/data-display/Table.vue';
 import DataIntegrity from '@/components/catalog/dataset-details/data-lineage/components/integrity/DataIntegrity.vue';
 import { useStore } from '@/components/catalog/dataset-details/data-lineage/stores/store';
+import PhCaretLeft from '~icons/ph/caret-left';
 
 // ========================================
 // COMPONENT SETUP
 // ========================================
 
 // Environment configuration
+const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
 const backendUrl = route.query.url;
@@ -119,6 +127,10 @@ store.setBackendUrl(backendUrl);
 store.setDatasetFactoryUrl(datasetFactoryUrl);
 
 const token = session.value?.token;
+
+// Reset display state to first tab when navigating to a new lineage page
+store.displayState = 'tracker';
+
 // Initialize data fetch
 store.fetchData(lineageID, token);
 // store.loadMockData();

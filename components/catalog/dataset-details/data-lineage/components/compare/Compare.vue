@@ -701,29 +701,63 @@ const getRowStatusClass = (row) => {
 const getCellClasses = (row, columnName) => {
     const classes = [];
 
-    // Add column-specific classes first (these take precedence)
-    if (isColumnAdded(columnName)) {
-        classes.push('column-added');
+    // Check if column is added or removed
+    const columnAdded = isColumnAdded(columnName);
+    const columnRemoved = isColumnRemoved(columnName);
 
-        // For added columns in rows that aren't new, highlight the value
-        if (!row._added && row[columnName] !== undefined && row[columnName] !== null && row[columnName] !== '') {
+    // Check if row is added or removed
+    const rowAdded = row._added;
+    const rowRemoved = isRowRemoved(row);
+
+    // Handle combinations of column and row states
+    if (columnAdded && rowAdded) {
+        // Added column + Added row = Green (exists in new dataset)
+        classes.push('column-added');
+        if (row[columnName] !== undefined && row[columnName] !== null && row[columnName] !== '') {
             classes.push('cell-added-value');
-        }
-        // For added columns with no value
-        else if (!row._added && (row[columnName] === undefined || row[columnName] === null || row[columnName] === '')) {
+        } else {
             classes.push('empty-cell');
         }
-
-        return classes; // Added columns always have green background, no need for other classes
+        return classes;
     }
 
-    if (isColumnRemoved(columnName)) {
+    if (columnAdded && rowRemoved) {
+        // Added column + Removed row = Gray (never existed)
+        classes.push('never-existed');
+        return classes;
+    }
+
+    if (columnRemoved && rowAdded) {
+        // Removed column + Added row = Gray (never existed)
+        classes.push('never-existed');
+        return classes;
+    }
+
+    if (columnRemoved && rowRemoved) {
+        // Removed column + Removed row = Red (existed in old dataset)
         classes.push('column-removed');
-        return classes; // Removed columns always have red background, no need for other classes
+        return classes;
     }
 
-    // If row is added or removed, don't add cell-specific classes
-    if (row._added || isRowRemoved(row)) {
+    // Handle individual column states (when row is neither added nor removed)
+    if (columnAdded) {
+        classes.push('column-added');
+        // For added columns in existing rows, highlight the value
+        if (row[columnName] !== undefined && row[columnName] !== null && row[columnName] !== '') {
+            classes.push('cell-added-value');
+        } else {
+            classes.push('empty-cell');
+        }
+        return classes;
+    }
+
+    if (columnRemoved) {
+        classes.push('column-removed');
+        return classes;
+    }
+
+    // If row is added or removed but column is unchanged, don't add cell-specific classes
+    if (rowAdded || rowRemoved) {
         return classes;
     }
 
@@ -1237,26 +1271,37 @@ const _getColumnType = (columnName, datasetKey) => {
 /* Error card styling - matching Dataset Lineage page design */
 .error-card {
     background: #ffffff;
-    border: 1px solid #f5c6cb;
+    border: 1px solid #e2e8f0;
     border-left: 4px solid #dc3545;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+    margin: 16px 0;
 }
 
 .error-card h4 {
     font-size: 20px;
     font-weight: 600;
     color: #721c24;
-    margin: 0 0 8px 0;
+    margin: 0 0 12px 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .error-card h4::before {
     content: '⚠️';
-    font-size: 22px;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    font-size: 16px;
 }
 
 .error-card p {
@@ -1264,16 +1309,32 @@ const _getColumnType = (columnName, datasetKey) => {
     color: #721c24;
     margin: 0 0 20px 0;
     line-height: 1.6;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .error-card .retry-button {
     background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .error-card .retry-button:hover {
     background: #c82333;
+    transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.error-card .retry-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
 }
 
 .btn-primary {
@@ -1457,12 +1518,12 @@ const _getColumnType = (columnName, datasetKey) => {
 }
 
 /* Row styling for added/removed rows */
-.comparison-table tbody tr.row-added td {
+.comparison-table tbody tr.row-added td:not(.never-existed) {
     background-color: rgba(50, 220, 103, 0.3) !important;
     font-weight: 600;
 }
 
-.comparison-table tbody tr.row-added:hover td {
+.comparison-table tbody tr.row-added:hover td:not(.never-existed) {
     background-color: rgba(50, 220, 103, 0.4) !important;
 }
 
@@ -1470,12 +1531,12 @@ const _getColumnType = (columnName, datasetKey) => {
     border-left: none;
 }
 
-.comparison-table tbody tr.row-removed td {
+.comparison-table tbody tr.row-removed td:not(.never-existed) {
     background-color: rgba(255, 87, 74, 0.3) !important;
     font-weight: 600;
 }
 
-.comparison-table tbody tr.row-removed:hover td {
+.comparison-table tbody tr.row-removed:hover td:not(.never-existed) {
     background-color: rgba(255, 87, 74, 0.4) !important;
 }
 
@@ -1500,6 +1561,13 @@ td.column-removed {
 .comparison-table tbody tr td.column-removed:blank,
 .comparison-table tbody tr td.column-removed:has-text('') {
     background-color: rgba(244, 67, 54, 0.2) !important;
+}
+
+/* Cells that never existed (removed column + added row OR added column + removed row) */
+.comparison-table tbody tr td.never-existed {
+    background-color: rgba(200, 200, 200, 0.2) !important;
+    color: #999;
+    font-style: italic;
 }
 
 /* Column header styling */

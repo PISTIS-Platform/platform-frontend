@@ -111,9 +111,8 @@ const dataTypeTransformCompatibility = computed(() => store.dataTypeTransformCom
 const columnsStatus = computed(() => store.columnsStatus);
 const liveSearchResult = computed(() => store.liveSearchResult);
 
-const { selectColumn, setColumnStatus, setError } = store;
+const { selectColumn, setColumnStatus } = store;
 
-// Toast
 const toast = useToast();
 
 // Reactive state
@@ -159,7 +158,6 @@ const selectOption = (value) => {
             description: 'The value of each column property must be unique.',
             color: 'orange',
         });
-        setError('The value of each column property must be unique.');
     }
 };
 

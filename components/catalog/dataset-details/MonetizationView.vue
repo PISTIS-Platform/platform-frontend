@@ -12,6 +12,10 @@ const props = defineProps({
     },
 });
 
+const {
+    public: { cloudUrl },
+} = useRuntimeConfig();
+
 const isObject = (value) => {
     return value && typeof value === 'object' && !Array.isArray(value);
 };
@@ -45,6 +49,26 @@ const items = computed(() => {
 });
 
 const licenseOpen = ref(false);
+
+const handleLicenseOpen = (value) => {
+    if (value.label === 'PISTIS License') {
+        licenseOpen.value = true;
+    } else if (value.label === 'PISTIS NFT License') {
+        navigateTo(`${cloudUrl}/licenses/nft`, {
+            external: true,
+            open: {
+                target: '_blank',
+            },
+        });
+    } else {
+        navigateTo(value.resource, {
+            external: true,
+            open: {
+                target: '_blank',
+            },
+        });
+    }
+};
 </script>
 
 <template>
@@ -113,9 +137,11 @@ const licenseOpen = ref(false);
 
                 <SummaryBox v-if="data.purchase_offer[0].license" :title="$t('monetization.license')">
                     <template #text>
-                        <span class="text-primary-500 cursor-pointer" @click="licenseOpen = !licenseOpen">{{
-                            data.purchase_offer[0].license.label || '-'
-                        }}</span>
+                        <span
+                            class="text-primary-500 cursor-pointer"
+                            @click="handleLicenseOpen(data.purchase_offer[0].license)"
+                            >{{ data.purchase_offer[0].license.label || '-' }}</span
+                        >
                     </template>
                 </SummaryBox>
 
@@ -189,7 +215,7 @@ const licenseOpen = ref(false);
                 </SummaryBox>
 
                 <SummaryBox :title="$t('monetization.is-active')">
-                    <template #text>{{ data.investment_offer[0].is_active || '-' }}</template>
+                    <template #text>{{ data.investment_offer[0].is_active ? 'active' : 'inactive' }}</template>
                 </SummaryBox>
             </div>
         </template>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { HollowDotsSpinner } from 'epic-spinners';
+
 const props = defineProps({
     title: {
         type: String,
@@ -20,6 +22,10 @@ const props = defineProps({
     textColor: {
         type: String,
         required: true,
+    },
+    loading: {
+        type: Boolean,
+        default: false,
     },
 });
 </script>
@@ -43,7 +49,10 @@ const props = defineProps({
                         props.textColor,
                     ]"
                 >
-                    {{ props.amount }} {{ props.coin }}
+                    <div v-if="props.loading" class="h-6 flex items-center">
+                        <hollow-dots-spinner :animation-duration="1000" :dot-size="10" :dots-num="3" color="#5632D0" />
+                    </div>
+                    <div v-else class="h-6">{{ props.amount }} {{ props.coin }}</div>
                 </div>
             </div>
         </div>

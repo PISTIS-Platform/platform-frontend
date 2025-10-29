@@ -20,7 +20,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     const unsupportedDataTypes = ref(new Map([['Bigint', 'Integer']]));
     const dataTypeTransformCompatibility = ref({
         String: new Set(['string', 'date', 'dateTime']),
-        Integer: new Set(['string', 'integer', 'double', 'float']),
+        Integer: new Set(['string', 'integer', 'double', 'float', 'int']),
         Double: new Set(['string', 'integer', 'double']),
         Float: new Set(['string', 'float']),
         Date: new Set(['string', 'date', 'dateTime']),
@@ -82,7 +82,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                     typeof e.data === 'string' ? e.data : e.data?.message || e.message || "File couldn't be selected.";
 
                 toast.add({
-                    title: errorMessage,
+                    title: 'Something went wrong!',
+                    description: errorMessage,
                     icon: 'i-lucide-x-circle',
                     color: 'red',
                 });
@@ -107,7 +108,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                     : e.data?.message || e.message || 'The latest datamodel could not be fetched.';
 
             toast.add({
-                title: errorMessage,
+                title: 'Something went wrong!',
+                description: errorMessage,
                 icon: 'i-lucide-x-circle',
                 color: 'red',
             });
@@ -135,7 +137,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                     : e.data?.message || e.message || 'Live search options could not be fetched.';
 
             toast.add({
-                title: errorMessage,
+                title: 'Something went wrong!',
+                description: errorMessage,
                 icon: 'i-lucide-x-circle',
                 color: 'red',
             });
@@ -213,6 +216,10 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         };
 
         try {
+            toast.add({
+                title: 'Your distribution is being saved. This might take a few seconds.',
+            });
+
             const _response = await $fetch('/validate_dataset', {
                 baseURL: apiUrl.value,
                 method: 'POST',
@@ -236,7 +243,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 typeof e.data === 'string' ? e.data : e.data?.message || e.message || 'Validation failed';
 
             toast.add({
-                title: errorMessage,
+                title: 'Something went wrong!',
+                description: errorMessage,
                 icon: 'i-lucide-x-circle',
                 color: 'red',
             });

@@ -27,6 +27,8 @@ const router = useRouter();
 const route = useRoute();
 const pistisMode = route.query.pm;
 
+const platform = pistisMode === 'cloud' ? 'marketplace' : 'catalog';
+
 const { getDatasetUrl, getUserFactoryUrl, getFeedbackUrl, getPurchaseUrl } = useApiService(pistisMode);
 
 const datasetUrl = getDatasetUrl(props.datasetId);
@@ -48,7 +50,10 @@ const investPrice = ref('');
 const monetizationData = ref();
 const offerId = ref('');
 const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
+const rateDatasetUrl = computed(() => getFeedbackUrl(offerId.value));
 const buyIsLoading = ref(false);
+const isStream = ref(false);
+const isLoading = ref(true);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -77,6 +82,8 @@ const setAccessID = async (data) => {
         }
     } catch (error) {
         console.error('Error fetching access ID:', error);
+    } finally {
+        isLoading.value = false;
     }
 };
 
@@ -108,17 +115,22 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
+        isStream.value = metadata.value.result?.distributions?.[0]?.title?.en === 'Kafka Stream';
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
-            monetizationData.value = metadata.value.result.monetization[0];
+            const monetization = metadata.value.result?.monetization?.[0];
 
-            price.value = monetizationData.value?.purchase_offer[0].price;
-            offerId.value = props.datasetId;
-            investPrice.value = monetizationData.value?.investment_offer[0].price_per_share;
+            if (monetization) {
+                monetizationData.value = monetization;
+                price.value = monetization.purchase_offer?.[0]?.price ?? null;
+                investPrice.value = monetization.investment_offer?.[0]?.price_per_share ?? null;
+            } else {
+                console.warn('No monetization data available.');
+            }
         }
         if (pistisMode == 'factory') {
-            offerId.value = metadata.value.result?.offer?.marketplace_offer_id;
+            offerId.value = metadata.value.result?.offer?.marketplace_offer_id ?? null;
         }
 
         setAccessID(data);
@@ -237,7 +249,7 @@ const investOpen = ref(false);
 
 <template>
     <UModal v-model="investOpen" :ui="{ width: 'sm:max-w-5xl', overlay: { background: 'bg-gray-800/75' } }">
-        <InvestViewer :asset-id="props.datasetId" @close-modal="investOpen = false" />
+        <InvestViewer :asset-id="props.datasetId" :monetization="monetizationData" @close-modal="investOpen = false" />
     </UModal>
 
     <div v-if="error" class="grid size-full place-content-center bg-bg-base">
@@ -275,7 +287,7 @@ const investOpen = ref(false);
                             <div class="flex flex-row gap-2">
                                 <!-- hide data lineage and quality assessment in marketplace until they work -->
                                 <UButton
-                                    v-if="pistisMode === 'factory'"
+                                    v-if="!isStream"
                                     size="sm"
                                     variant="outline"
                                     :label="$t('buttons.dataLineage')"
@@ -315,12 +327,12 @@ const investOpen = ref(false);
                                         :to="`/catalog/publish-data?id=${datasetId}`"
                                     />
                                     <UButton
-                                        v-if="catalog === 'acquired-data'"
+                                        v-if="catalog === 'acquired-data' && offerId"
                                         size="sm"
                                         color="secondary"
                                         variant="outline"
                                         label="Rate Dataset"
-                                        :to="feedbackUrl"
+                                        :to="rateDatasetUrl"
                                     ></UButton>
                                 </template>
                                 <template v-if="pistisMode === 'factory' && catalog === 'acquired-data'"></template>
@@ -354,17 +366,30 @@ const investOpen = ref(false);
                             <slot name="additional-info"></slot>
                         </div>
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                            <span>
-                                <p>
-                                    <span class="text-neutral-400 text-xs font-bold">KEYWORDS</span>
-                                </p>
-                                <!-- [v1]: Each keyword should link to search request to find datasets with the same keyword" -->
-                                <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
-                                <p v-if="metadata?.result?.keywords?.length > 0">
-                                    {{ metadata?.result?.keywords?.map((k) => k.label).join(', ') }}
-                                </p>
-                                <p v-else style="font-style: italic">No keywords available</p>
-                            </span>
+                            <!-- [v1]: Each keyword should link to search request to find datasets with the same keyword" -->
+                            <!-- /srv/search/search?filters=dataset&facets={"keywords":["selected-keyword-id"]} -->
+                            <SummaryBox title="Keywords">
+                                <template #text>
+                                    <div v-if="metadata?.result?.keywords" class="flex gap-x-2">
+                                        <UBadge
+                                            v-for="keyword in metadata?.result?.keywords"
+                                            :key="keyword.id"
+                                            variant="soft"
+                                            size="sm"
+                                            class="cursor-pointer"
+                                            @click="
+                                                router.push({
+                                                    path: `/${platform}`,
+                                                    query: { keywords: keyword.id, pm: pistisMode },
+                                                })
+                                            "
+                                        >
+                                            {{ keyword.label }}
+                                        </UBadge>
+                                    </div>
+                                    <span v-else class="italic"> No keywords available </span>
+                                </template>
+                            </SummaryBox>
                             <span>
                                 <p>
                                     <span class="text-neutral-400 text-xs font-bold">INSIGHTS RESULT</span>
@@ -396,7 +421,7 @@ const investOpen = ref(false);
 
                     <slot name="sections"></slot>
 
-                    <UCard v-if="pistisMode === 'cloud' && !isNFT">
+                    <UCard v-if="pistisMode === 'cloud' && !isLoading && !isNFT">
                         <template #header>
                             <SubHeading :title="$t('matchmakingService.recommendationsHeader')" />
                         </template>
