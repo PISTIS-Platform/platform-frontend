@@ -79,9 +79,16 @@ const {
 
 <template>
     <div>
-        <div v-if="error" class="grid size-full place-content-center bg-bg-base">
+        <div v-if="!isSuccess && !searchError" class="fixed inset-0 grid place-content-center bg-bg-base z-50">
+            <div class="flex flex-col items-center gap-4">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
+                <p class="text-sm">Loading dataset ...</p>
+            </div>
+        </div>
+
+        <div v-else-if="error" class="grid size-full place-content-center bg-bg-base">
             <KCard class="size-96">
-                <template #title> Fehler </template>
+                <template #title> Error </template>
                 <template #content>
                     {{ errorView }}
                 </template>
@@ -89,6 +96,7 @@ const {
         </div>
 
         <DetailsPage
+            v-else
             headline="Dataset"
             :title="resultEnhanced?.getTitle || ''"
             :subtitle="resultEnhanced?.getPublisher?.name || ''"
