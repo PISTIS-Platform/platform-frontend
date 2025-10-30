@@ -137,17 +137,7 @@ async function downloadFile() {
             const contentTypeHeader = response.headers['content-type'];
             const contentType = contentTypeHeader.split(';')[0].trim();
 
-            // Map Content-Type to file extensions
-            const mimeToExtensionMap = {
-                'text/csv': 'csv',
-                'application/json': 'json',
-                'application/pdf': 'pdf',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
-                'text/plain': 'txt',
-            };
-
-            // Determine the file extension from Content-Type
-            const fileExtension = mimeToExtensionMap[contentType] || 'bin'; // Default to 'bin' for unknown types
+            const fileExtension = props.format.toLowerCase();
             const fileName = `${downloadFileName}.${fileExtension}`;
             // Create a Blob URL with the detected Content-Type
             const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
