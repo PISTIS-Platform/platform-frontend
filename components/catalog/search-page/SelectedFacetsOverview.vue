@@ -72,10 +72,17 @@ function beforeLeave(el: any) {
     el.style.width = width;
     el.style.height = height;
 }
+
+function clearAllFacets() {
+    const unwrapSelectedFacets = unref(selectedFacets);
+    for (const key of Object.keys(unwrapSelectedFacets)) {
+        unwrapSelectedFacets[key] = [];
+    }
+}
 </script>
 
 <template>
-    <div class="relative w-full mt-4">
+    <div class="relative w-full mt-4 mb-2">
         <transition-group
             enter-active-class="transform-gpu transition-all"
             enter-from-class="opacity-0 scale-50"
@@ -102,6 +109,9 @@ function beforeLeave(el: any) {
                         </Typography>
                     </div>
                 </KInteractiveChip>
+            </div>
+            <div v-if="flattenedSelectedFacets.length > 0">
+                <UButton variant="solid" class="self-start" @click="clearAllFacets">Clear all</UButton>
             </div>
         </transition-group>
     </div>
