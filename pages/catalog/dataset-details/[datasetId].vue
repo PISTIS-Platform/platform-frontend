@@ -88,7 +88,7 @@ const {
 
         <div v-else-if="error" class="grid size-full place-content-center bg-bg-base">
             <KCard class="size-96">
-                <template #title> Fehler </template>
+                <template #title> Error </template>
                 <template #content>
                     {{ errorView }}
                 </template>
