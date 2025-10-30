@@ -347,7 +347,7 @@ export default defineI18nConfig(() => ({
                     errors: {
                         couldNotPublishInvestmentPlan: 'Could not publish investment plan. An error has occurred.',
                         number: 'Please enter a valid number',
-                        percentageMin: 'Percentage cannot be negative',
+                        percentageMin: 'Percentage cannot be lower than 10%',
                         percentageMax: 'Percentage cannot exceed 49%',
                         sharesInt: 'Total number of shares must be a whole number',
                         sharesMin: 'Minimum number of shares is 10',
