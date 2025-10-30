@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
         'Factory Data Catalog': ['/srv/catalog'],
         'Smart Contract Template Composer': ['/srv/sctc/api/health'],
         'Smart Contract Execution Engine': ['/srv/smart-contract-execution-engine/ready'],
+        'Data Enrichment': ['/srv/data-enrichment-backend/api/health'],
     };
 
     const componentStatusPromises = Object.entries(newServices).map(async ([key, value]: [string, string[]]) => {
@@ -79,6 +80,10 @@ export default defineEventHandler(async (event) => {
 
                 if (key === 'Distributed Query') {
                     if (result?.toLowerCase() === 'ok') {
+                        active = 'true';
+                    }
+                } else if (key === 'Data Enrichment') {
+                    if (result === 'Service is up and running') {
                         active = 'true';
                     }
                 } else if (result === true) {
