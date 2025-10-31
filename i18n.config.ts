@@ -609,6 +609,7 @@ export default defineI18nConfig(() => ({
                         incoming: 'Incoming',
                         outgoing: 'Outgoing',
                     },
+                    noTransactions: 'No transactions found',
                 },
                 dmRepository: {
                     title: 'Models Management',

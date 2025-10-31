@@ -177,7 +177,7 @@ const outgoing = computed(() => {
                         :rows="rows"
                         :empty-state="{
                             icon: 'i-heroicons-circle-stack-20-solid',
-                            label: $t('wallet.noTransactions'),
+                            label: $t('data.wallet.noTransactions'),
                         }"
                     >
                         <template #createdAt-data="{ row }">
@@ -243,7 +243,7 @@ const outgoing = computed(() => {
                     </UTable>
                     <div class="flex justify-end mt-2">
                         <UPagination
-                            v-if="data && totalCount > 10"
+                            v-if="data"
                             v-model="page"
                             :page-count="10"
                             :total="totalCount"
