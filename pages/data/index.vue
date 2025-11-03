@@ -473,6 +473,7 @@ const DATA_CHECK_IN_API_METHOD = i18n.t('data.dataCheckInApiMethod');
 const dataset_format = ['csv', 'json', 'tsv', 'parquet', 'xml', 'xlsx'];
 const http_methods = ['GET', 'POST'];
 const periodicity = ['hourly', 'daily', 'monthly'];
+const isDisabled = ref(true);
 
 const listServices = ref([
     {
@@ -586,7 +587,7 @@ const datasetName = ref('');
 const datasetDescription = ref('');
 const datasetKeywords = ref('');
 const datasetEncrytion = ref('false');
-const gdprChecking = ref('true');
+const gdprChecking = ref('false');
 let fileUpload = ref<File | null>(null);
 const runId = ref('None');
 const wfRunTimeSpecific = ref('');
@@ -833,7 +834,7 @@ const runJobConfigurator = async (services: [string]) => {
                         <input
                             id="checkbox"
                             v-model="datasetEncrytion"
-                            disabled
+                            :disabled="isDisabled"
                             type="checkbox"
                             class="mt-7 w-6 h-6 p-1"
                         />
@@ -842,7 +843,13 @@ const runJobConfigurator = async (services: [string]) => {
                         <label for="gdprChecking" class="text-sm font-medium text-neutral-700 ml-15 mt-7 w-40">{{
                             $t('data.gdprChecking')
                         }}</label>
-                        <input id="checkbox" v-model="gdprChecking" disabled type="checkbox" class="mt-7 w-6 h-6" />
+                        <input
+                            id="checkbox"
+                            v-model="gdprChecking"
+                            :disabled="isDisabled"
+                            type="checkbox"
+                            class="mt-7 w-6 h-6"
+                        />
                     </div>
                 </div>
             </div>
