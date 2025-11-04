@@ -106,12 +106,9 @@ async function downloadFile() {
 
             const response = await axios.get(accessUrl, config);
 
-            const brokerUrl = response.data.url;
-            const topic = response.data.topic;
-
-            alert(
-                `This is a streaming dataset and cannot be downloaded yet in Beta release.\nThis feature will be further developed in v1 and you need a Kafka consumer to get this dataset.\n\nbroker url: ${brokerUrl}\ntopic: ${topic}`,
-            );
+            copyData.brokerUrl = response.data.url;
+            copyData.topic = response.data.topic;
+            streamIsOpen.value = true;
         } catch (error) {
             console.error('Error fetching Kafka Stream JSON data:', error);
             alert(
@@ -158,9 +155,60 @@ async function downloadFile() {
         }
     }
 }
+
+const streamIsOpen = ref(false);
+
+const copyData = reactive<Record<string, string>>({
+    brokerUrl: '',
+    topic: '',
+});
+
+let timeout: ReturnType<typeof setTimeout>;
+const { copy, copied } = useClipboard();
+const keyBeingCopied = ref('');
+
+const copyItem = (key: string) => {
+    clearTimeout(timeout);
+
+    keyBeingCopied.value = key;
+    copy(copyData[key] || '');
+
+    timeout = setTimeout(() => {
+        keyBeingCopied.value = '';
+    }, 2000);
+};
 </script>
 
 <template>
+    <UModal v-model="streamIsOpen">
+        <div class="w-full h-full flex flex-col justify-center p-6 text-gray-700">
+            <h2 class="font-bold text-lg">{{ $t('data.streaming.details') }}</h2>
+            <div class="flex items-center gap-2 font-bold mt-6">
+                {{ $t('data.streaming.brokerUrl') }}:
+                <span class="font-normal font-mono mt-0.5">{{ copyData.brokerUrl }}</span>
+                <UButton
+                    icon="i-heroicons-document-duplicate"
+                    size="sm"
+                    variant="ghost"
+                    square
+                    @click="copyItem('brokerUrl')"
+                    >{{ copied && keyBeingCopied === 'brokerUrl' ? 'Copied' : '' }}</UButton
+                >
+            </div>
+            <div class="flex items-center gap-2 font-bold mt-6">
+                {{ $t('data.streaming.topic') }}:
+                <span class="font-normal font-mono mt-0.5">{{ copyData.topic }}</span>
+                <UButton
+                    icon="i-heroicons-document-duplicate"
+                    size="sm"
+                    variant="ghost"
+                    square
+                    @click="copyItem('topic')"
+                    >{{ copied && keyBeingCopied === 'topic' ? 'Copied' : '' }}</UButton
+                >
+            </div>
+        </div>
+    </UModal>
     <div class="flex flex-col pb-4">
         <div class="flex flex-row justify-between items-center">
             <div class="flex">
