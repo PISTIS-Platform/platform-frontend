@@ -72,10 +72,27 @@ const addTransformation = (index) => {
             return;
         }
     }
+
+    // Remove empty fields from params
+    const cleanedParams = {};
+    for (const key in currentParams) {
+        const value = currentParams[key];
+        if (
+            value === undefined ||
+            value === null ||
+            (typeof value === 'string' && value.trim() === '') ||
+            (Array.isArray(value) && (value.length === 0 || value.every((item) => item.trim() === '')))
+        ) {
+            // skip this key
+            continue;
+        }
+        cleanedParams[key] = value;
+    }
+
     const panelData = JSON.parse(
         JSON.stringify({
             id: element.content.properties.id.const,
-            params: currentParams || {},
+            params: cleanedParams,
         }),
     );
     transformations.value.push(panelData);
