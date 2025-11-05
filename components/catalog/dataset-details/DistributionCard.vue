@@ -101,15 +101,16 @@ async function downloadFile() {
         streamIsOpen.value = true;
     } else {
         try {
-            console.log('accessUrl', accessUrl, props.format);
-
             const config = {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
                 responseType: 'blob',
             };
+
+            let fileExtension = props.format.toLowerCase();
             if (props.format === 'SQL') {
+                fileExtension = 'csv';
                 config.params = { JSON_output: 'False' };
             }
 
@@ -118,7 +119,6 @@ async function downloadFile() {
             const contentTypeHeader = response.headers['content-type'];
             const contentType = contentTypeHeader.split(';')[0].trim();
 
-            const fileExtension = props.format.toLowerCase();
             const fileName = `${downloadFileName}.${fileExtension}`;
             // Create a Blob URL with the detected Content-Type
             const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
@@ -317,8 +317,14 @@ const revealPassword = ref(false);
                 </div>
             </div>
             <div v-if="pistisMode == 'factory'" class="flex flex-wrap gap-6">
-                <UButton variant="soft" color="secondary" size="sm" @click="downloadFile">
-                    {{ downloadText }}
+                <UButton
+                    variant="soft"
+                    color="secondary"
+                    size="sm"
+                    icon="i-heroicons-arrow-down-tray"
+                    @click="downloadFile"
+                >
+                    {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
                 </UButton>
                 <div v-if="catalog === 'my-data' && !isStream" class="flex gap-6">
                     <!-- <a
