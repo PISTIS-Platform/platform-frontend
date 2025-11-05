@@ -93,8 +93,8 @@ const hasPurchaseOffer = computed(() => monetizationData.value?.purchase_offer);
 
 const publisherOrganizationId = computed(() => monetizationData.value?.purchase_offer[0]?.publisher?.organization_id);
 
-const isNotOwned = computed(() => {
-    // True only in datasets that the logged-in user owns
+const isNotOwn = computed(() => {
+    // True only in datasets that the logged-in user is the Data Provider of
     return organizationId.value !== publisherOrganizationId.value && publisherOrganizationId.value;
 });
 const isNFT = computed(() => monetizationData.value?.purchase_offer[0].type === 'nft');
@@ -119,6 +119,7 @@ const fetchMetadata = async () => {
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
+            checkDataset(metadata.value.result?.id);
             const monetization = metadata.value.result?.monetization?.[0];
 
             if (monetization) {
@@ -189,9 +190,10 @@ const buyRequest = async () => {
     try {
         const res = await promise;
         console.log('Purchase complete', res.data);
-        buyIsLoading.value = false;
+        datasetIsBought.value = true;
     } catch (err) {
         console.error('Purchase failed', err);
+    } finally {
         buyIsLoading.value = false;
     }
 };
@@ -213,6 +215,18 @@ const openInsightsResult = async () => {
         newWindow.document.close();
     } catch (err) {
         console.error('Failed to load insights result', err);
+    }
+};
+
+const { checkDatasetExists } = useSparql();
+
+const datasetIsBought = ref(false);
+
+const checkDataset = async (id: string) => {
+    try {
+        datasetIsBought.value = await checkDatasetExists(id);
+    } catch (err) {
+        console.error(err);
     }
 };
 
@@ -430,10 +444,10 @@ const investOpen = ref(false);
                 </div>
 
                 <div
-                    v-if="pistisMode === 'cloud' && isNotOwned"
+                    v-if="pistisMode === 'cloud' && isNotOwn"
                     class="flex flex-col gap-4 w-96 sticky top-20 self-start"
                 >
-                    <template v-if="hasPurchaseOffer && isNotOwned">
+                    <template v-if="hasPurchaseOffer && isNotOwn">
                         <div
                             v-if="monetizationData.purchase_offer[0].type === 'subscription'"
                             class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
@@ -454,7 +468,19 @@ const investOpen = ref(false);
                             </div>
 
                             <div class="sticky top-0 z-50">
+                                <UTooltip
+                                    v-if="datasetIsBought"
+                                    text="You have already subscribed to this asset"
+                                    class="w-full"
+                                    :ui="{ width: 'max-w-xs', base: 'text-wrap' }"
+                                >
+                                    <UButton variant="solid" size="lg" color="emerald" block disabled>
+                                        <span v-if="price">Subscribe</span>
+                                        <span v-else>Get</span>
+                                    </UButton>
+                                </UTooltip>
                                 <UButton
+                                    v-else
                                     variant="solid"
                                     size="lg"
                                     color="emerald"
@@ -480,7 +506,20 @@ const investOpen = ref(false);
                             </div>
 
                             <div class="sticky top-0 z-50">
+                                <UTooltip
+                                    v-if="datasetIsBought"
+                                    text="You have already bought this asset"
+                                    class="w-full"
+                                    :ui="{ width: 'max-w-xs', base: 'text-wrap' }"
+                                >
+                                    <UButton variant="solid" size="lg" color="secondary" block disabled>
+                                        <span v-if="price">Buy</span>
+                                        <span v-else>Get</span>
+                                    </UButton>
+                                </UTooltip>
+
                                 <UButton
+                                    v-else
                                     variant="solid"
                                     size="lg"
                                     color="secondary"
@@ -495,7 +534,7 @@ const investOpen = ref(false);
                         </div>
                     </template>
                     <div
-                        v-if="hasInvestmentOffer && isNotOwned"
+                        v-if="hasInvestmentOffer && isNotOwn"
                         class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
                     >
                         <div class="flex justify-between items-center">
@@ -512,7 +551,7 @@ const investOpen = ref(false);
                         >
                     </div>
 
-                    <UButton v-if="hasPurchaseOffer && isNotOwned" size="sm" variant="link" block :to="feedbackUrl"
+                    <UButton v-if="hasPurchaseOffer && isNotOwn" size="sm" variant="link" block :to="feedbackUrl"
                         >Provide Feedback</UButton
                     >
                 </div>
