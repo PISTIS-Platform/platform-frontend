@@ -246,6 +246,8 @@ export default defineI18nConfig(() => ({
                 jobConfigurator: 'Job Configurator',
                 streamConfigurator: 'Stream Configurator',
                 streaming: {
+                    downloadText:
+                        'This is a streaming dataset and you can only download it by utilising a Kafka Consumer and using the following connection details:',
                     details: 'Streaming Dataset Details',
                     detailsDesc: 'The details of the dataset you will stream to customers',
                     title: 'Dataset Title',

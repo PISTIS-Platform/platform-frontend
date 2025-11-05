@@ -67,6 +67,7 @@ const fetchMetadata = async () => {
     try {
         const response = await fetch(searchUrl);
         const data = await response.json();
+        copyData.topic = `ds-${data.result.id}`;
         catalog.value = data.result.catalog.id;
         isTransformed.value = data.result.distributions.some((transformation) => transformation?.is_transformed);
         isAnonymized.value = data.result.distributions.some((anonymization) => anonymization?.is_anonymized);
@@ -97,27 +98,7 @@ if (titleObject) {
 async function downloadFile() {
     const accessUrl = props.downloadUrl;
     if (props.title === 'Kafka Stream') {
-        try {
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-
-            const response = await axios.get(accessUrl, config);
-
-            const brokerUrl = response.data.url;
-            const topic = response.data.topic;
-
-            alert(
-                `This is a streaming dataset and cannot be downloaded yet in Beta release.\nThis feature will be further developed in v1 and you need a Kafka consumer to get this dataset.\n\nbroker url: ${brokerUrl}\ntopic: ${topic}`,
-            );
-        } catch (error) {
-            console.error('Error fetching Kafka Stream JSON data:', error);
-            alert(
-                'This is a streaming dataset and cannot be downloaded yet in Beta release.\nThis feature will be further developed in v1 and you need a Kafka consumer to get this dataset.',
-            );
-        }
+        streamIsOpen.value = true;
     } else {
         try {
             console.log('accessUrl', accessUrl, props.format);
@@ -158,9 +139,170 @@ async function downloadFile() {
         }
     }
 }
+const { data: streamingConsumerData } = useFetch<{
+    username: string;
+    password: string;
+    bootstrapServers: string;
+    securityProtocol: string;
+    saslMechanism: string;
+}>(`/api/account/get-kafka-details`, {
+    onResponse({ response }) {
+        copyData.brokerUrl = response._data.bootstrapServers;
+        copyData.username = response._data.username;
+        copyData.password = response._data.password;
+        copyData.securityProtocol = response._data.securityProtocol;
+        copyData.saslMechanism = response._data.saslMechanism;
+    },
+});
+
+const streamIsOpen = ref(false);
+
+const copyData = reactive<Record<string, string>>({
+    brokerUrl: '',
+    topic: '',
+    username: '',
+    password: '',
+    securityProtocol: '',
+    saslMechanism: '',
+});
+
+let timeout: ReturnType<typeof setTimeout>;
+const { copy, copied } = useClipboard();
+const keyBeingCopied = ref('');
+
+const copyItem = (key: string) => {
+    clearTimeout(timeout);
+
+    keyBeingCopied.value = key;
+    copy(copyData[key] || '');
+
+    timeout = setTimeout(() => {
+        keyBeingCopied.value = '';
+    }, 2000);
+};
+
+const revealPassword = ref(false);
 </script>
 
 <template>
+    <UModal v-model="streamIsOpen">
+        <div class="w-full h-full flex flex-col justify-center p-6 text-gray-700">
+            <h2 class="font-bold text-lg">{{ $t('data.streaming.details') }}</h2>
+            <p class="mt-2 text-wrap">{{ $t('data.streaming.downloadText') }}</p>
+            <div v-if="streamingConsumerData" class="flex flex-wrap sm:flex-nowrap gap-8 mt-6 w-full">
+                <div class="flex flex-col">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{ $t('data.streaming.brokerUrl') }}</span>
+                        </div>
+                        <span class="font-mono flex items-center"
+                            >{{ copyData.brokerUrl }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('brokerUrl')"
+                                >{{ copied && keyBeingCopied === 'brokerUrl' ? 'Copied' : '' }}</UButton
+                            >
+                        </span>
+                    </div>
+                    <div class="flex flex-col gap-2 mt-6">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{ $t('data.streaming.topic') }}</span>
+                        </div>
+                        <span class="font-mono flex items-center"
+                            >{{ copyData.topic }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('topic')"
+                                >{{ copied && keyBeingCopied === 'topic' ? 'Copied' : '' }}</UButton
+                            >
+                        </span>
+                    </div>
+                    <div class="flex flex-col gap-2 mt-6">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{
+                                $t('settings.streamingConsumerUsername')
+                            }}</span>
+                        </div>
+                        <span class="font-mono flex items-center"
+                            >{{ copyData.username }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('username')"
+                                >{{ copied && keyBeingCopied === 'username' ? 'Copied' : '' }}</UButton
+                            >
+                        </span>
+                    </div>
+                    <div class="flex flex-col gap-2 mt-6">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{
+                                $t('settings.streamingConsumerPassword')
+                            }}</span>
+                            <UButton
+                                class="flex items-center justify-center w-16"
+                                size="xs"
+                                @click="revealPassword = !revealPassword"
+                                >{{ revealPassword ? 'Hide' : 'Reveal' }}</UButton
+                            >
+                        </div>
+                        <span class="font-mono flex items-center"
+                            >{{ revealPassword ? copyData.password : '*********' }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('password')"
+                                >{{ copied && keyBeingCopied === 'password' ? 'Copied' : '' }}</UButton
+                            >
+                        </span>
+                    </div>
+                    <div class="flex flex-col gap-2 mt-6">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{ $t('settings.securityProtocol') }}</span>
+                        </div>
+                        <span class="font-mono flex items-center"
+                            >{{ copyData.securityProtocol }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('securityProtocol')"
+                                >{{ copied && keyBeingCopied === 'securityProtocol' ? 'Copied' : '' }}</UButton
+                            >
+                        </span>
+                    </div>
+                    <div class="flex flex-col gap-2 mt-6">
+                        <div class="flex items-center justify-between flex-wrap gap-2 w-[320px]">
+                            <span class="font-semibold text-gray-500">{{ $t('settings.saslMechanism') }}</span>
+                        </div>
+                        <span class="font-mono flex items-center"
+                            >{{ copyData.saslMechanism }}
+                            <UButton
+                                icon="i-heroicons-document-duplicate"
+                                size="sm"
+                                variant="ghost"
+                                square
+                                @click="copyItem('saslMechanism')"
+                                >{{ copied && keyBeingCopied === 'saslMechanism' ? 'Copied' : '' }}</UButton
+                            >
+                        </span>
+                    </div>
+                </div>
+
+                <div class="w-0 sm:w-1/2"></div>
+            </div>
+        </div>
+    </UModal>
     <div class="flex flex-col pb-4">
         <div class="flex flex-row justify-between items-center">
             <div class="flex">
