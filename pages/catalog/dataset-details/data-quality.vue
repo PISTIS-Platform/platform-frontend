@@ -52,103 +52,9 @@
                 </div>
             </section>
 
-            <!-- Distribution Quality Section -->
-            <!-- Hide for now, until backend API is ready -->
-            <section v-if="false" class="mb-10">
-                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Quality</h3>
-                <p class="text-gray-600 mb-6">
-                    The following lists the quality measurement of all distributions of the dataset. For more
-                    information, see our
-                    <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>.
-                </p>
-
-                <div class="space-y-4">
-                    <!-- NUXT ACCORDIOUNS -->
-                    <UAccordion :items="items" type="multiple">
-                        <template #item>
-                            <div class="p-4 text-gray-700">
-                                <div class="accordion-content p-4 text-sm text-gray-600">
-                                    <div class="space-y-5">
-                                        <!-- Accessibility Details -->
-                                        <div>
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">Accessibility</h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li class="flex justify-between items-center">
-                                                    <span>Download URL</span>
-                                                    <span class="distribution-metadata-value">yes</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>Most frequent accessURL status code</span>
-                                                    <span class="distribution-metadata-value">200</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>Most frequent downloadURL status code</span>
-                                                    <span class="distribution-metadata-value">200</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <!-- Reusability Details -->
-                                        <div>
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">Reusability</h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li class="flex justify-between items-center">
-                                                    <span>License information</span>
-                                                    <span class="distribution-metadata-value">no</span>
-                                                </li>
-                                                <!-- Add more mock reusability metrics if needed -->
-                                            </ul>
-                                        </div>
-                                        <!-- Contextuality Details -->
-                                        <div>
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">Contextuality</h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li class="flex justify-between items-center">
-                                                    <span>File size</span>
-                                                    <span class="distribution-metadata-value">yes</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>Rights</span>
-                                                    <span class="distribution-metadata-value">no</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>Modification date</span>
-                                                    <span class="distribution-metadata-value">yes</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>Date of issue</span>
-                                                    <span class="distribution-metadata-value">yes</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <!-- Interoperability Details -->
-                                        <div>
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">Interoperability</h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li class="flex justify-between items-center">
-                                                    <span>Format</span>
-                                                    <span class="distribution-metadata-value">yes</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>Media type</span>
-                                                    <span class="distribution-metadata-value">yes</span>
-                                                </li>
-                                                <li class="flex justify-between items-center">
-                                                    <span>Format/Media type from vocabulary</span>
-                                                    <span class="distribution-metadata-value">yes</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </UAccordion>
-                </div>
-            </section>
-
-            <!-- Distribution Quality Section -->
+            <!-- Distribution Metadata Quality Section -->
             <section class="mb-10">
-                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Meta Data Quality</h3>
+                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Metadata Quality</h3>
                 <p class="text-gray-600 mb-6">
                     The following lists the quality measurement of all distributions of the dataset.
                     <!-- For more information, see our
@@ -187,6 +93,48 @@
                     </UAccordion>
                 </div>
             </section>
+
+            <!-- Distribution Data Quality Section -->
+            <section class="mb-10">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Data Quality</h3>
+                <p class="text-gray-600 mb-6">
+                    The following lists the quality measurement of all distributions of the dataset.
+                    <!-- For more information, see our
+                    <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>. -->
+                </p>
+
+                <div class="space-y-4">
+                    <!-- NUXT ACCORDIOUNS -->
+                    <UAccordion :items="accordionItemsDataQuality" type="multiple">
+                        <!-- Custom body for every accordion panel -->
+                        <template #item="{ item }">
+                            <div class="p-4 text-gray-700">
+                                <div class="accordion-content p-3 text-sm text-gray-600">
+                                    <div class="space-y-5">
+                                        <div v-for="section in item.sections" :key="section.title">
+                                            <h5 class="text-md font-semibold text-gray-700 mb-2">
+                                                {{ section.title }}
+                                            </h5>
+                                            <ul class="space-y-2 pl-2">
+                                                <li
+                                                    v-for="line in section.items"
+                                                    :key="line.title"
+                                                    class="flex justify-between items-center"
+                                                >
+                                                    <span>{{ line.title }}</span>
+                                                    <span class="distribution-metadata-value font-bold">
+                                                        {{ line.value }}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </UAccordion>
+                </div>
+            </section>
         </main>
     </div>
 </template>
@@ -195,7 +143,11 @@
 import { onMounted, ref } from 'vue';
 
 import { useRoute, useRouter } from '#imports';
-import { getDatasetMetrics, getDistributionsMetrics } from '~/components/catalog/dataset-details/DataQualityService';
+import {
+    getDatasetMetrics,
+    getDistributionsDataQualityMetrics,
+    getDistributionsMetrics,
+} from '~/components/catalog/dataset-details/DataQualityService';
 import PhCaretLeft from '~icons/ph/caret-left';
 
 const router = useRouter();
@@ -205,6 +157,7 @@ const datasetMetrics = ref({});
 const relevantDatasetMetrics = ref([]);
 const relevantDistributionsMetrics = ref([]);
 const accordionItems = ref([]);
+const accordionItemsDataQuality = ref([]);
 
 /* helpers function */
 const fmt = (v) => {
@@ -279,7 +232,7 @@ async function loadDistributionsMetrics() {
         relevantDistributionsMetrics.value = distributions;
 
         accordionItems.value = distributions.map((d) => ({
-            label: d.info?.['distribution-title'] || d.info?.['distribution-id'] || 'Unknown distribution',
+            label: d.info?.['distribution-title'] || d.id?.['distribution-id'] || 'Unknown distribution',
             icon: 'i-lucide-box',
             sections: [
                 {
@@ -327,9 +280,111 @@ async function loadDistributionsMetrics() {
     }
 }
 
+async function loadDistributionsDataQualityMetrics() {
+    try {
+        const distributions = (await getDistributionsDataQualityMetrics(datasetId)).result.distributions;
+
+        accordionItemsDataQuality.value = distributions.map((d) => {
+            function findMeasurementValue(metricNamePart) {
+                const found = d.measurements.find((m) =>
+                    m.metric?.id?.toLowerCase().includes(metricNamePart.toLowerCase()),
+                );
+                return found ? fmt(found.value) : 'N/A';
+            }
+
+            return {
+                label: d.info || d.id || 'Unknown distribution',
+                icon: 'i-lucide-box',
+                sections: [
+                    {
+                        title: 'Accuracy',
+                        items: [
+                            {
+                                title: 'ExpectColumnValuesToBeInSet (Type Object)',
+                                value: findMeasurementValue('ExpectColumnValuesToBeInSet'),
+                            },
+                            {
+                                title: 'ExpectColumnValuesToBeInSet (Disponibilité)',
+                                value: findMeasurementValue('ExpectColumnValuesToBeInSet'),
+                            },
+                        ],
+                    },
+                    {
+                        title: 'Consistency',
+                        items: [
+                            {
+                                title: 'ExpectColumnValuesToMatchRegexList (N° Voie Pair)',
+                                value: findMeasurementValue('ExpectColumnValuesToMatchRegexList'),
+                            },
+                            {
+                                title: 'ExpectColumnValuesToMatchRegexList (N° Voie Impair)',
+                                value: findMeasurementValue('ExpectColumnValuesToMatchRegexList'),
+                            },
+                        ],
+                    },
+                    {
+                        title: 'Completeness',
+                        items: [
+                            {
+                                title: 'ExpectColumnValuesToNotBeNull (Modèle)',
+                                value: findMeasurementValue('ExpectColumnValuesToNotBeNull'),
+                            },
+                            {
+                                title: 'ExpectColumnValuesToNotBeNull (N° Voie Pair)',
+                                value: findMeasurementValue('ExpectColumnValuesToNotBeNull'),
+                            },
+                            {
+                                title: 'ExpectColumnValuesToNotBeNull (N° Voie Impair)',
+                                value: findMeasurementValue('ExpectColumnValuesToNotBeNull'),
+                            },
+                        ],
+                    },
+                    {
+                        title: 'Uniqueness',
+                        items: [
+                            {
+                                title: 'ExpectColumnValuesToBeUnique (Identifiant)',
+                                value: findMeasurementValue('ExpectColumnValuesToBeUnique'),
+                            },
+                        ],
+                    },
+                    {
+                        title: 'Validity',
+                        items: [
+                            {
+                                title: 'ExpectTableColumnsToMatchSet',
+                                value: findMeasurementValue('ExpectTableColumnsToMatchSet'),
+                            },
+                            {
+                                title: 'ExpectTableRowCountToEqual',
+                                value: findMeasurementValue('ExpectTableRowCountToEqual'),
+                            },
+                            {
+                                title: 'ExpectTableColumnCountToEqual',
+                                value: findMeasurementValue('ExpectTableColumnCountToEqual'),
+                            },
+                            {
+                                title: 'ExpectColumnValuesToBeOfType (Type Object)',
+                                value: findMeasurementValue('ExpectColumnValuesToBeOfType'),
+                            },
+                            {
+                                title: 'ExpectColumnValuesToBeOfType (Modèle)',
+                                value: findMeasurementValue('ExpectColumnValuesToBeOfType'),
+                            },
+                        ],
+                    },
+                ],
+            };
+        });
+    } catch (e) {
+        console.error('Loading distribution metrics failed:', e);
+    }
+}
+
 onMounted(() => {
     loadDatasetMetrics();
     loadDistributionsMetrics();
+    loadDistributionsDataQualityMetrics();
 });
 </script>
 

@@ -10,6 +10,10 @@ export async function getDatasetMetrics(datasetId: string) {
 
 export async function getDistributionsMetrics(datasetId: string) {
     const response = await axios.get(`${backendUrl}/srv/mqa/datasets/${datasetId}/distributions`);
+    return response.data;
+}
 
+export async function getDistributionsDataQualityMetrics(datasetId: string) {
+    const response = await axios.get(`${backendUrl}/srv/search/resources/data-quality/${datasetId}`);
     return response.data;
 }
