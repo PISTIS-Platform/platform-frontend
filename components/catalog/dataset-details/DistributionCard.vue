@@ -77,6 +77,14 @@ const fetchMetadata = async () => {
     }
 };
 
+const fileExtension = computed(() => {
+    if (props.format === 'Excel XLS') return 'xls';
+    if (props.format === 'Excel XLSX') return 'xlsx';
+    if (props.format === 'SQL') return 'csv';
+
+    return props.format.toLowerCase();
+});
+
 onMounted(() => {
     fetchMetadata();
 });
@@ -108,9 +116,7 @@ async function downloadFile() {
                 responseType: 'blob',
             };
 
-            let fileExtension = props.format.toLowerCase();
             if (props.format === 'SQL') {
-                fileExtension = 'csv';
                 config.params = { JSON_output: 'False' };
             }
 
@@ -119,7 +125,7 @@ async function downloadFile() {
             const contentTypeHeader = response.headers['content-type'];
             const contentType = contentTypeHeader.split(';')[0].trim();
 
-            const fileName = `${downloadFileName}.${fileExtension}`;
+            const fileName = `${downloadFileName}.${fileExtension.value}`;
             // Create a Blob URL with the detected Content-Type
             const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
             // Create a temporary link and trigger download
@@ -348,7 +354,7 @@ const revealPassword = ref(false);
                         prefetch="false"
                     /> -->
                     <a
-                        :href="`/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${props.format}`"
+                        :href="`/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${fileExtension}`"
                         class="inline-block bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer text-center"
                     >
                         Data Enrichment
