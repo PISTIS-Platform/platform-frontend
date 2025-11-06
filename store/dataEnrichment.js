@@ -149,6 +149,10 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
 
     // POST Save Asset
     const saveAsset = async (fileName) => {
+        savingIsLoading.value = true;
+        toast.add({
+            title: 'Your distribution is being saved. This might take a few seconds.',
+        });
         revertUnsupportedDataTypes();
 
         const requestData = {
@@ -204,7 +208,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     };
 
     const validateAsset = async (fileName) => {
-        savingIsLoading.value = true;
+        // savingIsLoading.value = true;
 
         const requestData = {
             metadata: {
@@ -216,11 +220,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         };
 
         try {
-            toast.add({
-                title: 'Your distribution is being saved. This might take a few seconds.',
-            });
-
-            const _response = await $fetch('/validate_dataset', {
+            const response = await $fetch('/validate_dataset', {
                 baseURL: apiUrl.value,
                 method: 'POST',
                 body: requestData,
@@ -233,10 +233,10 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                     Authorization: `Bearer ${token.value}`,
                 },
             });
-
-            await saveAsset(fileName);
+            return response;
+            // await saveAsset(fileName);
         } catch (e) {
-            savingIsLoading.value = false;
+            // savingIsLoading.value = false;
             console.log('Fetch error:', e);
 
             const errorMessage =

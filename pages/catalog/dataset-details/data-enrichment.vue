@@ -10,12 +10,12 @@
             <UProgress animation="swing" color="secondary" />
         </div>
         <div v-else>
-            <div v-if="!headerChosen">
+            <!-- <div v-if="!headerChosen">
                 <SelectHeaderTable :toggle-header-chosen="toggleHeaderChosen" />
             </div>
-            <div v-else ref="enrichmentRef">
-                <DataEnricher />
-            </div>
+            <div v-else ref="enrichmentRef"> -->
+            <DataEnricher />
+            <!-- </div> -->
         </div>
     </div>
 </template>
@@ -32,7 +32,7 @@ const router = useRouter();
 const route = useRoute();
 
 const headerChosen = ref(false);
-const enrichmentRef = ref(null);
+// const enrichmentRef = ref(null);
 
 const datasetId = ref('');
 const distributionId = ref('');
@@ -64,6 +64,7 @@ onMounted(async () => {
     }
     try {
         await store.selectFile();
+        await store.fetchOptions();
     } finally {
         isLoading.value = false;
     }
