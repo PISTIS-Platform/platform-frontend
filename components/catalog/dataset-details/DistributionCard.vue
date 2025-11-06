@@ -115,7 +115,6 @@ async function downloadFile() {
                 responseType: 'blob',
             };
 
-            const fileExtensionDownload = props.format === 'SQL' ? 'csv' : props.format.toLowerCase();
             if (props.format === 'SQL') {
                 config.params = { JSON_output: 'False' };
             }
@@ -125,7 +124,11 @@ async function downloadFile() {
             const contentTypeHeader = response.headers['content-type'];
             const contentType = contentTypeHeader.split(';')[0].trim();
 
-            const fileName = `${downloadFileName}.${fileExtensionDownload}`;
+            const fileExtensionDownload = props.format === 'SQL' ? 'csv' : props.format.toLowerCase();
+            const fileName =
+                props.format === 'Excel XLS' || props.format === 'Excel XLSX'
+                    ? `${downloadFileName}.${fileExtension.value}`
+                    : `${downloadFileName}.${fileExtensionDownload}`;
             // Create a Blob URL with the detected Content-Type
             const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
             // Create a temporary link and trigger download
@@ -350,7 +353,6 @@ const revealPassword = ref(false);
                                     : 'bg-primary/10 text-primary hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer',
                             ]"
                             :aria-disabled="fileExtension === 'pdf'"
-                            @click.prevent="fileExtension === 'pdf' ? null : undefined"
                         >
                             Data Enrichment
                         </a>
