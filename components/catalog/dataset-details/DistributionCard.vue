@@ -80,7 +80,6 @@ const fetchMetadata = async () => {
 const fileExtension = computed(() => {
     if (props.format === 'Excel XLS') return 'xls';
     if (props.format === 'Excel XLSX') return 'xlsx';
-    if (props.format === 'SQL') return 'csv';
 
     return props.format.toLowerCase();
 });
@@ -116,6 +115,7 @@ async function downloadFile() {
                 responseType: 'blob',
             };
 
+            const fileExtensionDownload = props.format === 'SQL' ? 'csv' : props.format.toLowerCase();
             if (props.format === 'SQL') {
                 config.params = { JSON_output: 'False' };
             }
@@ -125,7 +125,7 @@ async function downloadFile() {
             const contentTypeHeader = response.headers['content-type'];
             const contentType = contentTypeHeader.split(';')[0].trim();
 
-            const fileName = `${downloadFileName}.${fileExtension.value}`;
+            const fileName = `${downloadFileName}.${fileExtensionDownload}`;
             // Create a Blob URL with the detected Content-Type
             const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
             // Create a temporary link and trigger download
@@ -333,33 +333,28 @@ const revealPassword = ref(false);
                     {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
                 </UButton>
                 <div v-if="catalog === 'my-data' && !isStream" class="flex gap-6">
-                    <!-- <a
-                        :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
-                        target="_blank"
-                        nofollow
-                        noreferrer
-                    > -->
-                    <!-- <UButton
-                        v-if="pistisMode === 'factory'"
-                        size="sm"
-                        label="Data Enrichment"
-                        :to="{
-                            path: '/catalog/dataset-details/data-enrichment',
-                            query: {
-                                datasetId: props.datasetId,
-                                distributionId: props.distributionId,
-                                file_type: props.format,
-                            },
-                        }"
-                        prefetch="false"
-                    /> -->
-                    <a
-                        :href="`/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${fileExtension}`"
-                        class="inline-block bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer text-center"
+                    <UTooltip
+                        :text="fileExtension === 'pdf' ? 'Not available for PDF files' : ''"
+                        :prevent="fileExtension !== 'pdf'"
                     >
-                        Data Enrichment
-                    </a>
-                    <!-- </a> -->
+                        <a
+                            :href="
+                                fileExtension === 'pdf'
+                                    ? undefined
+                                    : `/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${fileExtension}`
+                            "
+                            :class="[
+                                'inline-block px-3 py-1.5 text-sm font-medium rounded-md transition-colors text-center',
+                                fileExtension === 'pdf'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-primary/10 text-primary hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer',
+                            ]"
+                            :aria-disabled="fileExtension === 'pdf'"
+                            @click.prevent="fileExtension === 'pdf' ? null : undefined"
+                        >
+                            Data Enrichment
+                        </a>
+                    </UTooltip>
 
                     <UButton
                         size="sm"
