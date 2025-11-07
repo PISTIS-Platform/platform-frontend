@@ -83,6 +83,7 @@ const fileExtension = computed(() => {
 
     return props.format.toLowerCase();
 });
+const isEnrichmentDisabled = computed(() => ['pdf', 'xml'].includes(fileExtension.value));
 
 onMounted(() => {
     fetchMetadata();
@@ -320,9 +321,9 @@ const revealPassword = ref(false);
                     <div>{{ title }}</div>
                 </div>
                 <div class="space-x-2">
-                    <UBadge v-if="isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
-                    <UBadge v-if="isTransformed" color="blue" variant="subtle">Transformed</UBadge>
-                    <UBadge v-if="isEncrypted" color="yellow" variant="subtle">Encrypted</UBadge>
+                    <UBadge v-if="isAnonymized" color="green" variant="outline" size="xs">Anonymized</UBadge>
+                    <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
+                    <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
                 </div>
             </div>
             <div v-if="pistisMode == 'factory'" class="flex flex-wrap gap-6">
@@ -337,22 +338,22 @@ const revealPassword = ref(false);
                 </UButton>
                 <div v-if="catalog === 'my-data' && !isStream" class="flex gap-6">
                     <UTooltip
-                        :text="fileExtension === 'pdf' ? 'Not available for PDF files' : ''"
-                        :prevent="fileExtension !== 'pdf'"
+                        :text="isEnrichmentDisabled ? 'Not available for PDF and XML files' : ''"
+                        :prevent="!isEnrichmentDisabled"
                     >
                         <a
                             :href="
-                                fileExtension === 'pdf'
+                                isEnrichmentDisabled
                                     ? undefined
                                     : `/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${fileExtension}`
                             "
                             :class="[
                                 'inline-block px-3 py-1.5 text-sm font-medium rounded-md transition-colors text-center',
-                                fileExtension === 'pdf'
+                                isEnrichmentDisabled
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                     : 'bg-primary/10 text-primary hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer',
                             ]"
-                            :aria-disabled="fileExtension === 'pdf'"
+                            :aria-disabled="isEnrichmentDisabled"
                         >
                             Data Enrichment
                         </a>
