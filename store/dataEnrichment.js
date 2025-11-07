@@ -19,13 +19,13 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     const initialFileData = ref(null);
     const unsupportedDataTypes = ref(new Map([['Bigint', 'Integer']]));
     const dataTypeTransformCompatibility = ref({
-        String: new Set(['string', 'date', 'dateTime']),
+        String: new Set(['string', 'date', 'dateTime', 'time', 'boolean', 'integer', 'double', 'float']),
         Integer: new Set(['string', 'integer', 'double', 'float', 'int']),
         Double: new Set(['string', 'integer', 'double']),
         Float: new Set(['string', 'float']),
         Date: new Set(['string', 'date', 'dateTime']),
         DateTime: new Set(['string', 'date', 'dateTime']),
-        Booolean: new Set(['string', 'boolean']),
+        Boolean: new Set(['string', 'boolean']),
         Time: new Set(['string', 'time']),
     });
     const changedUnsupportedDataTypes = ref(new Map());
