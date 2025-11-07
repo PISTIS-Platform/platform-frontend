@@ -91,7 +91,7 @@
 
 <script setup>
 import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { useStore } from '@/components/catalog/dataset-details/data-lineage/stores/store';
 import { useApiService } from '~/services/apiService';
@@ -132,6 +132,7 @@ const blockchainHashError = ref('');
 // ========================================
 
 const familyTreeData = computed(() => store.familyTreeData);
+const lineageFamilyId = computed(() => store.lineageFamilyID);
 
 const hashesMatch = computed(() => {
     return blockchainHash.value && computedHash.value && blockchainHash.value.hash === computedHash.value;
@@ -149,16 +150,21 @@ const route = useRoute();
 const pistisMode = route.query.pm;
 const { getBlockchainHashUrl } = useApiService(pistisMode);
 
-const fetchBlockchainHash = async () => {
+const fetchBlockchainHash = async (familyId = lineageFamilyId.value) => {
+    if (!familyId) {
+        return;
+    }
+
     try {
         loadingBlockchainHash.value = true;
         blockchainHashError.value = '';
+        blockchainHash.value = null;
 
         const url = getBlockchainHashUrl();
 
         const response = await axios.get(url, {
             params: {
-                dataset_id: props.lineageId,
+                family_id: familyId,
             },
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -169,7 +175,10 @@ const fetchBlockchainHash = async () => {
 
         blockchainHash.value = response.data;
     } catch (error) {
-        blockchainHashError.value = error.message || 'Failed to retrieve blockchain hash';
+        const fallbackMessage = props.lineageId
+            ? `Failed to retrieve blockchain hash for dataset ${props.lineageId}`
+            : 'Failed to retrieve blockchain hash';
+        blockchainHashError.value = error?.response?.data?.message || error.message || fallbackMessage;
     } finally {
         loadingBlockchainHash.value = false;
     }
@@ -269,10 +278,21 @@ const useCurrentFamilyTree = () => {
 // LIFECYCLE HOOKS
 // ========================================
 
-onMounted(() => {
-    // Fetch blockchain hash when component mounts
-    fetchBlockchainHash();
-});
+watch(
+    () => lineageFamilyId.value,
+    (newFamilyId, oldFamilyId) => {
+        if (!newFamilyId) {
+            blockchainHash.value = null;
+            if (oldFamilyId) {
+                blockchainHashError.value = '';
+            }
+            return;
+        }
+
+        fetchBlockchainHash(newFamilyId);
+    },
+    { immediate: true },
+);
 </script>
 
 <style scoped>

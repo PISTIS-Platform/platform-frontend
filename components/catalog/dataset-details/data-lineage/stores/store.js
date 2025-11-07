@@ -41,6 +41,7 @@ export const useStore = defineStore('store', () => {
 
     // Dataset State
     const familyTreeData = ref(null);
+    const lineageFamilyID = ref(null);
     const treeObject = ref(null);
     const tableData = ref(null);
     const selectedDiff = ref([]);
@@ -157,11 +158,33 @@ export const useStore = defineStore('store', () => {
         }
     };
 
+    const extractFamilyId = (data) => {
+        if (!data || typeof data !== 'object') {
+            return null;
+        }
+
+        for (const lineageGroup of Object.values(data)) {
+            if (!lineageGroup || typeof lineageGroup !== 'object') {
+                continue;
+            }
+
+            for (const record of Object.values(lineageGroup)) {
+                if (record && typeof record === 'object' && record.family_id) {
+                    return record.family_id;
+                }
+            }
+        }
+
+        return null;
+    };
+
     const fetchData = async (lineageID, token) => {
         isLoadingFamilyTree.value = true;
+        lineageFamilyID.value = null;
 
         if (!token) {
             console.error('No access token found');
+            isLoadingFamilyTree.value = false;
             return;
         }
 
@@ -182,6 +205,7 @@ export const useStore = defineStore('store', () => {
             const responseData = response.data;
             treeObject.value = responseData;
             familyTreeData.value = responseData;
+            lineageFamilyID.value = extractFamilyId(responseData);
             parseTableData(responseData);
 
             if (import.meta.env.DEV) {
@@ -200,6 +224,7 @@ export const useStore = defineStore('store', () => {
             const response = mockData;
             treeObject.value = response;
             familyTreeData.value = response;
+            lineageFamilyID.value = extractFamilyId(response);
             parseTableData(treeObject.value);
             console.log('Mock Data used:', response);
         } catch (error) {
@@ -325,6 +350,7 @@ export const useStore = defineStore('store', () => {
         // subNav,
         // keycloak,
         familyTreeData,
+        lineageFamilyID,
         treeObject,
         tableData,
         selectedDiff,
