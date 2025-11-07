@@ -24,9 +24,9 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         Double: new Set(['string', 'integer', 'double']),
         Float: new Set(['string', 'float']),
         Date: new Set(['string', 'date', 'dateTime']),
-        DateTime: new Set(['string', 'date', 'dateTime']),
+        DateTime: new Set(['string', 'date', 'dateTime', 'time']),
         Boolean: new Set(['string', 'boolean']),
-        Time: new Set(['string', 'time']),
+        Time: new Set(['string', 'time', 'dateTime']),
     });
     const changedUnsupportedDataTypes = ref(new Map());
     const liveSearchResult = ref([]);
