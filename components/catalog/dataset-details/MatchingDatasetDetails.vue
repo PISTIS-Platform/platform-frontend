@@ -15,7 +15,6 @@ const loadData = async () => {
         const response = await getMatchingDatasets(props.datasetId);
         matchingDatasets.value = Object.values(response.data).slice(1);
         hasMatchingDatasets.value = true;
-        console.log('>>>>>>>>>>>>>>>MMS:', response);
     } catch (error) {
         console.error('Loading data failed:', error);
     }
