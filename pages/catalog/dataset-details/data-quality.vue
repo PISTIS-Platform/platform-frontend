@@ -283,7 +283,7 @@ async function loadDistributionsMetrics() {
 async function loadDistributionsDataQualityMetrics() {
     try {
         const distributions = (await getDistributionsDataQualityMetrics(datasetId)).result.distributions;
-
+        console.log('>>>>>>>>>RESPONSE:', distributions);
         accordionItemsDataQuality.value = distributions.map((d) => {
             function findMeasurementValue(metricNamePart) {
                 const found = d.measurements.find((m) =>
@@ -300,11 +300,11 @@ async function loadDistributionsDataQualityMetrics() {
                         title: 'Accuracy',
                         items: [
                             {
-                                title: 'ExpectColumnValuesToBeInSet (Type Object)',
-                                value: findMeasurementValue('ExpectColumnValuesToBeInSet'),
+                                title: 'ExpectColumnValuesToBeBetween',
+                                value: findMeasurementValue('ExpectColumnValuesToBeBetween'),
                             },
                             {
-                                title: 'ExpectColumnValuesToBeInSet (Disponibilité)',
+                                title: 'ExpectColumnValuesToBeInSet',
                                 value: findMeasurementValue('ExpectColumnValuesToBeInSet'),
                             },
                         ],
@@ -313,12 +313,24 @@ async function loadDistributionsDataQualityMetrics() {
                         title: 'Consistency',
                         items: [
                             {
-                                title: 'ExpectColumnValuesToMatchRegexList (N° Voie Pair)',
-                                value: findMeasurementValue('ExpectColumnValuesToMatchRegexList'),
+                                title: 'ExpectColumnMinToBeBetween',
+                                value: findMeasurementValue('ExpectColumnMinToBeBetween'),
                             },
                             {
-                                title: 'ExpectColumnValuesToMatchRegexList (N° Voie Impair)',
-                                value: findMeasurementValue('ExpectColumnValuesToMatchRegexList'),
+                                title: 'ExpectColumnMaxToBeBetween',
+                                value: findMeasurementValue('ExpectColumnMaxToBeBetween'),
+                            },
+                            {
+                                title: 'ExpectColumnStdevToBeBetween',
+                                value: findMeasurementValue('ExpectColumnStdevToBeBetween'),
+                            },
+                            {
+                                title: 'ExpectColumnValueLengthsToEqual',
+                                value: findMeasurementValue('ExpectColumnValueLengthsToEqual'),
+                            },
+                            {
+                                title: 'ExpectColumnValueLengthsToBeBetween',
+                                value: findMeasurementValue('ExpectColumnValueLengthsToBeBetween'),
                             },
                         ],
                     },
@@ -326,25 +338,8 @@ async function loadDistributionsDataQualityMetrics() {
                         title: 'Completeness',
                         items: [
                             {
-                                title: 'ExpectColumnValuesToNotBeNull (Modèle)',
+                                title: 'ExpectColumnValuesToNotBeNull',
                                 value: findMeasurementValue('ExpectColumnValuesToNotBeNull'),
-                            },
-                            {
-                                title: 'ExpectColumnValuesToNotBeNull (N° Voie Pair)',
-                                value: findMeasurementValue('ExpectColumnValuesToNotBeNull'),
-                            },
-                            {
-                                title: 'ExpectColumnValuesToNotBeNull (N° Voie Impair)',
-                                value: findMeasurementValue('ExpectColumnValuesToNotBeNull'),
-                            },
-                        ],
-                    },
-                    {
-                        title: 'Uniqueness',
-                        items: [
-                            {
-                                title: 'ExpectColumnValuesToBeUnique (Identifiant)',
-                                value: findMeasurementValue('ExpectColumnValuesToBeUnique'),
                             },
                         ],
                     },
@@ -364,12 +359,12 @@ async function loadDistributionsDataQualityMetrics() {
                                 value: findMeasurementValue('ExpectTableColumnCountToEqual'),
                             },
                             {
-                                title: 'ExpectColumnValuesToBeOfType (Type Object)',
+                                title: 'ExpectColumnValuesToBeOfType',
                                 value: findMeasurementValue('ExpectColumnValuesToBeOfType'),
                             },
                             {
-                                title: 'ExpectColumnValuesToBeOfType (Modèle)',
-                                value: findMeasurementValue('ExpectColumnValuesToBeOfType'),
+                                title: 'ExpectTableColumnsToMatchOrderedList',
+                                value: findMeasurementValue('ExpectTableColumnsToMatchOrderedList'),
                             },
                         ],
                     },
