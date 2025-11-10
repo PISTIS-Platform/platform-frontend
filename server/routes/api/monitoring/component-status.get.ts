@@ -86,6 +86,10 @@ export default defineEventHandler(async (event) => {
                     if (result === 'Service is up and running') {
                         active = 'true';
                     }
+                } else if (key === 'Anonymizer') {
+                    if (result?.code === 200) {
+                        active = 'true';
+                    }
                 } else if (result === true) {
                     active = 'true';
                 } else if (result === 'Service is up and running') {
@@ -99,8 +103,6 @@ export default defineEventHandler(async (event) => {
                 ) {
                     active = 'true';
                 } else if (result?.toLowerCase() === 'ok') {
-                    active = 'true';
-                } else if (result?.code === 200) {
                     active = 'true';
                 }
             } catch (error) {
