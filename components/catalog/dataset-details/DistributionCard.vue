@@ -6,13 +6,11 @@ import { useRoute } from 'vue-router';
 
 import { useApiService } from '~/services/apiService';
 
-import { PropertyTable } from './PropertyTableRow';
-
 const route = useRoute();
 
 const pistisMode = route.query.pm;
 
-const { getDatasetUrl, getEnrichmentUrl } = useApiService(pistisMode);
+const { getDatasetUrl } = useApiService(pistisMode);
 
 interface CardProps {
     title: string;
@@ -38,21 +36,6 @@ const props = withDefaults(defineProps<CardProps>(), {
 
 const { data: session } = useAuth();
 const token = session.value?.token;
-
-const dataOrder = ['modified', 'license', 'created', 'languages'];
-// const pistisMode = config.pistisMode;
-const resolvedData = computed(() => {
-    const sortedData = [...(props.data.data || [])].sort((a, b) => {
-        // const aIndex = dataOrder.indexOf(a.id) === -1 ? dataOrder.length : dataOrder.indexOf(a.id);
-        const aIndex = dataOrder.includes(a.id) ? dataOrder.indexOf(a.id) : dataOrder.length;
-        // const bIndex = dataOrder.indexOf(b.id) === -1 ? dataOrder.length : dataOrder.indexOf(b.id);
-        const bIndex = dataOrder.includes(b.id) ? dataOrder.indexOf(b.id) : dataOrder.length;
-
-        return aIndex - bIndex;
-    });
-
-    return sortedData;
-});
 
 const catalog = ref(null);
 
@@ -365,109 +348,6 @@ const revealPassword = ref(false);
                         :label="$t('buttons.anonymize')"
                         :to="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
                     />
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div v-if="false" class="mb-3 rounded-lg border-b-none bg-white ring-1 ring-gray-200 shadow p-4">
-        <div>
-            <div class="flex items-start justify-between">
-                <Typography as="h2" variant="by-heading-4" class="text-surface-text">
-                    {{ title }}
-                </Typography>
-                <div class="flex inline">
-                    <KTag v-if="isAnonymized" class="!bg-orange-600 mr-5"> anonymized </KTag>
-                    <KTag v-if="isTransformed" class="!bg-orange-600 mr-5"> transformed </KTag>
-                    <KTag class="hidden md:block">
-                        {{ format }}
-                    </KTag>
-                </div>
-            </div>
-
-            <div class="my-0 flex flex-col lg:my-6 lg:flex-row lg:justify-between lg:gap-28">
-                <div class="flex flex-1 flex-col gap-6">
-                    <div class="markdown-content mt-4 text-sm leading-6 text-surface-light" v-html="description" />
-                    <div class="flex">
-                        <KTag class="md:hidden">
-                            {{ format }}
-                        </KTag>
-                    </div>
-                </div>
-
-                <div class="my-12 lg:my-0 lg:basis-4/12 text-surface-text">
-                    <DataToggler v-slot="{ truncated }" :data="resolvedData || []" :limit="1" :expanded="false">
-                        <PropertyTable
-                            :node="{
-                                id: 'root',
-                                label: '',
-                                type: 'node',
-                                isRoot: true,
-                                data: truncated,
-                            }"
-                        />
-                    </DataToggler>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between">
-                <div v-if="pistisMode == 'factory'" class="flex gap-6 flex-wrap">
-                    <KButton size="small" @click="downloadFile">
-                        {{ downloadText }}
-                    </KButton>
-
-                    <div v-if="catalog === 'my-data'" class="flex gap-6">
-                        <a
-                            :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
-                            target="_blank"
-                            nofollow
-                            noreferrer
-                        >
-                            <KButton size="small">
-                                Data Enrichment
-                                <!-- <i class="icon-[ph--arrow-square-out]" /> -->
-                            </KButton>
-                        </a>
-
-                        <a
-                            :href="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
-                            target="_blank"
-                            nofollow
-                            noreferrer
-                        >
-                            <KButton size="small">
-                                Anonymize
-                                <!-- <i class="icon-[ph--arrow-square-out]" /> -->
-                            </KButton>
-                        </a>
-                    </div>
-                    <!-- <KButton> Preview </KButton> -->
-
-                    <!-- <LinkedDataSelector
-                        :resource-id="distributionId"
-                        resource="distributions"
-                        class="text-white dark:text-surface-900 bg-pistis-600 dark:bg-primary-dark hover:bg-primary-hover dark:hover:bg-primary-dark-hover active:bg-primary dark:active:bg-primary-dark-pressed rounded-md border-transparent inline-flex min-w-fit items-center justify-center text-center font-medium align-bottom h-8 text-sm px-4 py-2"
-                    /> -->
-
-                    <!-- Why is this not showing?? -->
-                    <!-- <Dropdown severity="secondary" label="Beschreibung speichern">
-                        <DropdownItem
-                            v-for="[key, uri] in Object.entries(linkedData || {})"
-                            :key="key"
-                            as="a"
-                            :href="uri"
-                            target="_blank"
-                        >
-                            {{ key }}
-                        </DropdownItem>
-                    </Dropdown> -->
-
-                    <!-- <button
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                        @click="onSave"
-                    >
-                        {{ saveText }}
-                    </button> -->
                 </div>
             </div>
         </div>
