@@ -5,6 +5,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useApiService } from '~/services/apiService';
+import PhCaretDown from '~icons/ph/caret-down';
 
 import { PropertyTable } from './PropertyTableRow';
 
@@ -55,6 +56,8 @@ const resolvedData = computed(() => {
 });
 
 const catalog = ref(null);
+
+const showBtns = ref(false);
 
 const searchUrl = getDatasetUrl(props.datasetId);
 const isTransformed = ref();
@@ -320,19 +323,28 @@ const revealPassword = ref(false);
         </div>
     </UModal>
     <div class="flex flex-col pb-4">
-        <div class="flex flex-row justify-between items-center">
-            <div class="flex">
+        <div>
+            <div class="flex justify-between">
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
                     <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
                     <div>{{ title }}</div>
                 </div>
-                <div class="space-x-2">
-                    <UBadge v-if="isAnonymized" color="green" variant="outline" size="xs">Anonymized</UBadge>
-                    <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
-                    <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
+                <div class="flex">
+                    <div class="space-x-2">
+                        <UBadge v-if="isAnonymized" color="green" variant="outline" size="xs">Anonymized</UBadge>
+                        <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
+                        <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
+                    </div>
+                    <button v-if="pistisMode == 'factory'" class="ml-10" @click="showBtns = !showBtns">
+                        <PhCaretDown
+                            :class="{
+                                'rotate-180': showBtns,
+                            }"
+                        />
+                    </button>
                 </div>
             </div>
-            <div v-if="pistisMode == 'factory'" class="flex flex-wrap gap-6">
+            <div v-if="pistisMode == 'factory' && showBtns" class="flex flex-wrap gap-6 pt-4 pb-5 pl-4">
                 <UButton
                     variant="soft"
                     color="secondary"
