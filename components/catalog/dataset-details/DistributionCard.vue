@@ -330,11 +330,21 @@ const revealPassword = ref(false);
                     <div>{{ title }}</div>
                 </div>
                 <div class="flex">
-                    <div class="space-x-2">
+                    <div class="space-x-2 pr-5">
                         <UBadge v-if="isAnonymized" color="green" variant="outline" size="xs">Anonymized</UBadge>
                         <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
                         <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
                     </div>
+                    <UButton
+                        v-if="pistisMode == 'factory'"
+                        variant="soft"
+                        color="secondary"
+                        size="sm"
+                        icon="i-heroicons-arrow-down-tray"
+                        @click="downloadFile"
+                    >
+                        {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                    </UButton>
                     <button v-if="pistisMode == 'factory'" class="ml-10" @click="showBtns = !showBtns">
                         <PhCaretDown
                             :class="{
@@ -345,15 +355,6 @@ const revealPassword = ref(false);
                 </div>
             </div>
             <div v-if="pistisMode == 'factory' && showBtns" class="flex flex-wrap gap-6 pt-4 pb-5 pl-4">
-                <UButton
-                    variant="soft"
-                    color="secondary"
-                    size="sm"
-                    icon="i-heroicons-arrow-down-tray"
-                    @click="downloadFile"
-                >
-                    {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                </UButton>
                 <UButton
                     v-if="format === 'SQL'"
                     variant="soft"
