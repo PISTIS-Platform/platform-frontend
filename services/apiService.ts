@@ -7,6 +7,8 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getRepoUrl = () => `${baseUrl}/srv/repo/`;
 
+    const getDistributionsUrl = () => `${baseUrl}/srv/repo/distributions/`;
+
     const getDatasetUrl = (datasetId: string) => `${baseUrl}/srv/search/datasets/${datasetId}`;
 
     const getUserFactoryUrl = () => `${config.public.cloudUrl}/srv/factories-registry/api/factories/user-factory`;
@@ -40,6 +42,7 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         baseUrl,
         getSearchUrl,
         getRepoUrl,
+        getDistributionsUrl,
         getDatasetUrl,
         getUserFactoryUrl,
         getInvestUrl,

@@ -12,7 +12,7 @@ const route = useRoute();
 
 const pistisMode = route.query.pm;
 
-const { getDatasetUrl, getEnrichmentUrl } = useApiService(pistisMode);
+const { getDistributionsUrl, getDatasetUrl, getEnrichmentUrl } = useApiService(pistisMode);
 
 interface CardProps {
     title: string;
@@ -149,6 +149,12 @@ async function downloadFile() {
         }
     }
 }
+
+const openMetadata = () => {
+    const distributionsUrl = getDistributionsUrl();
+    window.open(`${distributionsUrl}${props.distributionId}.ttl`);
+};
+
 const { data: streamingConsumerData } = useFetch<{
     username: string;
     password: string;
@@ -336,6 +342,15 @@ const revealPassword = ref(false);
                 >
                     {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
                 </UButton>
+                <UButton
+                    v-if="format === 'SQL'"
+                    variant="soft"
+                    color="secondary"
+                    size="sm"
+                    icon="i-heroicons-arrow-top-right-on-square"
+                    @click="openMetadata"
+                    >See Data Schema</UButton
+                >
                 <div v-if="catalog === 'my-data' && !isStream" class="flex gap-6">
                     <UTooltip
                         :text="isEnrichmentDisabled ? 'Not available for PDF and XML files' : ''"
