@@ -119,12 +119,56 @@
                                                 <li
                                                     v-for="line in section.items"
                                                     :key="line.title"
-                                                    class="flex justify-between items-center"
+                                                    class="flex flex-col"
                                                 >
-                                                    <span>{{ line.title }}</span>
-                                                    <span class="distribution-metadata-value font-bold">
-                                                        {{ line.value }}
-                                                    </span>
+                                                    <div
+                                                        class="flex justify-between items-center cursor-pointer"
+                                                        @click="line.isGroup && (line.expanded = !line.expanded)"
+                                                    >
+                                                        <span class="flex items-center gap-1">
+                                                            <span>{{ line.title }}</span>
+                                                            <PhCaretDown
+                                                                v-if="line.isGroup"
+                                                                :class="[
+                                                                    'transition-transform',
+                                                                    line.expanded ? 'rotate-180' : '',
+                                                                ]"
+                                                            />
+                                                        </span>
+                                                        <span
+                                                            v-if="!line.isGroup"
+                                                            class="distribution-metadata-value font-bold"
+                                                        >
+                                                            {{ line.value }}
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- dropdown for column specific values -->
+                                                    <ul
+                                                        v-if="line.isGroup && line.expanded"
+                                                        class="mt-2 ml-2 space-y-1"
+                                                    >
+                                                        <li
+                                                            v-for="child in line.children"
+                                                            :key="child.title"
+                                                            class="flex justify-between items-center text-sm text-gray-600"
+                                                        >
+                                                            <div>
+                                                                <span class="text-gray-400 font-semibold"
+                                                                    >column name:</span
+                                                                >
+                                                                {{ child.title }}
+                                                            </div>
+                                                            <div class="flex gap-x-2">
+                                                                <span class="text-gray-400 font-semibold"
+                                                                    >column value:</span
+                                                                >
+                                                                <span class="distribution-metadata-value font-bold">
+                                                                    {{ child.value }}
+                                                                </span>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
                                                 </li>
                                             </ul>
                                         </div>
@@ -148,6 +192,7 @@ import {
     getDistributionsDataQualityMetrics,
     getDistributionsMetrics,
 } from '~/components/catalog/dataset-details/DataQualityService';
+import PhCaretDown from '~icons/ph/caret-down';
 import PhCaretLeft from '~icons/ph/caret-left';
 
 const router = useRouter();
@@ -158,6 +203,7 @@ const relevantDatasetMetrics = ref([]);
 const relevantDistributionsMetrics = ref([]);
 const accordionItems = ref([]);
 const accordionItemsDataQuality = ref([]);
+const distributionsNames = ref([]);
 
 /* helpers function */
 const fmt = (v) => {
@@ -231,6 +277,12 @@ async function loadDistributionsMetrics() {
         const distributions = (await getDistributionsMetrics(datasetId)).result.results.flat();
         relevantDistributionsMetrics.value = distributions;
 
+        //relevant for data quality section to get titles for distributions
+        distributionsNames.value = distributions.map((item) => ({
+            id: item.info['distribution-id'],
+            label: item.info['distribution-title'],
+        }));
+
         accordionItems.value = distributions.map((d) => ({
             label: d.info?.['distribution-title'] || d.id?.['distribution-id'] || 'Unknown distribution',
             icon: 'i-lucide-box',
@@ -282,93 +334,107 @@ async function loadDistributionsMetrics() {
 
 async function loadDistributionsDataQualityMetrics() {
     try {
-        const distributions = (await getDistributionsDataQualityMetrics(datasetId)).result.distributions;
+        const response = await getDistributionsDataQualityMetrics(datasetId);
+        const distributions = response?.result?.distributions || [];
+
         console.log('>>>>>>>>>RESPONSE:', distributions);
+
+        // all so far available metrics, may be expanded in the future:
+        const metricStructure = {
+            Accuracy: ['ExpectColumnValuesToBeBetween', 'ExpectColumnValuesToBeInSet'],
+            Consistency: [
+                'ExpectColumnMinToBeBetween',
+                'ExpectColumnMaxToBeBetween',
+                'ExpectColumnStdevToBeBetween',
+                'ExpectColumnValueLengthsToEqual',
+                'ExpectColumnValueLengthsToBeBetween',
+            ],
+            Completeness: ['ExpectColumnValuesToNotBeNull'],
+            Uniqueness: ['NA'],
+            Validity: [
+                'ExpectColumnValuesToBeOfType',
+                'ExpectTableColumnsToMatchOrderedList',
+                'ExpectTableColumnsToMatchSet',
+                'ExpectTableColumnCountToEqual',
+                'ExpectTableRowCountToEqual',
+            ],
+        };
+
+        const extractMetricName = (id) => {
+            if (!id) return '';
+            const parts = id.split('voc#');
+            return parts.length > 1 ? parts[1] : id;
+        };
+
+        const extractColumnName = (m) => {
+            const body = m?.quality_annotation?.body;
+            if (!body) return 'Unknown column';
+
+            const parsed = JSON.parse(body);
+            return parsed?.column || 'Unknown column';
+        };
+
         accordionItemsDataQuality.value = distributions.map((d) => {
-            function findMeasurementValue(metricNamePart) {
-                const found = d.measurements.find((m) =>
-                    m.metric?.id?.toLowerCase().includes(metricNamePart.toLowerCase()),
-                );
-                return found ? fmt(found.value) : 'N/A';
+            const measurements = d.measurements || [];
+
+            const metricMap = {};
+            for (const m of measurements) {
+                const name = extractMetricName(m.metric?.id);
+                if (!name) continue;
+                if (!metricMap[name]) metricMap[name] = [];
+                metricMap[name].push(m);
             }
 
+            const sections = Object.entries(metricStructure)
+                .map(([category, metricNames]) => {
+                    const items = [];
+
+                    for (const metricName of metricNames) {
+                        const entries = metricMap[metricName] || [];
+                        if (entries.length === 0) continue;
+
+                        if (entries.length === 1) {
+                            // metric appears only once for one distribution
+                            const entry = entries[0];
+                            items.push({
+                                title: metricName,
+                                value: fmt(entry.id),
+                            });
+                        } else {
+                            // metric is column specific and appears mutliple times for one distribution
+                            const children = entries
+                                .map((entry) => ({
+                                    title: extractColumnName(entry),
+                                    value: fmt(entry.id),
+                                }))
+                                //sort columns
+                                .sort((a, b) => {
+                                    const aNum = parseInt(a.title);
+                                    const bNum = parseInt(b.title);
+
+                                    return aNum - bNum;
+                                });
+
+                            items.push({
+                                title: `${metricName} (${entries.length})`,
+                                isGroup: true,
+                                children,
+                            });
+                        }
+                    }
+
+                    return items.length > 0 ? { title: category, items } : null;
+                })
+                .filter(Boolean);
+
+            // get name for distribution based on distribution id
+            const distributionLabel =
+                distributionsNames.value.find((dn) => dn.id === d.id)?.label || d.id || 'Unknown distribution';
+
             return {
-                label: d.info || d.id || 'Unknown distribution',
+                label: distributionLabel,
                 icon: 'i-lucide-box',
-                sections: [
-                    {
-                        title: 'Accuracy',
-                        items: [
-                            {
-                                title: 'ExpectColumnValuesToBeBetween',
-                                value: findMeasurementValue('ExpectColumnValuesToBeBetween'),
-                            },
-                            {
-                                title: 'ExpectColumnValuesToBeInSet',
-                                value: findMeasurementValue('ExpectColumnValuesToBeInSet'),
-                            },
-                        ],
-                    },
-                    {
-                        title: 'Consistency',
-                        items: [
-                            {
-                                title: 'ExpectColumnMinToBeBetween',
-                                value: findMeasurementValue('ExpectColumnMinToBeBetween'),
-                            },
-                            {
-                                title: 'ExpectColumnMaxToBeBetween',
-                                value: findMeasurementValue('ExpectColumnMaxToBeBetween'),
-                            },
-                            {
-                                title: 'ExpectColumnStdevToBeBetween',
-                                value: findMeasurementValue('ExpectColumnStdevToBeBetween'),
-                            },
-                            {
-                                title: 'ExpectColumnValueLengthsToEqual',
-                                value: findMeasurementValue('ExpectColumnValueLengthsToEqual'),
-                            },
-                            {
-                                title: 'ExpectColumnValueLengthsToBeBetween',
-                                value: findMeasurementValue('ExpectColumnValueLengthsToBeBetween'),
-                            },
-                        ],
-                    },
-                    {
-                        title: 'Completeness',
-                        items: [
-                            {
-                                title: 'ExpectColumnValuesToNotBeNull',
-                                value: findMeasurementValue('ExpectColumnValuesToNotBeNull'),
-                            },
-                        ],
-                    },
-                    {
-                        title: 'Validity',
-                        items: [
-                            {
-                                title: 'ExpectTableColumnsToMatchSet',
-                                value: findMeasurementValue('ExpectTableColumnsToMatchSet'),
-                            },
-                            {
-                                title: 'ExpectTableRowCountToEqual',
-                                value: findMeasurementValue('ExpectTableRowCountToEqual'),
-                            },
-                            {
-                                title: 'ExpectTableColumnCountToEqual',
-                                value: findMeasurementValue('ExpectTableColumnCountToEqual'),
-                            },
-                            {
-                                title: 'ExpectColumnValuesToBeOfType',
-                                value: findMeasurementValue('ExpectColumnValuesToBeOfType'),
-                            },
-                            {
-                                title: 'ExpectTableColumnsToMatchOrderedList',
-                                value: findMeasurementValue('ExpectTableColumnsToMatchOrderedList'),
-                            },
-                        ],
-                    },
-                ],
+                sections,
             };
         });
     } catch (e) {
@@ -376,10 +442,10 @@ async function loadDistributionsDataQualityMetrics() {
     }
 }
 
-onMounted(() => {
-    loadDatasetMetrics();
-    loadDistributionsMetrics();
-    loadDistributionsDataQualityMetrics();
+onMounted(async () => {
+    await loadDistributionsMetrics();
+    await loadDistributionsDataQualityMetrics();
+    await loadDatasetMetrics();
 });
 </script>
 
