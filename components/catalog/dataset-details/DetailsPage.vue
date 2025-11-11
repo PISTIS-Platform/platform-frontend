@@ -25,6 +25,7 @@ const props = withDefaults(
 
 const router = useRouter();
 const route = useRoute();
+const config = useRuntimeConfig();
 const pistisMode = route.query.pm;
 
 const platform = pistisMode === 'cloud' ? 'marketplace' : 'catalog';
@@ -119,15 +120,20 @@ const fetchMetadata = async () => {
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
-            checkDataset(metadata.value.result?.id);
-            const monetization = metadata.value.result?.monetization?.[0];
 
+            // Check monetisation
+            const monetization = metadata.value.result?.monetization?.[0];
             if (monetization) {
                 monetizationData.value = monetization;
                 price.value = monetization.purchase_offer?.[0]?.price ?? null;
                 investPrice.value = monetization.investment_offer?.[0]?.price_per_share ?? null;
             } else {
                 console.warn('No monetization data available.');
+            }
+            
+            // If the dataset is not mine, check if I have bought it
+            if (isNotOwn.value != false) {
+                checkDataset(metadata.value.result?.id);
             }
         }
         if (pistisMode == 'factory') {
@@ -218,8 +224,45 @@ const openInsightsResult = async () => {
     }
 };
 
-const { checkDatasetExists } = useSparql();
+/* TODO: clean up the NUXT server & move call to a dedicated service */
+const checkDatasetExists = async (datasetId) => {
+    const query = `
+    PREFIX dcat: <http://www.w3.org/ns/dcat#>
+    PREFIX pistis: <https://www.pistis-project.eu/ns/voc#>
 
+    ASK {
+      ?dataset a dcat:Dataset ;
+               pistis:offer ?offer .
+      ?offer pistis:marketplaceOfferId "${datasetId}" .
+    }
+  `;
+
+    const params = new URLSearchParams({
+        'default-graph-uri': '',
+        query,
+        format: 'application/sparql-results+json',
+        timeout: '0',
+        signal_void: 'on',
+    });
+
+    try {
+        const response = await fetch(`${config.public.factoryUrl}/srv/virtuoso/sparql?${params.toString()}`, {
+            headers: {
+                Accept: 'application/sparql-results+json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`SPARQL query failed: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.boolean;
+    } catch (error) {
+        console.error('SPARQL direct fetch failed:', error);
+        throw error;
+    }
+};
 const datasetIsBought = ref(false);
 
 const checkDataset = async (id: string) => {
