@@ -5,12 +5,13 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useApiService } from '~/services/apiService';
+import PhCaretDown from '~icons/ph/caret-down';
 
 const route = useRoute();
 
 const pistisMode = route.query.pm;
 
-const { getDatasetUrl } = useApiService(pistisMode);
+const { getDistributionsUrl, getDatasetUrl, getEnrichmentUrl } = useApiService(pistisMode);
 
 interface CardProps {
     title: string;
@@ -38,6 +39,8 @@ const { data: session } = useAuth();
 const token = session.value?.token;
 
 const catalog = ref(null);
+
+const showBtns = ref(false);
 
 const searchUrl = getDatasetUrl(props.datasetId);
 const isTransformed = ref();
@@ -132,6 +135,12 @@ async function downloadFile() {
         }
     }
 }
+
+const openMetadata = () => {
+    const distributionsUrl = getDistributionsUrl();
+    window.open(`${distributionsUrl}${props.distributionId}.ttl`);
+};
+
 const { data: streamingConsumerData } = useFetch<{
     username: string;
     password: string;
@@ -297,28 +306,47 @@ const revealPassword = ref(false);
         </div>
     </UModal>
     <div class="flex flex-col pb-4">
-        <div class="flex flex-row justify-between items-center">
-            <div class="flex">
+        <div>
+            <div class="flex justify-between">
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
                     <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
                     <div>{{ title }}</div>
                 </div>
-                <div class="space-x-2">
-                    <UBadge v-if="isAnonymized" color="green" variant="outline" size="xs">Anonymized</UBadge>
-                    <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
-                    <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
+                <div class="flex">
+                    <div class="space-x-2 pr-5">
+                        <UBadge v-if="isAnonymized" color="green" variant="outline" size="xs">Anonymized</UBadge>
+                        <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
+                        <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
+                    </div>
+                    <UButton
+                        v-if="pistisMode == 'factory'"
+                        variant="soft"
+                        color="secondary"
+                        size="sm"
+                        icon="i-heroicons-arrow-down-tray"
+                        @click="downloadFile"
+                    >
+                        {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                    </UButton>
+                    <button v-if="pistisMode == 'factory'" class="ml-10" @click="showBtns = !showBtns">
+                        <PhCaretDown
+                            :class="{
+                                'rotate-180': showBtns,
+                            }"
+                        />
+                    </button>
                 </div>
             </div>
-            <div v-if="pistisMode == 'factory'" class="flex flex-wrap gap-6">
+            <div v-if="pistisMode == 'factory' && showBtns" class="flex flex-wrap gap-6 pt-4 pb-5 pl-4">
                 <UButton
+                    v-if="format === 'SQL'"
                     variant="soft"
                     color="secondary"
                     size="sm"
-                    icon="i-heroicons-arrow-down-tray"
-                    @click="downloadFile"
+                    icon="i-heroicons-arrow-top-right-on-square"
+                    @click="openMetadata"
+                    >See Data Schema</UButton
                 >
-                    {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                </UButton>
                 <div v-if="catalog === 'my-data' && !isStream" class="flex gap-6">
                     <UTooltip
                         :text="isEnrichmentDisabled ? 'Not available for PDF and XML files' : ''"
