@@ -120,15 +120,20 @@ const fetchMetadata = async () => {
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
-            checkDataset(metadata.value.result?.id);
-            const monetization = metadata.value.result?.monetization?.[0];
 
+            // Check monetisation
+            const monetization = metadata.value.result?.monetization?.[0];
             if (monetization) {
                 monetizationData.value = monetization;
                 price.value = monetization.purchase_offer?.[0]?.price ?? null;
                 investPrice.value = monetization.investment_offer?.[0]?.price_per_share ?? null;
             } else {
                 console.warn('No monetization data available.');
+            }
+            
+            // If the dataset is not mine, check if I have bought it
+            if (isNotOwn.value != false) {
+                checkDataset(metadata.value.result?.id);
             }
         }
         if (pistisMode == 'factory') {
@@ -220,7 +225,6 @@ const openInsightsResult = async () => {
 };
 
 /* TODO: clean up the NUXT server & move call to a dedicated service */
-// const { checkDatasetExists } = useSparql();
 const checkDatasetExists = async (datasetId) => {
     const query = `
     PREFIX dcat: <http://www.w3.org/ns/dcat#>
