@@ -55,6 +55,7 @@ const rateDatasetUrl = computed(() => getFeedbackUrl(offerId.value));
 const buyIsLoading = ref(false);
 const isStream = ref(false);
 const isLoading = ref(true);
+const datasetIsBought = ref(false);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -130,7 +131,7 @@ const fetchMetadata = async () => {
             } else {
                 console.warn('No monetization data available.');
             }
-            
+
             // If the dataset is not mine, check if I have bought it
             if (isNotOwn.value != false) {
                 checkDataset(metadata.value.result?.id);
@@ -224,7 +225,6 @@ const openInsightsResult = async () => {
     }
 };
 
-/* TODO: clean up the NUXT server & move call to a dedicated service */
 const checkDatasetExists = async (datasetId) => {
     const query = `
     PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -263,7 +263,6 @@ const checkDatasetExists = async (datasetId) => {
         throw error;
     }
 };
-const datasetIsBought = ref(false);
 
 const checkDataset = async (id: string) => {
     try {
