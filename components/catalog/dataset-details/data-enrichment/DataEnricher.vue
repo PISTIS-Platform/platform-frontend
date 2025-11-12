@@ -21,32 +21,32 @@
                     :loading="store.savingIsLoading"
                     @click="store.saveAsset(fileName)"
                 >
-                    Clean and save asset
+                    Clean and save dataset
                 </UButton>
                 <UTooltip
                     v-else
                     text="A distribution name must be provided before saving"
                     :ui="{ width: 'max-w-2xl', base: 'text-wrap' }"
                 >
-                    <UButton size="md" color="secondary" disabled> Clean and save asset </UButton>
+                    <UButton size="md" color="secondary" disabled> Clean and save dataset </UButton>
                 </UTooltip>
             </div>
             <div v-if="!isValidated" class="flex items-center">
                 <UButton v-if="isValidColumnChoices" size="md" color="secondary" @click="callValidateAsset(fileName)">
-                    Validate asset
+                    Validate dataset
                 </UButton>
                 <UTooltip
                     v-else
                     text="All property choices need to be valid before saving"
                     :ui="{ width: 'max-w-2xl', base: 'text-wrap' }"
                 >
-                    <UButton size="md" color="secondary" disabled> Validate asset </UButton>
+                    <UButton size="md" color="secondary" disabled> Validate dataset </UButton>
                 </UTooltip>
             </div>
         </div>
 
         <UAlert
-            v-if="validateResponseMessage && isValidated"
+            v-if="validateResponseMessage"
             class="mt-3"
             variant="outline"
             title="Validation notes"
