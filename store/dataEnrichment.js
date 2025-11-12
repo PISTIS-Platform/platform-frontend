@@ -23,8 +23,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         Integer: new Set(['string', 'integer', 'double', 'float', 'int']),
         Double: new Set(['string', 'integer', 'double']),
         Float: new Set(['string', 'float']),
-        Date: new Set(['string', 'date']),
-        DateTime: new Set(['string', 'date', 'dateTime']),
+        Date: new Set(['string', 'date', 'dateTime']),
+        DateTime: new Set(['string', 'dateTime']),
         Boolean: new Set(['string', 'boolean']),
         Time: new Set(['string', 'time']),
     });
