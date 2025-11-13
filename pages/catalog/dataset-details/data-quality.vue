@@ -123,7 +123,8 @@
                                                         class="flex flex-col"
                                                     >
                                                         <div
-                                                            class="flex justify-between items-center cursor-pointer"
+                                                            class="flex justify-between items-center"
+                                                            :class="line.isGroup ? 'cursor-pointer' : ''"
                                                             @click="line.isGroup && (line.expanded = !line.expanded)"
                                                         >
                                                             <span class="flex items-center gap-1">
@@ -164,7 +165,30 @@
                                                                     <span class="text-gray-400 font-semibold"
                                                                         >column value:</span
                                                                     >
-                                                                    <span class="distribution-metadata-value font-bold">
+                                                                    <UTooltip
+                                                                        v-if="
+                                                                            buildTooltipMessage(
+                                                                                child.additionalValues.min_value,
+                                                                                child.additionalValues.max_value,
+                                                                            )
+                                                                        "
+                                                                        :text="
+                                                                            buildTooltipMessage(
+                                                                                child.additionalValues.min_value,
+                                                                                child.additionalValues.max_value,
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        <span
+                                                                            class="distribution-metadata-value font-bold cursor-pointer"
+                                                                        >
+                                                                            {{ child.value }}
+                                                                        </span>
+                                                                    </UTooltip>
+                                                                    <span
+                                                                        v-else
+                                                                        class="distribution-metadata-value font-bold"
+                                                                    >
                                                                         {{ child.value }}
                                                                     </span>
                                                                 </div>
@@ -338,6 +362,13 @@ async function loadDistributionsMetrics() {
     }
 }
 
+const buildTooltipMessage = (minValue, maxValue) => {
+    const min = minValue != null ? 'min value = ' + minValue : '';
+    const max = maxValue != null ? 'max value = ' + maxValue : '';
+    const message = [min, max].filter(Boolean).join(' ');
+    return message;
+};
+
 async function loadDistributionsDataQualityMetrics() {
     try {
         const response = await getDistributionsDataQualityMetrics(datasetId);
@@ -379,6 +410,17 @@ async function loadDistributionsDataQualityMetrics() {
             return parsed?.column || 'Unknown column';
         };
 
+        const extractQAValues = (m) => {
+            const body = m?.quality_annotation?.body;
+            if (!body) return 'Unknown values';
+
+            const parsed = JSON.parse(body);
+            return {
+                min_value: parsed?.min_value ?? null,
+                max_value: parsed?.max_value ?? null,
+            };
+        };
+
         accordionItemsDataQuality.value = distributions.map((d) => {
             const measurements = d.measurements || [];
 
@@ -411,6 +453,7 @@ async function loadDistributionsDataQualityMetrics() {
                                 .map((entry) => ({
                                     title: extractColumnName(entry),
                                     value: fmt(entry.value),
+                                    additionalValues: extractQAValues(entry),
                                 }))
                                 //sort columns
                                 .sort((a, b) => {
