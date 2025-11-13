@@ -123,7 +123,8 @@
                                                         class="flex flex-col"
                                                     >
                                                         <div
-                                                            class="flex justify-between items-center cursor-pointer"
+                                                            class="flex justify-between items-center"
+                                                            :class="line.isGroup ? 'cursor-pointer' : ''"
                                                             @click="line.isGroup && (line.expanded = !line.expanded)"
                                                         >
                                                             <span class="flex items-center gap-1">
@@ -165,13 +166,18 @@
                                                                         >column value:</span
                                                                     >
                                                                     <UTooltip
+                                                                        v-if="
+                                                                            buildTooltipMessage(
+                                                                                child.additionalValues.min_value,
+                                                                                child.additionalValues.max_value,
+                                                                            )
+                                                                        "
                                                                         :text="
                                                                             buildTooltipMessage(
                                                                                 child.additionalValues.min_value,
                                                                                 child.additionalValues.max_value,
                                                                             )
                                                                         "
-                                                                        placement="right-start"
                                                                     >
                                                                         <span
                                                                             class="distribution-metadata-value font-bold cursor-pointer"
@@ -179,6 +185,12 @@
                                                                             {{ child.value }}
                                                                         </span>
                                                                     </UTooltip>
+                                                                    <span
+                                                                        v-else
+                                                                        class="distribution-metadata-value font-bold"
+                                                                    >
+                                                                        {{ child.value }}
+                                                                    </span>
                                                                 </div>
                                                             </li>
                                                         </ul>
@@ -353,7 +365,7 @@ async function loadDistributionsMetrics() {
 const buildTooltipMessage = (minValue, maxValue) => {
     const min = minValue != null ? 'min value = ' + minValue : '';
     const max = maxValue != null ? 'max value = ' + maxValue : '';
-    const message = min + ' ' + max;
+    const message = [min, max].filter(Boolean).join(' ');
     return message;
 };
 
