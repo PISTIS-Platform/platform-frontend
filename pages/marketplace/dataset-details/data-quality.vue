@@ -164,9 +164,21 @@
                                                                     <span class="text-gray-400 font-semibold"
                                                                         >column value:</span
                                                                     >
-                                                                    <span class="distribution-metadata-value font-bold">
-                                                                        {{ child.value }}
-                                                                    </span>
+                                                                    <UTooltip
+                                                                        :text="
+                                                                            buildTooltipMessage(
+                                                                                child.additionalValues.min_value,
+                                                                                child.additionalValues.max_value,
+                                                                            )
+                                                                        "
+                                                                        placement="right-start"
+                                                                    >
+                                                                        <span
+                                                                            class="distribution-metadata-value font-bold cursor-pointer"
+                                                                        >
+                                                                            {{ child.value }}
+                                                                        </span>
+                                                                    </UTooltip>
                                                                 </div>
                                                             </li>
                                                         </ul>
@@ -338,6 +350,13 @@ async function loadDistributionsMetrics() {
     }
 }
 
+const buildTooltipMessage = (minValue, maxValue) => {
+    const min = minValue != null ? 'min value = ' + minValue : '';
+    const max = maxValue != null ? 'max value = ' + maxValue : '';
+    const message = min + ' ' + max;
+    return message;
+};
+
 async function loadDistributionsDataQualityMetrics() {
     try {
         const response = await getDistributionsDataQualityMetrics(datasetId);
@@ -379,6 +398,17 @@ async function loadDistributionsDataQualityMetrics() {
             return parsed?.column || 'Unknown column';
         };
 
+        const extractQAValues = (m) => {
+            const body = m?.quality_annotation?.body;
+            if (!body) return 'Unknown values';
+
+            const parsed = JSON.parse(body);
+            return {
+                min_value: parsed?.min_value ?? null,
+                max_value: parsed?.max_value ?? null,
+            };
+        };
+
         accordionItemsDataQuality.value = distributions.map((d) => {
             const measurements = d.measurements || [];
 
@@ -411,6 +441,7 @@ async function loadDistributionsDataQualityMetrics() {
                                 .map((entry) => ({
                                     title: extractColumnName(entry),
                                     value: fmt(entry.value),
+                                    additionalValues: extractQAValues(entry),
                                 }))
                                 //sort columns
                                 .sort((a, b) => {
