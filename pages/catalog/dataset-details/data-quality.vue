@@ -97,86 +97,91 @@
             <!-- Distribution Data Quality Section -->
             <section class="mb-10">
                 <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Data Quality</h3>
-                <p class="text-gray-600 mb-6">
-                    The following lists the quality measurement of all distributions of the dataset.
-                    <!-- For more information, see our
+                <div v-if="hasDistributionDataQualityAvailable">
+                    <p class="text-gray-600 mb-6">
+                        The following lists the quality measurement of all distributions of the dataset.
+                        <!-- For more information, see our
                     <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>. -->
-                </p>
+                    </p>
 
-                <div class="space-y-4">
-                    <!-- NUXT ACCORDIOUNS -->
-                    <UAccordion :items="accordionItemsDataQuality" type="multiple">
-                        <!-- Custom body for every accordion panel -->
-                        <template #item="{ item }">
-                            <div class="p-4 text-gray-700">
-                                <div class="accordion-content p-3 text-sm text-gray-600">
-                                    <div class="space-y-5">
-                                        <div v-for="section in item.sections" :key="section.title">
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">
-                                                {{ section.title }}
-                                            </h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li
-                                                    v-for="line in section.items"
-                                                    :key="line.title"
-                                                    class="flex flex-col"
-                                                >
-                                                    <div
-                                                        class="flex justify-between items-center cursor-pointer"
-                                                        @click="line.isGroup && (line.expanded = !line.expanded)"
+                    <div class="space-y-4">
+                        <!-- NUXT ACCORDIOUNS -->
+                        <UAccordion :items="accordionItemsDataQuality" type="multiple">
+                            <!-- Custom body for every accordion panel -->
+                            <template #item="{ item }">
+                                <div class="p-4 text-gray-700">
+                                    <div class="accordion-content p-3 text-sm text-gray-600">
+                                        <div class="space-y-5">
+                                            <div v-for="section in item.sections" :key="section.title">
+                                                <h5 class="text-md font-semibold text-gray-700 mb-2">
+                                                    {{ section.title }}
+                                                </h5>
+                                                <ul class="space-y-2 pl-2">
+                                                    <li
+                                                        v-for="line in section.items"
+                                                        :key="line.title"
+                                                        class="flex flex-col"
                                                     >
-                                                        <span class="flex items-center gap-1">
-                                                            <span>{{ line.title }}</span>
-                                                            <PhCaretDown
-                                                                v-if="line.isGroup"
-                                                                :class="[
-                                                                    'transition-transform',
-                                                                    line.expanded ? 'rotate-180' : '',
-                                                                ]"
-                                                            />
-                                                        </span>
-                                                        <span
-                                                            v-if="!line.isGroup"
-                                                            class="distribution-metadata-value font-bold"
+                                                        <div
+                                                            class="flex justify-between items-center cursor-pointer"
+                                                            @click="line.isGroup && (line.expanded = !line.expanded)"
                                                         >
-                                                            {{ line.value }}
-                                                        </span>
-                                                    </div>
+                                                            <span class="flex items-center gap-1">
+                                                                <span>{{ line.title }}</span>
+                                                                <PhCaretDown
+                                                                    v-if="line.isGroup"
+                                                                    :class="[
+                                                                        'transition-transform',
+                                                                        line.expanded ? 'rotate-180' : '',
+                                                                    ]"
+                                                                />
+                                                            </span>
+                                                            <span
+                                                                v-if="!line.isGroup"
+                                                                class="distribution-metadata-value font-bold"
+                                                            >
+                                                                {{ line.value }}
+                                                            </span>
+                                                        </div>
 
-                                                    <!-- dropdown for column specific values -->
-                                                    <ul
-                                                        v-if="line.isGroup && line.expanded"
-                                                        class="mt-2 ml-2 space-y-1"
-                                                    >
-                                                        <li
-                                                            v-for="child in line.children"
-                                                            :key="child.title"
-                                                            class="flex justify-between items-center text-sm text-gray-600"
+                                                        <!-- dropdown for column specific values -->
+                                                        <ul
+                                                            v-if="line.isGroup && line.expanded"
+                                                            class="mt-2 ml-2 space-y-1"
                                                         >
-                                                            <div>
-                                                                <span class="text-gray-400 font-semibold"
-                                                                    >column name:</span
-                                                                >
-                                                                {{ child.title }}
-                                                            </div>
-                                                            <div class="flex gap-x-2">
-                                                                <span class="text-gray-400 font-semibold"
-                                                                    >column value:</span
-                                                                >
-                                                                <span class="distribution-metadata-value font-bold">
-                                                                    {{ child.value }}
-                                                                </span>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
+                                                            <li
+                                                                v-for="child in line.children"
+                                                                :key="child.title"
+                                                                class="flex justify-between items-center text-sm text-gray-600"
+                                                            >
+                                                                <div>
+                                                                    <span class="text-gray-400 font-semibold"
+                                                                        >column name:</span
+                                                                    >
+                                                                    {{ child.title }}
+                                                                </div>
+                                                                <div class="flex gap-x-2">
+                                                                    <span class="text-gray-400 font-semibold"
+                                                                        >column value:</span
+                                                                    >
+                                                                    <span class="distribution-metadata-value font-bold">
+                                                                        {{ child.value }}
+                                                                    </span>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </template>
-                    </UAccordion>
+                            </template>
+                        </UAccordion>
+                    </div>
+                </div>
+                <div v-else>
+                    <p class="italic">No distribution data quality available for this dataset.</p>
                 </div>
             </section>
         </main>
@@ -204,6 +209,7 @@ const relevantDistributionsMetrics = ref([]);
 const accordionItems = ref([]);
 const accordionItemsDataQuality = ref([]);
 const distributionsNames = ref([]);
+const hasDistributionDataQualityAvailable = ref(false);
 
 /* helpers function */
 const fmt = (v) => {
@@ -336,8 +342,7 @@ async function loadDistributionsDataQualityMetrics() {
     try {
         const response = await getDistributionsDataQualityMetrics(datasetId);
         const distributions = response?.result?.distributions || [];
-
-        console.log('>>>>>>>>>RESPONSE:', distributions);
+        hasDistributionDataQualityAvailable.value = true;
 
         // all so far available metrics, may be expanded in the future:
         const metricStructure = {
@@ -398,14 +403,14 @@ async function loadDistributionsDataQualityMetrics() {
                             const entry = entries[0];
                             items.push({
                                 title: metricName,
-                                value: fmt(entry.id),
+                                value: fmt(entry.value),
                             });
                         } else {
                             // metric is column specific and appears mutliple times for one distribution
                             const children = entries
                                 .map((entry) => ({
                                     title: extractColumnName(entry),
-                                    value: fmt(entry.id),
+                                    value: fmt(entry.value),
                                 }))
                                 //sort columns
                                 .sort((a, b) => {
