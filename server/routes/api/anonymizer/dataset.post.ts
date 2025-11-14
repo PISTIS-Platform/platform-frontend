@@ -1,5 +1,3 @@
-import { getToken } from '#auth';
-
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();

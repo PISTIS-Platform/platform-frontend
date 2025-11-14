@@ -13,5 +13,6 @@ WORKDIR /app
 COPY --from=builder /app/.output /app
 ENV HOST=0.0.0.0
 ENV PORT=8080
+ENV STORAGE_DRIVER=redis
 EXPOSE 8080
 ENTRYPOINT [ "node", "./server/index.mjs" ]

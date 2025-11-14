@@ -1,5 +1,3 @@
-import { getToken } from '#auth';
-
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();
@@ -7,13 +5,13 @@ const {
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const body = await readBody(event);
-    const token = await getToken({ event });
+    const session = event.context.session;
 
     return event.$fetch(`${factoryUrl}/srv/data-transformation/transform/`, {
         method: 'POST',
         body,
         headers: {
-            Authorization: `Bearer ${token?.access_token}`,
+            Authorization: `Bearer ${session?.token}`,
             Accept: `${query.Accept}`,
         },
     });

@@ -1,14 +1,12 @@
 import { jwtDecode } from 'jwt-decode';
 
-import { getToken } from '#auth';
-
 export default defineEventHandler(async (event) => {
-    const token = await getToken({ event });
+    const session = event.context.session;
     const query = getQuery(event);
 
-    if (!token) return;
+    if (!session?.token) return;
 
-    const tokenData = jwtDecode(token?.access_token);
+    const tokenData = jwtDecode(session?.token);
 
     if (query.page === 'profile') {
         return {

@@ -1,7 +1,6 @@
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();
-import { getToken } from '#auth';
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);

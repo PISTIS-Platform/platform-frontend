@@ -41,6 +41,17 @@ export default defineNuxtConfig({
         experimental: {
             websocket: true,
         },
+        storage: {
+            'auth-tokens': {
+                driver: process.env.STORAGE_DRIVER || 'fs',
+                base: './.data/auth-tokens',
+                host: process.env.REDIS_HOST || 'localhost',
+                port: process.env.REDIS_PORT || '6379',
+                password: process.env.REDIS_PASSWORD,
+                db: process.env.REDIS_DB || '0',
+                ttl: process.env.REDIS_TTL || 2592000, // 30 days default
+            },
+        },
     },
 
     app: {

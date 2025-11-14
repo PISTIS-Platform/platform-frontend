@@ -1,13 +1,11 @@
 import * as R from 'ramda';
 
-import { getToken } from '#auth';
-
 const config = useRuntimeConfig();
 
 import ComponentStatusData from '~/interfaces/component-status-data';
 
 export default defineEventHandler(async (event) => {
-    const token = await getToken({ event });
+    const session = event.context.session;
 
     const newServices = {
         Anonymizer: ['/srv/anonymiser/api/test'],
@@ -45,7 +43,7 @@ export default defineEventHandler(async (event) => {
             const repo = await $fetch(`${config.public.factoryUrl}/srv/repo/health`, {
                 method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${token?.access_token}`,
+                    Authorization: `Bearer ${session?.token}`,
                 },
                 timeout: 5000,
             });
@@ -57,7 +55,7 @@ export default defineEventHandler(async (event) => {
             const mqa = await $fetch(`${config.public.factoryUrl}/srv/mqa/health`, {
                 method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${token?.access_token}`,
+                    Authorization: `Bearer ${session?.token}`,
                 },
                 timeout: 5000,
             });
@@ -73,7 +71,7 @@ export default defineEventHandler(async (event) => {
                 const result = await $fetch(url, {
                     method: 'GET',
                     headers: {
-                        Authorization: `Bearer ${token?.access_token}`,
+                        Authorization: `Bearer ${session?.token}`,
                     },
                     timeout: 5000,
                 });

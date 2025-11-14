@@ -1,5 +1,3 @@
-import { getToken } from '#auth';
-
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();
@@ -7,7 +5,7 @@ const {
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const body = await readBody(event);
-    const token = await getToken({ event });
+    const session = event.context.session;
 
     if (query.lite_version === undefined) {
         query.lite_version = 'true';
@@ -17,7 +15,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body,
         headers: {
-            Authorization: `Bearer ${token?.access_token}`,
+            Authorization: `Bearer ${session?.token}`,
             Accept: `${query.Accept}`,
         },
     });

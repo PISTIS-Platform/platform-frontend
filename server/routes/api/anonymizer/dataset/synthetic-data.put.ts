@@ -1,7 +1,6 @@
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();
-import { getToken } from '#auth';
 
 export default defineEventHandler(async (event) => {
     const token = (await getToken({ event })) || { access_token: 'null' };

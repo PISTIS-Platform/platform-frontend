@@ -1,5 +1,3 @@
-import { getToken } from '#auth';
-
 const {
     public: { cloudUrl },
 } = useRuntimeConfig();
@@ -7,13 +5,13 @@ const {
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const body = await readBody(event);
-    const token = await getToken({ event });
+    const session = event.context.session;
 
     return await $fetch(`${cloudUrl}/srv/intention-analytics/api/questionnaire/${query.id}/${query.version}/answers`, {
         method: 'POST',
         body,
         headers: {
-            Authorization: `Bearer ${token?.access_token}`,
+            Authorization: `Bearer ${session?.token}`,
         },
     });
 });
