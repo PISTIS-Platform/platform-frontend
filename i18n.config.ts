@@ -89,8 +89,8 @@ export default defineI18nConfig(() => ({
                 inputMessage: 'Search in asset name...',
                 outgoing: 'Outgoing',
                 incoming: 'Incoming',
-                monthlyIncome: 'Income in the last 30 days',
-                monthlyExpenses: 'Expenses in the last 30 days',
+                monthlyIncome: 'Monthly Income',
+                monthlyExpenses: 'Monthly Expenses',
             },
             settings: {
                 title: 'Factory Settings',
