@@ -41,6 +41,12 @@ export default defineNuxtConfig({
         experimental: {
             websocket: true,
         },
+        storage: {
+            'auth-tokens': {
+                driver: 'fs',
+                base: './.data/auth-tokens', // File system storage (persists across restarts)
+            },
+        },
     },
 
     app: {
