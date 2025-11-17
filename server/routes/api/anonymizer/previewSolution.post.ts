@@ -4,13 +4,13 @@ const {
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
-    const token = (await getToken({ event })) || { access_token: 'null' };
+    const session = event.context.session;
 
     const response = await fetch(`${factoryUrl}/srv/anonymiser/api/k-anon/solution/preview`, {
         method: 'POST',
         headers: {
             'Content-type': 'application/json; charset=UTF-8',
-            Authorization: `Bearer ${token!.access_token}`,
+            Authorization: `Bearer ${session?.token}`,
         },
         body: JSON.stringify(body),
     });
