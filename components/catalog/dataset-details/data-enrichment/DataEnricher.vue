@@ -74,7 +74,7 @@
                                 :key="index"
                                 class="p-4 border border-gray-200 min-w-[175px]"
                             >
-                                <div class="font-semibold">
+                                <div class="font-semibold text-primary-700">
                                     {{ column.name }}
                                 </div>
                                 <div class="">
