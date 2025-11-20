@@ -150,7 +150,7 @@ const selectedColumn = ref(props.column);
 const selectOption = (value) => {
     if (!value) return;
 
-    if (isUnique(value.name)) {
+    if (isUnique(value.name) || value.label) {
         selected.value = true;
         emit('selected');
 
@@ -167,15 +167,28 @@ const selectOption = (value) => {
             name: name,
         });
 
-        selectColumn({
-            id: columnId,
-            selectedColumn: {
-                dataType: selectedColumn.value.dataType,
-                name: originalName.value,
-                propertyName: selectedColumn.value.name,
-                propertyURI: selectedColumn.value.nameURI,
-            },
-        });
+        // Only basic data types have label property. In that case propertyName should be empty
+        if (selectedColumn.value.label) {
+            selectColumn({
+                id: columnId,
+                selectedColumn: {
+                    dataType: selectedColumn.value.dataType,
+                    name: originalName.value,
+                    propertyName: '',
+                    propertyURI: '',
+                },
+            });
+        } else {
+            selectColumn({
+                id: columnId,
+                selectedColumn: {
+                    dataType: selectedColumn.value.dataType,
+                    name: originalName.value,
+                    propertyName: selectedColumn.value.name,
+                    propertyURI: selectedColumn.value.nameURI,
+                },
+            });
+        }
     } else {
         toast.add({
             title: 'Warning',
