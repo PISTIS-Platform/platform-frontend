@@ -1,7 +1,13 @@
 <template>
-    <th class="table-header p-4 min-w-[300px] max-h-[100px]">
-        <div class="font-normal">
-            <div class="grid grid-cols-[40px_auto] gap-2">
+    <th class="table-header p-4 min-w-[300px] max-h-[100px] max-w-[400px]">
+        <div class="font-normal break-words">
+            <div class="font-semibold">
+                {{ originalName }}
+                <strong class="text-secondary-400">
+                    {{ originalDataType }}
+                </strong>
+            </div>
+            <div class="grid grid-cols-[40px_auto] gap-2 mb-1">
                 <!-- Status indicators -->
                 <div class="flex justify-center">
                     <UTooltip
@@ -61,16 +67,18 @@
                         <div class="option flex flex-col justify-between items-start w-full">
                             <span class="option-name flex gap-2">
                                 {{ option.name }}
-                                <a
-                                    id="option-name-uri"
-                                    :href="option.nameURI"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="inline-flex"
-                                    @click.stop
-                                >
-                                    <UIcon name="i-ph-info-bold" class="w-4 h-4" />
-                                </a>
+                                <UTooltip :text="option.nameURI" :ui="{ width: 'max-w-3xl', base: 'text-wrap' }">
+                                    <a
+                                        id="option-name-uri"
+                                        :href="option.nameURI"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex"
+                                        @click.stop
+                                    >
+                                        <UIcon name="i-ph-info-bold" class="w-4 h-4" />
+                                    </a>
+                                </UTooltip>
                             </span>
                             <span class="font-bold text-secondary-400">{{ option.dataType }}</span>
                         </div>
@@ -82,6 +90,19 @@
                     </template>
                 </USelectMenu>
             </div>
+            <small v-if="column.propertyURI" class="flex text-xs">
+                URI:
+                <a
+                    id="option-name-uri"
+                    :href="column.propertyURI"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex text-gray-400 font-mono break-all"
+                    @click.stop
+                >
+                    {{ column.propertyURI }}
+                </a></small
+            >
         </div>
     </th>
 </template>
@@ -118,6 +139,8 @@ const toast = useToast();
 // Reactive state
 const search = ref({});
 const selected = ref(false);
+const originalName = ref(props.column.name || '');
+const originalDataType = ref(props.column.dataType || '');
 const dataType = ref(props.column.dataType || '');
 const transformable = ref(true);
 const initialValue = ref(props.column);
@@ -127,7 +150,7 @@ const selectedColumn = ref(props.column);
 const selectOption = (value) => {
     if (!value) return;
 
-    if (isUnique(value.name)) {
+    if (isUnique(value.name) || value.label) {
         selected.value = true;
         emit('selected');
 
@@ -144,14 +167,28 @@ const selectOption = (value) => {
             name: name,
         });
 
-        selectColumn({
-            id: columnId,
-            selectedColumn: {
-                dataType: selectedColumn.value.dataType,
-                name: selectedColumn.value.name,
-                nameURI: selectedColumn.value.nameURI,
-            },
-        });
+        // Only basic data types have label property. In that case propertyName should be empty
+        if (selectedColumn.value.label) {
+            selectColumn({
+                id: columnId,
+                selectedColumn: {
+                    dataType: selectedColumn.value.dataType,
+                    name: originalName.value,
+                    propertyName: '',
+                    propertyURI: '',
+                },
+            });
+        } else {
+            selectColumn({
+                id: columnId,
+                selectedColumn: {
+                    dataType: selectedColumn.value.dataType,
+                    name: originalName.value,
+                    propertyName: selectedColumn.value.name,
+                    propertyURI: selectedColumn.value.nameURI,
+                },
+            });
+        }
     } else {
         toast.add({
             title: 'Warning',
@@ -239,8 +276,3 @@ onMounted(() => {
 // Expose methods
 defineExpose({ reset });
 </script>
-
-<style scoped>
-.table-header {
-}
-</style>

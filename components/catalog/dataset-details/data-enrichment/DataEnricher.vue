@@ -69,12 +69,19 @@
                             />
                         </tr>
                         <tr v-show="isValidated">
-                            <td v-for="(column, index) in dataColumns" :key="index" class="p-4 border border-gray-200">
+                            <td
+                                v-for="(column, index) in dataColumns"
+                                :key="index"
+                                class="p-4 border border-gray-200 min-w-[175px]"
+                            >
                                 <div class="font-semibold">
                                     {{ column.name }}
-                                    <strong class="text-secondary-400">
+                                </div>
+                                <div class="">
+                                    {{ column.propertyName ? column.propertyName : column.name }}
+                                    <span class="text-secondary-400">
                                         {{ column.dataType }}
-                                    </strong>
+                                    </span>
                                 </div>
                             </td>
                         </tr>
