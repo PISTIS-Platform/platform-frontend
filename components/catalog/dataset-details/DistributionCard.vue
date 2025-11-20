@@ -5,14 +5,13 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useApiService } from '~/services/apiService';
-
-import { PropertyTable } from './PropertyTableRow';
+import PhCaretDown from '~icons/ph/caret-down';
 
 const route = useRoute();
 
 const pistisMode = route.query.pm;
 
-const { getDatasetUrl, getEnrichmentUrl } = useApiService(pistisMode);
+const { getDistributionsUrl, getDatasetUrl, getEnrichmentUrl } = useApiService(pistisMode);
 
 interface CardProps {
     title: string;
@@ -39,22 +38,9 @@ const props = withDefaults(defineProps<CardProps>(), {
 const { data: session } = useAuth();
 const token = session.value?.token;
 
-const dataOrder = ['modified', 'license', 'created', 'languages'];
-// const pistisMode = config.pistisMode;
-const resolvedData = computed(() => {
-    const sortedData = [...(props.data.data || [])].sort((a, b) => {
-        // const aIndex = dataOrder.indexOf(a.id) === -1 ? dataOrder.length : dataOrder.indexOf(a.id);
-        const aIndex = dataOrder.includes(a.id) ? dataOrder.indexOf(a.id) : dataOrder.length;
-        // const bIndex = dataOrder.indexOf(b.id) === -1 ? dataOrder.length : dataOrder.indexOf(b.id);
-        const bIndex = dataOrder.includes(b.id) ? dataOrder.indexOf(b.id) : dataOrder.length;
-
-        return aIndex - bIndex;
-    });
-
-    return sortedData;
-});
-
 const catalog = ref(null);
+
+const showBtns = ref(false);
 
 const searchUrl = getDatasetUrl(props.datasetId);
 const isTransformed = ref();
@@ -76,6 +62,14 @@ const fetchMetadata = async () => {
         console.error('Error fetching the metadata. ERROR: ', error);
     }
 };
+
+const fileExtension = computed(() => {
+    if (props.format === 'Excel XLS') return 'xls';
+    if (props.format === 'Excel XLSX') return 'xlsx';
+
+    return props.format.toLowerCase();
+});
+const isEnrichmentDisabled = computed(() => ['pdf', 'xml'].includes(fileExtension.value));
 
 onMounted(() => {
     fetchMetadata();
@@ -108,9 +102,7 @@ async function downloadFile() {
                 responseType: 'blob',
             };
 
-            let fileExtension = props.format.toLowerCase();
             if (props.format === 'SQL') {
-                fileExtension = 'csv';
                 config.params = { JSON_output: 'False' };
             }
 
@@ -119,7 +111,11 @@ async function downloadFile() {
             const contentTypeHeader = response.headers['content-type'];
             const contentType = contentTypeHeader.split(';')[0].trim();
 
-            const fileName = `${downloadFileName}.${fileExtension}`;
+            const fileExtensionDownload = props.format === 'SQL' ? 'csv' : props.format.toLowerCase();
+            const fileName =
+                props.format === 'Excel XLS' || props.format === 'Excel XLSX'
+                    ? `${downloadFileName}.${fileExtension.value}`
+                    : `${downloadFileName}.${fileExtensionDownload}`;
             // Create a Blob URL with the detected Content-Type
             const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
             // Create a temporary link and trigger download
@@ -139,6 +135,12 @@ async function downloadFile() {
         }
     }
 }
+
+const openMetadata = () => {
+    const distributionsUrl = getDistributionsUrl();
+    window.open(`${distributionsUrl}${props.distributionId}.ttl`);
+};
+
 const { data: streamingConsumerData } = useFetch<{
     username: string;
     password: string;
@@ -304,56 +306,69 @@ const revealPassword = ref(false);
         </div>
     </UModal>
     <div class="flex flex-col pb-4">
-        <div class="flex flex-row justify-between items-center">
-            <div class="flex">
+        <div>
+            <div class="flex justify-between">
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
                     <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
                     <div>{{ title }}</div>
                 </div>
-                <div class="space-x-2">
-                    <UBadge v-if="isAnonymized" color="green" variant="subtle">Anonymized</UBadge>
-                    <UBadge v-if="isTransformed" color="blue" variant="subtle">Transformed</UBadge>
-                    <UBadge v-if="isEncrypted" color="yellow" variant="subtle">Encrypted</UBadge>
+                <div class="flex">
+                    <div class="space-x-2 pr-5">
+                        <UBadge v-if="isAnonymized" color="green" variant="outline" size="xs">Anonymized</UBadge>
+                        <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
+                        <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
+                    </div>
+                    <UButton
+                        v-if="pistisMode == 'factory'"
+                        variant="soft"
+                        color="secondary"
+                        size="sm"
+                        icon="i-heroicons-arrow-down-tray"
+                        @click="downloadFile"
+                    >
+                        {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                    </UButton>
+                    <button v-if="pistisMode == 'factory'" class="ml-10" @click="showBtns = !showBtns">
+                        <PhCaretDown
+                            :class="{
+                                'rotate-180': showBtns,
+                            }"
+                        />
+                    </button>
                 </div>
             </div>
-            <div v-if="pistisMode == 'factory'" class="flex flex-wrap gap-6">
+            <div v-if="pistisMode == 'factory' && showBtns" class="flex flex-wrap gap-6 pt-4 pb-5 pl-4">
                 <UButton
+                    v-if="format === 'SQL'"
                     variant="soft"
                     color="secondary"
                     size="sm"
-                    icon="i-heroicons-arrow-down-tray"
-                    @click="downloadFile"
+                    icon="i-heroicons-arrow-top-right-on-square"
+                    @click="openMetadata"
+                    >See Data Schema</UButton
                 >
-                    {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                </UButton>
                 <div v-if="catalog === 'my-data' && !isStream" class="flex gap-6">
-                    <!-- <a
-                        :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
-                        target="_blank"
-                        nofollow
-                        noreferrer
-                    > -->
-                    <!-- <UButton
-                        v-if="pistisMode === 'factory'"
-                        size="sm"
-                        label="Data Enrichment"
-                        :to="{
-                            path: '/catalog/dataset-details/data-enrichment',
-                            query: {
-                                datasetId: props.datasetId,
-                                distributionId: props.distributionId,
-                                file_type: props.format,
-                            },
-                        }"
-                        prefetch="false"
-                    /> -->
-                    <a
-                        :href="`/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${props.format}`"
-                        class="inline-block bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer text-center"
+                    <UTooltip
+                        :text="isEnrichmentDisabled ? 'Not available for PDF and XML files' : ''"
+                        :prevent="!isEnrichmentDisabled"
                     >
-                        Data Enrichment
-                    </a>
-                    <!-- </a> -->
+                        <a
+                            :href="
+                                isEnrichmentDisabled
+                                    ? undefined
+                                    : `/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${fileExtension}`
+                            "
+                            :class="[
+                                'inline-block px-3 py-1.5 text-sm font-medium rounded-md transition-colors text-center',
+                                isEnrichmentDisabled
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-primary/10 text-primary hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer',
+                            ]"
+                            :aria-disabled="isEnrichmentDisabled"
+                        >
+                            Data Enrichment
+                        </a>
+                    </UTooltip>
 
                     <UButton
                         size="sm"
@@ -361,109 +376,6 @@ const revealPassword = ref(false);
                         :label="$t('buttons.anonymize')"
                         :to="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
                     />
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div v-if="false" class="mb-3 rounded-lg border-b-none bg-white ring-1 ring-gray-200 shadow p-4">
-        <div>
-            <div class="flex items-start justify-between">
-                <Typography as="h2" variant="by-heading-4" class="text-surface-text">
-                    {{ title }}
-                </Typography>
-                <div class="flex inline">
-                    <KTag v-if="isAnonymized" class="!bg-orange-600 mr-5"> anonymized </KTag>
-                    <KTag v-if="isTransformed" class="!bg-orange-600 mr-5"> transformed </KTag>
-                    <KTag class="hidden md:block">
-                        {{ format }}
-                    </KTag>
-                </div>
-            </div>
-
-            <div class="my-0 flex flex-col lg:my-6 lg:flex-row lg:justify-between lg:gap-28">
-                <div class="flex flex-1 flex-col gap-6">
-                    <div class="markdown-content mt-4 text-sm leading-6 text-surface-light" v-html="description" />
-                    <div class="flex">
-                        <KTag class="md:hidden">
-                            {{ format }}
-                        </KTag>
-                    </div>
-                </div>
-
-                <div class="my-12 lg:my-0 lg:basis-4/12 text-surface-text">
-                    <DataToggler v-slot="{ truncated }" :data="resolvedData || []" :limit="1" :expanded="false">
-                        <PropertyTable
-                            :node="{
-                                id: 'root',
-                                label: '',
-                                type: 'node',
-                                isRoot: true,
-                                data: truncated,
-                            }"
-                        />
-                    </DataToggler>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between">
-                <div v-if="pistisMode == 'factory'" class="flex gap-6 flex-wrap">
-                    <KButton size="small" @click="downloadFile">
-                        {{ downloadText }}
-                    </KButton>
-
-                    <div v-if="catalog === 'my-data'" class="flex gap-6">
-                        <a
-                            :href="getEnrichmentUrl(props.datasetId, props.distributionId, props.format)"
-                            target="_blank"
-                            nofollow
-                            noreferrer
-                        >
-                            <KButton size="small">
-                                Data Enrichment
-                                <!-- <i class="icon-[ph--arrow-square-out]" /> -->
-                            </KButton>
-                        </a>
-
-                        <a
-                            :href="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
-                            target="_blank"
-                            nofollow
-                            noreferrer
-                        >
-                            <KButton size="small">
-                                Anonymize
-                                <!-- <i class="icon-[ph--arrow-square-out]" /> -->
-                            </KButton>
-                        </a>
-                    </div>
-                    <!-- <KButton> Preview </KButton> -->
-
-                    <!-- <LinkedDataSelector
-                        :resource-id="distributionId"
-                        resource="distributions"
-                        class="text-white dark:text-surface-900 bg-pistis-600 dark:bg-primary-dark hover:bg-primary-hover dark:hover:bg-primary-dark-hover active:bg-primary dark:active:bg-primary-dark-pressed rounded-md border-transparent inline-flex min-w-fit items-center justify-center text-center font-medium align-bottom h-8 text-sm px-4 py-2"
-                    /> -->
-
-                    <!-- Why is this not showing?? -->
-                    <!-- <Dropdown severity="secondary" label="Beschreibung speichern">
-                        <DropdownItem
-                            v-for="[key, uri] in Object.entries(linkedData || {})"
-                            :key="key"
-                            as="a"
-                            :href="uri"
-                            target="_blank"
-                        >
-                            {{ key }}
-                        </DropdownItem>
-                    </Dropdown> -->
-
-                    <!-- <button
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                        @click="onSave"
-                    >
-                        {{ saveText }}
-                    </button> -->
                 </div>
             </div>
         </div>
