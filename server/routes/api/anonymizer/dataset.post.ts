@@ -1,15 +1,13 @@
-import { getToken } from '#auth';
-
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    const token = (await getToken({ event })) || { access_token: 'null' };
+    const session = event.context.session;
 
     const response = await fetch(`${factoryUrl}/srv/anonymiser/api/dataset`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token!.access_token}` },
+        headers: { Authorization: `Bearer ${session?.token}` },
     });
     const json = await response.json();
 

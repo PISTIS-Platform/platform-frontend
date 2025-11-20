@@ -1,17 +1,15 @@
-import { getToken } from '#auth';
-
 const {
     public: { cloudUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    const token = await getToken({ event });
+    const session = event.context.session;
 
     const results = await $fetch<Record<string, any>[]>(
         `${cloudUrl}/srv/investment-planner/api/investment-planner/user-investments`,
         {
             headers: {
-                Authorization: `Bearer ${token?.access_token}`,
+                Authorization: `Bearer ${session?.token}`,
             },
         },
     );

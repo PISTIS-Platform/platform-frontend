@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-import { getToken } from '#auth';
-
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();
@@ -10,7 +8,7 @@ export default defineEventHandler(async (event) => {
     /*const body = await readBody(event);*/
     const form = await readMultipartFormData(event);
 
-    const token = await getToken({ event });
+    const session = event.context.session;
 
     const formData = new FormData();
 
@@ -25,7 +23,7 @@ export default defineEventHandler(async (event) => {
     const response = await axios.post(`${factoryUrl}/srv/job-configurator/workflow/simplifiedRun`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token?.access_token}`,
+            Authorization: `Bearer ${session?.token}`,
         },
     });
     const json_data = response.data;

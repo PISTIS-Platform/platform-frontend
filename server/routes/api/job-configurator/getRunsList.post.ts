@@ -1,12 +1,10 @@
-import { getToken } from '#auth';
-
 const {
     public: { factoryUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
-    const token = await getToken({ event });
+    const session = event.context.session;
 
     return event.$fetch(
         `${factoryUrl}/srv/job-configurator/workflow/getWorkflowRunList?workflow_id=pistis_workflow_template`,
@@ -14,7 +12,7 @@ export default defineEventHandler(async (event) => {
             method: 'POST',
             body,
             headers: {
-                Authorization: `Bearer ${token?.access_token}`,
+                Authorization: `Bearer ${session?.token}`,
             },
         },
     );
