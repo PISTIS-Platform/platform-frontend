@@ -11,6 +11,9 @@ const props = defineProps<{
     modelValue: Record<string, string[]>;
 }>();
 
+const route = useRoute();
+const pistisMode = route.query.pm;
+
 const emit = defineEmits(['update:modelValue']);
 
 const selectedFacets = useVModel(props, 'modelValue', emit, { passive: true });
@@ -40,6 +43,7 @@ const flattenedSelectedFacets = computed(() => {
             },
             [] as { title: string; values: string[] }[],
         )
+        .filter((facet) => !(pistisMode === 'cloud' && facet.title === 'catalog'))
         .flatMap((facet) => {
             return facet.values.map((value) => {
                 return {
@@ -75,7 +79,9 @@ function beforeLeave(el: any) {
 
 function clearAllFacets() {
     const unwrapSelectedFacets = unref(selectedFacets);
+
     for (const key of Object.keys(unwrapSelectedFacets)) {
+        if (pistisMode === 'cloud' && key === 'catalog') continue;
         unwrapSelectedFacets[key] = [];
     }
 }
