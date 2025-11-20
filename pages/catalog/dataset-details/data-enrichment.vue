@@ -10,12 +10,7 @@
             <UProgress animation="swing" color="secondary" />
         </div>
         <div v-else>
-            <!-- <div v-if="!headerChosen">
-                <SelectHeaderTable :toggle-header-chosen="toggleHeaderChosen" />
-            </div>
-            <div v-else ref="enrichmentRef"> -->
             <DataEnricher />
-            <!-- </div> -->
         </div>
     </div>
 </template>
@@ -28,11 +23,7 @@ const store = useDataEnrichmentStore();
 
 const isLoading = ref(true);
 
-const router = useRouter();
 const route = useRoute();
-
-const headerChosen = ref(false);
-// const enrichmentRef = ref(null);
 
 const datasetId = ref('');
 const distributionId = ref('');
@@ -45,12 +36,7 @@ if (Object.keys(route.query).length !== 0) {
 }
 
 function backButton() {
-    if (!headerChosen.value) {
-        router.back();
-    } else {
-        store.restoreOriginalFileData();
-        toggleHeaderChosen();
-    }
+    navigateTo(`${datasetId.value}?pm=factory`);
 }
 onMounted(async () => {
     if (datasetId.value) {
@@ -69,8 +55,4 @@ onMounted(async () => {
         isLoading.value = false;
     }
 });
-
-function toggleHeaderChosen() {
-    headerChosen.value = !headerChosen.value;
-}
 </script>

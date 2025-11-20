@@ -1,7 +1,7 @@
 <template>
-    <th class="table-header p-4 min-w-[300px] max-h-[100px] max-w-[400px]">
+    <th class="table-header p-4 min-w-[300px] max-h-[100px]">
         <div class="font-normal break-words">
-            <div class="font-semibold">
+            <div class="pl-[50px] mb-2 font-semibold text-primary-700 text-left leading-4">
                 {{ originalName }}
                 <strong class="text-secondary-400">
                     {{ originalDataType }}
@@ -90,14 +90,14 @@
                     </template>
                 </USelectMenu>
             </div>
-            <small v-if="column.propertyURI" class="flex text-xs">
+            <small v-if="column.propertyURI" class="flex text-xs pl-[8px]">
                 URI:
                 <a
                     id="option-name-uri"
                     :href="column.propertyURI"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="inline-flex text-gray-400 font-mono break-all"
+                    class="inline-flex pl-[20px] text-gray-400 font-mono break-all"
                     @click.stop
                 >
                     {{ column.propertyURI }}
