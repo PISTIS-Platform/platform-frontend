@@ -22,10 +22,6 @@ const route = useRoute();
 const pistisMode = route.query.pm;
 
 const config = useRuntimeConfig();
-const getPrefix = () => {
-    const url = new URL(config.public.factoryUrl);
-    return url.hostname.split('.')[0];
-};
 
 const model = defineModel<string[]>();
 
@@ -42,15 +38,6 @@ const {
     data: props.facets,
     limit: displayedFacets,
 });
-
-const selectCatalog = () => {
-    const prefix = getPrefix();
-    if (prefix === 'acme' || prefix === 'develop') {
-        model.value = ['pistis-integration-test'];
-    } else {
-        model.value = ['pistis'];
-    }
-};
 
 const allInvestOffers = ['true', 'false'];
 const isOn = ref(false);
@@ -119,7 +106,7 @@ const panelPreset = {
 
 onMounted(() => {
     if (pistisMode === 'cloud' && props.title === 'Catalogues') {
-        selectCatalog();
+        model.value = [config.pistisMarketplaceCatalog];
     }
 });
 </script>
