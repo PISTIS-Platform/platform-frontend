@@ -9,7 +9,7 @@ const props = defineProps({
     },
 });
 
-async function checkMarketplace(datasetId: string) {
+const checkMarketplace = async (datasetId: string) => {
     const endpoint = 'https://pistis-market.eu/srv/virtuoso/sparql';
 
     const query = `
@@ -37,22 +37,18 @@ async function checkMarketplace(datasetId: string) {
         }),
     });
 
-    if (!response.ok) {
-        throw new Error('SPARQL request failed with status ' + res.status);
-    }
-
-    const data = await res.json();
-    console.log('<<<<<<<<<<<<<<<<<<<<DATA:', data);
+    const data = await response.json();
+    console.log('<<<<<<<<<<<<<<<<<<<<DATA:', data.results.bindings.length);
 
     return data.results.bindings.length > 0;
-}
+};
 
 onMounted(async () => {
     try {
         isPublished.value = await checkMarketplace(props.datasetId);
-    } catch (err: any) {
-        error.value = err.message;
-        console.log('>>>>>>>>>>>ERROR:', error.value);
+    } catch (e) {
+        error.value = e.message;
+        console.log('ERROR:', error.value);
     } finally {
         loading.value = false;
     }
@@ -60,7 +56,13 @@ onMounted(async () => {
 </script>
 
 <template>
+    <UTooltip v-if="isPublished" text="Dataset has been published and cannot be deleted.">
+        <UButton class="bg-gray-300 text-gray-50 hover:bg-gray-300 cursor-not-allowed" icon="i-heroicons-trash">
+            Delete dataset
+        </UButton>
+    </UTooltip>
     <UButton
+        v-if="!isPublished"
         class="bg-red-50 ring-1 ring-opacity-25 ring-red-500 text-red-500 hover:bg-red-200"
         icon="i-heroicons-trash"
     >
