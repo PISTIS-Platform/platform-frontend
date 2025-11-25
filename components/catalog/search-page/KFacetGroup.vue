@@ -106,7 +106,7 @@ const panelPreset = {
 
 onMounted(() => {
     if (pistisMode === 'cloud' && props.title === 'Catalogues') {
-        model.value = [config.pistisMarketplaceCatalog];
+        model.value = [config.public.pistisMarketplaceCatalog];
     }
 });
 </script>
