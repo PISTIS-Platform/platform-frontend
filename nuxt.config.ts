@@ -67,6 +67,7 @@ export default defineNuxtConfig({
             orgId: '',
             orgLogo: '',
             catalogName: '',
+            pistisMarketplaceCatalog: '',
         },
         keycloak: {
             issuer: '',
@@ -80,7 +81,6 @@ export default defineNuxtConfig({
         factoryName: '',
         organisationFullname: '',
         pistisMode: '',
-        pistisMarketplaceCatalog: '',
     },
 
     modules: [
