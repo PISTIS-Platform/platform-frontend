@@ -316,7 +316,7 @@ const investOpen = ref(false);
             </template>
         </KCard>
     </div>
-    <div class="container mx-auto">
+    <div class="container mx-auto flex flex-col space-y-8">
         <div class="mx-auto w-full max-w-content-max pt-1">
             <section name="dsd-header" class="flex flex-col gap-6">
                 <!-- Go previous page -->
@@ -598,6 +598,9 @@ const investOpen = ref(false);
                     >
                 </div>
             </section>
+        </div>
+        <div v-if="catalog === 'my-data'" class="flex justify-end">
+            <DeleteButton :dataset-id="props.datasetId" />
         </div>
     </div>
 </template>
