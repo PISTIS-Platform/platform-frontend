@@ -2,6 +2,16 @@
 const isPublished = ref(false);
 const loading = ref(true);
 const error = ref<string | null>(null);
+const fetchSuccess = ref(false);
+const deleteSuccess = ref(false);
+const deleteError = ref(false);
+
+import { useApiService } from '~/services/apiService';
+
+const route = useRoute();
+const pistisMode = route.query.pm;
+
+const { getMarketplaceSparqlEndpoint, getRepoUrl } = useApiService(pistisMode);
 
 const props = defineProps({
     datasetId: {
@@ -9,8 +19,10 @@ const props = defineProps({
     },
 });
 
+const router = useRouter();
+
 const checkMarketplace = async (datasetId: string) => {
-    const endpoint = 'https://pistis-market.eu/srv/virtuoso/sparql';
+    const endpoint = getMarketplaceSparqlEndpoint();
 
     const query = `
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -26,21 +38,73 @@ const checkMarketplace = async (datasetId: string) => {
         }
     `;
 
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Accept: 'application/sparql-results+json',
-        },
-        body: new URLSearchParams({
-            query,
-        }),
+    const params = new URLSearchParams({
+        query,
+        format: 'application/sparql-results+json',
     });
 
-    const data = await response.json();
-    console.log('<<<<<<<<<<<<<<<<<<<<DATA:', data.results.bindings.length);
+    try {
+        const response = await fetch(`${endpoint}?${params.toString()}`, {
+            headers: {
+                Accept: 'application/sparql-results+json',
+            },
+        });
 
-    return data.results.bindings.length > 0;
+        if (!response.ok) {
+            const msg = await response.text();
+            throw new Error(`Fetch failed: ${msg}`);
+        }
+
+        const data = await response.json();
+
+        fetchSuccess.value = true;
+        return data.results.bindings.length > 0;
+    } catch (error) {
+        console.error('SPARQL direct fetch failed:', error);
+        throw error;
+    }
+};
+
+const showConfirmationWindow = ref(false);
+
+const openConfirmationWindow = () => {
+    showConfirmationWindow.value = true;
+    deleteError.value = false;
+};
+
+const confirmDelete = async () => {
+    try {
+        deleteSuccess.value = false;
+
+        const endpoint = `${getRepoUrl()}datasets/${props.datasetId}`;
+
+        const response = await fetch(endpoint, {
+            method: 'DELETE',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-api-key': '',
+            },
+        });
+
+        if (!response.ok) {
+            const msg = await response.text();
+            throw new Error(`Delete failed: ${msg}`);
+        }
+
+        deleteSuccess.value = true;
+
+        setTimeout(() => {
+            showConfirmationWindow.value = false;
+            router.back();
+        }, 1000);
+    } catch (err: any) {
+        console.error('DELETE ERROR:', err);
+        error.value = err.message ?? 'Unknown error';
+        deleteError.value = true;
+    } finally {
+        loading.value = false;
+    }
 };
 
 onMounted(async () => {
@@ -57,15 +121,39 @@ onMounted(async () => {
 
 <template>
     <UTooltip v-if="isPublished" text="Dataset has been published and cannot be deleted.">
-        <UButton class="bg-gray-300 text-gray-50 hover:bg-gray-300 cursor-not-allowed" icon="i-heroicons-trash">
+        <UButton class="bg-gray-200 text-gray-500 hover:bg-gray-200 cursor-not-allowed" icon="i-heroicons-trash">
             Delete dataset
         </UButton>
     </UTooltip>
     <UButton
-        v-if="!isPublished"
-        class="bg-red-50 ring-1 ring-opacity-25 ring-red-500 text-red-500 hover:bg-red-200"
+        v-if="fetchSuccess && !isPublished"
+        variant="soft"
+        color="red"
         icon="i-heroicons-trash"
+        @click="openConfirmationWindow"
     >
         Delete dataset
     </UButton>
+    <UModal v-model="showConfirmationWindow" :ui="{ width: 'max-w-none w-[500px]' }">
+        <div v-if="!deleteSuccess">
+            <h2 class="text-lg font-semibold p-4">Delete dataset?</h2>
+
+            <p class="px-4">Are you sure you want to delete this dataset? This action cannot be undone.</p>
+
+            <div class="flex justify-end space-x-4 p-4">
+                <UButton variant="soft" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>
+                <UButton variant="soft" color="red" @click="confirmDelete">Delete</UButton>
+            </div>
+            <p v-if="deleteError" class="italic text-red-400 px-4 pb-4 text-sm text-right">
+                Something went wrong, please try again.
+            </p>
+        </div>
+        <div v-else class="p-6 text-center">
+            <div class="flex justify-center items-center">
+                <h2 class="text-lg font-semibold text-green-600">Dataset successfully deleted</h2>
+                <UIcon name="i-heroicons-check-circle" class="text-xl text-green-500" />
+            </div>
+            <p class="text-gray-600 mt-2">You will be redirected...</p>
+        </div>
+    </UModal>
 </template>
