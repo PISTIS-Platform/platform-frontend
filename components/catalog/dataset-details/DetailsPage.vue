@@ -599,8 +599,8 @@ const investOpen = ref(false);
                 </div>
             </section>
         </div>
-        <div v-if="catalog === 'my-data'" class="flex justify-end">
-            <DeleteButton :dataset-id="props.datasetId" />
+        <div v-if="pistisMode === 'factory'" class="flex justify-end">
+            <DeleteButton :dataset-id="props.datasetId" :catalog="catalog" />
         </div>
     </div>
 </template>
