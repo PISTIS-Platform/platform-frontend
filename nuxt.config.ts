@@ -81,6 +81,7 @@ export default defineNuxtConfig({
         factoryName: '',
         organisationFullname: '',
         pistisMode: '',
+        piveauHubRepoXApiKey: '',
     },
 
     modules: [

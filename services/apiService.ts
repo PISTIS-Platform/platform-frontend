@@ -38,6 +38,8 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getLineageDataUrl = (backendUrl: string) => `${backendUrl}/srv/lineage-tracker/get_dataset_family_tree`;
 
+    const getMarketplaceSparqlEndpoint = () => `https://pistis-market.eu/srv/virtuoso/sparql`;
+
     return {
         baseUrl,
         getSearchUrl,
@@ -55,5 +57,6 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getDatasetDiffUrlLimited,
         getDatasetDiffUrl,
         getLineageDataUrl,
+        getMarketplaceSparqlEndpoint,
     };
 };
