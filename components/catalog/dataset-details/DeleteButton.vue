@@ -11,7 +11,7 @@ import { useApiService } from '~/services/apiService';
 const route = useRoute();
 const pistisMode = route.query.pm;
 
-const { getMarketplaceSparqlEndpoint, getRepoUrl } = useApiService(pistisMode);
+const { getMarketplaceSparqlEndpoint } = useApiService(pistisMode);
 
 const props = defineProps({
     datasetId: {
@@ -74,36 +74,20 @@ const openConfirmationWindow = () => {
 
 const confirmDelete = async () => {
     try {
-        deleteSuccess.value = false;
-
-        const endpoint = `${getRepoUrl()}datasets/${props.datasetId}`;
-
-        const response = await fetch(endpoint, {
+        const _response = await $fetch('/api/catalog/delete-dataset', {
             method: 'DELETE',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'x-api-key': '',
-            },
+            query: { datasetId: props.datasetId },
         });
-
-        if (!response.ok) {
-            const msg = await response.text();
-            throw new Error(`Delete failed: ${msg}`);
-        }
 
         deleteSuccess.value = true;
 
         setTimeout(() => {
             showConfirmationWindow.value = false;
             router.back();
-        }, 1000);
-    } catch (err: any) {
+        }, 1500);
+    } catch (err) {
         console.error('DELETE ERROR:', err);
-        error.value = err.message ?? 'Unknown error';
         deleteError.value = true;
-    } finally {
-        loading.value = false;
     }
 };
 
