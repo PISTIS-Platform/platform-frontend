@@ -1,7 +1,6 @@
 const {
-    public: { cloudUrl },
+    public: { cloudUrl, pistisMarketplaceCatalog },
     organisationFullname,
-    pistisMarketplaceCatalog,
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
