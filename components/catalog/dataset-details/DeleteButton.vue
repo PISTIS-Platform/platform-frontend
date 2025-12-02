@@ -24,7 +24,7 @@ const props = defineProps({
 
 const router = useRouter();
 
-const checkMarketplace = async (datasetId: string) => {
+const checkIsPublishedOnMarketplace = async (datasetId: string) => {
     const endpoint = getMarketplaceSparqlEndpoint();
 
     const query = `
@@ -76,27 +76,32 @@ const openConfirmationWindow = () => {
 };
 
 const confirmDelete = async () => {
-    try {
-        const _response = await $fetch('/api/catalog/delete-dataset', {
-            method: 'DELETE',
-            query: { datasetId: props.datasetId },
-        });
+    const isPublishedCheck = await checkIsPublishedOnMarketplace(props.datasetId);
+    if (!isPublishedCheck) {
+        try {
+            const _response = await $fetch('/api/catalog/delete-dataset', {
+                method: 'DELETE',
+                query: { datasetId: props.datasetId },
+            });
 
-        deleteSuccess.value = true;
+            deleteSuccess.value = true;
 
-        setTimeout(() => {
-            showConfirmationWindow.value = false;
-            router.back();
-        }, 1500);
-    } catch (err) {
-        console.error('DELETE ERROR:', err);
+            setTimeout(() => {
+                showConfirmationWindow.value = false;
+                router.back();
+            }, 1500);
+        } catch (err) {
+            console.error('DELETE ERROR:', err);
+            deleteError.value = true;
+        }
+    } else {
         deleteError.value = true;
     }
 };
 
 onMounted(async () => {
     try {
-        isPublished.value = await checkMarketplace(props.datasetId);
+        isPublished.value = await checkIsPublishedOnMarketplace(props.datasetId);
     } catch (e) {
         error.value = e.message;
         console.log('ERROR:', error.value);
