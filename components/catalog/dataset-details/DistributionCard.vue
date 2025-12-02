@@ -334,14 +334,14 @@ const dropdownItems = computed(() => [
         <div>
             <div class="flex justify-between">
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
-                    <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
+                    <UBadge color="secondary" variant="soft" size="xs">{{ format }}</UBadge>
                     <div>{{ title }}</div>
                 </div>
                 <div class="flex">
                     <div class="space-x-2 pr-5">
-                        <UBadge v-if="isAnonymized" color="green" variant="outline" size="xs">Anonymized</UBadge>
-                        <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
-                        <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
+                        <UBadge v-if="isAnonymized" color="green" variant="soft" size="xs">Anonymized</UBadge>
+                        <UBadge v-if="isTransformed" color="blue" variant="soft" size="xs">Transformed</UBadge>
+                        <UBadge v-if="isEncrypted" color="yellow" variant="soft" size="xs">Encrypted</UBadge>
                     </div>
 
                     <div v-if="pistisMode == 'factory'">

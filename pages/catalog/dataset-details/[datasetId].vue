@@ -153,7 +153,7 @@ const {
                             >
                                 <div class="absolute bottom-0 flex w-full flex-row items-center justify-center">
                                     <div>
-                                        <UButton @click="showAllDistributions">
+                                        <UButton variant="outline" @click="showAllDistributions">
                                             Show more ({{ getFormattedDistributions.length }})
                                         </UButton>
                                     </div>
@@ -172,7 +172,7 @@ const {
                                 v-for="category in resultEnhanced?.getCategories"
                                 :key="category.id"
                                 size="sm"
-                                variant="soft"
+                                variant="subtle"
                                 class="cursor-pointer"
                                 @click="
                                     router.push({
