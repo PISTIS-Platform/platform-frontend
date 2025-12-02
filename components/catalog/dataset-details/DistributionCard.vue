@@ -11,7 +11,7 @@ const route = useRoute();
 
 const pistisMode = route.query.pm;
 
-const { getDistributionsUrl, getDatasetUrl, getEnrichmentUrl } = useApiService(pistisMode);
+const { getDistributionsUrl, getDatasetUrl } = useApiService(pistisMode);
 
 interface CardProps {
     title: string;
@@ -184,6 +184,31 @@ const copyItem = (key: string) => {
 };
 
 const revealPassword = ref(false);
+
+const dropdownItems = computed(() => [
+    [
+        {
+            label: 'Data Enrichment',
+            class: 'text-secondary-500 bg-secondary-50 hover:bg-secondary-100 justify-center font-medium',
+            disabled: isEnrichmentDisabled.value,
+            click: () => {
+                if (!isEnrichmentDisabled.value) {
+                    navigateTo(
+                        `/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${fileExtension.value}`,
+                    );
+                }
+            },
+        },
+    ],
+    [
+        {
+            label: 'Anonymize',
+            class: 'text-secondary-500 bg-secondary-50 hover:bg-secondary-100 justify-center font-medium',
+            click: () =>
+                navigateTo(`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`),
+        },
+    ],
+]);
 </script>
 
 <template>
@@ -318,16 +343,35 @@ const revealPassword = ref(false);
                         <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
                         <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
                     </div>
-                    <UButton
-                        v-if="pistisMode == 'factory'"
-                        variant="soft"
-                        color="secondary"
-                        size="sm"
-                        icon="i-heroicons-arrow-down-tray"
-                        @click="downloadFile"
-                    >
-                        {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                    </UButton>
+
+                    <div v-if="pistisMode == 'factory'">
+                        <UButtonGroup v-if="catalog === 'my-data' && !isStream">
+                            <UButton
+                                variant="soft"
+                                color="secondary"
+                                size="sm"
+                                icon="i-heroicons-arrow-down-tray"
+                                @click="downloadFile"
+                            >
+                                {{ downloadText }}
+                                <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                            </UButton>
+
+                            <UDropdown :items="dropdownItems">
+                                <UButton color="secondary" variant="link" icon="i-lucide-chevron-down" />
+                            </UDropdown>
+                        </UButtonGroup>
+                        <UButton
+                            v-else
+                            variant="soft"
+                            color="secondary"
+                            size="sm"
+                            icon="i-heroicons-arrow-down-tray"
+                            @click="downloadFile"
+                        >
+                            {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                        </UButton>
+                    </div>
                     <button v-if="pistisMode == 'factory'" class="ml-10" @click="showBtns = !showBtns">
                         <PhCaretDown
                             :class="{
@@ -347,36 +391,6 @@ const revealPassword = ref(false);
                     @click="openMetadata"
                     >See Data Schema</UButton
                 >
-                <div v-if="catalog === 'my-data' && !isStream" class="flex gap-6">
-                    <UTooltip
-                        :text="isEnrichmentDisabled ? 'Not available for PDF and XML files' : ''"
-                        :prevent="!isEnrichmentDisabled"
-                    >
-                        <a
-                            :href="
-                                isEnrichmentDisabled
-                                    ? undefined
-                                    : `/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${fileExtension}`
-                            "
-                            :class="[
-                                'inline-block px-3 py-1.5 text-sm font-medium rounded-md transition-colors text-center',
-                                isEnrichmentDisabled
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-primary/10 text-primary hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer',
-                            ]"
-                            :aria-disabled="isEnrichmentDisabled"
-                        >
-                            Data Enrichment
-                        </a>
-                    </UTooltip>
-
-                    <UButton
-                        size="sm"
-                        variant="soft"
-                        :label="$t('buttons.anonymize')"
-                        :to="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
-                    />
-                </div>
             </div>
         </div>
     </div>
