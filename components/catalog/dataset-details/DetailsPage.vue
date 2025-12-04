@@ -430,7 +430,7 @@ const investOpen = ref(false);
                                         <UBadge
                                             v-for="keyword in metadata?.result?.keywords"
                                             :key="keyword.id"
-                                            variant="subtle"
+                                            variant="soft"
                                             size="sm"
                                             class="cursor-pointer"
                                             @click="

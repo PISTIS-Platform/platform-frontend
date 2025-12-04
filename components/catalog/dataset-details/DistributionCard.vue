@@ -5,7 +5,6 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useApiService } from '~/services/apiService';
-import PhCaretDown from '~icons/ph/caret-down';
 
 const route = useRoute();
 
@@ -189,7 +188,7 @@ const dropdownItems = computed(() => [
     [
         {
             label: 'Data Enrichment',
-            class: 'text-secondary-500 bg-secondary-50 hover:bg-secondary-100 justify-center font-medium',
+            class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
             disabled: isEnrichmentDisabled.value,
             click: () => {
                 if (!isEnrichmentDisabled.value) {
@@ -203,9 +202,16 @@ const dropdownItems = computed(() => [
     [
         {
             label: 'Anonymize',
-            class: 'text-secondary-500 bg-secondary-50 hover:bg-secondary-100 justify-center font-medium',
+            class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
             click: () =>
                 navigateTo(`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`),
+        },
+    ],
+    [
+        {
+            label: 'Data Schema',
+            class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
+            click: () => (showBtns.value = !showBtns.value),
         },
     ],
 ]);
@@ -334,21 +340,27 @@ const dropdownItems = computed(() => [
         <div>
             <div class="flex justify-between">
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
-                    <UBadge color="secondary" variant="soft" size="xs">{{ format }}</UBadge>
+                    <UBadge color="secondary" variant="soft" size="xs" class="rounded-full">{{ format }}</UBadge>
                     <div>{{ title }}</div>
                 </div>
                 <div class="flex">
                     <div class="space-x-2 pr-5">
-                        <UBadge v-if="isAnonymized" color="green" variant="soft" size="xs">Anonymized</UBadge>
-                        <UBadge v-if="isTransformed" color="blue" variant="soft" size="xs">Transformed</UBadge>
-                        <UBadge v-if="isEncrypted" color="yellow" variant="soft" size="xs">Encrypted</UBadge>
+                        <UBadge v-if="isAnonymized" color="green" variant="soft" size="xs" class="rounded-full"
+                            >Anonymized</UBadge
+                        >
+                        <UBadge v-if="isTransformed" color="blue" variant="soft" size="xs" class="rounded-full"
+                            >Transformed</UBadge
+                        >
+                        <UBadge v-if="isEncrypted" color="yellow" variant="soft" size="xs" class="rounded-full"
+                            >Encrypted</UBadge
+                        >
                     </div>
 
                     <div v-if="pistisMode == 'factory'">
-                        <UButtonGroup v-if="catalog === 'my-data' && !isStream">
+                        <UButtonGroup v-if="!isStream">
                             <UButton
-                                variant="soft"
-                                color="secondary"
+                                variant="solid"
+                                color="primary"
                                 size="sm"
                                 icon="i-heroicons-arrow-down-tray"
                                 @click="downloadFile"
@@ -358,13 +370,13 @@ const dropdownItems = computed(() => [
                             </UButton>
 
                             <UDropdown :items="dropdownItems">
-                                <UButton color="secondary" variant="link" icon="i-lucide-chevron-down" />
+                                <UButton color="primary" variant="outline" icon="i-lucide-chevron-down" />
                             </UDropdown>
                         </UButtonGroup>
                         <UButton
                             v-else
-                            variant="soft"
-                            color="secondary"
+                            variant="solid"
+                            color="primary"
                             size="sm"
                             icon="i-heroicons-arrow-down-tray"
                             @click="downloadFile"
@@ -372,13 +384,6 @@ const dropdownItems = computed(() => [
                             {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
                         </UButton>
                     </div>
-                    <button v-if="pistisMode == 'factory'" class="ml-10" @click="showBtns = !showBtns">
-                        <PhCaretDown
-                            :class="{
-                                'rotate-180': showBtns,
-                            }"
-                        />
-                    </button>
                 </div>
             </div>
             <div v-if="pistisMode == 'factory' && showBtns" class="flex flex-wrap gap-6 pt-4 pb-5 pl-4">
@@ -391,6 +396,7 @@ const dropdownItems = computed(() => [
                     @click="openMetadata"
                     >See Data Schema</UButton
                 >
+                <UButton variant="link" color="gray" icon="i-heroicons-x-mark" @click="showBtns = !showBtns"></UButton>
             </div>
         </div>
     </div>

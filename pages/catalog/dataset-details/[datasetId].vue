@@ -128,7 +128,9 @@ const {
                         <span class="flex flex-col gap-0.5 items-start justify-center">
                             <h3 class="text-base font-semibold whitespace-nowrap">
                                 Distributions
-                                <UBadge color="primary" variant="soft">{{ getFormattedDistributions.length }}</UBadge>
+                                <UBadge color="primary" variant="soft" class="rounded-full">{{
+                                    getFormattedDistributions.length
+                                }}</UBadge>
                             </h3>
                         </span>
                     </template>
@@ -172,7 +174,7 @@ const {
                                 v-for="category in resultEnhanced?.getCategories"
                                 :key="category.id"
                                 size="sm"
-                                variant="subtle"
+                                variant="soft"
                                 class="cursor-pointer"
                                 @click="
                                     router.push({
