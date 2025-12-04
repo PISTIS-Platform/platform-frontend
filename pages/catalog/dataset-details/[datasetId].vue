@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { PropertyTableEntryNode } from '@piveau/sdk-vue';
 import DOMPurify from 'isomorphic-dompurify';
 import { marked } from 'marked';
 
@@ -8,14 +7,17 @@ import { useDataTruncator } from '@/composables/useDataTruncator';
 // import config from '../config/appConfig';
 import { useDcatApSearch } from '@/sdk/index';
 import { getLocalizedValue } from '@/sdk/utils/helpers';
+import { useApiService } from '~/services/apiService';
 
 function ensureDatasetId(id: Ref): asserts id is Ref<string> {
     if (typeof toValue(id) !== 'string') throw new Error('id must be a string');
 }
 const router = useRouter();
-// const pistisMode = route.query.pm;
+const route = useRoute();
 
-// const searchUrl = ref(config);
+const pistisMode = route.query.pm;
+
+const { getDatasetUrl } = useApiService(pistisMode);
 
 const datasetId = useRouteParams('datasetId');
 
@@ -29,7 +31,11 @@ const getFormattedDistributions = computed(() => {
     if (!isSuccess.value) return [];
     if (!resultEnhanced.value?.getDistributions) return [];
 
+    const metadata = distributionMetadata.value?.result?.distributions || [];
+
     return resultEnhanced.value.getDistributions.map((dist) => {
+        const distribution = metadata.find((p: any) => p.id === dist.id);
+
         return {
             title: dist.title ?? dist.id ?? '',
             description: dist.description ?? '',
@@ -39,12 +45,14 @@ const getFormattedDistributions = computed(() => {
             id: dist.id,
             accessUrls: dist.accessUrls,
             modified: dist.modified ?? '',
+
             data: {
                 type: 'node',
                 id: 'root',
                 label: 'root',
                 data: dist.getPropertyTable,
-            } satisfies PropertyTableEntryNode,
+            },
+
             linkedData: {
                 'RDF/XML': dist.getLinkedData.rdf,
                 Turtle: dist.getLinkedData.ttl,
@@ -52,9 +60,24 @@ const getFormattedDistributions = computed(() => {
                 'N-Tripes': dist.getLinkedData.nt,
                 'JSON-LD': dist.getLinkedData.jsonld,
             },
+
+            pistisSchema: distribution?.pistis_schema ?? null,
         };
     });
 });
+
+const searchUrl = getDatasetUrl(datasetId.value);
+
+const distributionMetadata = ref<any>(null);
+
+const fetchDistributionMetadata = async () => {
+    try {
+        const response = await fetch(searchUrl);
+        distributionMetadata.value = await response.json();
+    } catch (error) {
+        console.error('Error fetching metadata:', error);
+    }
+};
 
 // const { getTitle, getId, getDescription, getPropertyTable, getFormattedDistributions, getCategories } = toRefs(resultEnhanced)
 const { isError: searchError, error } = query;
@@ -74,6 +97,10 @@ const {
 } = useDataTruncator({
     data: getFormattedDistributions,
     limit: 7,
+});
+
+onMounted(() => {
+    fetchDistributionMetadata();
 });
 </script>
 
@@ -147,6 +174,7 @@ const {
                                 :linked-data="distribution.linkedData"
                                 :dataset-id="datasetId"
                                 :distribution-id="distribution.id"
+                                :pistis-schema="distribution.pistisSchema"
                             />
                             <div
                                 v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"

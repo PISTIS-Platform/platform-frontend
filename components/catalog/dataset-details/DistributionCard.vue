@@ -10,7 +10,7 @@ const route = useRoute();
 
 const pistisMode = route.query.pm;
 
-const { getDistributionsUrl, getDatasetUrl } = useApiService(pistisMode);
+const { getDatasetUrl } = useApiService(pistisMode);
 
 interface CardProps {
     title: string;
@@ -23,6 +23,7 @@ interface CardProps {
     linkedData?: Record<string, string>;
     datasetId: string;
     distributionId: string;
+    pistisSchema: Record<string, any> | null;
     data: PropertyTableEntryNode;
     onSave?: () => void;
 }
@@ -39,12 +40,13 @@ const token = session.value?.token;
 
 const catalog = ref(null);
 
-const showBtns = ref(false);
+const showTable = ref(false);
 
 const searchUrl = getDatasetUrl(props.datasetId);
 const isTransformed = ref();
 const isAnonymized = ref();
 const isEncrypted = ref();
+const _hasPistisSchema = computed(() => !!props.pistisSchema);
 
 const isStream = computed(() => props.title.toLowerCase() === 'kafka stream' && props.format.toLowerCase() === 'csv');
 
@@ -135,11 +137,6 @@ async function downloadFile() {
     }
 }
 
-const openMetadata = () => {
-    const distributionsUrl = getDistributionsUrl();
-    window.open(`${distributionsUrl}${props.distributionId}.ttl`);
-};
-
 const { data: streamingConsumerData } = useFetch<{
     username: string;
     password: string;
@@ -211,7 +208,7 @@ const dropdownItems = computed(() => [
         {
             label: 'Data Schema',
             class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
-            click: () => (showBtns.value = !showBtns.value),
+            click: () => (showTable.value = !showTable.value),
         },
     ],
 ]);
@@ -342,6 +339,7 @@ const dropdownItems = computed(() => [
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
                     <UBadge color="secondary" variant="soft" size="xs" class="rounded-full">{{ format }}</UBadge>
                     <div>{{ title }}</div>
+                    <div>{{ props.pistisSchema }}</div>
                 </div>
                 <div class="flex">
                     <div class="space-x-2 pr-5">
@@ -386,17 +384,14 @@ const dropdownItems = computed(() => [
                     </div>
                 </div>
             </div>
-            <div v-if="pistisMode == 'factory' && showBtns" class="flex flex-wrap gap-6 pt-4 pb-5 pl-4">
+            <div v-if="pistisMode == 'factory' && showTable" class="flex flex-wrap gap-6 pt-4 pb-5 pl-4">
+                <UTable class="flex-1" />
                 <UButton
-                    v-if="format === 'SQL'"
-                    variant="soft"
-                    color="secondary"
-                    size="sm"
-                    icon="i-heroicons-arrow-top-right-on-square"
-                    @click="openMetadata"
-                    >See Data Schema</UButton
-                >
-                <UButton variant="link" color="gray" icon="i-heroicons-x-mark" @click="showBtns = !showBtns"></UButton>
+                    variant="link"
+                    color="gray"
+                    icon="i-heroicons-x-mark"
+                    @click="showTable = !showTable"
+                ></UButton>
             </div>
         </div>
     </div>
