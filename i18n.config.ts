@@ -425,6 +425,7 @@ export default defineI18nConfig(() => ({
                     dataset_name: 'Dataset',
                 },
                 designer: {
+                    publishToMarketplace: 'Publish to Marketplace',
                     valuation: {
                         title: 'Data Valuation Rating',
                         rating: 'Rating',
