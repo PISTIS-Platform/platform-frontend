@@ -23,7 +23,7 @@ interface CardProps {
     linkedData?: Record<string, string>;
     datasetId: string;
     distributionId: string;
-    pistisSchema: Record<string, any> | null;
+    pistisSchema: object;
     data: PropertyTableEntryNode;
     onSave?: () => void;
 }
@@ -46,7 +46,7 @@ const searchUrl = getDatasetUrl(props.datasetId);
 const isTransformed = ref();
 const isAnonymized = ref();
 const isEncrypted = ref();
-const _hasPistisSchema = computed(() => !!props.pistisSchema);
+const hasPistisSchema = computed(() => !!props.pistisSchema);
 
 const isStream = computed(() => props.title.toLowerCase() === 'kafka stream' && props.format.toLowerCase() === 'csv');
 
@@ -208,6 +208,7 @@ const dropdownItems = computed(() => [
         {
             label: 'Data Schema',
             class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
+            disabled: !hasPistisSchema.value,
             click: () => (showTable.value = !showTable.value),
         },
     ],
@@ -339,7 +340,6 @@ const dropdownItems = computed(() => [
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
                     <UBadge color="secondary" variant="soft" size="xs" class="rounded-full">{{ format }}</UBadge>
                     <div>{{ title }}</div>
-                    <div>{{ props.pistisSchema }}</div>
                 </div>
                 <div class="flex">
                     <div class="space-x-2 pr-5">
@@ -354,8 +354,8 @@ const dropdownItems = computed(() => [
                         >
                     </div>
 
-                    <div v-if="pistisMode == 'factory'">
-                        <UButtonGroup v-if="!isStream">
+                    <div v-if="pistisMode == 'factory'" class="flex gap-x-3">
+                        <UTooltip text="Download Distribution">
                             <UButton
                                 variant="solid"
                                 color="primary"
@@ -363,35 +363,30 @@ const dropdownItems = computed(() => [
                                 icon="i-heroicons-arrow-down-tray"
                                 @click="downloadFile"
                             >
-                                {{ downloadText }}
                                 <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
                             </UButton>
+                        </UTooltip>
 
+                        <UButtonGroup v-if="!isStream">
                             <UDropdown :items="dropdownItems">
-                                <UButton color="primary" variant="outline" icon="i-lucide-chevron-down" />
+                                <UTooltip text="Show more">
+                                    <UButton color="primary" variant="solid" icon="i-heroicons-ellipsis-horizontal" />
+                                </UTooltip>
                             </UDropdown>
                         </UButtonGroup>
-                        <UButton
-                            v-else
-                            variant="solid"
-                            color="primary"
-                            size="sm"
-                            icon="i-heroicons-arrow-down-tray"
-                            @click="downloadFile"
-                        >
-                            {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                        </UButton>
                     </div>
                 </div>
             </div>
-            <div v-if="pistisMode == 'factory' && showTable" class="flex flex-wrap gap-6 pt-4 pb-5 pl-4">
-                <UTable class="flex-1" />
+            <div v-if="pistisMode == 'factory' && showTable" class="flex flex-wrap pt-4 pb-5 pl-4">
                 <UButton
                     variant="link"
                     color="gray"
-                    icon="i-heroicons-x-mark"
+                    trailing-icon="i-heroicons-x-mark"
+                    class="text-base font-semibold text-gray-600 pb-2"
                     @click="showTable = !showTable"
-                ></UButton>
+                    >Data Schema</UButton
+                >
+                <PistisSchemaTable v-if="hasPistisSchema" :table-data="props.pistisSchema" />
             </div>
         </div>
     </div>
