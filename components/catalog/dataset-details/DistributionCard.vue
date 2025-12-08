@@ -5,13 +5,12 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useApiService } from '~/services/apiService';
-import PhCaretDown from '~icons/ph/caret-down';
 
 const route = useRoute();
 
 const pistisMode = route.query.pm;
 
-const { getDistributionsUrl, getDatasetUrl, getEnrichmentUrl } = useApiService(pistisMode);
+const { getDatasetUrl } = useApiService(pistisMode);
 
 interface CardProps {
     title: string;
@@ -24,6 +23,7 @@ interface CardProps {
     linkedData?: Record<string, string>;
     datasetId: string;
     distributionId: string;
+    pistisSchema: object;
     data: PropertyTableEntryNode;
     onSave?: () => void;
 }
@@ -40,12 +40,13 @@ const token = session.value?.token;
 
 const catalog = ref(null);
 
-const showBtns = ref(false);
+const showTable = ref(false);
 
 const searchUrl = getDatasetUrl(props.datasetId);
 const isTransformed = ref();
 const isAnonymized = ref();
 const isEncrypted = ref();
+const hasPistisSchema = computed(() => !!props.pistisSchema);
 
 const isStream = computed(() => props.title.toLowerCase() === 'kafka stream' && props.format.toLowerCase() === 'csv');
 
@@ -136,11 +137,6 @@ async function downloadFile() {
     }
 }
 
-const openMetadata = () => {
-    const distributionsUrl = getDistributionsUrl();
-    window.open(`${distributionsUrl}${props.distributionId}.ttl`);
-};
-
 const { data: streamingConsumerData } = useFetch<{
     username: string;
     password: string;
@@ -184,6 +180,39 @@ const copyItem = (key: string) => {
 };
 
 const revealPassword = ref(false);
+
+const dropdownItems = computed(() => [
+    [
+        {
+            label: 'Data Enrichment',
+            class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
+            disabled: isEnrichmentDisabled.value,
+            click: () => {
+                if (!isEnrichmentDisabled.value) {
+                    navigateTo(
+                        `/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${fileExtension.value}`,
+                    );
+                }
+            },
+        },
+    ],
+    [
+        {
+            label: 'Anonymize',
+            class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
+            click: () =>
+                navigateTo(`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`),
+        },
+    ],
+    [
+        {
+            label: 'Data Schema',
+            class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
+            disabled: !hasPistisSchema.value,
+            click: () => (showTable.value = !showTable.value),
+        },
+    ],
+]);
 </script>
 
 <template>
@@ -309,74 +338,55 @@ const revealPassword = ref(false);
         <div>
             <div class="flex justify-between">
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
-                    <UBadge color="secondary" variant="outline">{{ format }}</UBadge>
+                    <UBadge color="secondary" variant="soft" size="xs" class="rounded-full">{{ format }}</UBadge>
                     <div>{{ title }}</div>
                 </div>
                 <div class="flex">
                     <div class="space-x-2 pr-5">
-                        <UBadge v-if="isAnonymized" color="green" variant="outline" size="xs">Anonymized</UBadge>
-                        <UBadge v-if="isTransformed" color="blue" variant="outline" size="xs">Transformed</UBadge>
-                        <UBadge v-if="isEncrypted" color="yellow" variant="outline" size="xs">Encrypted</UBadge>
+                        <UBadge v-if="isAnonymized" color="green" variant="soft" size="xs" class="rounded-full"
+                            >Anonymized</UBadge
+                        >
+                        <UBadge v-if="isTransformed" color="blue" variant="soft" size="xs" class="rounded-full"
+                            >Transformed</UBadge
+                        >
+                        <UBadge v-if="isEncrypted" color="yellow" variant="soft" size="xs" class="rounded-full"
+                            >Encrypted</UBadge
+                        >
                     </div>
-                    <UButton
-                        v-if="pistisMode == 'factory'"
-                        variant="soft"
-                        color="secondary"
-                        size="sm"
-                        icon="i-heroicons-arrow-down-tray"
-                        @click="downloadFile"
-                    >
-                        {{ downloadText }} <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                    </UButton>
-                    <button v-if="pistisMode == 'factory'" class="ml-10" @click="showBtns = !showBtns">
-                        <PhCaretDown
-                            :class="{
-                                'rotate-180': showBtns,
-                            }"
-                        />
-                    </button>
+
+                    <div v-if="pistisMode == 'factory'" class="flex gap-x-3">
+                        <UTooltip text="Download Distribution">
+                            <UButton
+                                variant="solid"
+                                color="primary"
+                                size="sm"
+                                icon="i-heroicons-arrow-down-tray"
+                                @click="downloadFile"
+                            >
+                                <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                            </UButton>
+                        </UTooltip>
+
+                        <UButtonGroup v-if="!isStream">
+                            <UDropdown :items="dropdownItems">
+                                <UTooltip text="Show more">
+                                    <UButton color="primary" variant="solid" icon="i-heroicons-ellipsis-horizontal" />
+                                </UTooltip>
+                            </UDropdown>
+                        </UButtonGroup>
+                    </div>
                 </div>
             </div>
-            <div v-if="pistisMode == 'factory' && showBtns" class="flex flex-wrap gap-6 pt-4 pb-5 pl-4">
+            <div v-if="pistisMode == 'factory' && showTable" class="flex flex-wrap pt-4 pb-5 pl-4">
                 <UButton
-                    v-if="format === 'SQL'"
-                    variant="soft"
-                    color="secondary"
-                    size="sm"
-                    icon="i-heroicons-arrow-top-right-on-square"
-                    @click="openMetadata"
-                    >See Data Schema</UButton
+                    variant="link"
+                    color="gray"
+                    trailing-icon="i-heroicons-x-mark"
+                    class="text-base font-semibold text-gray-600 pb-2"
+                    @click="showTable = !showTable"
+                    >Data Schema</UButton
                 >
-                <div v-if="catalog === 'my-data' && !isStream" class="flex gap-6">
-                    <UTooltip
-                        :text="isEnrichmentDisabled ? 'Not available for PDF and XML files' : ''"
-                        :prevent="!isEnrichmentDisabled"
-                    >
-                        <a
-                            :href="
-                                isEnrichmentDisabled
-                                    ? undefined
-                                    : `/catalog/dataset-details/data-enrichment?datasetId=${props.datasetId}&distributionId=${props.distributionId}&file_type=${fileExtension}`
-                            "
-                            :class="[
-                                'inline-block px-3 py-1.5 text-sm font-medium rounded-md transition-colors text-center',
-                                isEnrichmentDisabled
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-primary/10 text-primary hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer',
-                            ]"
-                            :aria-disabled="isEnrichmentDisabled"
-                        >
-                            Data Enrichment
-                        </a>
-                    </UTooltip>
-
-                    <UButton
-                        size="sm"
-                        variant="soft"
-                        :label="$t('buttons.anonymize')"
-                        :to="`/anonymizer?datasetId=${props.datasetId}&distribution=${props.distributionId}&language=en`"
-                    />
-                </div>
+                <PistisSchemaTable v-if="hasPistisSchema" :table-data="props.pistisSchema" />
             </div>
         </div>
     </div>

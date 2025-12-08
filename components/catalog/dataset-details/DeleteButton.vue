@@ -63,7 +63,7 @@ const confirmDelete = async () => {
     <div v-if="props.catalog === 'my-data'">
         <UButton
             v-if="!isPublished && canDelete"
-            variant="soft"
+            variant="solid"
             color="red"
             icon="i-heroicons-trash"
             @click="openConfirmationWindow"
@@ -71,7 +71,7 @@ const confirmDelete = async () => {
             Delete dataset
         </UButton>
         <UTooltip v-else text="Dataset has been published and cannot be deleted.">
-            <UButton class="bg-gray-200 text-gray-500 hover:bg-gray-200 cursor-not-allowed" icon="i-heroicons-trash">
+            <UButton :disabled="true" color="red" icon="i-heroicons-trash">
                 Delete dataset
             </UButton>
         </UTooltip>
@@ -82,8 +82,8 @@ const confirmDelete = async () => {
                 <p class="px-4">Are you sure you want to delete this dataset? This action cannot be undone.</p>
 
                 <div class="flex justify-end space-x-4 p-4">
-                    <UButton variant="soft" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>
-                    <UButton variant="soft" color="red" @click="confirmDelete">Delete</UButton>
+                    <UButton variant="solid" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>
+                    <UButton variant="solid" color="red" @click="confirmDelete">Delete</UButton>
                 </div>
                 <p v-if="deleteError" class="italic text-red-400 px-4 pb-4 text-sm text-right">
                     Something went wrong, please try again.
@@ -100,9 +100,7 @@ const confirmDelete = async () => {
     </div>
     <div v-else>
         <UTooltip text="This is an acquired dataset and cannot be deleted.">
-            <UButton class="bg-gray-200 text-gray-500 hover:bg-gray-200 cursor-not-allowed" icon="i-heroicons-trash">
-                Delete dataset
-            </UButton>
+            <UButton :disabled="true" color="red" icon="i-heroicons-trash"> Delete dataset </UButton>
         </UTooltip>
     </div>
 </template>

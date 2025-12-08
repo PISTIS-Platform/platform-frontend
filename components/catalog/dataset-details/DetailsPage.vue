@@ -345,7 +345,7 @@ const investOpen = ref(false);
                                 <UButton
                                     v-if="!isStream"
                                     size="sm"
-                                    variant="outline"
+                                    variant="solid"
                                     :label="$t('buttons.dataLineage')"
                                     :to="{
                                         path:
@@ -358,7 +358,7 @@ const investOpen = ref(false);
                                 <UButton
                                     v-if="pistisMode === 'factory'"
                                     size="sm"
-                                    variant="outline"
+                                    variant="solid"
                                     label="Quality Assessment"
                                     :to="{
                                         path:
@@ -386,7 +386,7 @@ const investOpen = ref(false);
                                         v-if="catalog === 'acquired-data' && offerId"
                                         size="sm"
                                         color="secondary"
-                                        variant="outline"
+                                        variant="solid"
                                         label="Rate Dataset"
                                         :to="rateDatasetUrl"
                                     ></UButton>
