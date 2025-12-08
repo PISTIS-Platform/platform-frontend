@@ -148,6 +148,7 @@ watch(
                     <vue3-tags-input
                         class="mb-3"
                         :tags="assetOfferingDetails.keywords"
+                        :add-tag-on-keys="[188, 13]"
                         :placeholder="assetOfferingDetails.keywords.length ? '' : $t('data.designer.keywordsOfAsset')"
                         @on-tags-changed="(value: string[]) => emit('update:asset-keywords', value)"
                     />

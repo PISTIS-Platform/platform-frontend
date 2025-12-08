@@ -1,17 +1,6 @@
 <script setup lang="ts">
-const isPublished = ref(false);
-const loading = ref(true);
-const error = ref<string | null>(null);
-const fetchSuccess = ref(false);
 const deleteSuccess = ref(false);
 const deleteError = ref(false);
-
-import { useApiService } from '~/services/apiService';
-
-const route = useRoute();
-const pistisMode = route.query.pm;
-
-const { getMarketplaceSparqlEndpoint } = useApiService(pistisMode);
 
 const props = defineProps({
     datasetId: {
@@ -24,49 +13,19 @@ const props = defineProps({
 
 const router = useRouter();
 
-const checkMarketplace = async (datasetId: string) => {
-    const endpoint = getMarketplaceSparqlEndpoint();
+const {
+    data: isPublishedOnMarketplace,
+    status,
+    error,
+} = useAsyncData(() =>
+    $fetch(`/api/datasets/is-on-marketplace`, {
+        query: { id: props.datasetId },
+    }),
+);
 
-    const query = `
-        PREFIX dcat: <http://www.w3.org/ns/dcat#>
-        PREFIX pistis: <https://www.pistis-project.eu/ns/voc#>
+const isPublished = computed(() => isPublishedOnMarketplace.value === true);
 
-        SELECT ?dataset
-        WHERE {
-            ?offer a pistis:Offer ;
-                pistis:originalId "${datasetId}" .
-
-            ?dataset a dcat:Dataset ;
-                pistis:offer ?offer .
-        }
-    `;
-
-    const params = new URLSearchParams({
-        query,
-        format: 'application/sparql-results+json',
-    });
-
-    try {
-        const response = await fetch(`${endpoint}?${params.toString()}`, {
-            headers: {
-                Accept: 'application/sparql-results+json',
-            },
-        });
-
-        if (!response.ok) {
-            const msg = await response.text();
-            throw new Error(`Fetch failed: ${msg}`);
-        }
-
-        const data = await response.json();
-
-        fetchSuccess.value = true;
-        return data.results.bindings.length > 0;
-    } catch (error) {
-        console.error('SPARQL direct fetch failed:', error);
-        throw error;
-    }
-};
+const canDelete = computed(() => status.value === 'success' && error.value === null && isPublished.value === false);
 
 const showConfirmationWindow = ref(false);
 
@@ -76,8 +35,13 @@ const openConfirmationWindow = () => {
 };
 
 const confirmDelete = async () => {
+    if (!canDelete.value) {
+        deleteError.value = true;
+        return;
+    }
+
     try {
-        const _response = await $fetch('/api/catalog/delete-dataset', {
+        await $fetch('/api/catalog/delete-dataset', {
             method: 'DELETE',
             query: { datasetId: props.datasetId },
         });
@@ -93,26 +57,12 @@ const confirmDelete = async () => {
         deleteError.value = true;
     }
 };
-
-onMounted(async () => {
-    try {
-        isPublished.value = await checkMarketplace(props.datasetId);
-    } catch (e) {
-        error.value = e.message;
-        console.log('ERROR:', error.value);
-    } finally {
-        loading.value = false;
-    }
-});
 </script>
 
 <template>
     <div v-if="props.catalog === 'my-data'">
-        <UTooltip v-if="isPublished" text="Dataset has been published and cannot be deleted.">
-            <UButton :disabled="true" color="red" icon="i-heroicons-trash"> Delete dataset </UButton>
-        </UTooltip>
         <UButton
-            v-if="fetchSuccess && !isPublished"
+            v-if="!isPublished && canDelete"
             variant="solid"
             color="red"
             icon="i-heroicons-trash"
@@ -120,6 +70,11 @@ onMounted(async () => {
         >
             Delete dataset
         </UButton>
+        <UTooltip v-else text="Dataset has been published and cannot be deleted.">
+            <UButton :disabled="true" color="red" icon="i-heroicons-trash">
+                Delete dataset
+            </UButton>
+        </UTooltip>
         <UModal v-model="showConfirmationWindow" :ui="{ width: 'max-w-none w-[500px]' }">
             <div v-if="!deleteSuccess">
                 <h2 class="text-lg font-semibold p-4">Delete dataset?</h2>
