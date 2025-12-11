@@ -475,6 +475,18 @@ const http_methods = ['GET', 'POST'];
 const periodicity = ['hourly', 'daily', 'monthly'];
 const isDisabled = ref(true);
 
+const workflowServices = ref([]);
+const datasetName = ref('');
+const datasetDescription = ref('');
+const datasetKeywords = ref('');
+const datasetEncrytion = ref('false');
+const gdprChecking = ref('false');
+let fileUpload = ref<File | null>(null);
+const runId = ref('None');
+const wfRunTimeSpecific = ref('');
+const wfPeriodicity = ref('');
+const datasetCategory = ref('');
+
 const listServices = ref([
     {
         name: DATA_CHECK_IN,
@@ -578,21 +590,15 @@ const listServices = ref([
                 vue: 'textarea',
                 value: '',
             },
+            {
+                name: 'filename',
+                type: 'hidden',
+                vue: 'none',
+                value: datasetName.value,
+            },
         ],
     },
 ]);
-
-const workflowServices = ref([]);
-const datasetName = ref('');
-const datasetDescription = ref('');
-const datasetKeywords = ref('');
-const datasetEncrytion = ref('false');
-const gdprChecking = ref('false');
-let fileUpload = ref<File | null>(null);
-const runId = ref('None');
-const wfRunTimeSpecific = ref('');
-const wfPeriodicity = ref('');
-const datasetCategory = ref('');
 
 const onDrag = () => {
     runId.value = 'None';
