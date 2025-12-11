@@ -7,6 +7,8 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getRepoUrl = () => `${baseUrl}/srv/repo/`;
 
+    const getDistributionsUrl = () => `${baseUrl}/srv/repo/distributions/`;
+
     const getDatasetUrl = (datasetId: string) => `${baseUrl}/srv/search/datasets/${datasetId}`;
 
     const getUserFactoryUrl = () => `${config.public.cloudUrl}/srv/factories-registry/api/factories/user-factory`;
@@ -36,10 +38,13 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getLineageDataUrl = (backendUrl: string) => `${backendUrl}/srv/lineage-tracker/get_dataset_family_tree`;
 
+    const getMarketplaceSparqlEndpoint = () => `https://pistis-market.eu/srv/virtuoso/sparql`;
+
     return {
         baseUrl,
         getSearchUrl,
         getRepoUrl,
+        getDistributionsUrl,
         getDatasetUrl,
         getUserFactoryUrl,
         getInvestUrl,
@@ -52,5 +57,6 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getDatasetDiffUrlLimited,
         getDatasetDiffUrl,
         getLineageDataUrl,
+        getMarketplaceSparqlEndpoint,
     };
 };

@@ -19,12 +19,14 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     const initialFileData = ref(null);
     const unsupportedDataTypes = ref(new Map([['Bigint', 'Integer']]));
     const dataTypeTransformCompatibility = ref({
-        String: new Set(['string', 'date', 'dateTime']),
+        String: new Set(['string', 'date', 'dateTime', 'time', 'boolean', 'integer', 'double', 'float']),
         Integer: new Set(['string', 'integer', 'double', 'float', 'int']),
         Double: new Set(['string', 'integer', 'double']),
         Float: new Set(['string', 'float']),
         Date: new Set(['string', 'date', 'dateTime']),
-        DateTime: new Set(['string', 'date', 'dateTime']),
+        DateTime: new Set(['string', 'dateTime']),
+        Boolean: new Set(['string', 'boolean']),
+        Time: new Set(['string', 'time']),
     });
     const changedUnsupportedDataTypes = ref(new Map());
     const liveSearchResult = ref([]);
@@ -149,6 +151,10 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
 
     // POST Save Asset
     const saveAsset = async (fileName) => {
+        savingIsLoading.value = true;
+        toast.add({
+            title: 'Your distribution is being saved. This might take a few seconds.',
+        });
         revertUnsupportedDataTypes();
 
         const requestData = {
@@ -204,7 +210,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     };
 
     const validateAsset = async (fileName) => {
-        savingIsLoading.value = true;
+        // savingIsLoading.value = true;
 
         const requestData = {
             metadata: {
@@ -216,11 +222,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         };
 
         try {
-            toast.add({
-                title: 'Your distribution is being saved. This might take a few seconds.',
-            });
-
-            const _response = await $fetch('/validate_dataset', {
+            const response = await $fetch('/validate_dataset', {
                 baseURL: apiUrl.value,
                 method: 'POST',
                 body: requestData,
@@ -233,10 +235,10 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                     Authorization: `Bearer ${token.value}`,
                 },
             });
-
-            await saveAsset(fileName);
+            return response;
+            // await saveAsset(fileName);
         } catch (e) {
-            savingIsLoading.value = false;
+            // savingIsLoading.value = false;
             console.log('Fetch error:', e);
 
             const errorMessage =

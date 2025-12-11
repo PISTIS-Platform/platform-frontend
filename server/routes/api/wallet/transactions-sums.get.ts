@@ -1,12 +1,11 @@
 const {
-    public: { factoryUrl },
+    public: { cloudUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const session = event.context.session;
 
-    return event.$fetch(`${factoryUrl}/srv/data-transformation/transform/`, {
-        method: 'GET',
+    return $fetch(`${cloudUrl}/srv/transactions-auditor/api/transactions-auditor/transaction/summary`, {
         headers: {
             Authorization: `Bearer ${session?.token}`,
         },

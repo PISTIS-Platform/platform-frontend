@@ -8,10 +8,13 @@ const props = defineProps<{
 }>();
 const matchingDatasets = ref<any[]>([]);
 
+const hasMatchingDatasets = ref(false);
+
 const loadData = async () => {
     try {
         const response = await getMatchingDatasets(props.datasetId);
         matchingDatasets.value = Object.values(response.data).slice(1);
+        hasMatchingDatasets.value = true;
     } catch (error) {
         console.error('Loading data failed:', error);
     }
@@ -21,7 +24,7 @@ loadData();
 </script>
 
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div v-if="hasMatchingDatasets" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <NuxtLink
             v-for="dataset in matchingDatasets"
             :key="dataset.dataset_id"
@@ -39,7 +42,7 @@ loadData();
                         variant="subtle"
                         class="capitalize"
                         :color="
-                            dataset.offer_type === 'one-ff'
+                            dataset.offer_type === 'one-off'
                                 ? 'secondary'
                                 : dataset.offer_type === 'subscription'
                                   ? 'emerald'
@@ -53,5 +56,8 @@ loadData();
                 <div class="text-sm">{{ dataset.description }}</div>
             </div>
         </NuxtLink>
+    </div>
+    <div v-else>
+        <Typography>No recommended datasets found for this offer.</Typography>
     </div>
 </template>

@@ -89,8 +89,8 @@ export default defineI18nConfig(() => ({
                 inputMessage: 'Search in asset name...',
                 outgoing: 'Outgoing',
                 incoming: 'Incoming',
-                monthlyIncome: 'Monthly Income',
-                monthlyExpenses: 'Monthly Expenses',
+                monthlyIncome: 'Income in the last 30 days',
+                monthlyExpenses: 'Expenses in the last 30 days',
             },
             settings: {
                 title: 'Factory Settings',
@@ -246,6 +246,8 @@ export default defineI18nConfig(() => ({
                 jobConfigurator: 'Job Configurator',
                 streamConfigurator: 'Stream Configurator',
                 streaming: {
+                    downloadText:
+                        'This is a streaming dataset and you can only download it by utilising a Kafka Consumer and using the following connection details:',
                     details: 'Streaming Dataset Details',
                     detailsDesc: 'The details of the dataset you will stream to customers',
                     title: 'Dataset Title',
@@ -423,6 +425,7 @@ export default defineI18nConfig(() => ({
                     dataset_name: 'Dataset',
                 },
                 designer: {
+                    publishToMarketplace: 'Publish to Marketplace',
                     valuation: {
                         title: 'Data Valuation Rating',
                         rating: 'Rating',

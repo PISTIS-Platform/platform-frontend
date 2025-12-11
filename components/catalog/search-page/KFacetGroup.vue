@@ -18,6 +18,11 @@ defineSlots<{
     header: (props: { title?: string }) => any;
 }>();
 
+const route = useRoute();
+const pistisMode = route.query.pm;
+
+const config = useRuntimeConfig();
+
 const model = defineModel<string[]>();
 
 const collapsed = defineModel<boolean>('collapsed');
@@ -98,10 +103,17 @@ const panelPreset = {
         leaveToClass: 'max-h-0',
     },
 };
+
+onMounted(() => {
+    if (pistisMode === 'cloud' && props.title === 'Catalogues') {
+        model.value = [config.public.pistisMarketplaceCatalog];
+    }
+});
 </script>
 
 <template>
     <Panel
+        v-if="!(pistisMode === 'cloud' && props.title === 'Catalogues')"
         v-model:collapsed="collapsed"
         class="flex min-w-64 flex-col text-surface-text"
         :pt="panelPreset"

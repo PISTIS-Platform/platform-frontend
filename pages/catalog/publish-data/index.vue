@@ -19,7 +19,8 @@ const submitError = ref(false);
 const submitSuccess = ref(false);
 
 const selectedAsset = ref<
-    { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
+    | { id: string | number; title: string; description: string; distributions: Record<string, any>[]; keywords: any[] }
+    | undefined
 >(undefined);
 
 const hasRouteAssetId = computed(() => !!route.query.id);
@@ -55,6 +56,7 @@ const transformedDatasets = computed(() => {
             description: dataset.description.en,
             distributions: dataset.distributions,
             modified: dataset.modified,
+            keywords: dataset.keywords?.map((keyword: any) => keyword.id),
         })),
     );
 });
@@ -64,6 +66,7 @@ const transformSingleDataset = (dataset: Record<string, any>) => ({
     title: dataset.title.en,
     description: dataset.description.en,
     distributions: dataset.distributions,
+    keywords: dataset.keywords?.map((keyword: any) => keyword.id),
 });
 
 const { data: isAssetOnMarketplace } = useAsyncData(
@@ -88,6 +91,7 @@ watch(selectedAsset, () => {
         label: `${item?.title?.en ?? t('data.designer.noTitle')} (${item?.format?.label ?? t('data.designer.unknownFormat')})`,
     }));
     assetOfferingDetails.value.selectedDistribution = assetOfferingDetails.value.distributions[0];
+    assetOfferingDetails.value.keywords = selectedAsset.value.keywords || [];
 });
 
 //data for selection whole dataset or query

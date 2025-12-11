@@ -1,18 +1,16 @@
-import { getToken } from '#auth';
-
 const {
     public: { cloudUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
-    const token = await getToken({ event });
+    const session = event.context.session;
 
     return $fetch(
         `${cloudUrl}/srv/intention-analytics/api/questionnaire/${query.assetId}/answers/${query.forVerifiedBuyers}`,
         {
             headers: {
-                Authorization: `Bearer ${token?.access_token}`,
+                Authorization: `Bearer ${session?.token}`,
             },
         },
     );

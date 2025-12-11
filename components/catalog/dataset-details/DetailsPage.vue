@@ -25,6 +25,7 @@ const props = withDefaults(
 
 const router = useRouter();
 const route = useRoute();
+const config = useRuntimeConfig();
 const pistisMode = route.query.pm;
 
 const platform = pistisMode === 'cloud' ? 'marketplace' : 'catalog';
@@ -54,6 +55,7 @@ const rateDatasetUrl = computed(() => getFeedbackUrl(offerId.value));
 const buyIsLoading = ref(false);
 const isStream = ref(false);
 const isLoading = ref(true);
+const datasetIsBought = ref(false);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -93,8 +95,8 @@ const hasPurchaseOffer = computed(() => monetizationData.value?.purchase_offer);
 
 const publisherOrganizationId = computed(() => monetizationData.value?.purchase_offer[0]?.publisher?.organization_id);
 
-const isNotOwned = computed(() => {
-    // True only in datasets that the logged-in user owns
+const isNotOwn = computed(() => {
+    // True only in datasets that the logged-in user is the Data Provider of
     return organizationId.value !== publisherOrganizationId.value && publisherOrganizationId.value;
 });
 const isNFT = computed(() => monetizationData.value?.purchase_offer[0].type === 'nft');
@@ -119,14 +121,20 @@ const fetchMetadata = async () => {
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
-            const monetization = metadata.value.result?.monetization?.[0];
 
+            // Check monetisation
+            const monetization = metadata.value.result?.monetization?.[0];
             if (monetization) {
                 monetizationData.value = monetization;
                 price.value = monetization.purchase_offer?.[0]?.price ?? null;
                 investPrice.value = monetization.investment_offer?.[0]?.price_per_share ?? null;
             } else {
                 console.warn('No monetization data available.');
+            }
+
+            // If the dataset is not mine, check if I have bought it
+            if (isNotOwn.value != false) {
+                checkDataset(metadata.value.result?.id);
             }
         }
         if (pistisMode == 'factory') {
@@ -189,9 +197,10 @@ const buyRequest = async () => {
     try {
         const res = await promise;
         console.log('Purchase complete', res.data);
-        buyIsLoading.value = false;
+        datasetIsBought.value = true;
     } catch (err) {
         console.error('Purchase failed', err);
+    } finally {
         buyIsLoading.value = false;
     }
 };
@@ -213,6 +222,53 @@ const openInsightsResult = async () => {
         newWindow.document.close();
     } catch (err) {
         console.error('Failed to load insights result', err);
+    }
+};
+
+const checkDatasetExists = async (datasetId) => {
+    const query = `
+    PREFIX dcat: <http://www.w3.org/ns/dcat#>
+    PREFIX pistis: <https://www.pistis-project.eu/ns/voc#>
+
+    ASK {
+      ?dataset a dcat:Dataset ;
+               pistis:offer ?offer .
+      ?offer pistis:marketplaceOfferId "${datasetId}" .
+    }
+  `;
+
+    const params = new URLSearchParams({
+        'default-graph-uri': '',
+        query,
+        format: 'application/sparql-results+json',
+        timeout: '0',
+        signal_void: 'on',
+    });
+
+    try {
+        const response = await fetch(`${config.public.factoryUrl}/srv/virtuoso/sparql?${params.toString()}`, {
+            headers: {
+                Accept: 'application/sparql-results+json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`SPARQL query failed: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.boolean;
+    } catch (error) {
+        console.error('SPARQL direct fetch failed:', error);
+        throw error;
+    }
+};
+
+const checkDataset = async (id: string) => {
+    try {
+        datasetIsBought.value = await checkDatasetExists(id);
+    } catch (err) {
+        console.error(err);
     }
 };
 
@@ -260,7 +316,7 @@ const investOpen = ref(false);
             </template>
         </KCard>
     </div>
-    <div class="container mx-auto">
+    <div class="container mx-auto flex flex-col space-y-8">
         <div class="mx-auto w-full max-w-content-max pt-1">
             <section name="dsd-header" class="flex flex-col gap-6">
                 <!-- Go previous page -->
@@ -289,7 +345,7 @@ const investOpen = ref(false);
                                 <UButton
                                     v-if="!isStream"
                                     size="sm"
-                                    variant="outline"
+                                    variant="solid"
                                     :label="$t('buttons.dataLineage')"
                                     :to="{
                                         path:
@@ -302,7 +358,7 @@ const investOpen = ref(false);
                                 <UButton
                                     v-if="pistisMode === 'factory'"
                                     size="sm"
-                                    variant="outline"
+                                    variant="solid"
                                     label="Quality Assessment"
                                     :to="{
                                         path:
@@ -330,7 +386,7 @@ const investOpen = ref(false);
                                         v-if="catalog === 'acquired-data' && offerId"
                                         size="sm"
                                         color="secondary"
-                                        variant="outline"
+                                        variant="solid"
                                         label="Rate Dataset"
                                         :to="rateDatasetUrl"
                                     ></UButton>
@@ -430,10 +486,10 @@ const investOpen = ref(false);
                 </div>
 
                 <div
-                    v-if="pistisMode === 'cloud' && isNotOwned"
+                    v-if="pistisMode === 'cloud' && isNotOwn"
                     class="flex flex-col gap-4 w-96 sticky top-20 self-start"
                 >
-                    <template v-if="hasPurchaseOffer && isNotOwned">
+                    <template v-if="hasPurchaseOffer && isNotOwn">
                         <div
                             v-if="monetizationData.purchase_offer[0].type === 'subscription'"
                             class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
@@ -454,7 +510,19 @@ const investOpen = ref(false);
                             </div>
 
                             <div class="sticky top-0 z-50">
+                                <UTooltip
+                                    v-if="datasetIsBought"
+                                    text="You have already subscribed to this asset"
+                                    class="w-full"
+                                    :ui="{ width: 'max-w-xs', base: 'text-wrap' }"
+                                >
+                                    <UButton variant="solid" size="lg" color="emerald" block disabled>
+                                        <span v-if="price">Subscribe</span>
+                                        <span v-else>Get</span>
+                                    </UButton>
+                                </UTooltip>
                                 <UButton
+                                    v-else
                                     variant="solid"
                                     size="lg"
                                     color="emerald"
@@ -480,7 +548,20 @@ const investOpen = ref(false);
                             </div>
 
                             <div class="sticky top-0 z-50">
+                                <UTooltip
+                                    v-if="datasetIsBought"
+                                    text="You have already bought this asset"
+                                    class="w-full"
+                                    :ui="{ width: 'max-w-xs', base: 'text-wrap' }"
+                                >
+                                    <UButton variant="solid" size="lg" color="secondary" block disabled>
+                                        <span v-if="price">Buy</span>
+                                        <span v-else>Get</span>
+                                    </UButton>
+                                </UTooltip>
+
                                 <UButton
+                                    v-else
                                     variant="solid"
                                     size="lg"
                                     color="secondary"
@@ -495,7 +576,7 @@ const investOpen = ref(false);
                         </div>
                     </template>
                     <div
-                        v-if="hasInvestmentOffer && isNotOwned"
+                        v-if="hasInvestmentOffer && isNotOwn"
                         class="flex flex-col gap-4 bg-white rounded-lg border border-neutral-300 p-4 shadow-lg"
                     >
                         <div class="flex justify-between items-center">
@@ -512,11 +593,14 @@ const investOpen = ref(false);
                         >
                     </div>
 
-                    <UButton v-if="hasPurchaseOffer && isNotOwned" size="sm" variant="link" block :to="feedbackUrl"
+                    <UButton v-if="hasPurchaseOffer && isNotOwn" size="sm" variant="link" block :to="feedbackUrl"
                         >Provide Feedback</UButton
                     >
                 </div>
             </section>
+        </div>
+        <div v-if="pistisMode === 'factory'" class="flex justify-end">
+            <DeleteButton :dataset-id="props.datasetId" :catalog="catalog" />
         </div>
     </div>
 </template>

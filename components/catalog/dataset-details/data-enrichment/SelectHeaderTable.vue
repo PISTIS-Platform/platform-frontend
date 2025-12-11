@@ -2,10 +2,10 @@
     <div>
         <h1 class="text-center text-2xl font-bold text-primary-600 mb-16">Select table header</h1>
 
-        <div class="flex justify-between items-center">
-            <UButton variant="outline" color="gray" size="md" icon="i-heroicons-plus" @click="selectHeader('down')">
+        <div class="flex justify-end items-center">
+            <!-- <UButton variant="outline" color="gray" size="md" icon="i-heroicons-plus" @click="selectHeader('down')">
                 Add a new table header
-            </UButton>
+            </UButton> -->
 
             <UButton color="primary" size="md" icon="i-heroicons-check" @click="selectHeader('up')">
                 Confirm table header

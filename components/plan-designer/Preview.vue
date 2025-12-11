@@ -417,11 +417,11 @@ const subscriptionMapping: Record<string, string> = {
                 />
                 <UButton
                     :disabled="submitStatus === 'pending' || submitStatus === 'success'"
-                    class="px-4 py-2 w-32 block"
+                    class="px-4 py-2 w-46 block"
                     @click="emit('submitAll')"
                 >
                     <UIcon v-if="submitStatus === 'pending'" name="svg-spinners:270-ring-with-bg" />
-                    <span v-else> {{ $t('submit') }}</span>
+                    <span v-else> {{ $t('data.designer.publishToMarketplace') }}</span>
                 </UButton>
             </div>
         </div>
