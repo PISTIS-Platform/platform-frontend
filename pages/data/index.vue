@@ -690,8 +690,31 @@ const runJobConfigurator = async (services: [string]) => {
         formData.append('periodicity', periodicity);
     }
 
-    /*formData.append('workflow', jsonContent.value);*/
-    formData.append('workflow', JSON.stringify(services));
+    // ---------- Enrich services: add item.filename when API method is used ----------
+    const enrichedServices = services.map((svc: any) => {
+        if (svc?.method === DATA_CHECK_IN_API_METHOD) {
+            // Prefer actual uploaded filename; otherwise fall back to dataset name.
+            const preferred =
+                fileUpload.value?.name ||
+                (typeof datasetName.value === 'string' && datasetName.value.trim()
+                    ? datasetName.value.trim()
+                    : undefined);
+
+            const finalFilename = preferred ?? `dataset-${new Date().toISOString()}`;
+
+            return {
+                ...svc,
+                item: {
+                    ...(svc.item ?? {}),
+                    filename: finalFilename,
+                },
+            };
+        }
+        return svc;
+    });
+
+    formData.append('workflow', JSON.stringify(enrichedServices));
+    //formData.append('workflow', JSON.stringify(services));
     formData.append('dataset_description', datasetDescription.value);
     // formData.append('dataset_keywords', datasetKeywords.value);
     formData.append('dataset_name', datasetName.value);
