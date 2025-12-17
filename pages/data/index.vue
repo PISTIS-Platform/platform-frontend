@@ -590,12 +590,6 @@ const listServices = ref([
                 vue: 'textarea',
                 value: '',
             },
-            {
-                name: 'filename',
-                type: 'hidden',
-                vue: 'none',
-                value: datasetName.value,
-            },
         ],
     },
 ]);
@@ -674,6 +668,14 @@ const handleFileChange = (event: Event) => {
     }
 };
 
+const sanitizeFilename = (raw: string): string =>
+    raw
+        .trim()
+        .replace(/\s+/g, ' ')
+        .replace(/[\/\\:\*\?"<>\|]/g, '-') // invalid filesystem chars
+        .replace(/^\.+/, '') // avoid leading dots
+        .slice(0, 255);
+
 const runJobConfigurator = async (services: [string]) => {
     const formData = new FormData();
     let isoDateString = wfRunTimeSpecific.value;
@@ -690,24 +692,22 @@ const runJobConfigurator = async (services: [string]) => {
         formData.append('periodicity', periodicity);
     }
 
-    // ---------- Enrich services: add item.filename when API method is used ----------
     const enrichedServices = services.map((svc: any) => {
         if (svc?.method === DATA_CHECK_IN_API_METHOD) {
-            // Prefer actual uploaded filename; otherwise fall back to dataset name.
             const preferred =
-                fileUpload.value?.name ||
+                (typeof fileUpload.value?.name === 'string' && fileUpload.value.name.trim()
+                    ? fileUpload.value.name.trim()
+                    : undefined) ??
                 (typeof datasetName.value === 'string' && datasetName.value.trim()
                     ? datasetName.value.trim()
                     : undefined);
 
-            const finalFilename = preferred ?? `dataset-${new Date().toISOString()}`;
+            const finalFilename = sanitizeFilename(preferred ?? `dataset-${new Date().toISOString()}`);
 
+            // Set at root level (svc.filename)
             return {
                 ...svc,
-                item: {
-                    ...(svc.item ?? {}),
-                    filename: finalFilename,
-                },
+                filename: finalFilename,
             };
         }
         return svc;
