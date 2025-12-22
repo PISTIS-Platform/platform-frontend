@@ -707,7 +707,10 @@ const runJobConfigurator = async (services: [string]) => {
             // Set at root level (svc.filename)
             return {
                 ...svc,
-                filename: finalFilename,
+                params: [
+                    { name: 'filename', type: 'json', vue: 'textarea', value: finalFilename },
+                    ...(svc.params ?? []),
+                ],
             };
         }
         return svc;
