@@ -189,6 +189,7 @@ const buyRequest = async () => {
     );
 
     toast.promise(promise, {
+        position: 'bottom-center',
         loading: 'Processing your purchase...',
         success: () => `Successfully purchased ${title}`,
         error: (err) => err?.response?.data?.reason || 'An error occurred while processing your request.',
