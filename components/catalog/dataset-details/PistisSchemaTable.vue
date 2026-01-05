@@ -1,7 +1,11 @@
 <script setup lang="ts">
 const props = defineProps<{ tableData: any }>();
-
 const sorted = computed(() => props.tableData.table_schema.column.slice().sort((a, b) => a.column_id - b.column_id));
+
+function shortDataType(dataType?: string): string {
+    if (!dataType) return 'unknown';
+    return dataType.split('#').pop() ?? dataType;
+}
 </script>
 
 <template>
@@ -22,7 +26,9 @@ const sorted = computed(() => props.tableData.table_schema.column.slice().sort((
                     :key="col.column_id"
                     class="border px-2 py-1 align-top text-gray-600 text-base"
                 >
-                    <div>{{ col.property_name }}</div>
+                    <div>
+                        {{ col.property_name }} <span class="font-extralight">{{ shortDataType(col.data_type) }}</span>
+                    </div>
                     <div class="text-sm text-gray-500">{{ col.property_URI }}</div>
                 </td>
             </tr>
