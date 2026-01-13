@@ -5,8 +5,6 @@ const { data, status, error } = useFetch<Record<string, any>[]>(`/api/invest/get
 
 const { t } = useI18n();
 
-const config = useRuntimeConfig();
-
 const columns = [
     {
         key: 'title',
@@ -95,7 +93,7 @@ const openModal = (id: string, shares: number) => {
                                 :ui="{ width: 'max-w-2xl', base: 'text-wrap' }"
                             >
                                 <a
-                                    :href="`${config.public.factoryUrl}/marketplace/dataset-details/${row.assetId}?pm=cloud`"
+                                    :href="`/marketplace/dataset-details/${row.assetId}?pm=cloud`"
                                     target="_blank"
                                     class="text-primary"
                                 >
