@@ -9,10 +9,72 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const endpoint = `${config.public.factoryUrl}/srv/repo/datasets/${datasetId}`;
-    const apiKey = config.piveauHubRepoXApiKey;
+    const authHeader = getHeader(event, 'authorization');
 
-    const response = await fetch(endpoint, {
+    if (!authHeader) {
+        throw createError({
+            statusCode: 401,
+            statusMessage: 'Missing Authorization header',
+        });
+    }
+
+    const baseUrl = config.public.factoryUrl;
+    const endpoint = `${baseUrl}/srv/repo/datasets/${datasetId}`;
+    const apiKey = config.piveauHubRepoXApiKey;
+    const dataStorageApi = `${baseUrl}/srv/factory-data-storage/api`;
+    const authToken = authHeader.replace('Bearer ', '');
+
+    // load dataset
+    const datasetResponse = await fetch(endpoint, {
+        method: 'GET',
+    });
+
+    if (!datasetResponse.ok) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: 'Failed to load dataset distributions',
+        });
+    }
+
+    const dataset = await datasetResponse.json();
+    const distributions = dataset?.distributions ?? [];
+
+    // delete distributions
+    for (const dist of distributions) {
+        const distId = dist.id;
+        const accessUrl = dist.access_url;
+        const isStream = dist.title === 'Kafka Stream';
+        const format = dist.format?.id ?? '';
+
+        try {
+            const isSql = format.includes('sql');
+
+            if (isSql) {
+                await fetch(`${dataStorageApi}/tables/delete_table?asset_uuid=${distId}`, { method: 'DELETE' });
+            } else {
+                await fetch(`${dataStorageApi}/files/delete_file?asset_uuid=${distId}`, { method: 'DELETE' });
+            }
+
+            // delete data storage for non stream dataset
+            if (!isStream && accessUrl) {
+                await fetch(accessUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+            }
+        } catch (err) {
+            console.error('Failed to delete distribution', distId, err);
+            throw createError({
+                statusCode: 500,
+                statusMessage: 'Failed to delete dataset distributions',
+            });
+        }
+    }
+
+    // delete Dataset
+    const deleteResponse = await fetch(endpoint, {
         method: 'DELETE',
         headers: {
             Accept: 'application/json',
@@ -21,8 +83,8 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    if (!response.ok) {
-        const msg = await response.text();
+    if (!deleteResponse.ok) {
+        const msg = await deleteResponse.text();
         throw createError({
             statusCode: 500,
             statusMessage: `Delete failed: ${msg}`,

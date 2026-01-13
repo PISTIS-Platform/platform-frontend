@@ -1,4 +1,7 @@
 <script setup lang="ts">
+const { data: session } = useAuth();
+const token = ref(session.value?.token);
+
 const deleteSuccess = ref(false);
 const deleteError = ref(false);
 
@@ -44,6 +47,9 @@ const confirmDelete = async () => {
         await $fetch('/api/catalog/delete-dataset', {
             method: 'DELETE',
             query: { datasetId: props.datasetId },
+            headers: {
+                Authorization: `Bearer ${token.value}`,
+            },
         });
 
         deleteSuccess.value = true;
@@ -71,9 +77,7 @@ const confirmDelete = async () => {
             Delete dataset
         </UButton>
         <UTooltip v-else text="Dataset has been published and cannot be deleted.">
-            <UButton :disabled="true" color="red" icon="i-heroicons-trash">
-                Delete dataset
-            </UButton>
+            <UButton :disabled="true" color="red" icon="i-heroicons-trash"> Delete dataset </UButton>
         </UTooltip>
         <UModal v-model="showConfirmationWindow" :ui="{ width: 'max-w-none w-[500px]' }">
             <div v-if="!deleteSuccess">
