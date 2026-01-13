@@ -15,7 +15,7 @@ const resourceMap: Record<string, Record<string, string>> = {
 
 const isDevAcme = factoryName === 'develop' || factoryName === 'acme';
 
-const getPrometheusResult = async (q: string, percentageMultiplier = 100) => {
+const getPrometheusResult = async (q: string) => {
     const prom = new PrometheusDriver({
         endpoint: prometheusUrl,
         baseURL: '/api/v1', // default value
@@ -29,10 +29,10 @@ const getPrometheusResult = async (q: string, percentageMultiplier = 100) => {
         return null;
     }
 
-    return Number((result[0].value.value * percentageMultiplier).toFixed(2));
+    return Number(result[0].value.value.toFixed(2));
 };
 
-const getDiskUsageByVolume = async (volume: string, percentageMultiplier: number = 100) => {
+const getDiskUsageByVolume = async (volume: string) => {
     const q = `max without (instance, node) (
             (
                 (
@@ -48,40 +48,91 @@ const getDiskUsageByVolume = async (volume: string, percentageMultiplier: number
         )
     `;
 
-    return getPrometheusResult(q, percentageMultiplier);
+    return getPrometheusResult(q);
 };
+
+const getVCDiskUsagePerPod = async (pod: string, volume: string) => {
+    const q = `(
+      (
+        max(otel_k8s_volume_capacity_bytes{namespace="default", pod=~"${pod}.*", k8s_volume_name="${volume}"})
+        -
+        max(otel_k8s_volume_available_bytes{namespace="default", pod=~"minio.*", k8s_volume_name="data"})
+      )
+      /
+      max(otel_k8s_volume_capacity_bytes{namespace="default", pod=~"minio.*", k8s_volume_name="data"})
+      * 100
+    )`;
+
+    return getPrometheusResult(q);
+};
+
+const getVirtualClusterStats = async (): Promise<UsageStatsData[]> => {
+    const cpuPercentage = await getPrometheusResult(`
+        (
+            sum(otel_k8s_pod_cpu_usage{namespace="default"})
+            /
+            sum(otel_kube_node_status_capacity{resource="cpu", unit="core"})
+        ) * 100
+    `);
+
+    const minioPercentage = await getVCDiskUsagePerPod('minio', 'data');
+    const mongoPercentage = await getVCDiskUsagePerPod('mongodb', 'datadir');
+
+    return [
+        {
+            key: 'cpu',
+            percentage: cpuPercentage,
+        },
+        {
+            key: 'minio',
+            percentage: minioPercentage,
+        },
+        {
+            key: 'mongoDb',
+            percentage: mongoPercentage,
+        },
+    ];
+};
+
+const getDevelopAcmeStats = async () => {};
 
 //-----------------------------------------------------------------------------------------------
 
 export default defineEventHandler(async (_event) => {
+    return isDevAcme ? getDevelopAcmeStats() : getVirtualClusterStats();
+
     // Case #1: Factory is 'develop' or 'acme'
 
     const nodeName = resourceMap[factoryName].nodeName;
 
     // CPU percentage
     const cpuQuery = `
-        sum(otel_k8s_node_cpu_usage{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
-        /
-        sum(otel_k8s_node_allocatable_cpu{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
+        (
+            sum(otel_k8s_node_cpu_usage{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
+            /
+            sum(otel_k8s_node_allocatable_cpu{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
+        ) * 100
     `;
     const cpuPercentage = await getPrometheusResult(cpuQuery);
 
     // Memory utilisation percentage
     const memoryUtilisationQuery = `
-        sum(otel_k8s_node_memory_usage_bytes{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'}) 
-        / 
-        sum(otel_k8s_node_allocatable_memory_bytes{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
+        (
+            sum(otel_k8s_node_memory_usage_bytes{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'}) 
+            / 
+            sum(otel_k8s_node_allocatable_memory_bytes{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
+        ) * 100
     `;
 
     const memoryUtilisationPercentage = await getPrometheusResult(memoryUtilisationQuery);
 
     // Minio, Mongo & Postgres
-    const minioUsagePercentage = await getDiskUsageByVolume('minio', 1);
-    const mongoDbUsagePercentage = await getDiskUsageByVolume('datadir-mongodb-0', 1);
-    const postgresUsagePercentage = await getDiskUsageByVolume('postgresql-1', 1);
+    const minioUsagePercentage = await getDiskUsageByVolume('minio');
+    const mongoDbUsagePercentage = await getDiskUsageByVolume('datadir-mongodb-0');
+    const postgresUsagePercentage = await getDiskUsageByVolume('postgresql-1');
 
     //  Elasticsearch Instances
-    const esInstancePercentage = await getDiskUsageByVolume('elasticsearch-data-eck-elasticsearch-es-default-0', 1);
+    const esInstancePercentage = await getDiskUsageByVolume('elasticsearch-data-eck-elasticsearch-es-default-0');
 
     // ---------------------------------------------------------------------------------------------
 

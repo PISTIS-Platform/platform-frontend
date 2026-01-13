@@ -3,7 +3,7 @@ export default interface UsageStatsData {
     key: string;
     used?: number;
     total?: number;
-    percentage: number;
+    percentage: number | null;
     extraInfo?: {
         key: string;
         value: number;
