@@ -29,8 +29,8 @@ export default defineEventHandler(async (event) => {
         price: result.investmentPlan.price,
         total: Number((result.shares * result.investmentPlan.price).toFixed(2)),
         expirationDate: result.investmentPlan.dueDate,
-        title: datasetResults[index].title.en,
-        description: datasetResults[index].description.en,
+        title: datasetResults[index]?.title?.en || 'N/A',
+        description: datasetResults[index]?.description?.en || 'N/A',
         investmentPlan: result.investmentPlan,
         date: result.createdAt,
     }));
