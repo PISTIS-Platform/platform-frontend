@@ -87,7 +87,7 @@ const durationTextDisplay = computed(() => {
             <template #terms-item="{ item }">
                 <div class="text-gray-800 px-8 h-[400px] overflow-y-scroll">
                     <div ref="htmlContent">
-                        <!-- PISTIS License start-->
+                        <!-- PISTIS Licence start-->
                         <div
                             v-show="licenseDetails.license === LicenseCode.PISTIS"
                             class="prose lg:prose-sm prose-h2:text-center max-w-full"
@@ -359,7 +359,7 @@ const durationTextDisplay = computed(() => {
                                 prevail.
                             </p>
                         </div>
-                        <!-- PISTIS License end-->
+                        <!-- PISTIS Licence end-->
                     </div>
                     <!-- End of Document -->
                 </div>

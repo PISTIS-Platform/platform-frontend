@@ -51,7 +51,7 @@ const items = computed(() => {
 const licenseOpen = ref(false);
 
 const handleLicenseOpen = (value) => {
-    if (value.label === 'PISTIS License') {
+    if (value.label === 'PISTIS Licence') {
         licenseOpen.value = true;
     } else if (value.label === 'PISTIS NFT License') {
         navigateTo(`${cloudUrl}/licenses/nft`, {

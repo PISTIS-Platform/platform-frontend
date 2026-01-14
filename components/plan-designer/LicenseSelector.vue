@@ -51,7 +51,7 @@ watch(
             if (!props.isFree) {
                 resetLicenseDetails({
                     code: LicenseCode.PISTIS,
-                    label: 'PISTIS License - Custom PISTIS License',
+                    label: 'Custom PISTIS Licence',
                     description: '',
                 });
             } else {
@@ -99,7 +99,7 @@ const licenseSelections = computed(() =>
           : [
                 {
                     code: LicenseCode.PISTIS,
-                    label: 'PISTIS License - Custom PISTIS License',
+                    label: 'Custom PISTIS Licence',
                     description: '',
                 },
             ],
