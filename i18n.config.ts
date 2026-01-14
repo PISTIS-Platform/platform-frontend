@@ -601,6 +601,7 @@ export default defineI18nConfig(() => ({
                     weekly: 'weekly',
                     monthly: 'monthly',
                     dataUpdated: 'Data will be updated',
+                    dataUpdateFrequency: 'Data update frequency',
                 },
                 wallet: {
                     title: 'Wallet',

@@ -224,6 +224,14 @@ const subscriptionMapping: Record<string, string> = {
                         }}</span>
                     </div>
                 </div>
+                <div class="flex flex-col gap-2">
+                    <span class="text-sm font-semibold text-gray-400">{{
+                        $t('data.designer.dataUpdateFrequency')
+                    }}</span>
+                    <span>
+                        {{ monetizationDetails.updateFrequency }}
+                    </span>
+                </div>
                 <div v-if="monetizationDetails.type !== 'nft' && monetizationDetails.price !== 0">
                     <UButton
                         v-if="!showValuationData"
