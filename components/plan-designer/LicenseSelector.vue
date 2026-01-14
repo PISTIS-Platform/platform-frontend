@@ -44,7 +44,7 @@ watch(
         if (monetizationPropComputed.value.type === 'nft') {
             resetLicenseDetails({
                 code: LicenseCode.NFT,
-                label: 'NFT License',
+                label: 'NFT Licence',
                 description: licenses.find((license) => license.code === LicenseCode.NFT)?.description,
             });
         } else {
@@ -92,7 +92,7 @@ const licenseSelections = computed(() =>
           ? [
                 {
                     code: LicenseCode.NFT,
-                    label: 'NFT License',
+                    label: 'NFT Licence',
                     description: licenses.find((license) => license.code === LicenseCode.NFT)?.description,
                 },
             ]

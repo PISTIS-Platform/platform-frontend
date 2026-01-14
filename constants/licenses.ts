@@ -5,8 +5,8 @@ export const licenses = [
         description: '',
     },
     {
-        code: 'NFT License',
-        label: 'NFT License',
+        code: 'NFT Licence',
+        label: 'NFT Licence',
         description: `Ullamco magna officia exercitation deserunt deserunt excepteur labore sunt. Irure esse laborum consectetur minim nostrud est velit commodo irure cillum commodo cillum ullamco. Deserunt magna aute nulla elit qui cillum nisi exercitation esse duis dolor. Nisi ut eiusmod amet labore irure laboris consectetur exercitation aliquip veniam. Occaecat excepteur occaecat enim ad minim do. Reprehenderit pariatur voluptate Lorem velit nostrud irure in velit laboris dolore qui excepteur incididunt. Magna consequat labore et quis consectetur occaecat dolore.
 
 Aliqua ipsum sunt exercitation. Enim ex ad magna. Voluptate incididunt ad aute do mollit ipsum in ex et nisi ut irure. Enim in Lorem exercitation id id veniam amet in cupidatat. Ut et esse aliqua aliquip aute incididunt culpa commodo ut aliquip occaecat dolore consequat. Consequat duis cillum non cillum deserunt exercitation ullamco non pariatur incididunt. Id qui amet tempor commodo dolor commodo labore labore esse esse ea in.
@@ -60,7 +60,7 @@ Elit proident cupidatat Lorem occaecat in magna aliquip et veniam aliqua consect
 
 export enum LicenseCode {
     PISTIS = 'PISTIS Licence',
-    NFT = 'NFT License',
+    NFT = 'NFT Licence',
     CC0 = 'CC0',
     CCBY = 'CC BY',
     CCBYNC = 'CC BY-NC',
