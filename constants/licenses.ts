@@ -1,11 +1,11 @@
 export const licenses = [
     {
-        code: 'PISTIS Licence',
+        code: 'PISTIS License',
         label: 'Custom PISTIS Licence',
         description: '',
     },
     {
-        code: 'NFT Licence',
+        code: 'NFT License',
         label: 'NFT Licence',
         description: `Ullamco magna officia exercitation deserunt deserunt excepteur labore sunt. Irure esse laborum consectetur minim nostrud est velit commodo irure cillum commodo cillum ullamco. Deserunt magna aute nulla elit qui cillum nisi exercitation esse duis dolor. Nisi ut eiusmod amet labore irure laboris consectetur exercitation aliquip veniam. Occaecat excepteur occaecat enim ad minim do. Reprehenderit pariatur voluptate Lorem velit nostrud irure in velit laboris dolore qui excepteur incididunt. Magna consequat labore et quis consectetur occaecat dolore.
 
@@ -59,8 +59,8 @@ Elit proident cupidatat Lorem occaecat in magna aliquip et veniam aliqua consect
 );
 
 export enum LicenseCode {
-    PISTIS = 'PISTIS Licence',
-    NFT = 'NFT Licence',
+    PISTIS = 'PISTIS License',
+    NFT = 'NFT License',
     CC0 = 'CC0',
     CCBY = 'CC BY',
     CCBYNC = 'CC BY-NC',
