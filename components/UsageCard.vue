@@ -11,7 +11,11 @@ const props = defineProps({
         required: false,
         default: null,
     },
-    percentage: {
+    measurement: {
+        type: String,
+        required: false,
+    },
+    value: {
         type: Number,
         required: true,
     },
@@ -21,22 +25,83 @@ const props = defineProps({
         default: () => [],
     },
 });
+const formatBytes = (bytes: number): { value: number; measurement: string } => {
+    const KB = 1024;
+    const MB = KB * 1024;
+    const GB = MB * 1024;
+
+    if (bytes >= GB) {
+        return {
+            value: Number((bytes / GB).toFixed(2)),
+            measurement: ' GB',
+        };
+    }
+    if (bytes >= MB) {
+        return {
+            value: Number((bytes / MB).toFixed(2)),
+            measurement: ' MB',
+        };
+    }
+    if (bytes >= KB) {
+        return {
+            value: Number((bytes / KB).toFixed(2)),
+            measurement: ' KB',
+        };
+    }
+    return {
+        value: Number(bytes.toFixed(2)),
+        measurement: ' B',
+    };
+};
+
+const getMeasurementSymbol = (measurement: string | null | undefined) => {
+    if (measurement === 'percent') {
+        return '%';
+    } else if (measurement === 'bytes') {
+        return formatBytes(props.value).measurement;
+    } else if (measurement === 'cores') {
+        return ' cores';
+    } else {
+        return '';
+    }
+};
 
 const percentageColorClasses = computed(() => {
-    if (props.percentage === null) {
+    if (props.value === null) {
         return 'text-gray-600';
     }
-    if (props.percentage >= 0 && props.percentage < 60) {
+    if (props.value >= 0 && props.value < 60) {
         return 'text-green-600';
     }
-    if (props.percentage >= 50 && props.percentage < 80) {
+    if (props.value >= 50 && props.value < 80) {
         return 'text-yellow-600';
     }
     return 'text-red-600';
 });
 
+const bytesColorClasses = computed(() => {
+    //TODO: Figure out how much is green, yellow or red
+    return '';
+});
+
+const coresColorClasses = computed(() => {
+    //TODO: Figure out how much is green, yellow or red
+    return '';
+});
+
+const classesComputedMap = computed(() => {
+    if (props.measurement === 'percent') {
+        return percentageColorClasses.value;
+    } else if (props.measurement === 'bytes') {
+        return bytesColorClasses.value;
+    } else if (props.measurement === 'cores') {
+        return coresColorClasses.value;
+    }
+    return '';
+});
+
 const tooltipContent = computed(() => {
-    if (props.percentage === null) {
+    if (props.value === null) {
         return `Service "${props.title}" is not responding.`;
     }
     // Return original tooltipInfo if it exists and percentage is not null
@@ -46,7 +111,7 @@ const tooltipContent = computed(() => {
 const shouldPreventTooltip = computed(() => {
     // If percentage is null, always show the tooltip.
     // Otherwise, show it only if there is tooltipInfo.
-    return props.percentage !== null && props.tooltipInfo.length === 0;
+    return props.value !== null && props.tooltipInfo.length === 0;
 });
 </script>
 
@@ -63,13 +128,13 @@ const shouldPreventTooltip = computed(() => {
                 <UIcon v-if="icon" :name="icon" class="h-6 w-6" aria-hidden="true" />
                 <dt class="truncate text-sm font-semibold text-gray-500">{{ title }}</dt>
             </div>
-            <dd :class="`mt-1 text-2xl font-semibold tracking-tight ${percentageColorClasses}`">
-                {{ percentage === null ? 'N/A' : percentage + '%' }}
+            <dd :class="`mt-1 text-2xl font-semibold tracking-tight ${classesComputedMap}`">
+                {{ value === null ? 'N/A' : value + getMeasurementSymbol(measurement) }}
             </dd>
         </div>
         <template #text>
             <div class="flex flex-col gap-4">
-                <p v-if="percentage === null">{{ tooltipContent }}</p>
+                <p v-if="value === null">{{ tooltipContent }}</p>
                 <p v-for="infoItem in tooltipInfo" v-else :key="infoItem.label">
                     {{ infoItem.label }}: <span class="font-semibold">{{ infoItem.value }}</span>
                 </p>
