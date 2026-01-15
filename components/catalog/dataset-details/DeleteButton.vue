@@ -12,6 +12,9 @@ const props = defineProps({
     catalog: {
         type: String,
     },
+    distributions: {
+        type: Array,
+    },
 });
 
 const router = useRouter();
@@ -25,6 +28,11 @@ const {
         query: { id: props.datasetId },
     }),
 );
+
+const dist = ref([]);
+watchEffect(() => {
+    dist.value = props.distributions;
+});
 
 const isPublished = computed(() => isPublishedOnMarketplace.value === true);
 
@@ -84,6 +92,14 @@ const confirmDelete = async () => {
                 <h2 class="text-lg font-semibold p-4">Delete dataset?</h2>
 
                 <p class="px-4">Are you sure you want to delete this dataset? This action cannot be undone.</p>
+                <br />
+                <p class="px-4">The following distribution(s) will also be deleted:</p>
+                <ul class="px-10">
+                    <li v-for="distribution in dist" :key="distribution.id" class="list-disc">
+                        <span class="font-bold text-xs">({{ distribution.format.id }})</span>
+                        {{ distribution.title?.en }}
+                    </li>
+                </ul>
 
                 <div class="flex justify-end space-x-4 p-4">
                     <UButton variant="solid" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>

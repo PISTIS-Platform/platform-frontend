@@ -56,6 +56,7 @@ const buyIsLoading = ref(false);
 const isStream = ref(false);
 const isLoading = ref(true);
 const datasetIsBought = ref(false);
+const distributions = ref(['']);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -117,6 +118,7 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
+        distributions.value = data.result.distributions;
         isStream.value = metadata.value.result?.distributions?.[0]?.title?.en === 'Kafka Stream';
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
@@ -601,7 +603,7 @@ const investOpen = ref(false);
             </section>
         </div>
         <div v-if="pistisMode === 'factory'" class="flex justify-end">
-            <DeleteButton :dataset-id="props.datasetId" :catalog="catalog" />
+            <DeleteButton :dataset-id="props.datasetId" :catalog="catalog" :distributions="distributions" />
         </div>
     </div>
 </template>
