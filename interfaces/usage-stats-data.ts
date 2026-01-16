@@ -1,12 +1,15 @@
+interface IVolume {
+    capacity: number;
+    available: number;
+}
+
 export default interface UsageStatsData {
-    title?: string;
-    key: string;
-    used?: number;
-    total?: number;
-    percentage: number | null;
-    extraInfo?: {
-        key: string;
-        value: number;
-    }[];
-    measurement?: string;
+    cpu: number;
+    memory: number;
+    volume: {
+        minio: IVolume;
+        postgresql: IVolume;
+        mongodb: IVolume;
+        elasticsearch: IVolume;
+    };
 }
