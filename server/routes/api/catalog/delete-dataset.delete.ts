@@ -73,6 +73,39 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    // verify all distributions are deleted
+    for (const dist of distributions) {
+        const distId = dist.id;
+        const accessUrl = dist.access_url;
+
+        if (!accessUrl) continue;
+
+        try {
+            const checkResponse = await fetch(accessUrl, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+            });
+
+            if (![400, 404].includes(checkResponse.status)) {
+                throw createError({
+                    statusCode: 409,
+                    statusMessage: `Distribution ${distId} is still accessible (status ${checkResponse.status})`,
+                });
+            }
+        } catch (err: any) {
+            if (err?.statusCode) {
+                throw err;
+            }
+
+            throw createError({
+                statusCode: 500,
+                statusMessage: `Failed to verify deletion of distribution ${distId}`,
+            });
+        }
+    }
+
     // delete Dataset
     const deleteResponse = await fetch(endpoint, {
         method: 'DELETE',
