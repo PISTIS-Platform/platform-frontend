@@ -2,18 +2,9 @@ import { PrometheusDriver } from 'prometheus-query';
 
 const { prometheusUrl, factoryName } = useRuntimeConfig();
 
-import UsageStatsData from '~/interfaces/usage-stats-data';
+const isDevAcme = factoryName === 'develop' || factoryName === 'acme';
 
-const resourceMap: Record<string, Record<string, string>> = {
-    develop: {
-        nodeName: 'agent',
-    },
-    acme: {
-        nodeName: 'workers',
-    },
-};
-
-const getPrometheusResult = async (q: string, percentageMultiplier = 100) => {
+const getPrometheusResult = async (q: string) => {
     const prom = new PrometheusDriver({
         endpoint: prometheusUrl,
         baseURL: '/api/v1', // default value
@@ -27,83 +18,40 @@ const getPrometheusResult = async (q: string, percentageMultiplier = 100) => {
         return null;
     }
 
-    return Number((result[0].value.value * percentageMultiplier).toFixed(2));
+    return Number(result[0].value.value);
 };
 
-const getDiskUsageByVolume = async (volume: string, percentageMultiplier: number = 100) => {
-    const q = `max without (instance, node) (
-            (
-                (
-                    topk(1, otel_k8s_volume_capacity_bytes{k8s_namespace_name="default", k8s_persistentvolumeclaim_name="${volume}"})
-                -
-                    topk(1, otel_k8s_volume_available_bytes{k8s_namespace_name="default", k8s_persistentvolumeclaim_name="${volume}"})
-                )
-            )
-            /
-            topk(1, otel_k8s_volume_capacity_bytes{k8s_namespace_name="default", k8s_persistentvolumeclaim_name="${volume}"})
-        *
-            100
-        )
-    `;
+const getPodVolumeMetric = async (name: string, volume: string) => {
+    const pod = isDevAcme ? 'k8s_pod_name' : 'pod';
 
-    return getPrometheusResult(q, percentageMultiplier);
+    const capacity = await getPrometheusResult(
+        `sum(otel_k8s_volume_capacity_bytes{${pod}=~"${name}.*", k8s_cluster_name="${factoryName}", k8s_volume_name="${volume}"})`,
+    );
+
+    const available = await getPrometheusResult(
+        `sum(otel_k8s_volume_available_bytes{${pod}=~"${name}.*", k8s_cluster_name="${factoryName}", k8s_volume_name="${volume}"})`,
+    );
+
+    return { capacity, available };
 };
 
 export default defineEventHandler(async (_event) => {
-    const nodeName = resourceMap[factoryName].nodeName;
+    const cpu = await getPrometheusResult(`sum(rate(otel_k8s_pod_cpu_time_seconds_total[5m]))`); // Calculates the per-second increase in CPU time over the last 5 minutes.
+    const memory = await getPrometheusResult(`sum(otel_k8s_pod_memory_working_set_bytes)`);
 
-    // CPU percentage
-    const cpuQuery = `
-        sum(otel_k8s_node_cpu_usage{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
-        /
-        sum(otel_k8s_node_allocatable_cpu{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
-    `;
-    const cpuPercentage = await getPrometheusResult(cpuQuery);
+    const minio = await getPodVolumeMetric('minio', 'data');
+    const mongodb = await getPodVolumeMetric('mongodb', 'datadir');
+    const postgresql = await getPodVolumeMetric('postgresql', 'pgdata');
+    const elasticsearch = await getPodVolumeMetric('eck-elasticsearch', 'elasticsearch-data');
 
-    // Memory utilisation percentage
-    const memoryUtilisationQuery = `
-        sum(otel_k8s_node_memory_usage_bytes{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'}) 
-        / 
-        sum(otel_k8s_node_allocatable_memory_bytes{k8s_cluster_name='${factoryName}', k8s_node_name=~'.*${nodeName}.*'})
-    `;
-
-    const memoryUtilisationPercentage = await getPrometheusResult(memoryUtilisationQuery);
-
-    // Minio & Postgres
-    const minioUsagePercentage = await getDiskUsageByVolume('minio', 1);
-    const mongoDbUsagePercentage = await getDiskUsageByVolume('datadir-mongodb-0', 1);
-    const postgresUsagePercentage = await getDiskUsageByVolume('postgresql-1', 1);
-
-    //  Elasticsearch Instances
-    const esInstancePercentage = await getDiskUsageByVolume('elasticsearch-data-eck-elasticsearch-es-default-0', 1);
-
-    //  General usage stats
-    const usageStatsData: UsageStatsData[] = [
-        {
-            key: 'cpu',
-            percentage: cpuPercentage,
+    return {
+        cpu,
+        memory,
+        volume: {
+            minio,
+            mongodb,
+            postgresql,
+            elasticsearch,
         },
-        {
-            key: 'memory',
-            percentage: memoryUtilisationPercentage,
-        },
-        {
-            key: 'minio',
-            percentage: minioUsagePercentage,
-        },
-        {
-            key: 'mongoDb',
-            percentage: mongoDbUsagePercentage,
-        },
-        {
-            key: 'postgres',
-            percentage: postgresUsagePercentage,
-        },
-        {
-            key: 'esInstance',
-            percentage: esInstancePercentage,
-        },
-    ];
-
-    return usageStatsData;
+    };
 });

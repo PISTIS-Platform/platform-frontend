@@ -148,9 +148,9 @@ export default defineI18nConfig(() => ({
                         memory: 'Memory',
                         from: 'from',
                         cores: 'cores',
-                        mongoDb: 'MongoDB',
-                        esInstance: 'Elasticsearch',
-                        postgres: 'PostgreSQL',
+                        mongodb: 'MongoDB',
+                        elasticsearch: 'Elasticsearch',
+                        postgresql: 'PostgreSQL',
                         minio: 'MinIO',
                         errorInRetrievingCpuAndMemoryStats:
                             'Error occurred while retrieving CPU and Memory usage stats',
