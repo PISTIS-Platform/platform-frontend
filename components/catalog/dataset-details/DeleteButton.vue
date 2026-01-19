@@ -5,12 +5,17 @@ const token = ref(session.value?.token);
 const deleteSuccess = ref(false);
 const deleteError = ref(false);
 
+const deleteInfo = ref<any>(null);
+
 const props = defineProps({
     datasetId: {
         type: String,
     },
     catalog: {
         type: String,
+    },
+    distributions: {
+        type: Array,
     },
 });
 
@@ -25,6 +30,11 @@ const {
         query: { id: props.datasetId },
     }),
 );
+
+const dist = ref([]);
+watchEffect(() => {
+    dist.value = props.distributions;
+});
 
 const isPublished = computed(() => isPublishedOnMarketplace.value === true);
 
@@ -44,7 +54,7 @@ const confirmDelete = async () => {
     }
 
     try {
-        await $fetch('/api/catalog/delete-dataset', {
+        const response = await $fetch('/api/catalog/delete-dataset', {
             method: 'DELETE',
             query: { datasetId: props.datasetId },
             headers: {
@@ -52,12 +62,13 @@ const confirmDelete = async () => {
             },
         });
 
+        deleteInfo.value = response.info;
         deleteSuccess.value = true;
 
         setTimeout(() => {
             showConfirmationWindow.value = false;
             router.back();
-        }, 1500);
+        }, 3500);
     } catch (err) {
         console.error('DELETE ERROR:', err);
         deleteError.value = true;
@@ -84,6 +95,14 @@ const confirmDelete = async () => {
                 <h2 class="text-lg font-semibold p-4">Delete dataset?</h2>
 
                 <p class="px-4">Are you sure you want to delete this dataset? This action cannot be undone.</p>
+                <br />
+                <p class="px-4">The following distribution(s) will also be deleted:</p>
+                <ul class="px-10">
+                    <li v-for="distribution in dist" :key="distribution.id" class="list-disc">
+                        <span class="font-bold text-xs">({{ distribution.format.id }})</span>
+                        {{ distribution.title?.en }}
+                    </li>
+                </ul>
 
                 <div class="flex justify-end space-x-4 p-4">
                     <UButton variant="solid" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>
@@ -97,6 +116,25 @@ const confirmDelete = async () => {
                 <div class="flex justify-center items-center">
                     <h2 class="text-lg font-semibold text-green-600">Dataset successfully deleted</h2>
                     <UIcon name="i-heroicons-check-circle" class="text-xl text-green-500" />
+                </div>
+                <div v-if="deleteInfo" class="mt-4 text-left text-sm">
+                    <p class="font-semibold mb-1">Deleted distributions:</p>
+                    <ul class="list-disc pl-5">
+                        <li v-for="d in deleteInfo.distributions" :key="d.id">
+                            <span class="font-medium">{{ d.title }}</span>
+                        </li>
+                    </ul>
+                    <p class="font-semibold mb-1 mt-3">Dataset was also removed from:</p>
+                    <ul v-if="deleteInfo.metricsDeleted" class="list-disc pl-5">
+                        <li>
+                            <span class="font-medium">Metrics</span>
+                        </li>
+                    </ul>
+                    <ul v-if="deleteInfo.dataQualityDeleted" class="list-disc pl-5">
+                        <li>
+                            <span class="font-medium">Data Quality</span>
+                        </li>
+                    </ul>
                 </div>
                 <p class="text-gray-600 mt-2">You will be redirected...</p>
             </div>
