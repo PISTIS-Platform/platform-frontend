@@ -18,11 +18,22 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    const deleteInfo = {
+        distributions: [] as Array<{
+            id: string;
+            title?: string;
+        }>,
+        metricsDeleted: false,
+        dataQualityDeleted: false,
+    };
+
     const baseUrl = config.public.factoryUrl;
     const endpoint = `${baseUrl}/srv/repo/datasets/${datasetId}`;
     const apiKey = config.piveauHubRepoXApiKey;
     const dataStorageApi = `${baseUrl}/srv/factory-data-storage/api`;
     const authToken = authHeader.replace('Bearer ', '');
+    const metricsApi = `${baseUrl}/datasets/${datasetId}/metrics`;
+    const dataQualityApi = `${baseUrl}/resources/data-quality/${datasetId}`;
 
     // load dataset
     const datasetResponse = await fetch(endpoint, {
@@ -37,14 +48,29 @@ export default defineEventHandler(async (event) => {
     }
 
     const dataset = await datasetResponse.json();
-    const distributions = dataset?.distributions ?? [];
+    const graph = dataset['@graph'] ?? [];
+    const datasetNode = graph.find((n: any) => n['@type'] === 'dcat:Dataset');
+
+    if (!datasetNode) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: 'Dataset node not found in graph',
+        });
+    }
+
+    // get distributions
+    const distributionRefs = datasetNode['dcat:distribution'] ?? [];
+
+    const distributions = graph.filter(
+        (n: any) => n['@type'] === 'dcat:Distribution' && distributionRefs.some((d: any) => d['@id'] === n['@id']),
+    );
 
     // delete distributions
     for (const dist of distributions) {
-        const distId = dist.id;
-        const accessUrl = dist.access_url;
-        const isStream = dist.title === 'Kafka Stream';
-        const format = dist.format?.id ?? '';
+        const distId = dist['@id'];
+        const accessUrl = dist['dcat:access_url']?.['@id'];
+        const isStream = dist['dct:title'] === 'Kafka Stream';
+        const format = dist['dct:format']?.['@id'] ?? '';
 
         try {
             const isSql = format.includes('sql');
@@ -64,6 +90,11 @@ export default defineEventHandler(async (event) => {
                     },
                 });
             }
+
+            deleteInfo.distributions.push({
+                id: distId,
+                title: dist['dct:title'],
+            });
         } catch (err) {
             console.error('Failed to delete distribution', distId, err);
             throw createError({
@@ -75,8 +106,8 @@ export default defineEventHandler(async (event) => {
 
     // verify all distributions are deleted
     for (const dist of distributions) {
-        const distId = dist.id;
-        const accessUrl = dist.access_url;
+        const distId = dist['@id'];
+        const accessUrl = dist['dcat:access_url']?.['@id'];
 
         if (!accessUrl) continue;
 
@@ -106,6 +137,42 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    // delete dataset metrics
+    const deleteMetrics = await fetch(metricsApi, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${authToken}`,
+        },
+    });
+
+    if (!deleteMetrics.ok) {
+        const msg = await deleteMetrics.text();
+        throw createError({
+            statusCode: 500,
+            statusMessage: `Delete failed: ${msg}`,
+        });
+    }
+
+    deleteInfo.metricsDeleted = true;
+
+    // delete data quality
+    const deleteDataQuality = await fetch(dataQualityApi, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${authToken}`,
+        },
+    });
+
+    if (!deleteDataQuality.ok) {
+        const msg = await deleteDataQuality.text();
+        throw createError({
+            statusCode: 500,
+            statusMessage: `Delete failed: ${msg}`,
+        });
+    }
+
+    deleteInfo.dataQualityDeleted = true;
+
     // delete Dataset
     const deleteResponse = await fetch(endpoint, {
         method: 'DELETE',
@@ -124,5 +191,8 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    return { success: true };
+    return {
+        success: true,
+        info: deleteInfo,
+    };
 });

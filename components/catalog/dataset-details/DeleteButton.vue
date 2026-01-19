@@ -5,6 +5,8 @@ const token = ref(session.value?.token);
 const deleteSuccess = ref(false);
 const deleteError = ref(false);
 
+const deleteInfo = ref<any>(null);
+
 const props = defineProps({
     datasetId: {
         type: String,
@@ -52,7 +54,7 @@ const confirmDelete = async () => {
     }
 
     try {
-        await $fetch('/api/catalog/delete-dataset', {
+        const response = await $fetch('/api/catalog/delete-dataset', {
             method: 'DELETE',
             query: { datasetId: props.datasetId },
             headers: {
@@ -60,12 +62,13 @@ const confirmDelete = async () => {
             },
         });
 
+        deleteInfo.value = response.info;
         deleteSuccess.value = true;
 
         setTimeout(() => {
             showConfirmationWindow.value = false;
             router.back();
-        }, 1500);
+        }, 3500);
     } catch (err) {
         console.error('DELETE ERROR:', err);
         deleteError.value = true;
@@ -113,6 +116,25 @@ const confirmDelete = async () => {
                 <div class="flex justify-center items-center">
                     <h2 class="text-lg font-semibold text-green-600">Dataset successfully deleted</h2>
                     <UIcon name="i-heroicons-check-circle" class="text-xl text-green-500" />
+                </div>
+                <div v-if="deleteInfo" class="mt-4 text-left text-sm">
+                    <p class="font-semibold mb-1">Deleted distributions:</p>
+                    <ul class="list-disc pl-5">
+                        <li v-for="d in deleteInfo.distributions" :key="d.id">
+                            <span class="font-medium">{{ d.title }}</span>
+                        </li>
+                    </ul>
+                    <p class="font-semibold mb-1 mt-3">Dataset was also removed from:</p>
+                    <ul v-if="deleteInfo.metricsDeleted" class="list-disc pl-5">
+                        <li>
+                            <span class="font-medium">Metrics</span>
+                        </li>
+                    </ul>
+                    <ul v-if="deleteInfo.dataQualityDeleted" class="list-disc pl-5">
+                        <li>
+                            <span class="font-medium">Data Quality</span>
+                        </li>
+                    </ul>
                 </div>
                 <p class="text-gray-600 mt-2">You will be redirected...</p>
             </div>
