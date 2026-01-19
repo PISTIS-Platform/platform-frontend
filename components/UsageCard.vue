@@ -38,7 +38,7 @@ defineProps({
             <UIcon v-if="icon" :name="icon" class="h-6 w-6" aria-hidden="true" />
             <dt class="truncate text-sm font-semibold text-gray-500">{{ name }}</dt>
         </div>
-        <UTooltip :text="`${tooltip}`">
+        <UTooltip :text="`${tooltip}`" :prevent="!tooltip">
             <dd :class="`mt-1 font-semibold tracking-tight`">
                 <span :class="`text-2xl ${additionalClasses}`">{{ value }}</span>
                 <span class="text-gray-500 text-lg ml-1">{{ unit }}</span>
