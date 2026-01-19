@@ -39,6 +39,13 @@ const noKafkaData = computed(() => {
 
     return false;
 });
+
+const bootstrapServers = computed(
+    () =>
+        streamingConsumerData.value?.bootstrapServers
+            ?.split(',')
+            .map((url) => url.trim().replace(/^https?:\/\//, '')) ?? [],
+);
 </script>
 
 <template>
@@ -205,10 +212,7 @@ const noKafkaData = computed(() => {
                                         $t('settings.bootstrapServers')
                                     }}</span>
                                 </div>
-                                <span
-                                    v-for="url in streamingConsumerData?.bootstrapServers?.split(',')"
-                                    :key="url"
-                                    class="font-mono flex items-center"
+                                <span v-for="url in bootstrapServers" :key="url" class="font-mono flex items-center"
                                     >{{ url }}
                                     <UButton
                                         icon="i-heroicons-document-duplicate"

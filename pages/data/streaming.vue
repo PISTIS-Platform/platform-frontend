@@ -104,7 +104,7 @@ const onSubmit = async () => {
         data.value.password = details.kafkaUser.secret;
         data.value.title = state.title;
         data.value.description = state.description;
-        data.value.brokerUrls = details.bootstrapServers;
+        data.value.brokerUrls = details.bootstrapServers.trim().replace(/^https?:\/\//, '');
         data.value.securityProtocol = details.securityProtocol;
         data.value.saslMechanism = details.saslMechanism;
         data.value.format = state.format;

@@ -145,7 +145,7 @@ const { data: streamingConsumerData } = useFetch<{
     saslMechanism: string;
 }>(`/api/account/get-kafka-details`, {
     onResponse({ response }) {
-        copyData.brokerUrl = response._data.bootstrapServers;
+        copyData.brokerUrl = response._data.bootstrapServers.trim().replace(/^https?:\/\//, '');
         copyData.username = response._data.username;
         copyData.password = response._data.password;
         copyData.securityProtocol = response._data.securityProtocol;
