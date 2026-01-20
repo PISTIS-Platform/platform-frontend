@@ -3,8 +3,11 @@ import type { PanelProps } from 'primevue/panel';
 import Panel from 'primevue/panel';
 
 import { useDataTruncator } from '@/composables/useDataTruncator';
+import { useSearchParams } from '@/pages/catalog/useSearchParams';
 import PhCaretDown from '~icons/ph/caret-down';
 import PhCaretUp from '~icons/ph/caret-up';
+
+const { queryParams } = useSearchParams();
 
 // import type { Facet } from '../../../utils/types';
 // import Typography from '../typography/Typography.vue';
@@ -47,9 +50,10 @@ function toggleInvestSlider() {
 }
 
 const allStreamDataOn = ref(false);
+
 function toggleStreamSlider() {
     allStreamDataOn.value = !allStreamDataOn.value;
-    // model.value = allInvestOffersOn.value ? allInvestOffers : [];
+    queryParams.dataServices.value = allStreamDataOn.value ? 'true' : 'false';
 }
 
 const panelPreset = {
@@ -177,9 +181,7 @@ onMounted(() => {
                 'border-b border-b-primary bg-primary-light font-semibold': allStreamDataOn,
             }"
         >
-            <Typography class="text-sm" :class="{ 'font-semibold': allStreamDataOn }"
-                >all streaming datasets</Typography
-            >
+            <Typography class="text-sm" :class="{ 'font-semibold': allStreamDataOn }">streaming datasets</Typography>
             <label class="switch">
                 <button class="slider round" :class="{ active: allStreamDataOn }" @click="toggleStreamSlider"></button>
             </label>
