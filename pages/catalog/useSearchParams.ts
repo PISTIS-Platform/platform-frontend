@@ -18,6 +18,7 @@ export function useSearchParams(locale?: MaybeRefOrGetter) {
             displayedPage.value = val + 1;
         },
     });
+    const dataServices = refSyncedWithRouteQuery('dataServices', 'false');
 
     const sort = ref('modified');
     const sortDirection = ref('desc');
@@ -55,6 +56,7 @@ export function useSearchParams(locale?: MaybeRefOrGetter) {
             limit,
             page,
             sort: finalComputedSort,
+            dataServices,
         },
         sort,
         sortDirection,
