@@ -40,10 +40,16 @@ const {
 });
 
 const allInvestOffers = ['true', 'false'];
-const isOn = ref(false);
-function toggleSlider() {
-    isOn.value = !isOn.value;
-    model.value = isOn.value ? allInvestOffers : [];
+const allInvestOffersOn = ref(false);
+function toggleInvestSlider() {
+    allInvestOffersOn.value = !allInvestOffersOn.value;
+    model.value = allInvestOffersOn.value ? allInvestOffers : [];
+}
+
+const allStreamDataOn = ref(false);
+function toggleStreamSlider() {
+    allStreamDataOn.value = !allStreamDataOn.value;
+    // model.value = allInvestOffersOn.value ? allInvestOffers : [];
 }
 
 const panelPreset = {
@@ -113,7 +119,12 @@ onMounted(() => {
 
 <template>
     <Panel
-        v-if="!(pistisMode === 'cloud' && props.title === 'Catalogues')"
+        v-if="
+            !(
+                (pistisMode === 'cloud' && props.title === 'Catalogues') ||
+                (pistisMode === 'factory' && props.title === 'Streaming Datasets')
+            )
+        "
         v-model:collapsed="collapsed"
         class="flex min-w-64 flex-col text-surface-text"
         :pt="panelPreset"
@@ -145,15 +156,43 @@ onMounted(() => {
             v-if="props.title === 'Investment Offer'"
             class="flex justify-between items-center py-3 text-surface-text px-3 text-sm border-b border-surface-200"
             :class="{
-                'border-b border-b-primary bg-primary-light font-semibold': isOn,
+                'border-b border-b-primary bg-primary-light font-semibold': allInvestOffersOn,
             }"
         >
-            <Typography class="text-sm" :class="{ 'font-semibold': isOn }">all investment offers</Typography>
+            <Typography class="text-sm" :class="{ 'font-semibold': allInvestOffersOn }"
+                >all investment offers</Typography
+            >
             <label class="switch">
-                <button class="slider round" :class="{ active: isOn }" @click="toggleSlider"></button>
+                <button
+                    class="slider round"
+                    :class="{ active: allInvestOffersOn }"
+                    @click="toggleInvestSlider"
+                ></button>
             </label>
         </div>
-        <div v-if="!(props.title === 'Investment Offer' && isOn)" class="flex-1 border-b border-neutral-300">
+        <div
+            v-if="props.title === 'Streaming Datasets'"
+            class="flex justify-between items-center py-3 text-surface-text px-3 text-sm border-b border-surface-200"
+            :class="{
+                'border-b border-b-primary bg-primary-light font-semibold': allStreamDataOn,
+            }"
+        >
+            <Typography class="text-sm" :class="{ 'font-semibold': allStreamDataOn }"
+                >all streaming datasets</Typography
+            >
+            <label class="switch">
+                <button class="slider round" :class="{ active: allStreamDataOn }" @click="toggleStreamSlider"></button>
+            </label>
+        </div>
+        <div
+            v-if="
+                !(
+                    (props.title === 'Investment Offer' && allInvestOffersOn) ||
+                    (props.title === 'Streaming Datasets' && allStreamDataOn)
+                )
+            "
+            class="flex-1 border-b border-neutral-300"
+        >
             <ul class="flex flex-col divide-y border-neutral-50">
                 <li v-for="(facet, i) in truncatedFacets" :key="i">
                     <label class="relative">

@@ -18,6 +18,19 @@ const props = defineProps<{
     modelValue: Record<string, string[]>;
 }>();
 
+const additionalFilters = computed(() => [
+    {
+        id: 'dataServices',
+        label: 'Streaming Datasets',
+        items: [],
+    },
+]);
+
+const mergedFacetGroups = computed(() => [
+    ...facets.value.filter((f) => f.items.length > 0),
+    ...additionalFilters.value,
+]);
+
 const emit = defineEmits(['update:modelValue']);
 
 const { facets } = toRefs(props);
@@ -31,7 +44,7 @@ const model = useVModel(props, 'modelValue', emit, { passive: true });
         <template v-else>
             <div class="flex w-80 flex-col rounded bg-neutral-200 border border-neutral-300 shadow-md">
                 <KFacetGroup
-                    v-for="facet of facets.filter((facet) => facet.items.length > 0)"
+                    v-for="facet of mergedFacetGroups"
                     :id="`facet-group-${facet.id}`"
                     :key="JSON.stringify(facet)"
                     v-model="model[facet.id]"
