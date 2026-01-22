@@ -5,6 +5,9 @@
 // import type { FacetList } from '../../utils/types';
 // import Typography from '../base/typography/Typography.vue';
 // import KInteractiveChip from '../interactive-chip/KInteractiveChip.vue';
+import { useSearchParams } from '@/pages/catalog/useSearchParams';
+
+const { queryParams } = useSearchParams();
 
 const props = defineProps<{
     facets: FacetList<string>;
@@ -30,7 +33,7 @@ function resolveFacetTitleById(facetId: string) {
 }
 
 const flattenedSelectedFacets = computed(() => {
-    return Object.entries(unref(selectedFacets))
+    const facets = Object.entries(unref(selectedFacets))
         .reduce(
             (acc, [key, value]) => {
                 if (Array.isArray(value) && value.length) {
@@ -54,9 +57,24 @@ const flattenedSelectedFacets = computed(() => {
                 };
             });
         });
+    if (queryParams.dataServices.value === 'true') {
+        facets.push({
+            title: 'dataServices',
+            label: 'Streaming Datasets',
+            value: 'streaming datasets',
+            id: 'true',
+        });
+    }
+
+    return facets;
 });
 
 function removeSelectedFacetById(facetId: string, value: string) {
+    if (facetId === 'dataServices') {
+        queryParams.dataServices.value = 'false';
+        return;
+    }
+
     const unwrapSelectedFacets = unref(selectedFacets);
     if (!Object.keys(unwrapSelectedFacets).includes(facetId)) return;
 
@@ -84,6 +102,8 @@ function clearAllFacets() {
         if (pistisMode === 'cloud' && key === 'catalog') continue;
         unwrapSelectedFacets[key] = [];
     }
+
+    queryParams.dataServices.value = 'false';
 }
 </script>
 
