@@ -56,6 +56,14 @@ function toggleStreamSlider() {
     queryParams.dataServices.value = allStreamDataOn.value ? 'true' : 'false';
 }
 
+watch(
+    () => queryParams.dataServices.value,
+    (val) => {
+        allStreamDataOn.value = val === 'true';
+    },
+    { immediate: true },
+);
+
 const panelPreset = {
     header: ({ props }: { props: PanelProps }) => ({
         class: [
