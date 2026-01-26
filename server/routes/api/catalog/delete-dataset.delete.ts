@@ -1,4 +1,10 @@
 export default defineEventHandler(async (event) => {
+    // helpers function
+    const toArray = <T>(value?: T | T[]): T[] => {
+        if (!value) return [];
+        return Array.isArray(value) ? value : [value];
+    };
+
     const { datasetId } = getQuery(event);
     const config = useRuntimeConfig();
 
@@ -59,18 +65,21 @@ export default defineEventHandler(async (event) => {
     }
 
     // get distributions
-    const distributionRefs = datasetNode['dcat:distribution'] ?? [];
+    const distributionRefs = toArray(datasetNode['dcat:distribution']);
 
     const distributions = graph.filter(
-        (n: any) => n['@type'] === 'dcat:Distribution' && distributionRefs.some((d: any) => d['@id'] === n['@id']),
+        (n: any) => n['@type'] === 'dcat:Distribution' && distributionRefs.some((d: any) => d?.['@id'] === n['@id']),
     );
 
     // delete distributions
     for (const dist of distributions) {
         const distId = dist['@id'];
-        const accessUrl = dist['dcat:access_url']?.['@id'];
-        const isStream = dist['dct:title'] === 'Kafka Stream';
-        const format = dist['dct:format']?.['@id'] ?? '';
+        const accessUrls = toArray(dist['dcat:access_url']);
+        const accessUrl = accessUrls[0]?.['@id'];
+        const titles = toArray(dist['dct:title']);
+        const isStream = titles.some((t: any) => t === 'Kafka Stream' || t?.en === 'Kafka Stream');
+        const formats = toArray(dist['dct:format']);
+        const format = formats[0]?.['@id'] ?? '';
 
         try {
             const isSql = format.includes('sql');
@@ -107,7 +116,8 @@ export default defineEventHandler(async (event) => {
     // verify all distributions are deleted
     for (const dist of distributions) {
         const distId = dist['@id'];
-        const accessUrl = dist['dcat:access_url']?.['@id'];
+        const accessUrls = toArray(dist['dcat:access_url']);
+        const accessUrl = accessUrls[0]?.['@id'];
 
         if (!accessUrl) continue;
 
