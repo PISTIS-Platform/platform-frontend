@@ -74,52 +74,65 @@ export default defineEventHandler(async (event) => {
     // delete distributions
     for (const dist of distributions) {
         const distId = dist['@id'];
-        const accessUrls = toArray(dist['dcat:access_url']);
-        const accessUrl = accessUrls[0]?.['@id'];
         const titles = toArray(dist['dct:title']);
         const isStream = titles.some((t: any) => t === 'Kafka Stream' || t?.en === 'Kafka Stream');
         const formats = toArray(dist['dct:format']);
         const format = formats[0]?.['@id'] ?? '';
+        const accessUrls = toArray(dist['dcat:accessURL']);
+        const accessUrl = accessUrls[0]?.['@id'];
 
-        try {
-            const isSql = format.includes('sql');
+        let assetUuid: string | undefined;
 
-            if (isSql) {
-                await fetch(`${dataStorageApi}/tables/delete_table?asset_uuid=${distId}`, { method: 'DELETE' });
-            } else {
-                await fetch(`${dataStorageApi}/files/delete_file?asset_uuid=${distId}`, { method: 'DELETE' });
-            }
+        if (accessUrl) {
+            const url = new URL(accessUrl);
+            assetUuid = url.searchParams.get('asset_uuid') ?? undefined;
+        }
 
-            // delete data storage for non stream dataset
-            if (!isStream && accessUrl) {
-                await fetch(accessUrl, {
-                    method: 'DELETE',
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                    },
+        if (!isStream && assetUuid) {
+            try {
+                // delete data storage for non stream dataset
+                const isSql = format.endsWith('/SQL');
+
+                if (isSql) {
+                    await fetch(`${dataStorageApi}/tables/delete_table?asset_uuid=${assetUuid}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${authToken}` },
+                    });
+                } else {
+                    await fetch(`${dataStorageApi}/files/delete_file?asset_uuid=${assetUuid}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${authToken}` },
+                    });
+                }
+
+                https: deleteInfo.distributions.push({
+                    id: distId,
+                    title: dist['dct:title'],
+                });
+            } catch (err) {
+                console.error('Failed to delete distribution', distId, err);
+                throw createError({
+                    statusCode: 500,
+                    statusMessage: 'Failed to delete dataset distributions',
                 });
             }
-
-            deleteInfo.distributions.push({
-                id: distId,
-                title: dist['dct:title'],
-            });
-        } catch (err) {
-            console.error('Failed to delete distribution', distId, err);
-            throw createError({
-                statusCode: 500,
-                statusMessage: 'Failed to delete dataset distributions',
-            });
         }
     }
 
     // verify all distributions are deleted
     for (const dist of distributions) {
         const distId = dist['@id'];
-        const accessUrls = toArray(dist['dcat:access_url']);
+        const accessUrls = toArray(dist['dcat:accessURL']);
         const accessUrl = accessUrls[0]?.['@id'];
 
-        if (!accessUrl) continue;
+        let assetUuid: string | undefined;
+
+        if (accessUrl) {
+            const url = new URL(accessUrl);
+            assetUuid = url.searchParams.get('asset_uuid') ?? undefined;
+        }
+
+        if (!accessUrl || !assetUuid) continue;
 
         try {
             const checkResponse = await fetch(accessUrl, {
