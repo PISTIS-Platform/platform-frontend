@@ -2,6 +2,7 @@
 const { data: session } = useAuth();
 const token = ref(session.value?.token);
 
+const isDeleting = ref(false);
 const deleteSuccess = ref(false);
 const deleteError = ref(false);
 
@@ -53,6 +54,8 @@ const confirmDelete = async () => {
         return;
     }
 
+    isDeleting.value = true;
+
     try {
         const response = await $fetch('/api/catalog/delete-dataset', {
             method: 'DELETE',
@@ -72,6 +75,8 @@ const confirmDelete = async () => {
     } catch (err) {
         console.error('DELETE ERROR:', err);
         deleteError.value = true;
+    } finally {
+        isDeleting.value = false;
     }
 };
 </script>
@@ -107,6 +112,10 @@ const confirmDelete = async () => {
                 <div class="flex justify-end space-x-4 p-4">
                     <UButton variant="solid" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>
                     <UButton variant="solid" color="red" @click="confirmDelete">Delete</UButton>
+                </div>
+                <div v-if="isDeleting" class="flex justify-end text-gray-600 px-4 pb-4">
+                    <div class="animate-spin rounded-full h-5 w-5 border-t-2"></div>
+                    <p class="text-sm italic pl-2">Deleting dataset and distributions...</p>
                 </div>
                 <p v-if="deleteError" class="italic text-red-400 px-4 pb-4 text-sm text-right">
                     Something went wrong, please try again.

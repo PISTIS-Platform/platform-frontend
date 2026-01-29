@@ -1,4 +1,10 @@
 export default defineEventHandler(async (event) => {
+    // helpers function
+    const toArray = <T>(value?: T | T[]): T[] => {
+        if (!value) return [];
+        return Array.isArray(value) ? value : [value];
+    };
+
     const { datasetId } = getQuery(event);
     const config = useRuntimeConfig();
 
@@ -59,57 +65,74 @@ export default defineEventHandler(async (event) => {
     }
 
     // get distributions
-    const distributionRefs = datasetNode['dcat:distribution'] ?? [];
+    const distributionRefs = toArray(datasetNode['dcat:distribution']);
 
     const distributions = graph.filter(
-        (n: any) => n['@type'] === 'dcat:Distribution' && distributionRefs.some((d: any) => d['@id'] === n['@id']),
+        (n: any) => n['@type'] === 'dcat:Distribution' && distributionRefs.some((d: any) => d?.['@id'] === n['@id']),
     );
 
     // delete distributions
     for (const dist of distributions) {
         const distId = dist['@id'];
-        const accessUrl = dist['dcat:access_url']?.['@id'];
-        const isStream = dist['dct:title'] === 'Kafka Stream';
-        const format = dist['dct:format']?.['@id'] ?? '';
+        const titles = toArray(dist['dct:title']);
+        const isStream = titles.some((t: any) => t === 'Kafka Stream' || t?.en === 'Kafka Stream');
+        const formats = toArray(dist['dct:format']);
+        const format = formats[0]?.['@id'] ?? '';
+        const accessUrls = toArray(dist['dcat:accessURL']);
+        const accessUrl = accessUrls[0]?.['@id'];
 
-        try {
-            const isSql = format.includes('sql');
+        let assetUuid: string | undefined;
 
-            if (isSql) {
-                await fetch(`${dataStorageApi}/tables/delete_table?asset_uuid=${distId}`, { method: 'DELETE' });
-            } else {
-                await fetch(`${dataStorageApi}/files/delete_file?asset_uuid=${distId}`, { method: 'DELETE' });
-            }
+        if (accessUrl) {
+            const url = new URL(accessUrl);
+            assetUuid = url.searchParams.get('asset_uuid') ?? undefined;
+        }
 
-            // delete data storage for non stream dataset
-            if (!isStream && accessUrl) {
-                await fetch(accessUrl, {
-                    method: 'DELETE',
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                    },
+        if (!isStream && assetUuid) {
+            try {
+                // delete data storage for non stream dataset
+                const isSql = format.endsWith('/SQL');
+
+                if (isSql) {
+                    await fetch(`${dataStorageApi}/tables/delete_table?asset_uuid=${assetUuid}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${authToken}` },
+                    });
+                } else {
+                    await fetch(`${dataStorageApi}/files/delete_file?asset_uuid=${assetUuid}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${authToken}` },
+                    });
+                }
+
+                https: deleteInfo.distributions.push({
+                    id: distId,
+                    title: dist['dct:title'],
+                });
+            } catch (err) {
+                console.error('Failed to delete distribution', distId, err);
+                throw createError({
+                    statusCode: 500,
+                    statusMessage: 'Failed to delete dataset distributions',
                 });
             }
-
-            deleteInfo.distributions.push({
-                id: distId,
-                title: dist['dct:title'],
-            });
-        } catch (err) {
-            console.error('Failed to delete distribution', distId, err);
-            throw createError({
-                statusCode: 500,
-                statusMessage: 'Failed to delete dataset distributions',
-            });
         }
     }
 
     // verify all distributions are deleted
     for (const dist of distributions) {
         const distId = dist['@id'];
-        const accessUrl = dist['dcat:access_url']?.['@id'];
+        const accessUrls = toArray(dist['dcat:accessURL']);
+        const accessUrl = accessUrls[0]?.['@id'];
 
-        if (!accessUrl) continue;
+        let assetUuid: string | undefined;
+
+        if (accessUrl) {
+            const url = new URL(accessUrl);
+            assetUuid = url.searchParams.get('asset_uuid') ?? undefined;
+        }
+
+        if (!accessUrl || !assetUuid) continue;
 
         try {
             const checkResponse = await fetch(accessUrl, {
