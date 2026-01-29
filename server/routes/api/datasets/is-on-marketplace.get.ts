@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event);
 
     const result: Record<string, any> = await $fetch(
-        `${cloudUrl}/srv/search/search?q=${query.id}&filters=dataset&fields=offer.original_id&includes=id,offer,monetization`,
+        `${cloudUrl}/srv/search/search?q=${query.id}&filters=dataset&fields=offer.original_id.raw&includes=id,offer,monetization`,
         {
             method: 'GET',
         },
