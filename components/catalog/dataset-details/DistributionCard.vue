@@ -112,11 +112,7 @@ async function downloadFile() {
             const contentTypeHeader = response.headers['content-type'];
             const contentType = contentTypeHeader.split(';')[0].trim();
 
-            const fileExtensionDownload = props.format === 'SQL' ? 'csv' : props.format.toLowerCase();
-            const fileName =
-                props.format === 'Excel XLS' || props.format === 'Excel XLSX'
-                    ? `${downloadFileName}.${fileExtension.value}`
-                    : `${downloadFileName}.${fileExtensionDownload}`;
+            const fileName = `${downloadFileName}`;
             // Create a Blob URL with the detected Content-Type
             const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
             // Create a temporary link and trigger download
