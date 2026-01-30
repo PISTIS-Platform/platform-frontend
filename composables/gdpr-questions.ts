@@ -23,7 +23,7 @@ export const useGdprQuestions = () => {
                 {
                     value: 'not sure',
                     label: 'Not sure',
-                    description: 'Please answer the following questions ',
+                    description: '',
                 },
             ],
         },
@@ -46,7 +46,7 @@ export const useGdprQuestions = () => {
                 {
                     value: 'not sure',
                     label: 'Not sure',
-                    description: 'Please answer the following questions ',
+                    description: '',
                 },
             ],
         },
