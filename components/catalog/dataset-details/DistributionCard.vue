@@ -218,27 +218,8 @@ const dropdownItems = computed(() => [
 ]);
 
 const gdprCheckerOpen = ref(false);
-const questionIndex = ref(0);
-const answerRef = ref();
-const questions = [
-    {
-        question: 'Question title here, what do you think?',
-        answers: [
-            {
-                value: 'yes',
-                label: 'Yes',
-                description:
-                    'Pariatur sit aliquip id minim in non sit. Minim aute consectetur ex et tempor adipisicing magna. In labore qui esse in voluptate laboris quis velit non anim labore. Anim ea nulla Lorem incididunt cupidatat dolore id mollit. Aliqua eu pariatur amet mollit laborum consequat sunt labore aliqua magna amet nisi et consequat. Commodo ipsum laborum ullamco eiusmod officia nulla proident ex laboris excepteur aute eu ea nulla. Laborum quis qui deserunt.',
-            },
-            {
-                value: 'no',
-                label: 'No',
-                description:
-                    'Esse officia cupidatat ad sit aliqua aliqua et fugiat culpa aliqua ex proident cillum enim reprehenderit. Dolore laborum pariatur ea non eu nisi consequat exercitation quis. Enim ea excepteur consequat in eu consectetur enim sit proident pariatur dolor nisi. Culpa deserunt sint aliqua tempor ex qui sint cupidatat ullamco do. Laborum ex commodo dolor magna exercitation dolor nisi velit Lorem laborum aliqua consectetur. Irure qui occaecat esse ipsum Lorem. Sint do aliquip proident fugiat Lorem enim deserunt exercitation quis velit irure pariatur. Esse tempor anim est sint id velit nostrud mollit tempor officia.',
-            },
-        ],
-    },
-];
+
+const { mainQuestions, answerRef, questionKey, nextQuestion } = useGdprQuestions();
 </script>
 
 <template>
@@ -246,8 +227,16 @@ const questions = [
         <div class="p-4 flex flex-col gap-4 text-neutral-600 min-h-[400px]">
             <span class="font-bold text-lg">GDPR Checker</span>
             <div class="flex flex-col gap-4">
-                <span class="italic font-semibold">{{ questions[questionIndex].question }}</span>
-                <URadioGroup v-model="answerRef" :options="questions[questionIndex].answers" />
+                <span class="font-semibold">{{ mainQuestions[questionKey].question }}</span>
+                <span class="italic text-sm">{{ mainQuestions[questionKey].description }}</span>
+                <URadioGroup v-model="answerRef" :options="mainQuestions[questionKey].answers" />
+                <span v-if="answerRef">{{
+                    mainQuestions[questionKey]?.answers?.find((a: any) => a.value === answerRef).description
+                }}</span>
+                <div class="w-full flex items-center justify-between">
+                    <UButton class="" @click="answerRef = null">Cancel</UButton>
+                    <UButton :disabled="!answerRef" class="" @click="nextQuestion()">Next</UButton>
+                </div>
             </div>
         </div>
     </UModal>
@@ -285,8 +274,8 @@ const questions = [
                                 variant="ghost"
                                 square
                                 @click="copyItem('topic')"
-                                >{{ copied && keyBeingCopied === 'topic' ? 'Copied' : '' }}</UButton
-                            >
+                                >{{ copied && keyBeingCopied === 'topic' ? 'Copied' : '' }}
+                            </UButton>
                         </span>
                     </div>
                     <div class="flex flex-col gap-2 mt-6">
@@ -316,8 +305,8 @@ const questions = [
                                 class="flex items-center justify-center w-16"
                                 size="xs"
                                 @click="revealPassword = !revealPassword"
-                                >{{ revealPassword ? 'Hide' : 'Reveal' }}</UButton
-                            >
+                                >{{ revealPassword ? 'Hide' : 'Reveal' }}
+                            </UButton>
                         </div>
                         <span class="font-mono flex items-center"
                             >{{ revealPassword ? copyData.password : '*********' }}
@@ -378,14 +367,14 @@ const questions = [
                 </div>
                 <div class="flex">
                     <div class="space-x-2 pr-5">
-                        <UBadge v-if="isAnonymized" color="green" variant="soft" size="xs" class="rounded-full"
-                            >Anonymized</UBadge
+                        <UBadge v-if="isAnonymized" color="green" variant="soft" size="xs" class="rounded-full">
+                            Anonymized</UBadge
                         >
-                        <UBadge v-if="isTransformed" color="blue" variant="soft" size="xs" class="rounded-full"
-                            >Transformed</UBadge
+                        <UBadge v-if="isTransformed" color="blue" variant="soft" size="xs" class="rounded-full">
+                            Transformed</UBadge
                         >
-                        <UBadge v-if="isEncrypted" color="yellow" variant="soft" size="xs" class="rounded-full"
-                            >Encrypted</UBadge
+                        <UBadge v-if="isEncrypted" color="yellow" variant="soft" size="xs" class="rounded-full">
+                            Encrypted</UBadge
                         >
                     </div>
 
@@ -419,8 +408,8 @@ const questions = [
                     trailing-icon="i-heroicons-x-mark"
                     class="text-base font-semibold text-gray-600 pb-2"
                     @click="showTable = !showTable"
-                    >Data Schema</UButton
-                >
+                    >Data Schema
+                </UButton>
                 <PistisSchemaTable v-if="hasPistisSchema" :table-data="props.pistisSchema" />
             </div>
         </div>
