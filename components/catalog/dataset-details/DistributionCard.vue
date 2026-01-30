@@ -217,7 +217,19 @@ const dropdownItems = computed(() => [
     ],
 ]);
 
-const { mainQuestions, answerRef, questionKey, nextQuestion, cancel, gdprCheckerOpen } = useGdprQuestions();
+const {
+    mainQuestions,
+    answerRef,
+    questionKey,
+    nextQuestion,
+    cancel,
+    gdprCheckerOpen,
+    showInfo,
+    information,
+    answersLog,
+    showReport,
+} = useGdprQuestions(props.datasetId);
+console.log(answersLog.value);
 </script>
 
 <template>
@@ -225,12 +237,39 @@ const { mainQuestions, answerRef, questionKey, nextQuestion, cancel, gdprChecker
         <div class="flex flex-col gap-4 text-neutral-600">
             <UCard>
                 <template #header>
-                    <span class="font-bold text-lg">GDPR Checker</span>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-lg">GDPR Checker</span>
+
+                            <UButton
+                                color="blue"
+                                variant="ghost"
+                                icon="i-heroicons-information-circle"
+                                :trailing-icon="showInfo ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+                                label="More info"
+                                size="sm"
+                                @click="showInfo = !showInfo"
+                            />
+                        </div>
+
+                        <div
+                            v-if="showInfo"
+                            class="text-gray-500 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700 mt-2 transition-all"
+                        >
+                            <h2 class="text-xl font-bold mb-4">{{ information.p1 }}</h2>
+                            <p class="mb-4">
+                                {{ information.p2 }}
+                            </p>
+                            <p class="font-bold">
+                                {{ information.p3 }}
+                            </p>
+                        </div>
+                    </div>
                 </template>
-                <div class="flex flex-col gap-8 relative h-[350px]">
+                <div class="flex flex-col gap-4 relative h-[350px]">
                     <span class="font-semibold">{{ mainQuestions[questionKey].question }}</span>
                     <span class="italic text-sm">{{ mainQuestions[questionKey].description }}</span>
-                    <div class="flex items-start justify-between gap-4 w-full">
+                    <div class="flex items-start gap-4 w-full">
                         <URadioGroup v-model="answerRef" :options="mainQuestions[questionKey].answers" />
                         <UAlert
                             v-if="
@@ -247,7 +286,8 @@ const { mainQuestions, answerRef, questionKey, nextQuestion, cancel, gdprChecker
                     </div>
                     <div class="w-full flex items-center justify-between absolute bottom-0">
                         <UButton color="red" variant="outline" class="" @click="cancel()">Cancel</UButton>
-                        <UButton :disabled="!answerRef" class="" @click="nextQuestion()">Next</UButton>
+                        <UButton v-if="questionKey === 'q2_2'" class="" @click="nextQuestion()">Finish</UButton>
+                        <UButton v-else :disabled="!answerRef" class="" @click="nextQuestion()">Next</UButton>
                     </div>
                 </div>
             </UCard>
@@ -305,8 +345,8 @@ const { mainQuestions, answerRef, questionKey, nextQuestion, cancel, gdprChecker
                                 variant="ghost"
                                 square
                                 @click="copyItem('username')"
-                                >{{ copied && keyBeingCopied === 'username' ? 'Copied' : '' }}</UButton
-                            >
+                                >{{ copied && keyBeingCopied === 'username' ? 'Copied' : '' }}
+                            </UButton>
                         </span>
                     </div>
                     <div class="flex flex-col gap-2 mt-6">
@@ -329,8 +369,8 @@ const { mainQuestions, answerRef, questionKey, nextQuestion, cancel, gdprChecker
                                 variant="ghost"
                                 square
                                 @click="copyItem('password')"
-                                >{{ copied && keyBeingCopied === 'password' ? 'Copied' : '' }}</UButton
-                            >
+                                >{{ copied && keyBeingCopied === 'password' ? 'Copied' : '' }}
+                            </UButton>
                         </span>
                     </div>
                     <div class="flex flex-col gap-2 mt-6">
@@ -392,6 +432,17 @@ const { mainQuestions, answerRef, questionKey, nextQuestion, cancel, gdprChecker
                     </div>
 
                     <div v-if="pistisMode == 'factory'" class="flex gap-x-3">
+                        <UTooltip text="Download GDPR Report">
+                            <UButton
+                                v-if="!isStream && answersLog"
+                                variant="solid"
+                                color="primary"
+                                size="sm"
+                                icon="i-heroicons-arrow-down-tray"
+                                @click="showReport()"
+                            >
+                            </UButton>
+                        </UTooltip>
                         <UTooltip text="Download Distribution">
                             <UButton
                                 variant="solid"

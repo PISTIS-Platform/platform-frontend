@@ -1,7 +1,16 @@
-export const useGdprQuestions = () => {
+export const useGdprQuestions = (datasetId: string) => {
+    const { showSuccessMessage /*, showErrorMessage*/ } = useAlertMessage();
     const questionKey = ref('q1');
     const answerRef = ref();
     const gdprCheckerOpen = ref(false);
+    const showInfo = ref(false);
+    const answersLog = ref<Record<string, any>>({});
+
+    const information = {
+        p1: 'Indicative questions for PISTIS Personal Data Check tool',
+        p2: 'This PISTIS Personal Data Check tool aims to help you assess whether a dataset is likely to contain personal data and whether its upload to the PISTIS Platform is permissible and likely lawful under the EU personal data protection regulatory regime. The assessment is based on your responses to questions concerning identification of personal data (Question 1) and lawfulness of processing (Question 2). The tool focuses on these two areas as they are the fundamentals of personal data protection under the GDPR. However, it does not aim to guarantee full GDPR compliance; based on your answers further requirements may apply, including in relation to the relevant controller/processor roles, security, and data subjects’ rights.',
+        p3: 'IMPORTANT, PLEASE READ CAREFULLY: This is a preliminary, indicative screening tool only. It does not constitute legal advice, nor does it guarantee compliance with any legal, contractual, or regulatory obligations. The PISTIS Platform does not assume responsibility for any inaccuracies or omissions in your responses. You remain fully responsible for the accuracy of your assessment, for any processing of personal data you upload to the PISTIS Platform, and for ensuring compliance with all applicable laws and regulations (including any non-EU laws).',
+    };
 
     const mainQuestions = {
         q1: {
@@ -167,7 +176,7 @@ export const useGdprQuestions = () => {
             description: '',
             answers: [
                 {
-                    value: 'onsent',
+                    value: 'consent',
                     label: 'Consent',
                     description:
                         'Please ensure that any consent you rely upon is valid under the GDPR. Consent must be freely given, specific, informed, and unambiguous, and data subjects must be able to withdraw it at any time. You should also maintain records demonstrating how and when consent was obtained.',
@@ -205,16 +214,22 @@ export const useGdprQuestions = () => {
             ],
         },
     };
+
+    const saveCurrentAnswer = () => {
+        if (answerRef.value) {
+            answersLog.value['datasetId'] = datasetId;
+            answersLog.value[questionKey.value] = answerRef.value;
+        }
+    };
+
     const nextQuestion = () => {
+        saveCurrentAnswer();
         if (questionKey.value === 'q1') {
             if (answerRef.value === 'yes') {
                 questionKey.value = 'q2';
                 answerRef.value = null;
             } else if (answerRef.value === 'no') {
-                //TODO: fix the end of questionnaire
-                gdprCheckerOpen.value = false;
-                questionKey.value = 'q1';
-                answerRef.value = null;
+                submit();
             } else {
                 questionKey.value = 'q1_1';
                 answerRef.value = null;
@@ -253,25 +268,16 @@ export const useGdprQuestions = () => {
             }
         } else if (questionKey.value === 'q1_5') {
             if (answerRef.value === 'yes') {
-                //TODO: fix the end of questionnaire
-                gdprCheckerOpen.value = false;
-                questionKey.value = 'q1';
-                answerRef.value = null;
+                submit();
             } else {
                 questionKey.value = 'q2';
                 answerRef.value = null;
             }
         } else if (questionKey.value === 'q2') {
             if (answerRef.value === 'yes') {
-                //TODO: fix the end of questionnaire
-                gdprCheckerOpen.value = false;
-                questionKey.value = 'q1';
-                answerRef.value = null;
+                submit();
             } else if (answerRef.value === 'no') {
-                //TODO: fix the end of questionnaire
-                gdprCheckerOpen.value = false;
-                questionKey.value = 'q1';
-                answerRef.value = null;
+                submit();
             } else {
                 questionKey.value = 'q2_1';
                 answerRef.value = null;
@@ -285,18 +291,45 @@ export const useGdprQuestions = () => {
                 answerRef.value = null;
             }
         } else {
-            //TODO: fix the end of questionnaire
-            gdprCheckerOpen.value = false;
-            questionKey.value = 'q1';
-            answerRef.value = null;
+            submit();
         }
     };
 
-    const cancel = () => {
-        answerRef.value = null;
+    const resetState = () => {
         questionKey.value = 'q1';
-        gdprCheckerOpen.value = false;
+        answerRef.value = null;
     };
 
-    return { mainQuestions, questionKey, answerRef, nextQuestion, cancel, gdprCheckerOpen };
+    const cancel = () => {
+        answersLog.value = {};
+        resetState();
+        gdprCheckerOpen.value = false;
+    };
+    const submit = () => {
+        console.log('Final Answers:', answersLog.value);
+        gdprCheckerOpen.value = false;
+        questionKey.value = 'q1';
+        answerRef.value = null;
+        showSuccessMessage('Your answers have been submitted successfully to GDPR checker!');
+        return answersLog.value;
+    };
+
+    const showReport = (_datasetId: string) => {
+        //TODO Contact gdpr checker for the report
+        return answersLog.value ? answersLog.value : null;
+    };
+
+    return {
+        mainQuestions,
+        questionKey,
+        answerRef,
+        nextQuestion,
+        cancel,
+        gdprCheckerOpen,
+        information,
+        showInfo,
+        submit,
+        answersLog,
+        showReport,
+    };
 };
