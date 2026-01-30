@@ -208,10 +208,49 @@ const dropdownItems = computed(() => [
             click: () => (showTable.value = !showTable.value),
         },
     ],
+    [
+        {
+            label: 'GDPR Checker',
+            class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
+            click: () => (gdprCheckerOpen.value = true),
+        },
+    ],
 ]);
+
+const gdprCheckerOpen = ref(false);
+const questionIndex = ref(0);
+const answerRef = ref();
+const questions = [
+    {
+        question: 'Question title here, what do you think?',
+        answers: [
+            {
+                value: 'yes',
+                label: 'Yes',
+                description:
+                    'Pariatur sit aliquip id minim in non sit. Minim aute consectetur ex et tempor adipisicing magna. In labore qui esse in voluptate laboris quis velit non anim labore. Anim ea nulla Lorem incididunt cupidatat dolore id mollit. Aliqua eu pariatur amet mollit laborum consequat sunt labore aliqua magna amet nisi et consequat. Commodo ipsum laborum ullamco eiusmod officia nulla proident ex laboris excepteur aute eu ea nulla. Laborum quis qui deserunt.',
+            },
+            {
+                value: 'no',
+                label: 'No',
+                description:
+                    'Esse officia cupidatat ad sit aliqua aliqua et fugiat culpa aliqua ex proident cillum enim reprehenderit. Dolore laborum pariatur ea non eu nisi consequat exercitation quis. Enim ea excepteur consequat in eu consectetur enim sit proident pariatur dolor nisi. Culpa deserunt sint aliqua tempor ex qui sint cupidatat ullamco do. Laborum ex commodo dolor magna exercitation dolor nisi velit Lorem laborum aliqua consectetur. Irure qui occaecat esse ipsum Lorem. Sint do aliquip proident fugiat Lorem enim deserunt exercitation quis velit irure pariatur. Esse tempor anim est sint id velit nostrud mollit tempor officia.',
+            },
+        ],
+    },
+];
 </script>
 
 <template>
+    <UModal v-model="gdprCheckerOpen">
+        <div class="p-4 flex flex-col gap-4 text-neutral-600 min-h-[400px]">
+            <span class="font-bold text-lg">GDPR Checker</span>
+            <div class="flex flex-col gap-4">
+                <span class="italic font-semibold">{{ questions[questionIndex].question }}</span>
+                <URadioGroup v-model="answerRef" :options="questions[questionIndex].answers" />
+            </div>
+        </div>
+    </UModal>
     <UModal v-model="streamIsOpen">
         <div class="w-full h-full flex flex-col justify-center p-6 text-gray-700">
             <h2 class="font-bold text-lg">{{ $t('data.streaming.details') }}</h2>
