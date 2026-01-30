@@ -1,6 +1,7 @@
 export const useGdprQuestions = () => {
     const questionKey = ref('q1');
     const answerRef = ref();
+    const gdprCheckerOpen = ref(false);
 
     const mainQuestions = {
         q1: {
@@ -280,5 +281,11 @@ export const useGdprQuestions = () => {
         }
     };
 
-    return { mainQuestions, questionKey, answerRef, nextQuestion };
+    const cancel = () => {
+        answerRef.value = null;
+        questionKey.value = 'q1';
+        gdprCheckerOpen.value = false;
+    };
+
+    return { mainQuestions, questionKey, answerRef, nextQuestion, cancel, gdprCheckerOpen };
 };

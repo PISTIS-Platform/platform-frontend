@@ -217,38 +217,40 @@ const dropdownItems = computed(() => [
     ],
 ]);
 
-const gdprCheckerOpen = ref(false);
-
-const { mainQuestions, answerRef, questionKey, nextQuestion } = useGdprQuestions();
+const { mainQuestions, answerRef, questionKey, nextQuestion, cancel, gdprCheckerOpen } = useGdprQuestions();
 </script>
 
 <template>
     <UModal v-model="gdprCheckerOpen">
-        <div class="p-4 flex flex-col gap-4 text-neutral-600 h-[400px]">
-            <span class="font-bold text-lg">GDPR Checker</span>
-            <div class="flex flex-col gap-8 relative h-full">
-                <span class="font-semibold">{{ mainQuestions[questionKey].question }}</span>
-                <span class="italic text-sm">{{ mainQuestions[questionKey].description }}</span>
-                <div class="flex items-start justify-between gap-4 w-full">
-                    <URadioGroup v-model="answerRef" :options="mainQuestions[questionKey].answers" />
-                    <UAlert
-                        v-if="
-                            answerRef &&
-                            mainQuestions[questionKey]?.answers?.find((a: any) => a.value === answerRef).description
-                        "
-                        class="w-2/3"
-                        color="blue"
-                        variant="subtle"
-                        :description="
-                            mainQuestions[questionKey]?.answers?.find((a: any) => a.value === answerRef).description
-                        "
-                    />
+        <div class="flex flex-col gap-4 text-neutral-600">
+            <UCard>
+                <template #header>
+                    <span class="font-bold text-lg">GDPR Checker</span>
+                </template>
+                <div class="flex flex-col gap-8 relative h-[350px]">
+                    <span class="font-semibold">{{ mainQuestions[questionKey].question }}</span>
+                    <span class="italic text-sm">{{ mainQuestions[questionKey].description }}</span>
+                    <div class="flex items-start justify-between gap-4 w-full">
+                        <URadioGroup v-model="answerRef" :options="mainQuestions[questionKey].answers" />
+                        <UAlert
+                            v-if="
+                                answerRef &&
+                                mainQuestions[questionKey]?.answers?.find((a: any) => a.value === answerRef).description
+                            "
+                            class="w-2/3"
+                            color="blue"
+                            variant="subtle"
+                            :description="
+                                mainQuestions[questionKey]?.answers?.find((a: any) => a.value === answerRef).description
+                            "
+                        />
+                    </div>
+                    <div class="w-full flex items-center justify-between absolute bottom-0">
+                        <UButton color="red" variant="outline" class="" @click="cancel()">Cancel</UButton>
+                        <UButton :disabled="!answerRef" class="" @click="nextQuestion()">Next</UButton>
+                    </div>
                 </div>
-                <div class="w-full flex items-center justify-between absolute bottom-0">
-                    <UButton color="red" variant="outline" class="" @click="answerRef = null">Cancel</UButton>
-                    <UButton :disabled="!answerRef" class="" @click="nextQuestion()">Next</UButton>
-                </div>
-            </div>
+            </UCard>
         </div>
     </UModal>
     <UModal v-model="streamIsOpen">
