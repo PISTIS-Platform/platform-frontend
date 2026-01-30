@@ -212,6 +212,9 @@ export const useGdprQuestions = () => {
                 answerRef.value = null;
             } else if (answerRef.value === 'no') {
                 //TODO: fix the end of questionnaire
+                gdprCheckerOpen.value = false;
+                questionKey.value = 'q1';
+                answerRef.value = null;
             } else {
                 questionKey.value = 'q1_1';
                 answerRef.value = null;
@@ -251,6 +254,8 @@ export const useGdprQuestions = () => {
         } else if (questionKey.value === 'q1_5') {
             if (answerRef.value === 'yes') {
                 //TODO: fix the end of questionnaire
+                gdprCheckerOpen.value = false;
+                questionKey.value = 'q1';
                 answerRef.value = null;
             } else {
                 questionKey.value = 'q2';
@@ -259,9 +264,13 @@ export const useGdprQuestions = () => {
         } else if (questionKey.value === 'q2') {
             if (answerRef.value === 'yes') {
                 //TODO: fix the end of questionnaire
+                gdprCheckerOpen.value = false;
+                questionKey.value = 'q1';
                 answerRef.value = null;
             } else if (answerRef.value === 'no') {
                 //TODO: fix the end of questionnaire
+                gdprCheckerOpen.value = false;
+                questionKey.value = 'q1';
                 answerRef.value = null;
             } else {
                 questionKey.value = 'q2_1';
@@ -277,6 +286,8 @@ export const useGdprQuestions = () => {
             }
         } else {
             //TODO: fix the end of questionnaire
+            gdprCheckerOpen.value = false;
+            questionKey.value = 'q1';
             answerRef.value = null;
         }
     };
