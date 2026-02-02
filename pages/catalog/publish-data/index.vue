@@ -8,6 +8,7 @@ import { DatasetKind } from '~/interfaces/dataset.enum';
 import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
+const { showErrorMessage } = useAlertMessage();
 
 const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`, {
     query: { page: '' },
@@ -345,6 +346,15 @@ const handlePageSelectionBackwards = (value: number) => {
 };
 
 const changeStep = async (stepNum: number) => {
+    if (stepNum === 1) {
+        if (assetOfferingDetails.value.keywords.length < 1) {
+            showErrorMessage(t('data.designer.pleaseKeywords'));
+            return;
+        } else if (!isAssetOfferingDetailsValid.value) {
+            showErrorMessage(t('data.designer.pleaseCheck'));
+            return;
+        }
+    }
     selectedPage.value = stepNum;
 };
 </script>
