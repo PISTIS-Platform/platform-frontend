@@ -161,6 +161,8 @@ const dateRangeSchema = z.object({
     fromDate: z.date(),
     toDate: z.date(),
 });
+
+//TODO: Add logic for validating daterange or select columns depending on the tab selected
 </script>
 
 <template>
