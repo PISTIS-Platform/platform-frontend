@@ -8,13 +8,13 @@ export const useGdprQuestions = (datasetId: string) => {
 
     const information = {
         p1: 'Indicative questions for PISTIS Personal Data Check tool',
-        p2: 'This PISTIS Personal Data Check tool aims to help you assess whether a dataset is likely to contain personal data and whether its upload to the PISTIS Platform is permissible and likely lawful under the EU personal data protection regulatory regime. The assessment is based on your responses to questions concerning identification of personal data (Question 1) and lawfulness of processing (Question 2). The tool focuses on these two areas as they are the fundamentals of personal data protection under the GDPR. However, it does not aim to guarantee full GDPR compliance; based on your answers further requirements may apply, including in relation to the relevant controller/processor roles, security, and data subjects’ rights.',
-        p3: 'IMPORTANT, PLEASE READ CAREFULLY: This is a preliminary, indicative screening tool only. It does not constitute legal advice, nor does it guarantee compliance with any legal, contractual, or regulatory obligations. The PISTIS Platform does not assume responsibility for any inaccuracies or omissions in your responses. You remain fully responsible for the accuracy of your assessment, for any processing of personal data you upload to the PISTIS Platform, and for ensuring compliance with all applicable laws and regulations (including any non-EU laws).',
+        p2: 'This tool aims to help you assess whether a distribution is likely to contain personal data and whether its upload to the PISTIS Platform is permissible and likely lawful under the EU personal data protection regulatory regime. The assessment is based on your responses to questions concerning identification of personal data (Question 1) and lawfulness of processing (Question 2). The tool focuses on these two areas as they are the fundamentals of personal data protection under the GDPR. However, it does not aim to guarantee full GDPR compliance; based on your answers further requirements may apply, including in relation to the relevant controller/processor roles, security, and data subjects’ rights.',
+        p3: 'This is a preliminary, indicative screening tool only. It does not constitute legal advice, nor does it guarantee compliance with any legal, contractual, or regulatory obligations. The PISTIS Platform does not assume responsibility for any inaccuracies or omissions in your responses. You remain fully responsible for the accuracy of your assessment, for any processing of personal data you upload to the PISTIS Platform, and for ensuring compliance with all applicable laws and regulations (including any non-EU laws).',
     };
 
     const mainQuestions = {
         q1: {
-            question: 'Does the dataset contain personal data?',
+            question: 'Does the distribution contain personal data?',
             description:
                 'Personal data means any information relating to an identified or identifiable natural person; an identifiable natural person is one who can be identified, directly or indirectly, in particular by reference to an identifier such as a name, an identification number, location data, an online identifier or to one or more factors specific to the physical, physiological, genetic, mental, economic, cultural or social identity of that natural person.',
             answers: [
@@ -22,13 +22,13 @@ export const useGdprQuestions = (datasetId: string) => {
                     value: 'yes',
                     label: 'Yes',
                     description:
-                        'Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your dataset or ensure you have obtained the required consent (or you are able to rely on any other lawful basis).',
+                        'Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your distribution or ensure you have obtained the required consent (or you are able to rely on any other lawful basis).',
                 },
                 {
                     value: 'no',
                     label: 'No',
                     description:
-                        'Great news. If your dataset contains no personal data, it is unlikely to be subject to data protection rules. However, you may still wish to further reduce any residual risk by sanitising your dataset using the Anonymiser tool, or by selecting ‘Not sure’ below and answer the subsequent questions to verify that the dataset indeed unlikely contains personal data.',
+                        'Great news. If your distribution contains no personal data, it is unlikely to be subject to data protection rules. However, you may still wish to further reduce any residual risk by sanitising your distribution using the Anonymiser tool, or by selecting ‘Not sure’ below and answer the subsequent questions to verify that the distribution indeed unlikely contains personal data.',
                 },
                 {
                     value: 'not sure',
@@ -38,20 +38,20 @@ export const useGdprQuestions = (datasetId: string) => {
             ],
         },
         q2: {
-            question: 'If the dataset contains personal data, is the processing lawful?',
+            question: 'If the distribution contains personal data, is the processing lawful?',
             description: 'Note: This question does not apply if personal data has been anonymised.',
             answers: [
                 {
                     value: 'yes',
                     label: 'Yes',
                     description:
-                        'Great news. If the processing of personal data in your dataset is lawful, the dataset may be uploaded to the PISTIS Platform, provided you continue to comply with all applicable data protection obligations. If you would like to revisit the some of the factors relevant to assessing lawfulness, you may select ‘Not sure’ and answer the supporting questions.',
+                        'Great news. If the processing of personal data in your distribution is lawful, the distribution may be uploaded to the PISTIS Platform, provided you continue to comply with all applicable data protection obligations. If you would like to revisit the some of the factors relevant to assessing lawfulness, you may select ‘Not sure’ and answer the supporting questions.',
                 },
                 {
                     value: 'no',
                     label: 'No',
                     description:
-                        'You must not process personal data if the processing would be unlawful. Please consider either anonymising your dataset using the Anonymiser tool or ensuring that a valid lawful basis is satisfied (for example, by obtaining valid consent or relying on another lawful basis where appropriate).',
+                        'You must not process personal data if the processing would be unlawful. Please consider either anonymising your distribution using the Anonymiser tool or ensuring that a valid lawful basis is satisfied (for example, by obtaining valid consent or relying on another lawful basis where appropriate).',
                 },
                 {
                     value: 'not sure',
@@ -61,7 +61,7 @@ export const useGdprQuestions = (datasetId: string) => {
             ],
         },
         q1_1: {
-            question: 'Does the dataset include any obvious identifiers?',
+            question: 'Does the distribution include any obvious identifiers?',
             description:
                 'Examples: names, email addresses, phone numbers, ID numbers, precise location data, or other unique identifiers.',
             answers: [
@@ -69,7 +69,7 @@ export const useGdprQuestions = (datasetId: string) => {
                     value: 'yes',
                     label: 'Yes',
                     description:
-                        'The dataset likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your dataset or ensure you have obtained the required consent (or you are able to rely on another lawful basis).',
+                        'The distribution likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your distribution or ensure you have obtained the required consent (or you are able to rely on another lawful basis).',
                 },
                 {
                     value: 'no',
@@ -80,14 +80,14 @@ export const useGdprQuestions = (datasetId: string) => {
         },
         q1_2: {
             question:
-                'Could any individual be identified indirectly if the dataset were combined with information reasonably available to the recipient?',
+                'Could any individual be identified indirectly if the distribution were combined with information reasonably available to the recipient?',
             description: 'Examples: unique hashed values, device IDs, rare combinations of attributes.',
             answers: [
                 {
                     value: 'yes',
                     label: 'Yes',
                     description:
-                        'The dataset likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your dataset or ensure you have obtained the required consent (or you are able to rely on another lawful basis). ',
+                        'The distribution likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your distribution or ensure you have obtained the required consent (or you are able to rely on another lawful basis). ',
                 },
                 {
                     value: 'no',
@@ -97,14 +97,14 @@ export const useGdprQuestions = (datasetId: string) => {
             ],
         },
         q1_3: {
-            question: 'Is the dataset at a sufficiently granular level to single out a natural person?',
+            question: 'Is the distribution at a sufficiently granular level to single out a natural person?',
             description: 'Example: highly precise geolocation or very small area postcode segments (even if hashed).',
             answers: [
                 {
                     value: 'yes',
                     label: 'Yes',
                     description:
-                        'The dataset likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your dataset or ensure you have obtained the required consent (or you are able to rely on another lawful basis). ',
+                        'The distribution likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your distribution or ensure you have obtained the required consent (or you are able to rely on another lawful basis). ',
                 },
                 {
                     value: 'no',
@@ -115,7 +115,7 @@ export const useGdprQuestions = (datasetId: string) => {
         },
         q1_4: {
             question:
-                'Does the dataset include data that relates to human behaviour, characteristics or activities capable of being attributed to individuals?',
+                'Does the distribution include data that relates to human behaviour, characteristics or activities capable of being attributed to individuals?',
             description:
                 'Example: behavioural logs, device‑level telemetry, transaction traces (unless sufficiently aggregated).',
             answers: [
@@ -123,7 +123,7 @@ export const useGdprQuestions = (datasetId: string) => {
                     value: 'yes',
                     label: 'Yes',
                     description:
-                        'The dataset likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your dataset or ensure you have obtained the required consent (or you are able to rely on another lawful basis).',
+                        'The distribution likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your distribution or ensure you have obtained the required consent (or you are able to rely on another lawful basis).',
                 },
                 {
                     value: 'no',
@@ -134,7 +134,7 @@ export const useGdprQuestions = (datasetId: string) => {
         },
         q1_5: {
             question:
-                'Has the dataset truly been anonymised so that no individual is identifiable, directly or indirectly?',
+                'Has the distribution truly been anonymised so that no individual is identifiable, directly or indirectly?',
             description:
                 'Consider whether re‑identification or downstream misuse is reasonably possible by anyone with likely auxiliary data.',
             answers: [
@@ -142,13 +142,13 @@ export const useGdprQuestions = (datasetId: string) => {
                     value: 'yes',
                     label: 'Yes',
                     description:
-                        'Great news. If your dataset has been anonymised and contains no personal data, it is unlikely to be subject to data protection rules. However, you may still wish to further reduce any residual risk by sanitising your dataset using the Anonymiser tool.',
+                        'Great news. If your distribution has been anonymised and contains no personal data, it is unlikely to be subject to data protection rules. However, you may still wish to further reduce any residual risk by sanitising your distribution using the Anonymiser tool.',
                 },
                 {
                     value: 'no',
                     label: 'No',
                     description:
-                        'The dataset likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your dataset or ensure you have obtained the required consent (or you are able to rely on another lawful basis).',
+                        'The distribution likely contains personal data. Any personal data exchanged on PISTIS platform must be processed lawfully, i.e. based on a specific lawful basis (such as consent of the individual concerned), or in an anonymised form (so that it no longer constitutes personal data). Please consider anonymising personal data in your distribution or ensure you have obtained the required consent (or you are able to rely on another lawful basis).',
                 },
             ],
         },

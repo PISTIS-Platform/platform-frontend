@@ -242,11 +242,11 @@ console.log(answersLog.value);
                             <span class="font-bold text-lg">GDPR Checker</span>
 
                             <UButton
-                                color="blue"
+                                color="red"
                                 variant="ghost"
                                 icon="i-heroicons-information-circle"
                                 :trailing-icon="showInfo ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
-                                label="More info"
+                                label="Important! Please Read Carefully"
                                 size="sm"
                                 @click="showInfo = !showInfo"
                             />
@@ -256,17 +256,16 @@ console.log(answersLog.value);
                             v-if="showInfo"
                             class="text-gray-500 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700 mt-2 transition-all"
                         >
-                            <h2 class="text-xl font-bold mb-4">{{ information.p1 }}</h2>
-                            <p class="mb-4">
-                                {{ information.p2 }}
-                            </p>
-                            <p class="font-bold">
+                            <p class="font-bold text-red-500">
                                 {{ information.p3 }}
                             </p>
                         </div>
                     </div>
                 </template>
                 <div class="flex flex-col gap-4 relative h-[350px]">
+                    <p class="mb-4 text-xs">
+                        {{ information.p2 }}
+                    </p>
                     <span class="font-semibold">{{ mainQuestions[questionKey].question }}</span>
                     <span class="italic text-sm">{{ mainQuestions[questionKey].description }}</span>
                     <div class="flex items-start gap-4 w-full">
@@ -432,28 +431,26 @@ console.log(answersLog.value);
                     </div>
 
                     <div v-if="pistisMode == 'factory'" class="flex gap-x-3">
-                        <UTooltip text="Download GDPR Report">
-                            <UButton
-                                v-if="!isStream && answersLog"
-                                variant="solid"
-                                color="primary"
-                                size="sm"
-                                icon="i-heroicons-arrow-down-tray"
-                                @click="showReport()"
-                            >
-                            </UButton>
-                        </UTooltip>
-                        <UTooltip text="Download Distribution">
-                            <UButton
-                                variant="solid"
-                                color="primary"
-                                size="sm"
-                                icon="i-heroicons-arrow-down-tray"
-                                @click="downloadFile"
-                            >
-                                <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                            </UButton>
-                        </UTooltip>
+                        <UButton
+                            v-if="!isStream && answersLog"
+                            variant="solid"
+                            color="primary"
+                            size="sm"
+                            icon="i-heroicons-arrow-down-tray"
+                            @click="showReport()"
+                        >
+                            {{ $t('catalogue.downloadGDPR') }}
+                        </UButton>
+                        <UButton
+                            variant="solid"
+                            color="primary"
+                            size="sm"
+                            icon="i-heroicons-arrow-down-tray"
+                            @click="downloadFile"
+                        >
+                            {{ $t('catalogue.downloadDistribution')
+                            }}<span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                        </UButton>
 
                         <UButtonGroup v-if="!isStream">
                             <UDropdown :items="dropdownItems">
