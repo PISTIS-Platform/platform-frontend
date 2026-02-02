@@ -22,6 +22,7 @@ export default defineI18nConfig(() => ({
         en: {
             view: 'View',
             required: 'Required',
+            selected: 'selected',
             monitoring: 'Monitoring',
             countries: countries,
             catalogue: {
@@ -430,6 +431,9 @@ export default defineI18nConfig(() => ({
                 },
                 designer: {
                     getAllMyDatasets: 'Get all my datasets',
+                    selectAll: 'Select All',
+                    deselectAll: 'Deselect All',
+                    invertSelection: 'Invert Selection',
                     tab: {
                         dateRange: {
                             title: 'Date Range',

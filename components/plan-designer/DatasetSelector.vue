@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
 
 const { t } = useI18n();
-import dayjs from 'dayjs';
 
 const props = defineProps({
     selected: {
@@ -40,6 +40,7 @@ const reset = () => {
     dateRangeState.dateColumn = undefined;
     dateRangeState.fromDate = undefined;
     dateRangeState.toDate = undefined;
+    selectedColumns.value = [];
     emit('reset');
 };
 
@@ -87,18 +88,6 @@ const tabItems = [
         icon: 'proicons:calendar',
         description: t('data.designer.tab.dateRange.description'),
     },
-    // {
-    //     key: 'rowRange',
-    //     label: t('data.designer.tab.rowRange.title'),
-    //     icon: 'ic:round-table-rows',
-    //     description: t('data.designer.tab.rowRange.description'),
-    // },
-    // {
-    //     key: 'columnRange',
-    //     label: t('data.designer.tab.columnRange.title'),
-    //     icon: 'tabler:columns',
-    //     description: t('data.designer.tab.columnRange.description'),
-    // },
     {
         key: 'selectColumns',
         label: t('data.designer.tab.selectColumns.title'),
@@ -109,26 +98,7 @@ const tabItems = [
 
 const selectedTab = ref(0);
 
-const _formPayload = ref({
-    dateRange: {
-        dateColumn: null,
-        fromDate: null,
-        toDate: null,
-    },
-    rowRange: {
-        fromRow: null,
-        toRow: null,
-    },
-    columnRange: {
-        fromColumn: null,
-        toColumn: null,
-    },
-    selectColumns: [],
-});
-
-//TODO: Get min and max dates from data(?)
-
-//TODO: Get real ones from API call
+//TODO: Get real ones from API
 const columns = [
     { columnName: 'id', columnType: 'String' },
     { columnName: 'timestamp', columnType: 'DateTime' },
@@ -144,6 +114,34 @@ const columns = [
     { columnName: 'notes', columnType: 'Text' },
 ];
 
+const selectedColumns = ref<string[]>([]);
+
+const columnChunks = computed(() => {
+    const total = columns.length;
+    const itemsPerChunk = Math.ceil(total / 4);
+    const result = [];
+
+    for (let i = 0; i < 4; i++) {
+        const start = i * itemsPerChunk;
+        const end = start + itemsPerChunk;
+        result.push(columns.slice(start, end));
+    }
+    return result;
+});
+
+const selectAllColumns = () => {
+    selectedColumns.value = columns.map((c) => c.columnName);
+};
+
+const deselectAllColumns = () => {
+    selectedColumns.value = [];
+};
+
+const invertColumnSelection = () => {
+    const currentSet = new Set(selectedColumns.value);
+    selectedColumns.value = columns.filter((c) => !currentSet.has(c.columnName)).map((c) => c.columnName);
+};
+
 const dateRangeState = reactive({
     dateColumn: undefined,
     fromDate: undefined,
@@ -158,9 +156,6 @@ const dateRangeSchema = z.object({
 </script>
 
 <template>
-    <!--//TODO: Make loading icon for when selecting query to get more data about the dataset distribution 
-    
-    //TODO: Make button to retrieve data preview data to show in a table underneath-->
     <UCard class="overflow-visible">
         <template #header>
             <div class="flex items-center gap-8">
@@ -285,6 +280,44 @@ const dateRangeSchema = z.object({
                                     </UPopover>
                                 </UFormGroup>
                             </UForm>
+                        </div>
+
+                        <div v-show="item.key === 'selectColumns'" class="flex flex-col gap-4">
+                            <div class="flex items-center gap-2 border-b border-gray-200 pb-3">
+                                <UButton size="xs" color="gray" variant="soft" @click="selectAllColumns">
+                                    {{ $t('data.designer.selectAll') }}
+                                </UButton>
+                                <UButton size="xs" color="gray" variant="soft" @click="deselectAllColumns">
+                                    {{ $t('data.designer.deselectAll') }}
+                                </UButton>
+                                <UButton
+                                    size="xs"
+                                    color="gray"
+                                    variant="ghost"
+                                    icon="i-heroicons-arrows-right-left"
+                                    @click="invertColumnSelection"
+                                >
+                                    {{ $t('data.designer.invertSelection') }}
+                                </UButton>
+
+                                <span class="ml-auto text-xs text-gray-500">
+                                    {{ selectedColumns.length }} / {{ columns.length }} {{ $t('selected') }}
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-4 gap-4 min-h-[200px]">
+                                <div v-for="(chunk, index) in columnChunks" :key="index" class="flex flex-col gap-3">
+                                    <div v-for="col in chunk" :key="col.columnName" class="flex items-start">
+                                        <UCheckbox
+                                            v-model="selectedColumns"
+                                            :value="col.columnName"
+                                            :name="col.columnName"
+                                            :label="col.columnName"
+                                            :help="col.columnType"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </template>
