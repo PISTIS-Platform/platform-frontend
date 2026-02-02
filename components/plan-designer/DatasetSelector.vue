@@ -18,6 +18,14 @@ defineProps({
 
 const emit = defineEmits(['reset', 'update:selected', 'update:complete-or-query']);
 
+const selectCompleteOrQuery = (value: string) => {
+    if (value === DatasetKind.COMPLETE) {
+        switchDatasetOpen.value = true;
+    } else {
+        emit('update:complete-or-query', value);
+    }
+};
+
 const switchDatasetOpen = ref<boolean>(false);
 
 const dataSetSelections = computed(() => [
@@ -30,7 +38,6 @@ const dataSetSelections = computed(() => [
         title: t('data.designer.queryFilter'),
         info: t('data.designer.selectQueryFilter'),
         value: DatasetKind.QUERY_FILTER,
-        disabled: true,
     },
 ]);
 </script>
@@ -63,7 +70,7 @@ const dataSetSelections = computed(() => [
                         :model-value="completeOrQuery"
                         class="gap-4"
                         :selections="dataSetSelections"
-                        @update:model-value="(value: string) => emit('update:complete-or-query', value)"
+                        @update:model-value="(value: string) => selectCompleteOrQuery(value)"
                     />
                 </div>
             </div>

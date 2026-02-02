@@ -98,6 +98,10 @@ watch(selectedAsset, () => {
 //data for selection whole dataset or query
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
+const resetCompleteOrQuery = (value: string) => {
+    //TODO: Reset query form(s) when changing back to DatasetKind.COMPLETE
+    completeOrQuery.value = value;
+};
 const newAssetId = uuidV4();
 
 // data for asset offering details
@@ -412,6 +416,7 @@ const changeStep = async (stepNum: number) => {
             :selected="selectedAsset"
             :complete-or-query="completeOrQuery"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
+            @reset="(value: string) => resetCompleteOrQuery(value)"
         />
         <AssetOfferingDetails
             v-if="selectedAsset"
