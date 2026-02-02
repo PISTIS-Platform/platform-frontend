@@ -2,10 +2,19 @@
 import 'v-calendar/dist/style.css';
 
 import { DatePicker as VCalendarDatePicker } from 'v-calendar';
+import type { PropType } from 'vue';
 
 const props = defineProps({
     modelValue: {
-        type: [Date, String, Object],
+        type: [Date, String, Object] as PropType<Date | string | object | null>,
+        default: null,
+    },
+    minDate: {
+        type: [Date, String] as PropType<Date | string | null>,
+        default: null,
+    },
+    maxDate: {
+        type: [Date, String] as PropType<Date | string | null>,
         default: null,
     },
 });
@@ -22,7 +31,7 @@ const date = computed({
 </script>
 
 <template>
-    <VCalendarDatePicker v-model="date" mode="date" />
+    <VCalendarDatePicker v-model="date" mode="date" :min-date="minDate" :max-date="maxDate" />
 </template>
 
 <style>

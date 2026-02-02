@@ -87,18 +87,18 @@ const tabItems = [
         icon: 'proicons:calendar',
         description: t('data.designer.tab.dateRange.description'),
     },
-    {
-        key: 'rowRange',
-        label: t('data.designer.tab.rowRange.title'),
-        icon: 'ic:round-table-rows',
-        description: t('data.designer.tab.rowRange.description'),
-    },
-    {
-        key: 'columnRange',
-        label: t('data.designer.tab.columnRange.title'),
-        icon: 'tabler:columns',
-        description: t('data.designer.tab.columnRange.description'),
-    },
+    // {
+    //     key: 'rowRange',
+    //     label: t('data.designer.tab.rowRange.title'),
+    //     icon: 'ic:round-table-rows',
+    //     description: t('data.designer.tab.rowRange.description'),
+    // },
+    // {
+    //     key: 'columnRange',
+    //     label: t('data.designer.tab.columnRange.title'),
+    //     icon: 'tabler:columns',
+    //     description: t('data.designer.tab.columnRange.description'),
+    // },
     {
         key: 'selectColumns',
         label: t('data.designer.tab.selectColumns.title'),
@@ -126,20 +126,22 @@ const _formPayload = ref({
     selectColumns: [],
 });
 
+//TODO: Get min and max dates from data(?)
+
 //TODO: Get real ones from API call
 const columns = [
-    'id',
-    'timestamp',
-    'sensor_id',
-    'temperature',
-    'humidity',
-    'pressure',
-    'location',
-    'status',
-    'battery',
-    'signal',
-    'errors',
-    'notes',
+    { columnName: 'id', columnType: 'String' },
+    { columnName: 'timestamp', columnType: 'DateTime' },
+    { columnName: 'sensor_id', columnType: 'String' },
+    { columnName: 'temperature', columnType: 'Float' },
+    { columnName: 'humidity', columnType: 'Float' },
+    { columnName: 'pressure', columnType: 'Float' },
+    { columnName: 'location', columnType: 'String' },
+    { columnName: 'status', columnType: 'String' },
+    { columnName: 'battery', columnType: 'Integer' },
+    { columnName: 'signal', columnType: 'Integer' },
+    { columnName: 'errors', columnType: 'String' },
+    { columnName: 'notes', columnType: 'Text' },
 ];
 
 const dateRangeState = reactive({
@@ -218,6 +220,8 @@ const dateRangeSchema = z.object({
                                     <USelectMenu
                                         v-model="dateRangeState.dateColumn"
                                         :options="columns"
+                                        value-attribute="columnName"
+                                        option-attribute="columnName"
                                         class="min-w-64"
                                     />
                                 </UFormGroup>
