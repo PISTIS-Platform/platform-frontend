@@ -44,8 +44,9 @@ const dataSetSelections = computed(() => [
 </script>
 
 <template>
-    //TODO: Make loading icon for when selecting query to get more data about the dataset distribution //TODO: Make
-    button to retrieve data preview data to show in a table underneath
+    <!--//TODO: Make loading icon for when selecting query to get more data about the dataset distribution 
+    
+    //TODO: Make button to retrieve data preview data to show in a table underneath-->
     <UCard class="overflow-visible">
         <template #header>
             <div class="flex items-center gap-8">

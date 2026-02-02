@@ -411,13 +411,6 @@ const changeStep = async (stepNum: number) => {
                 </template>
             </USelectMenu>
         </UCard>
-        <DatasetSelector
-            v-if="selectedAsset"
-            :selected="selectedAsset"
-            :complete-or-query="completeOrQuery"
-            @update:complete-or-query="(value: string) => (completeOrQuery = value)"
-            @reset="(value: string) => resetCompleteOrQuery(value)"
-        />
         <AssetOfferingDetails
             v-if="selectedAsset"
             v-model:asset-details-prop="assetOfferingDetails"
@@ -425,6 +418,14 @@ const changeStep = async (stepNum: number) => {
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
             @change-page="changeStep"
         />
+        <DatasetSelector
+            v-if="selectedAsset"
+            :selected="selectedAsset"
+            :complete-or-query="completeOrQuery"
+            @update:complete-or-query="(value: string) => (completeOrQuery = value)"
+            @reset="(value: string) => resetCompleteOrQuery(value)"
+        />
+
         <div>
             <div class="w-full flex items-center justify-end gap-4">
                 <UButton v-if="selectedAsset" size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
