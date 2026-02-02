@@ -24,13 +24,15 @@ const props = defineProps({
 
 const assetOfferingDetails = computed(() => props.assetOfferingDetails);
 
-const emit = defineEmits(['reset', 'update:complete-or-query', 'cancel']);
+const emit = defineEmits(['reset', 'update:complete-or-query', 'cancel', 'update:data-selector-is-valid']);
+
+const dateRangeFormRef = ref();
+const showColumnError = ref(false);
 
 const selectCompleteOrQuery = (value: string) => {
     if (value === DatasetKind.COMPLETE) {
         switchDatasetOpen.value = true;
     } else {
-        //TODO: API query for dataset info such as total rows, total columns, maybe date range
         emit('update:complete-or-query', value);
     }
 };
@@ -41,6 +43,7 @@ const reset = () => {
     dateRangeState.fromDate = undefined;
     dateRangeState.toDate = undefined;
     selectedColumns.value = [];
+    showColumnError.value = false;
     emit('reset');
 };
 
@@ -50,14 +53,11 @@ const openSwitchWarning = () => {
     switchDatasetOpen.value = true;
 };
 
-defineExpose({
-    openSwitchWarning,
-});
-
 const handleCancel = () => {
     switchDatasetOpen.value = false;
     emit('cancel');
 };
+
 const dataSetSelections = computed(() => [
     {
         title: t('data.designer.completeDataset'),
@@ -120,7 +120,7 @@ const toggleColumn = (columnName: string) => {
     if (selectedColumns.value.includes(columnName)) {
         selectedColumns.value = selectedColumns.value.filter((c) => c !== columnName);
     } else {
-        selectedColumns.value.push(columnName);
+        selectedColumns.value = [...selectedColumns.value, columnName];
     }
 };
 
@@ -157,12 +157,76 @@ const dateRangeState = reactive({
 });
 
 const dateRangeSchema = z.object({
-    dateColumn: z.string().min(0),
-    fromDate: z.date(),
-    toDate: z.date(),
+    dateColumn: z.string({ required_error: t('required') }).min(1, t('required')),
+    fromDate: z.date({ required_error: t('required') }),
+    toDate: z.date({ required_error: t('required') }),
 });
 
-//TODO: Add logic for validating daterange or select columns depending on the tab selected
+const isDataSelectorValid = computed(() => {
+    if (props.completeOrQuery === DatasetKind.COMPLETE) {
+        return true;
+    }
+
+    const activeTabKey = tabItems[selectedTab.value]?.key;
+
+    if (activeTabKey === 'dateRange') {
+        return dateRangeSchema.safeParse(dateRangeState).success;
+    }
+
+    if (activeTabKey === 'selectColumns') {
+        return selectedColumns.value.length > 0;
+    }
+
+    return false;
+});
+
+const triggerValidation = async () => {
+    const activeTabKey = tabItems[selectedTab.value]?.key;
+
+    if (activeTabKey === 'dateRange') {
+        const formInstance = Array.isArray(dateRangeFormRef.value) ? dateRangeFormRef.value[0] : dateRangeFormRef.value;
+
+        if (formInstance) {
+            await formInstance.validate().catch(() => {});
+        }
+    } else if (activeTabKey === 'selectColumns') {
+        showColumnError.value = selectedColumns.value.length === 0;
+    }
+};
+
+defineExpose({
+    openSwitchWarning,
+    triggerValidation,
+});
+
+watch(
+    selectedColumns,
+    (newVal) => {
+        if (newVal.length > 0) showColumnError.value = false;
+    },
+    { deep: true },
+);
+
+watch(
+    [() => dateRangeState.dateColumn, () => dateRangeState.fromDate, () => dateRangeState.toDate],
+    ([newCol, newFrom, newTo], [oldCol, oldFrom, oldTo]) => {
+        const formInstance = Array.isArray(dateRangeFormRef.value) ? dateRangeFormRef.value[0] : dateRangeFormRef.value;
+
+        if (!formInstance) return;
+
+        if (newCol !== oldCol) formInstance.clear('dateColumn');
+        if (newFrom !== oldFrom) formInstance.clear('fromDate');
+        if (newTo !== oldTo) formInstance.clear('toDate');
+    },
+);
+
+watch(
+    isDataSelectorValid,
+    (newValue) => {
+        emit('update:data-selector-is-valid', newValue);
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
@@ -211,16 +275,21 @@ const dateRangeSchema = z.object({
                                 {{ item.description }}
                             </span>
                         </div>
-                        <div v-show="item.key === 'dateRange'" class="flex items-center gap-4">
+
+                        <div v-if="item.key === 'dateRange'" class="flex items-center gap-4">
                             <UForm
+                                ref="dateRangeFormRef"
                                 :schema="dateRangeSchema"
                                 :state="dateRangeState"
                                 class="flex items-center gap-4 pb-4"
                             >
                                 <UFormGroup
+                                    v-slot="{ error }"
                                     :label="$t('data.designer.query.dateRange.dateColumn')"
                                     name="dateColumn"
                                     :ui="{ error: 'absolute -bottom-6' }"
+                                    required
+                                    eager-validation
                                 >
                                     <USelectMenu
                                         v-model="dateRangeState.dateColumn"
@@ -228,6 +297,7 @@ const dateRangeSchema = z.object({
                                         value-attribute="columnName"
                                         option-attribute="columnName"
                                         class="min-w-64"
+                                        :color="error ? 'red' : 'white'"
                                     />
                                 </UFormGroup>
                                 <UFormGroup
@@ -235,23 +305,22 @@ const dateRangeSchema = z.object({
                                     :label="$t('data.designer.query.dateRange.fromDate')"
                                     name="fromDate"
                                     :ui="{ error: 'absolute -bottom-6' }"
+                                    required
+                                    eager-validation
                                 >
                                     <UPopover :popper="{ placement: 'bottom-start' }">
                                         <UButton
-                                            color="white"
-                                            icon="i-heroicons-calendar-days-20-solid"
+                                            variant="outline"
+                                            :color="error ? 'red' : 'white'"
+                                            :icon="'i-heroicons-calendar-days-20-solid'"
                                             :label="
                                                 dateRangeState.fromDate
                                                     ? dayjs(dateRangeState.fromDate).format('DD MMMM YYYY')
                                                     : $t('data.designer.query.dateRange.fromDate')
                                             "
                                             :class="[
-                                                'min-w-40 hover:bg-white',
-                                                error
-                                                    ? 'ring-red-500'
-                                                    : dateRangeState.fromDate
-                                                      ? 'text-gray-700'
-                                                      : 'text-gray-400 font-normal',
+                                                'min-w-40',
+                                                !dateRangeState.fromDate && !error ? 'text-gray-400 font-normal' : '',
                                             ]"
                                         />
                                         <template #panel="{ close }">
@@ -265,23 +334,22 @@ const dateRangeSchema = z.object({
                                     :label="$t('data.designer.query.dateRange.toDate')"
                                     name="toDate"
                                     :ui="{ error: 'absolute -bottom-6' }"
+                                    required
+                                    eager-validation
                                 >
                                     <UPopover :popper="{ placement: 'bottom-start' }">
                                         <UButton
-                                            color="white"
-                                            icon="i-heroicons-calendar-days-20-solid"
+                                            variant="outline"
+                                            :color="error ? 'red' : 'white'"
+                                            :icon="'i-heroicons-calendar-days-20-solid'"
                                             :label="
                                                 dateRangeState.toDate
                                                     ? dayjs(dateRangeState.toDate).format('DD MMMM YYYY')
                                                     : $t('data.designer.query.dateRange.toDate')
                                             "
                                             :class="[
-                                                'min-w-40 hover:bg-white',
-                                                error
-                                                    ? 'ring-red-500'
-                                                    : dateRangeState.toDate
-                                                      ? 'text-gray-700'
-                                                      : 'text-gray-400 font-normal',
+                                                'min-w-40',
+                                                !dateRangeState.toDate && !error ? 'text-gray-400 font-normal' : '',
                                             ]"
                                         />
                                         <template #panel="{ close }">
@@ -292,7 +360,7 @@ const dateRangeSchema = z.object({
                             </UForm>
                         </div>
 
-                        <div v-show="item.key === 'selectColumns'" class="flex flex-col gap-4">
+                        <div v-if="item.key === 'selectColumns'" class="flex flex-col gap-4">
                             <div class="flex items-center gap-2 border-b border-gray-200 pb-3">
                                 <UButton size="xs" color="gray" variant="soft" @click="selectAllColumns">
                                     {{ $t('data.designer.selectAll') }}
@@ -315,7 +383,10 @@ const dateRangeSchema = z.object({
                                 </span>
                             </div>
 
-                            <div class="grid grid-cols-4 gap-4 min-h-[200px]">
+                            <div
+                                class="grid grid-cols-4 gap-4 min-h-[200px] p-2 rounded-lg transition-all"
+                                :class="showColumnError ? 'ring-1 ring-red-500 bg-red-50 dark:bg-red-900/10' : ''"
+                            >
                                 <div v-for="(chunk, index) in columnChunks" :key="index" class="flex flex-col gap-3">
                                     <div
                                         v-for="col in chunk"
@@ -338,6 +409,9 @@ const dateRangeSchema = z.object({
                                     </div>
                                 </div>
                             </div>
+                            <span v-if="showColumnError" class="text-red-500 text-xs mt-1">
+                                {{ $t('required') }}
+                            </span>
                         </div>
                     </div>
                 </template>

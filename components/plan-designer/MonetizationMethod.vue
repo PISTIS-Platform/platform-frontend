@@ -22,6 +22,10 @@ const props = defineProps({
         type: Boolean,
         required: true,
     },
+    dataSelectorIsValid: {
+        type: Boolean,
+        required: true,
+    },
 });
 
 //use computed getter and setter to avoid prop mutation
@@ -140,6 +144,8 @@ const emit = defineEmits([
     'update:has-personal-data',
     'changePage',
     'update:isAllValid',
+    'trigger-external-validation',
+    'trigger-asset-validation',
 ]);
 
 const formRef = ref();
@@ -158,12 +164,23 @@ const handleMonetizationClick = (value: string) => {
 async function onSubmit(): Promise<void> {
     if (monetizationDetails.value.type === 'nft' && props.assetOnMarketplace) {
         showErrorMessage(t('data.designer.nftNotPossible'));
-    } else if (isMonetizationValid.value && isAssetOfferingDetailsValid.value) {
+    } else if (isMonetizationValid.value && isAssetOfferingDetailsValid.value && props.dataSelectorIsValid) {
         emit('changePage', 2);
     } else {
-        if (props.assetOfferingDetails.keywords.length < 1) {
-            showErrorMessage(t('data.designer.pleaseKeywords'));
+        // Trigger Asset Offering Validation
+        if (!isAssetOfferingDetailsValid.value) {
+            emit('trigger-asset-validation');
+            if (props.assetOfferingDetails.keywords.length < 1) {
+                showErrorMessage(t('data.designer.pleaseKeywords'));
+            }
         }
+
+        // Trigger Dataset Selector Validation
+        if (!props.dataSelectorIsValid) {
+            emit('trigger-external-validation');
+        }
+
+        // Show generic error message
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
@@ -178,10 +195,6 @@ const customValidate = () => {
     }
     return monetizationErrors;
 };
-
-//NFT Functionality
-
-//TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
 <template>

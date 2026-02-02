@@ -17,7 +17,24 @@ const route = useRoute();
 const { t } = useI18n();
 const submitError = ref(false);
 const submitSuccess = ref(false);
+
+// Refs for Child Components
 const datasetSelectorRef = ref();
+const assetOfferingRef = ref();
+
+const dataSelectorIsValid = ref(false);
+
+const triggerDatasetSelectorValidation = () => {
+    if (datasetSelectorRef.value) {
+        datasetSelectorRef.value.triggerValidation();
+    }
+};
+
+const triggerAssetOfferingValidation = () => {
+    if (assetOfferingRef.value) {
+        assetOfferingRef.value.triggerValidation();
+    }
+};
 
 const pendingAssetDetails = ref<AssetOfferingDetails | null>(null);
 
@@ -28,7 +45,7 @@ const handleAssetDetailsUpdate = (newDetails: AssetOfferingDetails) => {
     // Check if the Distribution specifically has changed
     const hasDistributionChanged = oldDist?.id !== newDist?.id;
 
-    // LOGIC: If Distribution changed + We are in Query Mode + New Dist is NOT SQL
+    // If Distribution changed + We are in Query Mode + New Dist is NOT SQL
     if (hasDistributionChanged && completeOrQuery.value === DatasetKind.QUERY_FILTER && newDist?.format?.id !== 'SQL') {
         // 1. Store the intended change, but don't apply it yet
         pendingAssetDetails.value = newDetails;
@@ -445,9 +462,9 @@ const changeStep = async (stepNum: number) => {
     </div>
 
     <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
-        <!-- <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" /> -->
         <AssetOfferingDetails
             v-if="selectedAsset"
+            ref="assetOfferingRef"
             :asset-details-prop="assetOfferingDetails"
             :selected-asset="selectedAsset"
             :monetization-details="monetizationDetails"
@@ -464,15 +481,20 @@ const changeStep = async (stepNum: number) => {
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
             @reset="resetCompleteOrQuery"
             @cancel="handleResetCancel"
+            @update:data-selector-is-valid="(val) => (dataSelectorIsValid = val)"
         />
+
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
             :asset-on-marketplace="isAssetOnMarketplace"
+            :data-selector-is-valid="dataSelectorIsValid"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
+            @trigger-external-validation="triggerDatasetSelectorValidation"
+            @trigger-asset-validation="triggerAssetOfferingValidation"
         />
     </div>
 

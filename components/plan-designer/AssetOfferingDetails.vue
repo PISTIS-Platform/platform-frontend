@@ -69,6 +69,16 @@ const customValidate = () => {
 
 const formRef = ref();
 
+const triggerValidation = async () => {
+    if (formRef.value) {
+        await formRef.value.validate().catch(() => {});
+    }
+};
+
+defineExpose({
+    triggerValidation,
+});
+
 watch(
     () => assetOfferingDetails.value.keywords,
     () => {
@@ -164,7 +174,6 @@ watch(
                     :ui="{ error: 'absolute -bottom-6' }"
                     eager-validation
                 >
-                    <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->
                     <vue3-tags-input
                         class="mb-3"
                         :tags="assetOfferingDetails.keywords"
@@ -175,9 +184,6 @@ watch(
                 </UFormGroup>
             </div>
         </UCard>
-        <!-- <div class="w-full flex items-center justify-end gap-4">
-            <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
-        </div> -->
     </UForm>
 </template>
 
