@@ -116,6 +116,14 @@ const columns = [
 
 const selectedColumns = ref<string[]>([]);
 
+const toggleColumn = (columnName: string) => {
+    if (selectedColumns.value.includes(columnName)) {
+        selectedColumns.value = selectedColumns.value.filter((c) => c !== columnName);
+    } else {
+        selectedColumns.value.push(columnName);
+    }
+};
+
 const columnChunks = computed(() => {
     const total = columns.length;
     const itemsPerChunk = Math.ceil(total / 4);
@@ -307,13 +315,23 @@ const dateRangeSchema = z.object({
 
                             <div class="grid grid-cols-4 gap-4 min-h-[200px]">
                                 <div v-for="(chunk, index) in columnChunks" :key="index" class="flex flex-col gap-3">
-                                    <div v-for="col in chunk" :key="col.columnName" class="flex items-start">
+                                    <div
+                                        v-for="col in chunk"
+                                        :key="col.columnName"
+                                        :class="[
+                                            'flex items-start p-3 rounded-lg border cursor-pointer transition-colors duration-200',
+                                            selectedColumns.includes(col.columnName)
+                                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10'
+                                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800',
+                                        ]"
+                                        @click="toggleColumn(col.columnName)"
+                                    >
                                         <UCheckbox
-                                            v-model="selectedColumns"
-                                            :value="col.columnName"
+                                            :model-value="selectedColumns.includes(col.columnName)"
                                             :name="col.columnName"
                                             :label="col.columnName"
                                             :help="col.columnType"
+                                            class="pointer-events-none"
                                         />
                                     </div>
                                 </div>
