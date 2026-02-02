@@ -208,10 +208,82 @@ const dropdownItems = computed(() => [
             click: () => (showTable.value = !showTable.value),
         },
     ],
+    [
+        {
+            label: 'GDPR Checker',
+            class: 'text-white bg-primary-500 hover:bg-primary-600 justify-center font-medium',
+            click: () => (gdprCheckerOpen.value = true),
+        },
+    ],
 ]);
+
+const {
+    mainQuestions,
+    answerRef,
+    questionKey,
+    nextQuestion,
+    cancel,
+    gdprCheckerOpen,
+    showInfo,
+    information,
+    answersLog,
+    showReport,
+} = useGdprQuestions(props.datasetId);
+console.log(answersLog.value);
 </script>
 
 <template>
+    <UModal v-model="gdprCheckerOpen">
+        <div class="flex flex-col gap-4 text-neutral-600">
+            <UCard>
+                <template #header>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-lg">GDPR Checker</span>
+
+                            <UButton
+                                color="red"
+                                variant="ghost"
+                                icon="i-heroicons-information-circle"
+                                :trailing-icon="showInfo ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+                                label="Important! Please Read Carefully"
+                                size="sm"
+                                @click="showInfo = !showInfo"
+                            />
+                        </div>
+                        <UAlert v-if="showInfo" color="red" variant="subtle" :description="information.p3" />
+                    </div>
+                </template>
+                <div class="flex flex-col gap-4 relative h-[350px]">
+                    <p class="mb-4 text-xs">
+                        {{ information.p2 }}
+                    </p>
+                    <span class="font-semibold">{{ mainQuestions[questionKey].question }}</span>
+                    <span class="italic text-sm">{{ mainQuestions[questionKey].description }}</span>
+                    <div class="flex items-start gap-4 w-full">
+                        <URadioGroup v-model="answerRef" :options="mainQuestions[questionKey].answers" />
+                        <UAlert
+                            v-if="
+                                answerRef &&
+                                mainQuestions[questionKey]?.answers?.find((a: any) => a.value === answerRef).description
+                            "
+                            class="w-2/3"
+                            color="blue"
+                            variant="subtle"
+                            :description="
+                                mainQuestions[questionKey]?.answers?.find((a: any) => a.value === answerRef).description
+                            "
+                        />
+                    </div>
+                    <div class="w-full flex items-center justify-between absolute bottom-0">
+                        <UButton color="red" variant="outline" class="" @click="cancel()">Cancel</UButton>
+                        <UButton v-if="questionKey === 'q2_2'" class="" @click="nextQuestion()">Finish</UButton>
+                        <UButton v-else :disabled="!answerRef" class="" @click="nextQuestion()">Next</UButton>
+                    </div>
+                </div>
+            </UCard>
+        </div>
+    </UModal>
     <UModal v-model="streamIsOpen">
         <div class="w-full h-full flex flex-col justify-center p-6 text-gray-700">
             <h2 class="font-bold text-lg">{{ $t('data.streaming.details') }}</h2>
@@ -246,8 +318,8 @@ const dropdownItems = computed(() => [
                                 variant="ghost"
                                 square
                                 @click="copyItem('topic')"
-                                >{{ copied && keyBeingCopied === 'topic' ? 'Copied' : '' }}</UButton
-                            >
+                                >{{ copied && keyBeingCopied === 'topic' ? 'Copied' : '' }}
+                            </UButton>
                         </span>
                     </div>
                     <div class="flex flex-col gap-2 mt-6">
@@ -264,8 +336,8 @@ const dropdownItems = computed(() => [
                                 variant="ghost"
                                 square
                                 @click="copyItem('username')"
-                                >{{ copied && keyBeingCopied === 'username' ? 'Copied' : '' }}</UButton
-                            >
+                                >{{ copied && keyBeingCopied === 'username' ? 'Copied' : '' }}
+                            </UButton>
                         </span>
                     </div>
                     <div class="flex flex-col gap-2 mt-6">
@@ -277,8 +349,8 @@ const dropdownItems = computed(() => [
                                 class="flex items-center justify-center w-16"
                                 size="xs"
                                 @click="revealPassword = !revealPassword"
-                                >{{ revealPassword ? 'Hide' : 'Reveal' }}</UButton
-                            >
+                                >{{ revealPassword ? 'Hide' : 'Reveal' }}
+                            </UButton>
                         </div>
                         <span class="font-mono flex items-center"
                             >{{ revealPassword ? copyData.password : '*********' }}
@@ -288,8 +360,8 @@ const dropdownItems = computed(() => [
                                 variant="ghost"
                                 square
                                 @click="copyItem('password')"
-                                >{{ copied && keyBeingCopied === 'password' ? 'Copied' : '' }}</UButton
-                            >
+                                >{{ copied && keyBeingCopied === 'password' ? 'Copied' : '' }}
+                            </UButton>
                         </span>
                     </div>
                     <div class="flex flex-col gap-2 mt-6">
@@ -339,29 +411,38 @@ const dropdownItems = computed(() => [
                 </div>
                 <div class="flex">
                     <div class="space-x-2 pr-5">
-                        <UBadge v-if="isAnonymized" color="green" variant="soft" size="xs" class="rounded-full"
-                            >Anonymized</UBadge
+                        <UBadge v-if="isAnonymized" color="green" variant="soft" size="xs" class="rounded-full">
+                            Anonymized</UBadge
                         >
-                        <UBadge v-if="isTransformed" color="blue" variant="soft" size="xs" class="rounded-full"
-                            >Transformed</UBadge
+                        <UBadge v-if="isTransformed" color="blue" variant="soft" size="xs" class="rounded-full">
+                            Transformed</UBadge
                         >
-                        <UBadge v-if="isEncrypted" color="yellow" variant="soft" size="xs" class="rounded-full"
-                            >Encrypted</UBadge
+                        <UBadge v-if="isEncrypted" color="yellow" variant="soft" size="xs" class="rounded-full">
+                            Encrypted</UBadge
                         >
                     </div>
 
                     <div v-if="pistisMode == 'factory'" class="flex gap-x-3">
-                        <UTooltip text="Download Distribution">
-                            <UButton
-                                variant="solid"
-                                color="primary"
-                                size="sm"
-                                icon="i-heroicons-arrow-down-tray"
-                                @click="downloadFile"
-                            >
-                                <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                            </UButton>
-                        </UTooltip>
+                        <UButton
+                            v-if="!isStream && answersLog"
+                            variant="solid"
+                            color="primary"
+                            size="sm"
+                            icon="i-heroicons-arrow-down-tray"
+                            @click="showReport()"
+                        >
+                            {{ $t('catalogue.downloadGDPR') }}
+                        </UButton>
+                        <UButton
+                            variant="solid"
+                            color="primary"
+                            size="sm"
+                            icon="i-heroicons-arrow-down-tray"
+                            @click="downloadFile"
+                        >
+                            {{ $t('catalogue.downloadDistribution')
+                            }}<span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                        </UButton>
 
                         <UButtonGroup v-if="!isStream">
                             <UDropdown :items="dropdownItems">
@@ -380,8 +461,8 @@ const dropdownItems = computed(() => [
                     trailing-icon="i-heroicons-x-mark"
                     class="text-base font-semibold text-gray-600 pb-2"
                     @click="showTable = !showTable"
-                    >Data Schema</UButton
-                >
+                    >Data Schema
+                </UButton>
                 <PistisSchemaTable v-if="hasPistisSchema" :table-data="props.pistisSchema" />
             </div>
         </div>

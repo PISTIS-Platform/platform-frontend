@@ -24,6 +24,10 @@ export default defineI18nConfig(() => ({
             required: 'Required',
             monitoring: 'Monitoring',
             countries: countries,
+            catalogue: {
+                downloadGDPR: 'Download GDPR Report',
+                downloadDistribution: 'Download Distribution',
+            },
             companySizes: {
                 SMALL: 'Small',
                 MEDIUM: 'Medium',
