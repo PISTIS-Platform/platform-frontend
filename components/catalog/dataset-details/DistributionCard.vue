@@ -251,15 +251,7 @@ console.log(answersLog.value);
                                 @click="showInfo = !showInfo"
                             />
                         </div>
-
-                        <div
-                            v-if="showInfo"
-                            class="text-gray-500 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700 mt-2 transition-all"
-                        >
-                            <p class="font-bold text-red-500">
-                                {{ information.p3 }}
-                            </p>
-                        </div>
+                        <UAlert v-if="showInfo" color="red" variant="subtle" :description="information.p3" />
                     </div>
                 </template>
                 <div class="flex flex-col gap-4 relative h-[350px]">
