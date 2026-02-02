@@ -16,7 +16,7 @@ defineProps({
     },
 });
 
-const emit = defineEmits(['reset', 'update:selected', 'update:complete-or-query']);
+const emit = defineEmits(['reset', 'update:complete-or-query']);
 
 const selectCompleteOrQuery = (value: string) => {
     if (value === DatasetKind.COMPLETE) {
