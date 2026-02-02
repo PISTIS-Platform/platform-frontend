@@ -429,6 +429,34 @@ export default defineI18nConfig(() => ({
                     dataset_name: 'Dataset',
                 },
                 designer: {
+                    tab: {
+                        dateRange: {
+                            title: 'Date Range',
+                            description:
+                                'Select a date range to filter records. Only rows within this period will be shared.',
+                        },
+                        rowRange: {
+                            title: 'Row Range',
+                            description: 'Select a range of rows by their index. Rows are numbered starting from 1.',
+                        },
+                        columnRange: {
+                            title: 'Column Range',
+                            description:
+                                'Select a contiguous range of columns. All columns between the start and end will be included.',
+                        },
+                        selectColumns: {
+                            title: 'Select Columns',
+                            description: 'Choose individual columns to include in the shared dataset.',
+                        },
+                    },
+                    query: {
+                        dateRange: {
+                            dateColumn: 'Date Column',
+                            fromDate: 'From Date',
+                            to: 'to',
+                            toDate: 'To Date',
+                        },
+                    },
                     publishToMarketplace: 'Publish to Marketplace',
                     valuation: {
                         title: 'Data Valuation Rating',

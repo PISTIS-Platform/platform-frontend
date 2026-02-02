@@ -8,7 +8,6 @@ import { DatasetKind } from '~/interfaces/dataset.enum';
 import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
-const { showErrorMessage } = useAlertMessage();
 
 const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`, {
     query: { page: '' },
@@ -98,9 +97,9 @@ watch(selectedAsset, () => {
 //data for selection whole dataset or query
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
-const resetCompleteOrQuery = (value: string) => {
+const resetCompleteOrQuery = () => {
     //TODO: Reset query form(s) when changing back to DatasetKind.COMPLETE
-    completeOrQuery.value = value;
+    completeOrQuery.value = DatasetKind.COMPLETE;
 };
 const newAssetId = uuidV4();
 
@@ -317,7 +316,7 @@ const steps = computed(() => [
     { name: t('data.designer.nav.selectDataset'), isActive: selectedAsset.value },
     {
         name: t('data.designer.nav.monetizationPlanner'),
-        isActive: selectedAsset.value && isAssetOfferingDetailsValid.value,
+        isActive: selectedAsset.value,
     },
     {
         name: t('data.designer.nav.licenseSelector'),
@@ -350,15 +349,6 @@ const handlePageSelectionBackwards = (value: number) => {
 };
 
 const changeStep = async (stepNum: number) => {
-    if (stepNum === 1) {
-        if (assetOfferingDetails.value.keywords.length < 1) {
-            showErrorMessage(t('data.designer.pleaseKeywords'));
-            return;
-        } else if (!isAssetOfferingDetailsValid.value) {
-            showErrorMessage(t('data.designer.pleaseCheck'));
-            return;
-        }
-    }
     selectedPage.value = stepNum;
 };
 </script>
@@ -411,13 +401,7 @@ const changeStep = async (stepNum: number) => {
                 </template>
             </USelectMenu>
         </UCard>
-        <AssetOfferingDetails
-            v-if="selectedAsset"
-            v-model:asset-details-prop="assetOfferingDetails"
-            :monetization-details="monetizationDetails"
-            @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
-            @change-page="changeStep"
-        />
+
         <DatasetSelector
             v-if="selectedAsset"
             :selected="selectedAsset"
@@ -435,7 +419,13 @@ const changeStep = async (stepNum: number) => {
 
     <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <!-- <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" /> -->
-
+        <AssetOfferingDetails
+            v-if="selectedAsset"
+            v-model:asset-details-prop="assetOfferingDetails"
+            :monetization-details="monetizationDetails"
+            @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
+            @change-page="changeStep"
+        />
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"

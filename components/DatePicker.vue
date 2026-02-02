@@ -5,7 +5,7 @@ import { DatePicker as VCalendarDatePicker } from 'v-calendar';
 
 const props = defineProps({
     modelValue: {
-        type: String,
+        type: [Date, String, Object],
         default: null,
     },
 });
@@ -22,7 +22,7 @@ const date = computed({
 </script>
 
 <template>
-    <VCalendarDatePicker v-model.string="date" :min-date="new Date()" />
+    <VCalendarDatePicker v-model="date" mode="date" />
 </template>
 
 <style>

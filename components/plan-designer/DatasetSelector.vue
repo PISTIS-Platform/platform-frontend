@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import * as z from 'zod';
 
 import { DatasetKind } from '~/interfaces/dataset.enum';
 
 const { t } = useI18n();
+import dayjs from 'dayjs';
 
 defineProps({
     selected: {
@@ -41,6 +43,80 @@ const dataSetSelections = computed(() => [
         value: DatasetKind.QUERY_FILTER,
     },
 ]);
+
+const tabItems = [
+    {
+        key: 'dateRange',
+        label: t('data.designer.tab.dateRange.title'),
+        icon: 'proicons:calendar',
+        description: t('data.designer.tab.dateRange.description'),
+    },
+    {
+        key: 'rowRange',
+        label: t('data.designer.tab.rowRange.title'),
+        icon: 'ic:round-table-rows',
+        description: t('data.designer.tab.rowRange.description'),
+    },
+    {
+        key: 'columnRange',
+        label: t('data.designer.tab.columnRange.title'),
+        icon: 'tabler:columns',
+        description: t('data.designer.tab.columnRange.description'),
+    },
+    {
+        key: 'selectColumns',
+        label: t('data.designer.tab.selectColumns.title'),
+        icon: 'qlementine-icons:select-all-16',
+        description: t('data.designer.tab.selectColumns.description'),
+    },
+];
+
+const selectedTab = ref(0);
+
+const _formPayload = ref({
+    dateRange: {
+        dateColumn: null,
+        fromDate: null,
+        toDate: null,
+    },
+    rowRange: {
+        fromRow: null,
+        toRow: null,
+    },
+    columnRange: {
+        fromColumn: null,
+        toColumn: null,
+    },
+    selectColumns: [],
+});
+
+//TODO: Get real ones from API call
+const columns = [
+    'id',
+    'timestamp',
+    'sensor_id',
+    'temperature',
+    'humidity',
+    'pressure',
+    'location',
+    'status',
+    'battery',
+    'signal',
+    'errors',
+    'notes',
+];
+
+const dateRangeState = reactive({
+    dateColumn: undefined,
+    fromDate: undefined,
+    toDate: undefined,
+});
+
+const dateRangeSchema = z.object({
+    dateColumn: z.string().min(0),
+    fromDate: z.date(),
+    toDate: z.date(),
+});
 </script>
 
 <template>
@@ -78,6 +154,101 @@ const dataSetSelections = computed(() => [
                     />
                 </div>
             </div>
+        </div>
+        <div v-show="completeOrQuery === DatasetKind.QUERY_FILTER" class="mt-6 text-sm">
+            <UTabs v-model="selectedTab" :items="tabItems" class="w-full">
+                <template #item="{ item }">
+                    <div class="bg-gray-50 border rounded-lg p-4 flex flex-col gap-4 mt-2">
+                        <div class="flex flex-col gap-2">
+                            <span class="flex items-center gap-2 font-semibold">
+                                <UIcon :name="item.icon" class="w-4 h-4" />
+                                <span>Filter by {{ item.label }}</span>
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                {{ item.description }}
+                            </span>
+                        </div>
+                        <div v-show="item.key === 'dateRange'" class="flex items-center gap-4">
+                            <UForm
+                                :schema="dateRangeSchema"
+                                :state="dateRangeState"
+                                class="flex items-center gap-4 pb-4"
+                            >
+                                <UFormGroup
+                                    :label="$t('data.designer.query.dateRange.dateColumn')"
+                                    name="dateColumn"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                >
+                                    <USelectMenu
+                                        v-model="dateRangeState.dateColumn"
+                                        :options="columns"
+                                        class="min-w-64"
+                                    />
+                                </UFormGroup>
+                                <UFormGroup
+                                    v-slot="{ error }"
+                                    :label="$t('data.designer.query.dateRange.fromDate')"
+                                    name="fromDate"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                >
+                                    <UPopover :popper="{ placement: 'bottom-start' }">
+                                        <UButton
+                                            color="white"
+                                            icon="i-heroicons-calendar-days-20-solid"
+                                            :label="
+                                                dateRangeState.fromDate
+                                                    ? dayjs(dateRangeState.fromDate).format('DD MMMM YYYY')
+                                                    : $t('data.designer.query.dateRange.fromDate')
+                                            "
+                                            :class="[
+                                                'min-w-40 hover:bg-white',
+                                                error
+                                                    ? 'ring-red-500'
+                                                    : dateRangeState.fromDate
+                                                      ? 'text-gray-700'
+                                                      : 'text-gray-400 font-normal',
+                                            ]"
+                                        />
+                                        <template #panel="{ close }">
+                                            <DatePicker v-model="dateRangeState.fromDate" is-required @close="close" />
+                                        </template>
+                                    </UPopover>
+                                </UFormGroup>
+                                <span class="mt-5">{{ $t('data.designer.query.dateRange.to') }}</span>
+                                <UFormGroup
+                                    v-slot="{ error }"
+                                    :label="$t('data.designer.query.dateRange.toDate')"
+                                    name="toDate"
+                                    :ui="{ error: 'absolute -bottom-6' }"
+                                >
+                                    <UPopover :popper="{ placement: 'bottom-start' }">
+                                        <UButton
+                                            color="white"
+                                            icon="i-heroicons-calendar-days-20-solid"
+                                            :label="
+                                                dateRangeState.toDate
+                                                    ? dayjs(dateRangeState.toDate).format('DD MMMM YYYY')
+                                                    : $t('data.designer.query.dateRange.toDate')
+                                            "
+                                            :class="[
+                                                'min-w-40 hover:bg-white',
+                                                error
+                                                    ? 'ring-red-500'
+                                                    : dateRangeState.toDate
+                                                      ? 'text-gray-700'
+                                                      : 'text-gray-400 font-normal',
+                                            ]"
+                                        />
+                                        <template #panel="{ close }">
+                                            <DatePicker v-model="dateRangeState.toDate" is-required @close="close" />
+                                        </template>
+                                    </UPopover>
+                                </UFormGroup>
+                            </UForm>
+                        </div>
+                    </div>
+                </template>
+            </UTabs>
         </div>
     </UCard>
     <UModal v-model="switchDatasetOpen">
