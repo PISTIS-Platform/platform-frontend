@@ -17,6 +17,28 @@ const route = useRoute();
 const { t } = useI18n();
 const submitError = ref(false);
 const submitSuccess = ref(false);
+const datasetSelectorRef = ref();
+
+const pendingAssetDetails = ref<AssetOfferingDetails | null>(null);
+
+const handleAssetDetailsUpdate = (newDetails: AssetOfferingDetails) => {
+    const oldDist = assetOfferingDetails.value.selectedDistribution;
+    const newDist = newDetails.selectedDistribution;
+
+    // Check if the Distribution specifically has changed
+    const hasDistributionChanged = oldDist?.id !== newDist?.id;
+
+    // LOGIC: If Distribution changed + We are in Query Mode + New Dist is NOT SQL
+    if (hasDistributionChanged && completeOrQuery.value === DatasetKind.QUERY_FILTER && newDist?.format?.id !== 'SQL') {
+        // 1. Store the intended change, but don't apply it yet
+        pendingAssetDetails.value = newDetails;
+        // 2. Open the warning modal in the child
+        datasetSelectorRef.value?.openSwitchWarning();
+    } else {
+        // Safe change: Apply immediately
+        assetOfferingDetails.value = newDetails;
+    }
+};
 
 const selectedAsset = ref<
     | { id: string | number; title: string; description: string; distributions: Record<string, any>[]; keywords: any[] }
@@ -98,8 +120,16 @@ watch(selectedAsset, () => {
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
 const resetCompleteOrQuery = () => {
-    //TODO: Reset query form(s) when changing back to DatasetKind.COMPLETE
     completeOrQuery.value = DatasetKind.COMPLETE;
+
+    // If we have a pending distribution change waiting on this confirmation, apply it now
+    if (pendingAssetDetails.value) {
+        assetOfferingDetails.value = pendingAssetDetails.value;
+        pendingAssetDetails.value = null;
+    }
+};
+const handleResetCancel = () => {
+    pendingAssetDetails.value = null;
 };
 const newAssetId = uuidV4();
 
@@ -375,14 +405,19 @@ const changeStep = async (stepNum: number) => {
             variant="subtle"
             icon="nonicons:not-found-16"
         />
-        <UCard v-if="!hasRouteAssetId || !dataset">
+        <UCard>
             <template #header>
-                <div class="flex items-center gap-4">
-                    <UIcon name="oui:pages-select" class="w-10 h-10 text-gray-500" />
-                    <SubHeading
-                        :title="$t('data.investmentPlanner.datasetSelectorTitle')"
-                        :info="$t('data.investmentPlanner.datasetSelectorInfo')"
-                    />
+                <div class="flex items-start justify-between w-full">
+                    <div class="flex items-center gap-4">
+                        <UIcon name="oui:pages-select" class="w-10 h-10 text-gray-500" />
+                        <SubHeading
+                            :title="$t('data.investmentPlanner.datasetSelectorTitle')"
+                            :info="$t('data.investmentPlanner.datasetSelectorInfo')"
+                        />
+                    </div>
+                    <div v-if="hasRouteAssetId">
+                        <UButton variant="outline" @click="refresh">{{ $t('data.designer.getAllMyDatasets') }}</UButton>
+                    </div>
                 </div>
             </template>
             <USelectMenu
@@ -402,14 +437,6 @@ const changeStep = async (stepNum: number) => {
             </USelectMenu>
         </UCard>
 
-        <DatasetSelector
-            v-if="selectedAsset"
-            :selected="selectedAsset"
-            :complete-or-query="completeOrQuery"
-            @update:complete-or-query="(value: string) => (completeOrQuery = value)"
-            @reset="(value: string) => resetCompleteOrQuery(value)"
-        />
-
         <div>
             <div class="w-full flex items-center justify-end gap-4">
                 <UButton v-if="selectedAsset" size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
@@ -421,10 +448,22 @@ const changeStep = async (stepNum: number) => {
         <!-- <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" /> -->
         <AssetOfferingDetails
             v-if="selectedAsset"
-            v-model:asset-details-prop="assetOfferingDetails"
+            :asset-details-prop="assetOfferingDetails"
+            :selected-asset="selectedAsset"
             :monetization-details="monetizationDetails"
+            @update:asset-details-prop="handleAssetDetailsUpdate"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
             @change-page="changeStep"
+        />
+        <DatasetSelector
+            v-if="selectedAsset"
+            ref="datasetSelectorRef"
+            :selected="selectedAsset"
+            :asset-offering-details="assetOfferingDetails"
+            :complete-or-query="completeOrQuery"
+            @update:complete-or-query="(value: string) => (completeOrQuery = value)"
+            @reset="resetCompleteOrQuery"
+            @cancel="handleResetCancel"
         />
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"

@@ -15,7 +15,13 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    selectedAsset: {
+        type: Object,
+        required: true,
+    },
 });
+
+const selectedAsset = computed(() => props.selectedAsset);
 
 const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid', 'changePage']);
 
@@ -70,6 +76,17 @@ watch(
             formRef.value.clear('keywords');
         } else {
             formRef.value.setErrors([{ path: 'keywords', message: t('required') }], 'keywords');
+        }
+    },
+);
+
+watch(
+    () => props.monetizationDetails,
+    () => {
+        if (props.monetizationDetails.type === MonetizationType.NFT) {
+            assetOfferingDetails.value.title = selectedAsset.value.title;
+            assetOfferingDetails.value.description = selectedAsset.value.description;
+            assetOfferingDetails.value.keywords = selectedAsset.value.keywords || [];
         }
     },
 );
@@ -131,8 +148,11 @@ watch(
                     eager-validation
                 >
                     <USelectMenu
-                        v-model="assetOfferingDetails.selectedDistribution"
+                        :model-value="assetOfferingDetails.selectedDistribution"
                         :options="assetOfferingDetails.distributions"
+                        @update:model-value="
+                            (val) => (assetOfferingDetails = { ...assetOfferingDetails, selectedDistribution: val })
+                        "
                     >
                     </USelectMenu>
                 </UFormGroup>

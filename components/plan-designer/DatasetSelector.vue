@@ -7,7 +7,7 @@ import { DatasetKind } from '~/interfaces/dataset.enum';
 const { t } = useI18n();
 import dayjs from 'dayjs';
 
-defineProps({
+const props = defineProps({
     selected: {
         type: Object as PropType<{ id: number | string; title: string; description: string }>,
         required: true,
@@ -16,9 +16,15 @@ defineProps({
         type: String,
         required: true,
     },
+    assetOfferingDetails: {
+        type: Object,
+        required: true,
+    },
 });
 
-const emit = defineEmits(['reset', 'update:complete-or-query']);
+const assetOfferingDetails = computed(() => props.assetOfferingDetails);
+
+const emit = defineEmits(['reset', 'update:complete-or-query', 'cancel']);
 
 const selectCompleteOrQuery = (value: string) => {
     if (value === DatasetKind.COMPLETE) {
@@ -29,8 +35,28 @@ const selectCompleteOrQuery = (value: string) => {
     }
 };
 
+const reset = () => {
+    switchDatasetOpen.value = false;
+    dateRangeState.dateColumn = undefined;
+    dateRangeState.fromDate = undefined;
+    dateRangeState.toDate = undefined;
+    emit('reset');
+};
+
 const switchDatasetOpen = ref<boolean>(false);
 
+const openSwitchWarning = () => {
+    switchDatasetOpen.value = true;
+};
+
+defineExpose({
+    openSwitchWarning,
+});
+
+const handleCancel = () => {
+    switchDatasetOpen.value = false;
+    emit('cancel');
+};
 const dataSetSelections = computed(() => [
     {
         title: t('data.designer.completeDataset'),
@@ -41,8 +67,18 @@ const dataSetSelections = computed(() => [
         title: t('data.designer.queryFilter'),
         info: t('data.designer.selectQueryFilter'),
         value: DatasetKind.QUERY_FILTER,
+        disabled: assetOfferingDetails.value.selectedDistribution.format.id !== 'SQL',
     },
 ]);
+
+watch(assetOfferingDetails.value, () => {
+    if (
+        assetOfferingDetails.value.selectedDistribution.format.id !== 'SQL' &&
+        props.completeOrQuery === DatasetKind.QUERY_FILTER
+    ) {
+        reset();
+    }
+});
 
 const tabItems = [
     {
@@ -256,12 +292,10 @@ const dateRangeSchema = z.object({
             <p class="font-bold text-xl">{{ $t('data.designer.areYouSure') }}</p>
             <p class="text-gray-400 mt-6">{{ $t('data.designer.willReset') }}</p>
             <div class="flex gap-8 w-full justify-center mt-6">
-                <UButton color="white" class="w-20 flex justify-center" @click="switchDatasetOpen = false">{{
+                <UButton color="white" class="w-20 flex justify-center" @click="handleCancel">{{
                     $t('cancel')
                 }}</UButton>
-                <UButton class="w-20 flex justify-center" @click="emit('reset'), (switchDatasetOpen = false)">{{
-                    $t('yes')
-                }}</UButton>
+                <UButton class="w-20 flex justify-center" @click="reset">{{ $t('yes') }}</UButton>
             </div>
         </UCard>
     </UModal>

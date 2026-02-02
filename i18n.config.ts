@@ -429,6 +429,7 @@ export default defineI18nConfig(() => ({
                     dataset_name: 'Dataset',
                 },
                 designer: {
+                    getAllMyDatasets: 'Get all my datasets',
                     tab: {
                         dateRange: {
                             title: 'Date Range',
