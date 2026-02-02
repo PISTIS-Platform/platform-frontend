@@ -403,6 +403,13 @@ const changeStep = async (stepNum: number) => {
             :complete-or-query="completeOrQuery"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
         />
+        <AssetOfferingDetails
+            v-if="selectedAsset"
+            v-model:asset-details-prop="assetOfferingDetails"
+            :monetization-details="monetizationDetails"
+            @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
+            @change-page="changeStep"
+        />
         <div>
             <div class="w-full flex items-center justify-end gap-4">
                 <UButton v-if="selectedAsset" size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
@@ -412,12 +419,7 @@ const changeStep = async (stepNum: number) => {
 
     <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
         <!-- <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" /> -->
-        <AssetOfferingDetails
-            v-model:asset-details-prop="assetOfferingDetails"
-            :monetization-details="monetizationDetails"
-            @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
-            @change-page="changeStep"
-        />
+
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
