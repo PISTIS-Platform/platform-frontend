@@ -321,6 +321,7 @@ watch(
                                     <USelectMenu
                                         v-model="dateRangeState.dateColumn"
                                         :options="columns"
+                                        :placeholder="$t('data.designer.query.dateRange.selectColumn')"
                                         value-attribute="columnName"
                                         option-attribute="columnName"
                                         class="min-w-64"

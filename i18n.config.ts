@@ -457,6 +457,7 @@ export default defineI18nConfig(() => ({
                     query: {
                         dateRange: {
                             dateColumn: 'Date Column',
+                            selectColumn: 'Select a column...',
                             fromDate: 'From Date',
                             to: 'to',
                             toDate: 'To Date',
