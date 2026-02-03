@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
     const baseUrl = config.public.cloudUrl;
     const endpoint = `${baseUrl}/srv/repo/datasets/${offerId}`;
-    const apiKey = config.piveauHubRepoMarketplaceXApiKey;
+    const apiKey = config.marketplaceApiKey;
 
     const deleteResponse = await fetch(endpoint, {
         method: 'DELETE',

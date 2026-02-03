@@ -207,7 +207,7 @@ const confirmDelete = async () => {
                             <span class="font-medium">{{ d.title }}</span>
                         </li>
                     </ul>
-                    <p class="font-semibold my-1">Deleted from marketplace:</p>
+                    <p v-if="isPublished" class="font-semibold my-1">Deleted from marketplace:</p>
                     <ul class="list-disc pl-5">
                         <li v-for="offer in offerIds" :key="offer.id">
                             <span class="font-medium">{{ offer }}</span>
