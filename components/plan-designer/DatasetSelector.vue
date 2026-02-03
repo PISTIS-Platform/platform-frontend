@@ -416,7 +416,7 @@ watch(
                                         size="xs"
                                         color="white"
                                         :trailing="false"
-                                        :placeholder="$t('search') + '...'"
+                                        :placeholder="$t('search')"
                                         class="w-48"
                                     />
                                     <span class="text-xs text-gray-500 whitespace-nowrap">
