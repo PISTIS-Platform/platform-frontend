@@ -464,7 +464,7 @@ watch(
                                             :text="col.columnName"
                                             :popper="{ placement: 'top' }"
                                             :prevent="!truncationState[col.columnName]"
-                                            class="min-w-0 flex-1"
+                                            class="min-w-0"
                                             :ui="{ width: 'max-w-[300px]', base: 'whitespace-normal break-all h-auto' }"
                                         >
                                             <span
