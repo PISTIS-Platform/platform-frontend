@@ -34,6 +34,7 @@ const emit = defineEmits(['reset', 'update:complete-or-query', 'cancel', 'update
 const dateRangeFormRef = ref();
 const showColumnError = ref(false);
 const columnSearch = ref('');
+const truncationState = reactive<Record<string, boolean>>({});
 
 const selectCompleteOrQuery = (value: string) => {
     if (value === DatasetKind.COMPLETE) {
@@ -113,7 +114,10 @@ const selectedTab = ref(0);
 
 //TODO: Get real ones from API
 const columns = [
-    { columnName: 'battery', columnType: 'Integer' },
+    {
+        columnName: 'batteryyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',
+        columnType: 'Integer',
+    },
     { columnName: 'errors', columnType: 'String' },
     { columnName: 'humidity', columnType: 'Float' },
     { columnName: 'id', columnType: 'String' },
@@ -209,6 +213,11 @@ const triggerValidation = async () => {
     } else if (activeTabKey === 'selectColumns') {
         showColumnError.value = selectedColumns.value.length === 0;
     }
+};
+
+const checkTruncation = (event: Event, columnName: string) => {
+    const target = event.target as HTMLElement;
+    truncationState[columnName] = target.scrollWidth > target.clientWidth;
 };
 
 defineExpose({
@@ -415,7 +424,7 @@ watch(
                                         size="xs"
                                         color="white"
                                         :trailing="false"
-                                        :placeholder="$t('search')"
+                                        :placeholder="$t('search') + '...'"
                                         class="w-48"
                                     />
                                     <span class="text-xs text-gray-500 whitespace-nowrap">
@@ -450,17 +459,30 @@ watch(
                                     ]"
                                     @click="toggleColumn(col.columnName)"
                                 >
-                                    <div class="flex items-baseline gap-2 overflow-hidden">
-                                        <UTooltip :text="col.columnName" class="truncate">
-                                            <span class="font-medium truncate">{{ col.columnName }}</span>
+                                    <div class="flex items-baseline gap-2 overflow-hidden flex-1 min-w-0">
+                                        <UTooltip
+                                            :text="col.columnName"
+                                            :popper="{ placement: 'top' }"
+                                            :prevent="!truncationState[col.columnName]"
+                                            class="min-w-0 flex-1"
+                                            :ui="{ width: 'max-w-[300px]', base: 'whitespace-normal break-all h-auto' }"
+                                        >
+                                            <span
+                                                class="font-medium truncate block"
+                                                @mouseenter="checkTruncation($event, col.columnName)"
+                                            >
+                                                {{ col.columnName }}
+                                            </span>
                                         </UTooltip>
-                                        <span class="text-xs text-gray-500 font-mono">({{ col.columnType }})</span>
+                                        <span class="text-xs text-gray-500 font-mono flex-shrink-0"
+                                            >({{ col.columnType }})</span
+                                        >
                                     </div>
 
                                     <UCheckbox
                                         :model-value="selectedColumns.includes(col.columnName)"
                                         :name="col.columnName"
-                                        class="pointer-events-none ml-2"
+                                        class="pointer-events-none ml-2 flex-shrink-0"
                                     />
                                 </div>
 
