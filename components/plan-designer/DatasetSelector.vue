@@ -72,8 +72,8 @@ const handleCancel = () => {
 
 const dataSetSelections = computed(() => [
     {
-        title: t('data.designer.completeDataset'),
-        info: t('data.designer.selectDataset'),
+        title: t('data.designer.completeDistribution'),
+        info: t('data.designer.selectDistribution'),
         value: DatasetKind.COMPLETE,
     },
     {
@@ -262,8 +262,8 @@ watch(
             <div class="flex items-center gap-8">
                 <UIcon name="lsicon:data-filled" class="w-10 h-10 text-gray-500 -mr-4" />
                 <SubHeading
-                    :title="$t('data.designer.datasetSelected')"
-                    :info="$t('data.designer.datasetSelectedInfo')"
+                    :title="$t('data.designer.distributionSelected')"
+                    :info="$t('data.designer.distributionSelectedInfo')"
                 />
             </div>
         </template>
