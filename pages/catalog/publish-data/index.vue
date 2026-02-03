@@ -436,7 +436,7 @@ const changeStep = async (stepNum: number) => {
                             :info="$t('data.investmentPlanner.datasetSelectorInfo')"
                         />
                     </div>
-                    <div v-if="hasRouteAssetId">
+                    <div v-if="hasRouteAssetId && transformedDatasets.length <= 1">
                         <UButton variant="outline" @click="refresh">{{ $t('data.designer.getAllMyDatasets') }}</UButton>
                     </div>
                 </div>
