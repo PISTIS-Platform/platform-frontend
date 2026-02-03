@@ -129,7 +129,6 @@ const columns = [
 
 const selectedColumns = ref<string[]>([]);
 
-// computed property for filtered and sorted columns
 const filteredColumns = computed(() => {
     let result = [...columns];
     result.sort((a, b) => a.columnName.localeCompare(b.columnName));
@@ -452,9 +451,9 @@ watch(
                                     @click="toggleColumn(col.columnName)"
                                 >
                                     <div class="flex items-baseline gap-2 overflow-hidden">
-                                        <span class="font-medium truncate" :title="col.columnName">{{
-                                            col.columnName
-                                        }}</span>
+                                        <UTooltip :text="col.columnName" class="truncate">
+                                            <span class="font-medium truncate">{{ col.columnName }}</span>
+                                        </UTooltip>
                                         <span class="text-xs text-gray-500 font-mono">({{ col.columnType }})</span>
                                     </div>
 
