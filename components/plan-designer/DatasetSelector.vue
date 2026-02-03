@@ -20,9 +20,14 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    monetizationDetails: {
+        type: Object,
+        required: true,
+    },
 });
 
 const assetOfferingDetails = computed(() => props.assetOfferingDetails);
+const monetizationDetails = computed(() => props.monetizationDetails);
 
 const emit = defineEmits(['reset', 'update:complete-or-query', 'cancel', 'update:data-selector-is-valid']);
 
@@ -38,14 +43,18 @@ const selectCompleteOrQuery = (value: string) => {
     }
 };
 
-const reset = () => {
-    switchDatasetOpen.value = false;
+const clearForms = () => {
     dateRangeState.dateColumn = undefined;
     dateRangeState.fromDate = undefined;
     dateRangeState.toDate = undefined;
     selectedColumns.value = [];
     showColumnError.value = false;
     columnSearch.value = '';
+};
+
+const reset = () => {
+    switchDatasetOpen.value = false;
+    clearForms();
     emit('reset');
 };
 
@@ -70,7 +79,9 @@ const dataSetSelections = computed(() => [
         title: t('data.designer.queryFilter'),
         info: t('data.designer.selectQueryFilter'),
         value: DatasetKind.QUERY_FILTER,
-        disabled: assetOfferingDetails.value.selectedDistribution.format.id !== 'SQL',
+        disabled:
+            assetOfferingDetails.value.selectedDistribution.format.id !== 'SQL' ||
+            monetizationDetails.value.type === 'nft',
     },
 ]);
 
@@ -116,29 +127,23 @@ const columns = [
     { columnName: 'timestamp', columnType: 'DateTime' },
 ];
 
-// Computed property for filtered and sorted columns
+const selectedColumns = ref<string[]>([]);
+
+// computed property for filtered and sorted columns
 const filteredColumns = computed(() => {
     let result = [...columns];
-
-    // 1. Sort alphabetically
     result.sort((a, b) => a.columnName.localeCompare(b.columnName));
-
-    // 2. Filter by search
     if (columnSearch.value) {
         const query = columnSearch.value.toLowerCase();
         result = result.filter(
             (col) => col.columnName.toLowerCase().includes(query) || col.columnType.toLowerCase().includes(query),
         );
     }
-
     return result;
 });
 
-const selectedColumns = ref<string[]>([]);
-
 const toggleColumn = (columnName: string) => {
-    const index = selectedColumns.value.indexOf(columnName);
-    if (index > -1) {
+    if (selectedColumns.value.includes(columnName)) {
         selectedColumns.value = selectedColumns.value.filter((c) => c !== columnName);
     } else {
         selectedColumns.value = [...selectedColumns.value, columnName];
@@ -146,33 +151,20 @@ const toggleColumn = (columnName: string) => {
 };
 
 const selectAllColumns = () => {
-    // only select visible columns to respect current filter
     const visibleNames = filteredColumns.value.map((c) => c.columnName);
-    // combine existing unique selection with new visible ones
     selectedColumns.value = [...new Set([...selectedColumns.value, ...visibleNames])];
 };
 
 const deselectAllColumns = () => {
-    // only deselect visible columns
     const visibleNames = filteredColumns.value.map((c) => c.columnName);
-
-    // keep items that are not currently visible
     selectedColumns.value = selectedColumns.value.filter((selectedName) => !visibleNames.includes(selectedName));
 };
 
 const invertColumnSelection = () => {
     const visibleNames = filteredColumns.value.map((c) => c.columnName);
-
-    // start with items that are selected but currently hidden (keep them safe)
     const hiddenSelected = selectedColumns.value.filter((selectedName) => !visibleNames.includes(selectedName));
-
-    // calculate the inverted state for visible items
     const visibleSelected = selectedColumns.value.filter((selectedName) => visibleNames.includes(selectedName));
-
-    // find visible items that were NOT selected (these should now become selected)
     const visibleUnselected = visibleNames.filter((name) => !visibleSelected.includes(name));
-
-    // combine: hidden (keep) and visible (new)
     selectedColumns.value = [...hiddenSelected, ...visibleUnselected];
 };
 
@@ -223,6 +215,7 @@ const triggerValidation = async () => {
 defineExpose({
     openSwitchWarning,
     triggerValidation,
+    clearForms,
 });
 
 watch(

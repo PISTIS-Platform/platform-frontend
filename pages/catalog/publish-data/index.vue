@@ -45,7 +45,7 @@ const handleAssetDetailsUpdate = (newDetails: AssetOfferingDetails) => {
     // Check if the Distribution specifically has changed
     const hasDistributionChanged = oldDist?.id !== newDist?.id;
 
-    // If Distribution changed + We are in Query Mode + New Dist is NOT SQL
+    // LOGIC: If Distribution changed + We are in Query Mode + New Dist is NOT SQL
     if (hasDistributionChanged && completeOrQuery.value === DatasetKind.QUERY_FILTER && newDist?.format?.id !== 'SQL') {
         // 1. Store the intended change, but don't apply it yet
         pendingAssetDetails.value = newDetails;
@@ -139,12 +139,16 @@ const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
 const resetCompleteOrQuery = () => {
     completeOrQuery.value = DatasetKind.COMPLETE;
 
-    // If we have a pending distribution change waiting on this confirmation, apply it now
+    if (datasetSelectorRef.value) {
+        datasetSelectorRef.value.clearForms();
+    }
+
     if (pendingAssetDetails.value) {
         assetOfferingDetails.value = pendingAssetDetails.value;
         pendingAssetDetails.value = null;
     }
 };
+
 const handleResetCancel = () => {
     pendingAssetDetails.value = null;
 };
@@ -477,6 +481,7 @@ const changeStep = async (stepNum: number) => {
             ref="datasetSelectorRef"
             :selected="selectedAsset"
             :asset-offering-details="assetOfferingDetails"
+            :monetization-details="monetizationDetails"
             :complete-or-query="completeOrQuery"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
             @reset="resetCompleteOrQuery"
@@ -489,12 +494,14 @@ const changeStep = async (stepNum: number) => {
             :asset-offering-details="assetOfferingDetails"
             :asset-on-marketplace="isAssetOnMarketplace"
             :data-selector-is-valid="dataSelectorIsValid"
+            :complete-or-query="completeOrQuery"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
             @trigger-external-validation="triggerDatasetSelectorValidation"
             @trigger-asset-validation="triggerAssetOfferingValidation"
+            @reset-dataset-selector="resetCompleteOrQuery"
         />
     </div>
 
