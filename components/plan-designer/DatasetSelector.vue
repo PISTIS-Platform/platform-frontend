@@ -28,6 +28,7 @@ const emit = defineEmits(['reset', 'update:complete-or-query', 'cancel', 'update
 
 const dateRangeFormRef = ref();
 const showColumnError = ref(false);
+const columnSearch = ref('');
 
 const selectCompleteOrQuery = (value: string) => {
     if (value === DatasetKind.COMPLETE) {
@@ -44,6 +45,7 @@ const reset = () => {
     dateRangeState.toDate = undefined;
     selectedColumns.value = [];
     showColumnError.value = false;
+    columnSearch.value = '';
     emit('reset');
 };
 
@@ -100,54 +102,78 @@ const selectedTab = ref(0);
 
 //TODO: Get real ones from API
 const columns = [
-    { columnName: 'id', columnType: 'String' },
-    { columnName: 'timestamp', columnType: 'DateTime' },
-    { columnName: 'sensor_id', columnType: 'String' },
-    { columnName: 'temperature', columnType: 'Float' },
-    { columnName: 'humidity', columnType: 'Float' },
-    { columnName: 'pressure', columnType: 'Float' },
-    { columnName: 'location', columnType: 'String' },
-    { columnName: 'status', columnType: 'String' },
     { columnName: 'battery', columnType: 'Integer' },
-    { columnName: 'signal', columnType: 'Integer' },
     { columnName: 'errors', columnType: 'String' },
+    { columnName: 'humidity', columnType: 'Float' },
+    { columnName: 'id', columnType: 'String' },
+    { columnName: 'location', columnType: 'String' },
     { columnName: 'notes', columnType: 'Text' },
+    { columnName: 'pressure', columnType: 'Float' },
+    { columnName: 'sensor_id', columnType: 'String' },
+    { columnName: 'signal', columnType: 'Integer' },
+    { columnName: 'status', columnType: 'String' },
+    { columnName: 'temperature', columnType: 'Float' },
+    { columnName: 'timestamp', columnType: 'DateTime' },
 ];
+
+// Computed property for filtered and sorted columns
+const filteredColumns = computed(() => {
+    let result = [...columns];
+
+    // 1. Sort alphabetically
+    result.sort((a, b) => a.columnName.localeCompare(b.columnName));
+
+    // 2. Filter by search
+    if (columnSearch.value) {
+        const query = columnSearch.value.toLowerCase();
+        result = result.filter(
+            (col) => col.columnName.toLowerCase().includes(query) || col.columnType.toLowerCase().includes(query),
+        );
+    }
+
+    return result;
+});
 
 const selectedColumns = ref<string[]>([]);
 
 const toggleColumn = (columnName: string) => {
-    if (selectedColumns.value.includes(columnName)) {
+    const index = selectedColumns.value.indexOf(columnName);
+    if (index > -1) {
         selectedColumns.value = selectedColumns.value.filter((c) => c !== columnName);
     } else {
         selectedColumns.value = [...selectedColumns.value, columnName];
     }
 };
 
-const columnChunks = computed(() => {
-    const total = columns.length;
-    const itemsPerChunk = Math.ceil(total / 4);
-    const result = [];
-
-    for (let i = 0; i < 4; i++) {
-        const start = i * itemsPerChunk;
-        const end = start + itemsPerChunk;
-        result.push(columns.slice(start, end));
-    }
-    return result;
-});
-
 const selectAllColumns = () => {
-    selectedColumns.value = columns.map((c) => c.columnName);
+    // only select visible columns to respect current filter
+    const visibleNames = filteredColumns.value.map((c) => c.columnName);
+    // combine existing unique selection with new visible ones
+    selectedColumns.value = [...new Set([...selectedColumns.value, ...visibleNames])];
 };
 
 const deselectAllColumns = () => {
-    selectedColumns.value = [];
+    // only deselect visible columns
+    const visibleNames = filteredColumns.value.map((c) => c.columnName);
+
+    // keep items that are not currently visible
+    selectedColumns.value = selectedColumns.value.filter((selectedName) => !visibleNames.includes(selectedName));
 };
 
 const invertColumnSelection = () => {
-    const currentSet = new Set(selectedColumns.value);
-    selectedColumns.value = columns.filter((c) => !currentSet.has(c.columnName)).map((c) => c.columnName);
+    const visibleNames = filteredColumns.value.map((c) => c.columnName);
+
+    // start with items that are selected but currently hidden (keep them safe)
+    const hiddenSelected = selectedColumns.value.filter((selectedName) => !visibleNames.includes(selectedName));
+
+    // calculate the inverted state for visible items
+    const visibleSelected = selectedColumns.value.filter((selectedName) => visibleNames.includes(selectedName));
+
+    // find visible items that were NOT selected (these should now become selected)
+    const visibleUnselected = visibleNames.filter((name) => !visibleSelected.includes(name));
+
+    // combine: hidden (keep) and visible (new)
+    selectedColumns.value = [...hiddenSelected, ...visibleUnselected];
 };
 
 const dateRangeState = reactive({
@@ -312,7 +338,11 @@ watch(
                                         <UButton
                                             variant="outline"
                                             :color="error ? 'red' : 'white'"
-                                            :icon="'i-heroicons-calendar-days-20-solid'"
+                                            :icon="
+                                                error
+                                                    ? 'i-heroicons-exclamation-circle-20-solid'
+                                                    : 'i-heroicons-calendar-days-20-solid'
+                                            "
                                             :label="
                                                 dateRangeState.fromDate
                                                     ? dayjs(dateRangeState.fromDate).format('DD MMMM YYYY')
@@ -341,7 +371,11 @@ watch(
                                         <UButton
                                             variant="outline"
                                             :color="error ? 'red' : 'white'"
-                                            :icon="'i-heroicons-calendar-days-20-solid'"
+                                            :icon="
+                                                error
+                                                    ? 'i-heroicons-exclamation-circle-20-solid'
+                                                    : 'i-heroicons-calendar-days-20-solid'
+                                            "
                                             :label="
                                                 dateRangeState.toDate
                                                     ? dayjs(dateRangeState.toDate).format('DD MMMM YYYY')
@@ -361,52 +395,88 @@ watch(
                         </div>
 
                         <div v-if="item.key === 'selectColumns'" class="flex flex-col gap-4">
-                            <div class="flex items-center gap-2 border-b border-gray-200 pb-3">
-                                <UButton size="xs" color="gray" variant="soft" @click="selectAllColumns">
-                                    {{ $t('data.designer.selectAll') }}
-                                </UButton>
-                                <UButton size="xs" color="gray" variant="soft" @click="deselectAllColumns">
-                                    {{ $t('data.designer.deselectAll') }}
-                                </UButton>
-                                <UButton
-                                    size="xs"
-                                    color="gray"
-                                    variant="ghost"
-                                    icon="i-heroicons-arrows-right-left"
-                                    @click="invertColumnSelection"
-                                >
-                                    {{ $t('data.designer.invertSelection') }}
-                                </UButton>
+                            <div
+                                class="flex items-center justify-between border-b border-gray-200 pb-3 gap-4 flex-wrap"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <UButton size="xs" color="gray" variant="soft" @click="selectAllColumns">
+                                        {{ $t('data.designer.selectAll') }}
+                                    </UButton>
+                                    <UButton size="xs" color="gray" variant="soft" @click="deselectAllColumns">
+                                        {{ $t('data.designer.deselectAll') }}
+                                    </UButton>
+                                    <UButton
+                                        size="xs"
+                                        color="gray"
+                                        variant="ghost"
+                                        icon="i-heroicons-arrows-right-left"
+                                        @click="invertColumnSelection"
+                                    >
+                                        {{ $t('data.designer.invertSelection') }}
+                                    </UButton>
+                                </div>
 
-                                <span class="ml-auto text-xs text-gray-500">
-                                    {{ selectedColumns.length }} / {{ columns.length }} {{ $t('selected') }}
-                                </span>
+                                <div class="flex items-center gap-4">
+                                    <UInput
+                                        v-model="columnSearch"
+                                        icon="i-heroicons-magnifying-glass-20-solid"
+                                        size="xs"
+                                        color="white"
+                                        :trailing="false"
+                                        :placeholder="$t('search') + '...'"
+                                        class="w-48"
+                                    />
+                                    <span class="text-xs text-gray-500 whitespace-nowrap">
+                                        <span v-if="columnSearch"
+                                            >{{
+                                                selectedColumns.filter((c) =>
+                                                    filteredColumns.map((fc) => fc.columnName).includes(c),
+                                                ).length
+                                            }}
+                                            / {{ filteredColumns.length }} {{ $t('visible') }}</span
+                                        >
+                                        <span v-else
+                                            >{{ selectedColumns.length }} / {{ columns.length }}
+                                            {{ $t('selected') }}</span
+                                        >
+                                    </span>
+                                </div>
                             </div>
 
                             <div
-                                class="grid grid-cols-4 gap-4 min-h-[200px] p-2 rounded-lg transition-all"
+                                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 min-h-[200px] p-2 rounded-lg transition-all max-h-[400px] overflow-y-auto"
                                 :class="showColumnError ? 'ring-1 ring-red-500 bg-red-50 dark:bg-red-900/10' : ''"
                             >
-                                <div v-for="(chunk, index) in columnChunks" :key="index" class="flex flex-col gap-3">
-                                    <div
-                                        v-for="col in chunk"
-                                        :key="col.columnName"
-                                        :class="[
-                                            'flex items-start p-3 rounded-lg border cursor-pointer transition-colors duration-200',
-                                            selectedColumns.includes(col.columnName)
-                                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10'
-                                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800',
-                                        ]"
-                                        @click="toggleColumn(col.columnName)"
-                                    >
-                                        <UCheckbox
-                                            :model-value="selectedColumns.includes(col.columnName)"
-                                            :name="col.columnName"
-                                            :label="col.columnName"
-                                            :help="col.columnType"
-                                            class="pointer-events-none"
-                                        />
+                                <div
+                                    v-for="col in filteredColumns"
+                                    :key="col.columnName"
+                                    :class="[
+                                        'flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors duration-200 h-12',
+                                        selectedColumns.includes(col.columnName)
+                                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10'
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800',
+                                    ]"
+                                    @click="toggleColumn(col.columnName)"
+                                >
+                                    <div class="flex items-baseline gap-2 overflow-hidden">
+                                        <span class="font-medium truncate" :title="col.columnName">{{
+                                            col.columnName
+                                        }}</span>
+                                        <span class="text-xs text-gray-500 font-mono">({{ col.columnType }})</span>
                                     </div>
+
+                                    <UCheckbox
+                                        :model-value="selectedColumns.includes(col.columnName)"
+                                        :name="col.columnName"
+                                        class="pointer-events-none ml-2"
+                                    />
+                                </div>
+
+                                <div
+                                    v-if="filteredColumns.length === 0"
+                                    class="col-span-full text-center text-gray-500 py-8 italic"
+                                >
+                                    {{ $t('noResultsFound') }}
                                 </div>
                             </div>
                             <span v-if="showColumnError" class="text-red-500 text-xs mt-1">
