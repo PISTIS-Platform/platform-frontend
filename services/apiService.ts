@@ -40,6 +40,9 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getMarketplaceSparqlEndpoint = () => `https://pistis-market.eu/srv/virtuoso/sparql`;
 
+    const getSCEEUrl = (offerId: string) =>
+        `${config.public.factoryUrl}/srv/smart-contract-execution-engine/api/scee/getTransactionInfo/assetId/${offerId}`;
+
     return {
         baseUrl,
         getSearchUrl,
@@ -58,5 +61,6 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getDatasetDiffUrl,
         getLineageDataUrl,
         getMarketplaceSparqlEndpoint,
+        getSCEEUrl,
     };
 };

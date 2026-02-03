@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useApiService } from '~/services/apiService';
+
+const config = useRuntimeConfig();
+
+const { getSCEEUrl } = useApiService();
 const { data: session } = useAuth();
 const token = ref(session.value?.token);
 
@@ -22,24 +27,60 @@ const props = defineProps({
 
 const router = useRouter();
 
-const {
-    data: isPublishedOnMarketplace,
-    status,
-    error,
-} = useAsyncData(() =>
-    $fetch(`/api/datasets/is-on-marketplace`, {
+const dist = ref([]);
+watchEffect(async () => {
+    dist.value = props.distributions;
+});
+
+const { data, status, error } = useAsyncData(() =>
+    $fetch('/api/datasets/is-on-marketplace', {
         query: { id: props.datasetId },
     }),
 );
 
-const dist = ref([]);
-watchEffect(() => {
-    dist.value = props.distributions;
+// const isPublished = computed(() => data.value?.isPublished);
+const marketplaceResults = computed(() => data.value?.results);
+
+const offerIds = computed(() => {
+    if (!marketplaceResults.value) return [];
+    return marketplaceResults.value.map((offer) => offer.id);
 });
 
-const isPublished = computed(() => isPublishedOnMarketplace.value === true);
+const isOfferBought = async (offerId: string) => {
+    const sceeApi = getSCEEUrl(offerId);
+    try {
+        const response = await $fetch(sceeApi, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token.value}`,
+            },
+        });
+        return !!response;
+    } catch (err) {
+        console.error('SCEE ERROR:', err);
+    }
+};
 
-const canDelete = computed(() => status.value === 'success' && error.value === null && isPublished.value === false);
+const isBought = ref();
+watch(
+    offerIds,
+    async (ids) => {
+        if (!ids.length) {
+            isBought.value = false;
+            return;
+        }
+
+        const results = await Promise.all(ids.map((id) => isOfferBought(id)));
+        isBought.value = results.some(Boolean);
+    },
+    { immediate: true },
+);
+
+const canDelete = computed(() => status.value === 'success' && error.value === null && isBought.value === false);
+
+const openOfferDetailsPage = (offer) => {
+    window.open(`${config.public.factoryUrl}/marketplace/dataset-details/${offer}`);
+};
 
 const showConfirmationWindow = ref(false);
 
@@ -83,41 +124,55 @@ const confirmDelete = async () => {
 
 <template>
     <div v-if="props.catalog === 'my-data'">
-        <UButton
-            v-if="!isPublished && canDelete"
-            variant="solid"
-            color="red"
-            icon="i-heroicons-trash"
-            @click="openConfirmationWindow"
-        >
+        <UButton v-if="canDelete" variant="solid" color="red" icon="i-heroicons-trash" @click="openConfirmationWindow">
             Delete dataset
         </UButton>
-        <UTooltip v-else text="Dataset has been published and cannot be deleted.">
+        <UTooltip v-else text="Dataset has been acquired and cannot be deleted.">
             <UButton :disabled="true" color="red" icon="i-heroicons-trash"> Delete dataset </UButton>
         </UTooltip>
-        <UModal v-model="showConfirmationWindow" :ui="{ width: 'max-w-none w-[500px]' }">
+        <UModal v-model="showConfirmationWindow" :ui="{ width: 'max-w-none w-[650px]' }">
             <div v-if="!deleteSuccess">
-                <h2 class="text-lg font-semibold p-4">Delete dataset?</h2>
+                <h2 class="text-lg text-gray-700 font-semibold p-6">Delete dataset?</h2>
 
-                <p class="px-4">Are you sure you want to delete this dataset? This action cannot be undone.</p>
+                <p class="px-6 font-semibold text-gray-700">
+                    Are you sure you want to delete this dataset? This action cannot be undone.
+                </p>
                 <br />
-                <p class="px-4">The following distribution(s) will also be deleted:</p>
-                <ul class="px-10">
+                <p class="px-6 text-gray-700">The following distribution(s) will also be deleted:</p>
+                <ul class="px-12 text-gray-700">
                     <li v-for="distribution in dist" :key="distribution.id" class="list-disc">
-                        <span class="font-bold text-xs">({{ distribution.format.id }})</span>
+                        <span class="font-bold text-xs text-gray-700">({{ distribution.format.id }})</span>
                         {{ distribution.title?.en }}
                     </li>
                 </ul>
 
-                <div class="flex justify-end space-x-4 p-4">
+                <br /><br />
+                <p class="px-6 font-semibold text-gray-700">
+                    This dataset has not yet been acquired but it has been published in the marketplace.
+                </p>
+                <br />
+                <p class="px-6 text-gray-700">The following offer(s) will also be deleted:</p>
+                <ul class="px-12">
+                    <li
+                        v-for="offer in offerIds"
+                        :key="offer.id"
+                        class="list-disc cursor-pointer underline text-gray-700"
+                        @click="openOfferDetailsPage(offer)"
+                    >
+                        {{ `${config.public.factoryUrl}/marketplace/dataset-details/${offer}` }}
+                        <UIcon name="i-heroicons-arrow-top-right-on-square" class="text-pistis-600"></UIcon>
+                    </li>
+                </ul>
+
+                <div class="flex justify-end space-x-4 p-6">
                     <UButton variant="solid" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>
                     <UButton variant="solid" color="red" @click="confirmDelete">Delete</UButton>
                 </div>
-                <div v-if="isDeleting" class="flex justify-end text-gray-600 px-4 pb-4">
+                <div v-if="isDeleting" class="flex justify-end text-gray-600 px-6 pb-6">
                     <div class="animate-spin rounded-full h-5 w-5 border-t-2"></div>
                     <p class="text-sm italic pl-2">Deleting dataset and distributions...</p>
                 </div>
-                <p v-if="deleteError" class="italic text-red-400 px-4 pb-4 text-sm text-right">
+                <p v-if="deleteError" class="italic text-red-400 px-4 pb-6 text-sm text-right">
                     Something went wrong, please try again.
                 </p>
             </div>
