@@ -38,7 +38,7 @@ const { data, status, error } = useAsyncData(() =>
     }),
 );
 
-// const isPublished = computed(() => data.value?.isPublished);
+const isPublished = computed(() => data.value?.isPublished);
 const marketplaceResults = computed(() => data.value?.results);
 
 const offerIds = computed(() => {
@@ -97,27 +97,45 @@ const confirmDelete = async () => {
 
     isDeleting.value = true;
 
-    try {
-        const response = await $fetch('/api/catalog/delete-dataset', {
-            method: 'DELETE',
-            query: { datasetId: props.datasetId },
-            headers: {
-                Authorization: `Bearer ${token.value}`,
-            },
-        });
+    const deletedFromMarketplace = ref(false);
+    if (isPublished.value) {
+        try {
+            for (const offerId of offerIds.value) {
+                await $fetch('/api/catalog/delete-offer-from-marketplace', {
+                    method: 'DELETE',
+                    query: { offerId: offerId },
+                });
+            }
+            deletedFromMarketplace.value = true;
+        } catch (err) {
+            console.error('DELETE FROM MARKETPLACE ERROR:', err);
+            return;
+        }
+    }
 
-        deleteInfo.value = response.info;
-        deleteSuccess.value = true;
+    if (!isPublished.value || (isPublished.value && deletedFromMarketplace.value)) {
+        try {
+            const response = await $fetch('/api/catalog/delete-dataset', {
+                method: 'DELETE',
+                query: { datasetId: props.datasetId },
+                headers: {
+                    Authorization: `Bearer ${token.value}`,
+                },
+            });
 
-        setTimeout(() => {
-            showConfirmationWindow.value = false;
-            router.back();
-        }, 3500);
-    } catch (err) {
-        console.error('DELETE ERROR:', err);
-        deleteError.value = true;
-    } finally {
-        isDeleting.value = false;
+            deleteInfo.value = response.info;
+            deleteSuccess.value = true;
+
+            setTimeout(() => {
+                showConfirmationWindow.value = false;
+                router.back();
+            }, 3500);
+        } catch (err) {
+            console.error('DELETE ERROR:', err);
+            deleteError.value = true;
+        } finally {
+            isDeleting.value = false;
+        }
     }
 };
 </script>
@@ -146,23 +164,24 @@ const confirmDelete = async () => {
                     </li>
                 </ul>
 
-                <br /><br />
-                <p class="px-6 font-semibold text-gray-700">
-                    This dataset has not yet been acquired but it has been published in the marketplace.
-                </p>
-                <br />
-                <p class="px-6 text-gray-700">The following offer(s) will also be deleted:</p>
-                <ul class="px-12">
-                    <li
-                        v-for="offer in offerIds"
-                        :key="offer.id"
-                        class="list-disc cursor-pointer underline text-gray-700"
-                        @click="openOfferDetailsPage(offer)"
-                    >
-                        {{ `${config.public.factoryUrl}/marketplace/dataset-details/${offer}` }}
-                        <UIcon name="i-heroicons-arrow-top-right-on-square" class="text-pistis-600"></UIcon>
-                    </li>
-                </ul>
+                <div v-if="isPublished">
+                    <p class="px-6 pt-10 font-semibold text-gray-700">
+                        This dataset has not yet been acquired but it has been published in the marketplace.
+                    </p>
+                    <br />
+                    <p class="px-6 text-gray-700">The following offer(s) will also be deleted:</p>
+                    <ul class="px-12">
+                        <li
+                            v-for="offer in offerIds"
+                            :key="offer.id"
+                            class="list-disc cursor-pointer underline text-gray-700"
+                            @click="openOfferDetailsPage(offer)"
+                        >
+                            {{ `${config.public.factoryUrl}/marketplace/dataset-details/${offer}` }}
+                            <UIcon name="i-heroicons-arrow-top-right-on-square" class="text-pistis-600"></UIcon>
+                        </li>
+                    </ul>
+                </div>
 
                 <div class="flex justify-end space-x-4 p-6">
                     <UButton variant="solid" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>
@@ -186,6 +205,12 @@ const confirmDelete = async () => {
                     <ul class="list-disc pl-5">
                         <li v-for="d in deleteInfo.distributions" :key="d.id">
                             <span class="font-medium">{{ d.title }}</span>
+                        </li>
+                    </ul>
+                    <p class="font-semibold my-1">Deleted from marketplace:</p>
+                    <ul class="list-disc pl-5">
+                        <li v-for="offer in offerIds" :key="offer.id">
+                            <span class="font-medium">{{ offer }}</span>
                         </li>
                     </ul>
                     <p class="font-semibold mb-1 mt-3">Dataset was also removed from:</p>
