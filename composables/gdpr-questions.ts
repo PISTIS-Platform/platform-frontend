@@ -1,5 +1,6 @@
 export const useGdprQuestions = async (datasetId: string, distributionId: string) => {
-    const { showSuccessMessage /*, showErrorMessage*/ } = useAlertMessage();
+    const { t } = useI18n();
+    const { showSuccessMessage, showErrorMessage } = useAlertMessage();
     const questionKey = ref('q1');
     const answerRef = ref();
     const gdprCheckerOpen = ref(false);
@@ -315,13 +316,14 @@ export const useGdprQuestions = async (datasetId: string, distributionId: string
             method: 'POST',
             body: answersLog.value,
             onResponse({ response }) {
-                localStorage.setItem('token', response._data.token);
-                console.log({ FE_response: response });
-                if (response.status === 200) {
+                if (response.status === 200 || response.status === 201) {
+                    showSuccessMessage(t('catalogue.successfulGDPR'));
+                } else {
+                    showErrorMessage(t('catalogue.unsuccessfulGDPR'));
                 }
             },
         });
-        showSuccessMessage('Your answers have been submitted successfully to GDPR checker!');
+
         return answersLog.value;
     };
 

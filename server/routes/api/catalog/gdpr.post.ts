@@ -14,12 +14,5 @@ export default defineEventHandler(async (event) => {
         body,
     });
 
-    console.log({ link: `${factoryUrl}/srv/gdpr-checker/api/gdpr_checker/checkGDPRCompliance` });
-    console.log({ body });
-
-    console.log({ BE_response: response });
-
-    console.log(response);
-
     return response;
 });

@@ -27,6 +27,8 @@ export default defineI18nConfig(() => ({
             catalogue: {
                 downloadGDPR: 'Download GDPR Report',
                 downloadDistribution: 'Download Distribution',
+                successfulGDPR: 'Your answers have been submitted successfully to GDPR checker!',
+                unsuccessfulGDPR: 'Could not submit your answers to the GDPR checker',
             },
             companySizes: {
                 SMALL: 'Small',
