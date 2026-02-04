@@ -123,9 +123,7 @@ const incoming = computed(() => transactionsSumsData.value?.incomeTotal || 0);
 const outgoing = computed(() => transactionsSumsData.value?.expensesTotal || 0);
 
 const modalOpen = ref(false);
-// const modalOpen = ref(true);
 const selected = ref();
-// const selected = computed(() => transactionsData.value?.[0]);
 
 const select = (item: any) => {
     selected.value = item;
