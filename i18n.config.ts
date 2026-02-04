@@ -22,6 +22,7 @@ export default defineI18nConfig(() => ({
         en: {
             view: 'View',
             required: 'Required',
+            selected: 'selected',
             monitoring: 'Monitoring',
             countries: countries,
             catalogue: {
@@ -429,6 +430,39 @@ export default defineI18nConfig(() => ({
                     dataset_name: 'Dataset',
                 },
                 designer: {
+                    getAllMyDatasets: 'Get all my datasets',
+                    selectAll: 'Select All',
+                    deselectAll: 'Deselect All',
+                    invertSelection: 'Invert Selection',
+                    tab: {
+                        dateRange: {
+                            title: 'Date Range',
+                            description:
+                                'Select a date range to filter records. Only rows within this period will be shared.',
+                        },
+                        rowRange: {
+                            title: 'Row Range',
+                            description: 'Select a range of rows by their index. Rows are numbered starting from 1.',
+                        },
+                        columnRange: {
+                            title: 'Column Range',
+                            description:
+                                'Select a contiguous range of columns. All columns between the start and end will be included.',
+                        },
+                        selectColumns: {
+                            title: 'Select Columns',
+                            description: 'Choose individual columns to include in the shared dataset.',
+                        },
+                    },
+                    query: {
+                        dateRange: {
+                            dateColumn: 'Date Column',
+                            selectColumn: 'Select a column...',
+                            fromDate: 'From Date',
+                            to: 'to',
+                            toDate: 'To Date',
+                        },
+                    },
                     publishToMarketplace: 'Publish to Marketplace',
                     valuation: {
                         title: 'Data Valuation Rating',
@@ -501,12 +535,13 @@ export default defineI18nConfig(() => ({
                     paid: 'Paid',
                     priceHigherThanTen: 'Price needs to be 10 EUR or higher',
                     title: 'Publish Data',
-                    completeDataset: 'Complete Dataset',
-                    selectDataset: 'Select the complete dataset',
+                    completeDistribution: 'Complete Distribution',
+                    selectDistribution: 'Select the complete distribution',
                     queryFilter: 'Query / Filter',
-                    selectQueryFilter: 'Select a subset of the dataset',
-                    datasetSelected: 'Dataset Selected',
-                    datasetSelectedInfo: 'Information about the dataset you have chosen to publish to the market',
+                    selectQueryFilter: 'Select a subset of the distribution',
+                    distributionSelected: 'Distribution Selected',
+                    distributionSelectedInfo:
+                        'Information about the distribution of the dataset you have chosen to publish to the market',
                     selectDifferent: 'Select a different dataset',
                     areYouSure: 'Are you sure?',
                     willReset: 'Any configuration you have made will be reset.',

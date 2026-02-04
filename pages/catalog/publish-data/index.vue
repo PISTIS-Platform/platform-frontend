@@ -18,6 +18,45 @@ const { t } = useI18n();
 const submitError = ref(false);
 const submitSuccess = ref(false);
 
+// Refs for Child Components
+const datasetSelectorRef = ref();
+const assetOfferingRef = ref();
+
+const dataSelectorIsValid = ref(false);
+
+const triggerDatasetSelectorValidation = () => {
+    if (datasetSelectorRef.value) {
+        datasetSelectorRef.value.triggerValidation();
+    }
+};
+
+const triggerAssetOfferingValidation = () => {
+    if (assetOfferingRef.value) {
+        assetOfferingRef.value.triggerValidation();
+    }
+};
+
+const pendingAssetDetails = ref<AssetOfferingDetails | null>(null);
+
+const handleAssetDetailsUpdate = (newDetails: AssetOfferingDetails) => {
+    const oldDist = assetOfferingDetails.value.selectedDistribution;
+    const newDist = newDetails.selectedDistribution;
+
+    // Check if the Distribution specifically has changed
+    const hasDistributionChanged = oldDist?.id !== newDist?.id;
+
+    // LOGIC: If Distribution changed + We are in Query Mode + New Dist is NOT SQL
+    if (hasDistributionChanged && completeOrQuery.value === DatasetKind.QUERY_FILTER && newDist?.format?.id !== 'SQL') {
+        // 1. Store the intended change, but don't apply it yet
+        pendingAssetDetails.value = newDetails;
+        // 2. Open the warning modal in the child
+        datasetSelectorRef.value?.openSwitchWarning();
+    } else {
+        // Safe change: Apply immediately
+        assetOfferingDetails.value = newDetails;
+    }
+};
+
 const selectedAsset = ref<
     | { id: string | number; title: string; description: string; distributions: Record<string, any>[]; keywords: any[] }
     | undefined
@@ -97,6 +136,22 @@ watch(selectedAsset, () => {
 //data for selection whole dataset or query
 
 const completeOrQuery = ref<string>(DatasetKind.COMPLETE);
+const resetCompleteOrQuery = () => {
+    completeOrQuery.value = DatasetKind.COMPLETE;
+
+    if (datasetSelectorRef.value) {
+        datasetSelectorRef.value.clearForms();
+    }
+
+    if (pendingAssetDetails.value) {
+        assetOfferingDetails.value = pendingAssetDetails.value;
+        pendingAssetDetails.value = null;
+    }
+};
+
+const handleResetCancel = () => {
+    pendingAssetDetails.value = null;
+};
 const newAssetId = uuidV4();
 
 // data for asset offering details
@@ -312,7 +367,7 @@ const steps = computed(() => [
     { name: t('data.designer.nav.selectDataset'), isActive: selectedAsset.value },
     {
         name: t('data.designer.nav.monetizationPlanner'),
-        isActive: selectedAsset.value && isAssetOfferingDetailsValid.value,
+        isActive: selectedAsset.value,
     },
     {
         name: t('data.designer.nav.licenseSelector'),
@@ -371,14 +426,19 @@ const changeStep = async (stepNum: number) => {
             variant="subtle"
             icon="nonicons:not-found-16"
         />
-        <UCard v-if="!hasRouteAssetId || !dataset">
+        <UCard>
             <template #header>
-                <div class="flex items-center gap-4">
-                    <UIcon name="oui:pages-select" class="w-10 h-10 text-gray-500" />
-                    <SubHeading
-                        :title="$t('data.investmentPlanner.datasetSelectorTitle')"
-                        :info="$t('data.investmentPlanner.datasetSelectorInfo')"
-                    />
+                <div class="flex items-start justify-between w-full">
+                    <div class="flex items-center gap-4">
+                        <UIcon name="oui:pages-select" class="w-10 h-10 text-gray-500" />
+                        <SubHeading
+                            :title="$t('data.investmentPlanner.datasetSelectorTitle')"
+                            :info="$t('data.investmentPlanner.datasetSelectorInfo')"
+                        />
+                    </div>
+                    <div v-if="hasRouteAssetId && transformedDatasets.length <= 1">
+                        <UButton variant="outline" @click="refresh">{{ $t('data.designer.getAllMyDatasets') }}</UButton>
+                    </div>
                 </div>
             </template>
             <USelectMenu
@@ -397,12 +457,7 @@ const changeStep = async (stepNum: number) => {
                 </template>
             </USelectMenu>
         </UCard>
-        <DatasetSelector
-            v-if="selectedAsset"
-            :selected="selectedAsset"
-            :complete-or-query="completeOrQuery"
-            @update:complete-or-query="(value: string) => (completeOrQuery = value)"
-        />
+
         <div>
             <div class="w-full flex items-center justify-end gap-4">
                 <UButton v-if="selectedAsset" size="md" type="submit" @click="changeStep(1)">{{ $t('next') }} </UButton>
@@ -411,21 +466,42 @@ const changeStep = async (stepNum: number) => {
     </div>
 
     <div v-show="selectedPage === 1" class="w-full h-full text-gray-700 space-y-8">
-        <!-- <FairSuggestions v-model="fairValuationInfo" :loading-valuation="loadingValuation" /> -->
         <AssetOfferingDetails
-            v-model:asset-details-prop="assetOfferingDetails"
+            v-if="selectedAsset"
+            ref="assetOfferingRef"
+            :asset-details-prop="assetOfferingDetails"
+            :selected-asset="selectedAsset"
             :monetization-details="monetizationDetails"
+            @update:asset-details-prop="handleAssetDetailsUpdate"
             @update:asset-keywords="(value: string[]) => (assetOfferingDetails.keywords = value)"
             @change-page="changeStep"
         />
+        <DatasetSelector
+            v-if="selectedAsset"
+            ref="datasetSelectorRef"
+            :selected="selectedAsset"
+            :asset-offering-details="assetOfferingDetails"
+            :monetization-details="monetizationDetails"
+            :complete-or-query="completeOrQuery"
+            @update:complete-or-query="(value: string) => (completeOrQuery = value)"
+            @reset="resetCompleteOrQuery"
+            @cancel="handleResetCancel"
+            @update:data-selector-is-valid="(val) => (dataSelectorIsValid = val)"
+        />
+
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
             :asset-on-marketplace="isAssetOnMarketplace"
+            :data-selector-is-valid="dataSelectorIsValid"
+            :complete-or-query="completeOrQuery"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
             @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
+            @trigger-external-validation="triggerDatasetSelectorValidation"
+            @trigger-asset-validation="triggerAssetOfferingValidation"
+            @reset-dataset-selector="resetCompleteOrQuery"
         />
     </div>
 

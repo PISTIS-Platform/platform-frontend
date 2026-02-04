@@ -15,7 +15,13 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    selectedAsset: {
+        type: Object,
+        required: true,
+    },
 });
+
+const selectedAsset = computed(() => props.selectedAsset);
 
 const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid', 'changePage']);
 
@@ -63,6 +69,16 @@ const customValidate = () => {
 
 const formRef = ref();
 
+const triggerValidation = async () => {
+    if (formRef.value) {
+        await formRef.value.validate().catch(() => {});
+    }
+};
+
+defineExpose({
+    triggerValidation,
+});
+
 watch(
     () => assetOfferingDetails.value.keywords,
     () => {
@@ -70,6 +86,17 @@ watch(
             formRef.value.clear('keywords');
         } else {
             formRef.value.setErrors([{ path: 'keywords', message: t('required') }], 'keywords');
+        }
+    },
+);
+
+watch(
+    () => props.monetizationDetails,
+    () => {
+        if (props.monetizationDetails.type === MonetizationType.NFT) {
+            assetOfferingDetails.value.title = selectedAsset.value.title;
+            assetOfferingDetails.value.description = selectedAsset.value.description;
+            assetOfferingDetails.value.keywords = selectedAsset.value.keywords || [];
         }
     },
 );
@@ -131,8 +158,11 @@ watch(
                     eager-validation
                 >
                     <USelectMenu
-                        v-model="assetOfferingDetails.selectedDistribution"
+                        :model-value="assetOfferingDetails.selectedDistribution"
                         :options="assetOfferingDetails.distributions"
+                        @update:model-value="
+                            (val) => (assetOfferingDetails = { ...assetOfferingDetails, selectedDistribution: val })
+                        "
                     >
                     </USelectMenu>
                 </UFormGroup>
@@ -144,7 +174,6 @@ watch(
                     :ui="{ error: 'absolute -bottom-6' }"
                     eager-validation
                 >
-                    <!--Had to use separate event other than update:asset-offering-details as component would not cooperate -->
                     <vue3-tags-input
                         class="mb-3"
                         :tags="assetOfferingDetails.keywords"
@@ -155,9 +184,6 @@ watch(
                 </UFormGroup>
             </div>
         </UCard>
-        <!-- <div class="w-full flex items-center justify-end gap-4">
-            <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
-        </div> -->
     </UForm>
 </template>
 

@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 import type CardSelection from '~/interfaces/card-selection';
+import { DatasetKind } from '~/interfaces/dataset.enum';
 import { SubscriptionFrequency } from '~/interfaces/subscription-frequency.enum';
 import { UpdateFrequency } from '~/interfaces/update-frequency.enum';
 
@@ -20,6 +21,14 @@ const props = defineProps({
     },
     assetOnMarketplace: {
         type: Boolean,
+        required: true,
+    },
+    dataSelectorIsValid: {
+        type: Boolean,
+        required: true,
+    },
+    completeOrQuery: {
+        type: String,
         required: true,
     },
 });
@@ -113,6 +122,8 @@ const resetMonetization = (monetizationType: 'one-off' | 'subscription' | 'nft')
 };
 
 const monetizationToSend = ref();
+const showResetModal = ref(false);
+const pendingMonetizationType = ref('');
 
 const monetizationSelections: CardSelection[] = [
     {
@@ -140,6 +151,9 @@ const emit = defineEmits([
     'update:has-personal-data',
     'changePage',
     'update:isAllValid',
+    'trigger-external-validation',
+    'trigger-asset-validation',
+    'reset-dataset-selector',
 ]);
 
 const formRef = ref();
@@ -151,19 +165,52 @@ const updateFree = (value: boolean) => {
 };
 
 const handleMonetizationClick = (value: string) => {
+    if (value === 'nft' && props.completeOrQuery === DatasetKind.QUERY_FILTER) {
+        pendingMonetizationType.value = value;
+        showResetModal.value = true;
+        return;
+    }
+
     monetizationToSend.value = value;
     resetMonetization(monetizationToSend.value);
+    monetizationDetails.value.type = value;
+};
+
+const confirmReset = () => {
+    showResetModal.value = false;
+
+    monetizationToSend.value = pendingMonetizationType.value;
+    resetMonetization(monetizationToSend.value);
+    monetizationDetails.value.type = pendingMonetizationType.value;
+
+    emit('reset-dataset-selector');
+};
+
+const cancelReset = () => {
+    showResetModal.value = false;
+    pendingMonetizationType.value = '';
 };
 
 async function onSubmit(): Promise<void> {
     if (monetizationDetails.value.type === 'nft' && props.assetOnMarketplace) {
         showErrorMessage(t('data.designer.nftNotPossible'));
-    } else if (isMonetizationValid.value && isAssetOfferingDetailsValid.value) {
+    } else if (isMonetizationValid.value && isAssetOfferingDetailsValid.value && props.dataSelectorIsValid) {
         emit('changePage', 2);
     } else {
-        if (props.assetOfferingDetails.keywords.length < 1) {
-            showErrorMessage(t('data.designer.pleaseKeywords'));
+        // Trigger Asset Offering Validation
+        if (!isAssetOfferingDetailsValid.value) {
+            emit('trigger-asset-validation');
+            if (props.assetOfferingDetails.keywords.length < 1) {
+                showErrorMessage(t('data.designer.pleaseKeywords'));
+            }
         }
+
+        // Trigger Dataset Selector Validation
+        if (!props.dataSelectorIsValid) {
+            emit('trigger-external-validation');
+        }
+
+        // Show generic error message
         showErrorMessage(t('data.designer.pleaseCheck'));
     }
 }
@@ -178,10 +225,6 @@ const customValidate = () => {
     }
     return monetizationErrors;
 };
-
-//NFT Functionality
-
-//TODO: Make call to see if NFT of this dataset already exists (not allowed to make NFT)
 </script>
 
 <template>
@@ -417,4 +460,17 @@ const customValidate = () => {
             <UButton size="md" type="submit" @click="onSubmit">{{ $t('next') }} </UButton>
         </div>
     </UForm>
+
+    <UModal v-model="showResetModal">
+        <UCard class="flex flex-col justify-center items-center text-center text-gray-700 h-40">
+            <p class="font-bold text-xl">{{ $t('data.designer.areYouSure') }}</p>
+            <p class="text-gray-400 mt-6">{{ $t('data.designer.willReset') }}</p>
+            <div class="flex gap-8 w-full justify-center mt-6">
+                <UButton color="white" class="w-20 flex justify-center" @click="cancelReset">{{
+                    $t('cancel')
+                }}</UButton>
+                <UButton class="w-20 flex justify-center" @click="confirmReset">{{ $t('yes') }}</UButton>
+            </div>
+        </UCard>
+    </UModal>
 </template>
