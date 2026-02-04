@@ -1,10 +1,10 @@
-export const useGdprQuestions = (datasetId: string) => {
+export const useGdprQuestions = async (datasetId: string, distributionId: string) => {
     const { showSuccessMessage /*, showErrorMessage*/ } = useAlertMessage();
     const questionKey = ref('q1');
     const answerRef = ref();
     const gdprCheckerOpen = ref(false);
     const showInfo = ref(false);
-    const answersLog = ref<Record<string, any>>({});
+    const answersLog = ref<Record<string, any>>({ assetId: '', distributionId: '', questionnaire: {} });
 
     const information = {
         p1: 'Indicative questions for PISTIS Personal Data Check tool',
@@ -217,8 +217,9 @@ export const useGdprQuestions = (datasetId: string) => {
 
     const saveCurrentAnswer = () => {
         if (answerRef.value) {
-            answersLog.value['datasetId'] = datasetId;
-            answersLog.value[questionKey.value] = answerRef.value;
+            answersLog.value['assetId'] = datasetId;
+            answersLog.value['distributionId'] = distributionId;
+            answersLog.value.questionnaire[questionKey.value] = answerRef.value;
         }
     };
 
@@ -305,11 +306,21 @@ export const useGdprQuestions = (datasetId: string) => {
         resetState();
         gdprCheckerOpen.value = false;
     };
-    const submit = () => {
+    const submit = async () => {
         console.log('Final Answers:', answersLog.value);
         gdprCheckerOpen.value = false;
         questionKey.value = 'q1';
         answerRef.value = null;
+        await useFetch('/api/catalog/gdpr', {
+            method: 'POST',
+            body: answersLog.value,
+            onResponse({ response }) {
+                localStorage.setItem('token', response._data.token);
+                console.log({ FE_response: response });
+                if (response.status === 200) {
+                }
+            },
+        });
         showSuccessMessage('Your answers have been submitted successfully to GDPR checker!');
         return answersLog.value;
     };
