@@ -25,6 +25,7 @@ interface CardProps {
     distributionId: string;
     pistisSchema: object;
     data: PropertyTableEntryNode;
+    assetUuid: string;
     onSave?: () => void;
 }
 
@@ -228,7 +229,7 @@ const {
     information,
     answersLog,
     showReport,
-} = await useGdprQuestions(props.datasetId, props.distributionId);
+} = await useGdprQuestions(props.assetUuid, props.distributionId);
 </script>
 
 <template>

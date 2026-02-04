@@ -19,6 +19,14 @@ const pistisMode = route.query.pm;
 
 const { getDatasetUrl } = useApiService(pistisMode);
 
+const getAssetUUIDFromDistribution = (distribution: any) => {
+    console.log({ distribution });
+    if (distribution['accessUrls'] && distribution['accessUrls'][0]) {
+        const url = new URL(distribution['accessUrls'][0]);
+        return url.searchParams.get('asset_uuid') || '';
+    }
+};
+
 const datasetId = useRouteParams('datasetId');
 
 ensureDatasetId(datasetId);
@@ -74,6 +82,7 @@ const fetchDistributionMetadata = async () => {
     try {
         const response = await fetch(searchUrl);
         distributionMetadata.value = await response.json();
+        console.log({ metadata: distributionMetadata.value });
     } catch (error) {
         console.error('Error fetching metadata:', error);
     }
@@ -175,6 +184,7 @@ onMounted(() => {
                                 :dataset-id="datasetId"
                                 :distribution-id="distribution.id"
                                 :pistis-schema="distribution.pistisSchema"
+                                :asset-uuid="getAssetUUIDFromDistribution(distribution)"
                             />
                             <div
                                 v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"
