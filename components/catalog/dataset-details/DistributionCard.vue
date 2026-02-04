@@ -228,8 +228,7 @@ const {
     information,
     answersLog,
     showReport,
-} = useGdprQuestions(props.datasetId);
-console.log(answersLog.value);
+} = await useGdprQuestions(props.datasetId, props.distributionId);
 </script>
 
 <template>

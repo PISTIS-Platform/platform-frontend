@@ -1,10 +1,11 @@
-export const useGdprQuestions = (datasetId: string) => {
-    const { showSuccessMessage /*, showErrorMessage*/ } = useAlertMessage();
+export const useGdprQuestions = async (datasetId: string, distributionId: string) => {
+    const { t } = useI18n();
+    const { showSuccessMessage, showErrorMessage } = useAlertMessage();
     const questionKey = ref('q1');
     const answerRef = ref();
     const gdprCheckerOpen = ref(false);
     const showInfo = ref(false);
-    const answersLog = ref<Record<string, any>>({});
+    const answersLog = ref<Record<string, any>>({ assetId: '', distributionId: '', questionnaire: {} });
 
     const information = {
         p1: 'Indicative questions for PISTIS Personal Data Check tool',
@@ -217,8 +218,9 @@ export const useGdprQuestions = (datasetId: string) => {
 
     const saveCurrentAnswer = () => {
         if (answerRef.value) {
-            answersLog.value['datasetId'] = datasetId;
-            answersLog.value[questionKey.value] = answerRef.value;
+            answersLog.value['assetId'] = datasetId;
+            answersLog.value['distributionId'] = distributionId;
+            answersLog.value.questionnaire[questionKey.value] = answerRef.value;
         }
     };
 
@@ -305,12 +307,22 @@ export const useGdprQuestions = (datasetId: string) => {
         resetState();
         gdprCheckerOpen.value = false;
     };
-    const submit = () => {
-        console.log('Final Answers:', answersLog.value);
+    const submit = async () => {
         gdprCheckerOpen.value = false;
         questionKey.value = 'q1';
         answerRef.value = null;
-        showSuccessMessage('Your answers have been submitted successfully to GDPR checker!');
+        await useFetch('/api/catalog/gdpr', {
+            method: 'POST',
+            body: answersLog.value,
+            onResponse({ response }) {
+                if (response.status === 200 || response.status === 201) {
+                    showSuccessMessage(t('catalogue.successfulGDPR'));
+                } else {
+                    showErrorMessage(t('catalogue.unsuccessfulGDPR'));
+                }
+            },
+        });
+
         return answersLog.value;
     };
 
