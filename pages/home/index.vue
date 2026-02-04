@@ -320,7 +320,7 @@ const generatePDF = () => {
                         <span>{{ selected.factoryBuyerName }}</span>
                     </div>
                 </div>
-                <div class="w-full flex flex-col gap-1">
+                <div v-if="decodedTerms" class="w-full flex flex-col gap-1">
                     <span class="text-gray-400">{{ $t('transactions.terms') }}</span>
                     <div class="max-h-96 flex flex-col gap-2 overflow-y-scroll scrollbar pr-6">
                         <div class="prose text-sm prose-h2:text-center max-w-full" v-html="decodedTerms"></div>
