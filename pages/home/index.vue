@@ -5,8 +5,6 @@ import dayjs from 'dayjs';
 import htmlToPdfmake from 'html-to-pdfmake';
 import * as R from 'ramda';
 
-const { $pdfMake } = useNuxtApp();
-
 const { data: session } = useAuth();
 
 const currentBalance = ref();
@@ -130,18 +128,36 @@ const select = (item: any) => {
     modalOpen.value = true;
 };
 
-const decodedTerms = computed(() => decodeURIComponent(atob(selected.value.terms || '')));
-
-const pdfContentArray = computed(() => {
-    const htmlString = decodedTerms.value;
-    if (!htmlString || typeof window === 'undefined') {
-        return [];
+const decodedTerms = computed(() => {
+    const termString = selected.value.terms || '';
+    try {
+        return decodeURIComponent(atob(termString));
+    } catch (e) {
+        return termString;
     }
-    return htmlToPdfmake(htmlString);
 });
 
 const generatePDF = () => {
     if (!selected.value) return;
+
+    const { $pdfMake } = useNuxtApp();
+
+    let termsContent: any[] = [];
+
+    if (decodedTerms.value) {
+        const safeHtml = decodedTerms.value.includes('<')
+            ? decodedTerms.value
+            : `<div>${decodedTerms.value.replace(/\n/g, '<br>')}</div>`;
+
+        const convert = (htmlToPdfmake as any).default || htmlToPdfmake;
+
+        try {
+            termsContent = convert(safeHtml);
+        } catch (e) {
+            console.error('PDF HTML conversion failed, falling back to text', e);
+            termsContent = [{ text: decodedTerms.value }];
+        }
+    }
 
     const docDefinition = {
         content: [
@@ -175,8 +191,8 @@ const generatePDF = () => {
 
             { text: t('transactions.consumer'), style: 'subheading' },
             { text: selected.value.factoryBuyerName },
-            // { text: t('transactions.terms'), style: 'subheading' },
-            ...pdfContentArray.value,
+            { text: decodedTerms.value ? t('transactions.terms') : '', style: 'subheading' },
+            ...termsContent,
         ],
         styles: {
             heading: {
@@ -198,11 +214,9 @@ const generatePDF = () => {
                 color: '#705df7',
             },
         },
-        // Optional: Adjust page margins, orientation, etc.
         pageMargins: [40, 60, 40, 60],
     };
 
-    // Create and download the PDF
     $pdfMake.createPdf(docDefinition).download(`transaction_details_${selected.value.transactionId}.pdf`);
 };
 </script>
@@ -304,6 +318,12 @@ const generatePDF = () => {
                             {{ $t('transactions.consumer') }}
                         </span>
                         <span>{{ selected.factoryBuyerName }}</span>
+                    </div>
+                </div>
+                <div class="w-full flex flex-col gap-1">
+                    <span class="text-gray-400">{{ $t('transactions.terms') }}</span>
+                    <div class="max-h-96 flex flex-col gap-2 overflow-y-scroll scrollbar pr-6">
+                        <div class="prose text-sm prose-h2:text-center max-w-full" v-html="decodedTerms"></div>
                     </div>
                 </div>
             </div>
