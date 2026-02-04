@@ -54,7 +54,6 @@ const fetchMetadata = async () => {
     try {
         const response = await fetch(searchUrl);
         const data = await response.json();
-        console.log({ data: data.result });
         copyData.topic = `ds-${data.result.id}`;
         catalog.value = data.result.catalog.id;
         isTransformed.value = data.result.distributions.some((transformation) => transformation?.is_transformed);
@@ -230,7 +229,6 @@ const {
     answersLog,
     showReport,
 } = await useGdprQuestions(props.datasetId, props.distributionId);
-console.log(answersLog.value);
 </script>
 
 <template>
