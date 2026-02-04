@@ -1,12 +1,23 @@
 <script setup lang="ts">
 const { t } = useI18n();
+import { useClipboard } from '@vueuse/core';
 import dayjs from 'dayjs';
+import htmlToPdfmake from 'html-to-pdfmake';
 import * as R from 'ramda';
+
+const { $pdfMake } = useNuxtApp();
 
 const { data: session } = useAuth();
 
 const currentBalance = ref();
 const isLoadingWallet = ref(true);
+
+const { copy: copyAsset, copied: copiedAsset } = useClipboard({});
+const { copy: copyTransaction, copied: copiedTransaction } = useClipboard({});
+
+const truncateId = (item: string, length: number) => {
+    return item.length > length ? item.slice(0, length) + '...' : item;
+};
 
 await useLazyFetch(`/api/wallet`, {
     method: 'post',
@@ -110,9 +121,196 @@ const {
 
 const incoming = computed(() => transactionsSumsData.value?.incomeTotal || 0);
 const outgoing = computed(() => transactionsSumsData.value?.expensesTotal || 0);
+
+const modalOpen = ref(false);
+// const modalOpen = ref(true);
+const selected = ref();
+// const selected = computed(() => transactionsData.value?.[0]);
+
+const select = (item: any) => {
+    selected.value = item;
+    modalOpen.value = true;
+};
+
+const decodedTerms = computed(() => decodeURIComponent(atob(selected.value.terms || '')));
+
+const pdfContentArray = computed(() => {
+    const htmlString = decodedTerms.value;
+    if (!htmlString || typeof window === 'undefined') {
+        return [];
+    }
+    return htmlToPdfmake(htmlString);
+});
+
+const generatePDF = () => {
+    if (!selected.value) return;
+
+    const docDefinition = {
+        content: [
+            { text: 'PISTIS - ' + t('transactions.transactionDetails'), style: 'heading' },
+            { text: t('transactions.date'), style: 'subheading' },
+            { text: dayjs(selected.value.createdAt).format('YYYY-MM-DD HH:mm:ss') },
+            { text: t('transactions.transactionId'), style: 'subheading' },
+            { text: selected.value.transactionId },
+            { text: t('transactions.assetId'), style: 'subheading' },
+            { text: selected.value.assetId },
+            { text: t('transactions.assetName'), style: 'subheading' },
+            {
+                text: selected.value.assetName,
+            },
+            { text: t('transactions.amount'), style: 'subheading' },
+            { text: selected.value.amount.toFixed(2) + ' EUR' },
+            { text: t('transactions.amountToProvider'), style: 'subheading' },
+            {
+                text: R.isNil(selected.value.transactionFee)
+                    ? `${selected.value.amount.toFixed(2)} EUR`
+                    : `${(selected.value.amount - selected.value.transactionFee).toFixed(2)} EUR`,
+            },
+            { text: t('transactions.transactionFee'), style: 'subheading' },
+            {
+                text: R.isNil(selected.value.transactionFee)
+                    ? 'None'
+                    : `${selected.value.transactionFee.toFixed(2)} EUR`,
+            },
+            { text: t('transactions.provider'), style: 'subheading' },
+            { text: selected.value.factorySellerName },
+
+            { text: t('transactions.consumer'), style: 'subheading' },
+            { text: selected.value.factoryBuyerName },
+            // { text: t('transactions.terms'), style: 'subheading' },
+            ...pdfContentArray.value,
+        ],
+        styles: {
+            heading: {
+                fontSize: 18,
+                bold: true,
+                margin: [0, 0, 0, 10],
+                color: '#705df7',
+            },
+            subheading: {
+                fontSize: 13,
+                bold: true,
+                margin: [0, 15, 0, 5],
+            },
+            body: {
+                fontSize: 12,
+                lineHeight: 1.2,
+            },
+            link: {
+                color: '#705df7',
+            },
+        },
+        // Optional: Adjust page margins, orientation, etc.
+        pageMargins: [40, 60, 40, 60],
+    };
+
+    // Create and download the PDF
+    $pdfMake.createPdf(docDefinition).download(`transaction_details_${selected.value.transactionId}.pdf`);
+};
 </script>
 
 <template>
+    <UModal v-model="modalOpen" :ui="{ width: 'w-full sm:max-w-[1000px]' }" class="text-gray-600 relative">
+        <UIcon
+            name="material-symbols-light:close"
+            class="w-6 h-6 absolute right-2 top-2 cursor-pointer"
+            @click="modalOpen = false"
+        />
+        <UCard>
+            <template #header>
+                <span class="text-primary-600 font-semibold">{{ $t('transactions.transactionDetails') }}</span>
+                <UButton size="xs" icon="fa6-solid:file-pdf" class="focus:outline-none ml-4" @click="generatePDF">{{
+                    $t('transactions.downloadPDF')
+                }}</UButton>
+            </template>
+            <div v-if="selected" class="w-full flex flex-col gap-4 text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.date') }}
+                        </span>
+                        <span>{{ dayjs(selected.createdAt).format('DD/MM/YYYY') }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.transactionId') }}
+                        </span>
+                        <span
+                            >{{ truncateId(selected.transactionId, 20) }}
+                            <UIcon
+                                name="mingcute:copy-line"
+                                class="w-4 h-4 cursor-pointer"
+                                @click="copyTransaction(selected.transactionId)"
+                            />
+                            <UIcon
+                                v-show="copiedTransaction"
+                                name="ic:baseline-check"
+                                class="w-4 h-4 text-green-500 transition-all duration-100"
+                            />
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.assetId') }}
+                        </span>
+                        <span
+                            >{{ truncateId(selected.assetId, 20) }}
+                            <UIcon
+                                name="mingcute:copy-line"
+                                class="w-4 h-4 cursor-pointer"
+                                @click="copyAsset(selected.assetId)"
+                            />
+                            <UIcon
+                                v-show="copiedAsset"
+                                name="ic:baseline-check"
+                                class="w-4 h-4 text-green-500 transition-all duration-100"
+                            />
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.assetTitle') }}
+                        </span>
+                        <span>{{ selected.assetName }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.fullAmount') }}
+                        </span>
+                        <span>{{ selected.amount.toFixed(2) }} EUR</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.detailedAmount') }}
+                        </span>
+                        <span
+                            >{{ (selected.amount - selected.transactionFee).toFixed(2) }} EUR /
+                            {{ selected.transactionFee.toFixed(2) }} EUR</span
+                        >
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.provider') }}
+                        </span>
+                        <span>{{ selected.factorySellerName }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.consumer') }}
+                        </span>
+                        <span>{{ selected.factoryBuyerName }}</span>
+                    </div>
+                </div>
+            </div>
+        </UCard>
+    </UModal>
     <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full pt-6">
         <ErrorCard
             v-if="error || transactionsSumsError"
@@ -152,6 +350,8 @@ const outgoing = computed(() => transactionsSumsData.value?.expensesTotal || 0);
                             icon: 'i-heroicons-circle-stack-20-solid',
                             label: $t('data.wallet.noTransactions'),
                         }"
+                        :single-select="true"
+                        @select="select"
                     >
                         <template #createdAt-data="{ row }">
                             <span v-if="row.createdAt" class="flex items-center justify-center">{{

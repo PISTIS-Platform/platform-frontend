@@ -93,6 +93,7 @@ export default defineNuxtConfig({
         '@nuxt/ui',
         '@nuxt/icon',
         'unplugin-icons/nuxt',
+        'nuxt-pdfmake',
     ],
 
     // Modules Configuration
