@@ -308,7 +308,6 @@ export const useGdprQuestions = async (datasetId: string, distributionId: string
         gdprCheckerOpen.value = false;
     };
     const submit = async () => {
-        console.log('Final Answers:', answersLog.value);
         gdprCheckerOpen.value = false;
         questionKey.value = 'q1';
         answerRef.value = null;
