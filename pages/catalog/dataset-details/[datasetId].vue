@@ -20,6 +20,7 @@ const pistisMode = route.query.pm;
 const { getDatasetUrl } = useApiService(pistisMode);
 
 const datasetId = useRouteParams('datasetId');
+const catalogId = ref('');
 
 ensureDatasetId(datasetId);
 
@@ -74,6 +75,7 @@ const fetchDistributionMetadata = async () => {
     try {
         const response = await fetch(searchUrl);
         distributionMetadata.value = await response.json();
+        catalogId.value = distributionMetadata.value.result?.catalog?.id;
     } catch (error) {
         console.error('Error fetching metadata:', error);
     }
@@ -226,6 +228,7 @@ onMounted(() => {
                         data: resultEnhanced?.getPropertyTable2 || undefined,
                     }"
                     :pistis-mode="'factory'"
+                    :catalog-id="catalogId"
                 />
             </template>
         </DetailsPage>
