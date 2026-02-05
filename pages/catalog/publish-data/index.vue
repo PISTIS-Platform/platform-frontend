@@ -497,8 +497,6 @@ const changeStep = async (stepNum: number) => {
             :complete-or-query="completeOrQuery"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
-            @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
-            @update:has-personal-data="(value: boolean) => (hasPersonalData = value)"
             @trigger-external-validation="triggerDatasetSelectorValidation"
             @trigger-asset-validation="triggerAssetOfferingValidation"
             @reset-dataset-selector="resetCompleteOrQuery"

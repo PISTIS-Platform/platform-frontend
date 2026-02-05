@@ -146,9 +146,6 @@ const monetizationSelections: CardSelection[] = [
 const emit = defineEmits([
     'update:monetization-details-prop',
     'update:is-free',
-    'update:is-worldwide',
-    'update:is-perpetual',
-    'update:has-personal-data',
     'changePage',
     'trigger-external-validation',
     'trigger-asset-validation',
