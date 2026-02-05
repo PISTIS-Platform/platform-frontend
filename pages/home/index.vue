@@ -277,11 +277,12 @@ const generatePDF = () => {
 <template>
     <UModal v-model="modalOpen" :ui="{ width: 'w-full sm:max-w-[1000px]' }" class="text-gray-600 relative">
         <UIcon
+            v-if="marketplaceStatus !== 'pending'"
             name="material-symbols-light:close"
             class="w-6 h-6 absolute right-2 top-2 cursor-pointer"
             @click="modalOpen = false"
         />
-        <div v-if="marketplaceStatus === 'pending'" class="flex flex-col w-full text-lg mt-6">
+        <div v-if="marketplaceStatus === 'pending'" class="flex flex-col w-full text-lg py-4 px-4">
             <UProgress animation="carousel" color="primary" />
         </div>
         <UCard v-else>
