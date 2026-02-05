@@ -26,10 +26,27 @@ const additionalFilters = computed(() => [
     },
 ]);
 
-const mergedFacetGroups = computed(() => [
-    ...facets.value.filter((f) => f.items.length > 0),
-    ...additionalFilters.value,
-]);
+const mergedFacetGroups = computed(() => {
+    const result = [];
+    const baseFacets = facets.value.filter((f) => f.items.length > 0);
+
+    const hasMonetizationFacet = ref(false);
+
+    for (const facet of baseFacets) {
+        result.push(facet);
+
+        if (facet.id === 'monetizationType') {
+            result.push(...additionalFilters.value);
+            hasMonetizationFacet.value = true;
+        }
+    }
+
+    if (!hasMonetizationFacet.value) {
+        result.push(...additionalFilters.value);
+    }
+
+    return result;
+});
 
 const emit = defineEmits(['update:modelValue']);
 
