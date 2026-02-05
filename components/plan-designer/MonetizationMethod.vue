@@ -150,7 +150,6 @@ const emit = defineEmits([
     'update:is-perpetual',
     'update:has-personal-data',
     'changePage',
-    'update:isAllValid',
     'trigger-external-validation',
     'trigger-asset-validation',
     'reset-dataset-selector',

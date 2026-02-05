@@ -23,7 +23,7 @@ const props = defineProps({
 
 const selectedAsset = computed(() => props.selectedAsset);
 
-const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'isValid', 'changePage']);
+const emit = defineEmits(['update:asset-details-prop', 'update:asset-keywords', 'changePage']);
 
 const schema = z.object({
     title: z.string().min(1, t('required', { count: 1 })),
