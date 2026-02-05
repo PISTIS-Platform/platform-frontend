@@ -209,6 +209,41 @@ const generatePDF = () => {
 
             { text: t('transactions.consumer'), style: 'subheading' },
             { text: selected.value.factoryBuyerName },
+
+            { text: t('data.designer.monetizationMethod'), style: 'subheading' },
+            { text: subscriptionMapping[monetization.value?.type] },
+
+            { text: t('data.designer.price'), style: 'subheading' },
+            {
+                text: monetization.value?.is_free
+                    ? t('data.designer.free')
+                    : monetization.value?.type === 'subscription'
+                      ? monetization.value?.price.toFixed(2) + ' EUR ' + monetization.value?.subscription_frequency
+                      : monetization.value?.price.toFixed(2) + ' EUR',
+            },
+            monetization.value?.type === 'subscription'
+                ? {
+                      text: t('data.designer.dataUpdateFrequency'),
+                      style: 'subheading',
+                  }
+                : {},
+            monetization.value?.type === 'subscription' ? { text: monetization.value?.update_frequency } : {},
+
+            { text: t('data.designer.numberOfResell'), style: 'subheading' },
+            { text: monetization.value?.num_resell },
+
+            { text: t('exclusive'), style: 'subheading' },
+            { text: monetization.value?.is_exclusive ? $('yes') : t('no') },
+
+            { text: t('data.designer.transferable'), style: 'subheading' },
+            { text: monetization.value?.transferable },
+
+            { text: t('data.designer.duration.title'), style: 'subheading' },
+            { text: durationSelections.find((item) => item.value === monetization.value?.duration)?.label },
+
+            { text: t('license'), style: 'subheading' },
+            { text: monetization.value?.license?.label },
+
             { text: decodedTerms.value ? t('transactions.terms') : '', style: 'subheading' },
             ...termsContent,
         ],
