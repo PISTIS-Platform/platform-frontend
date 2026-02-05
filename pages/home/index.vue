@@ -1,12 +1,29 @@
 <script setup lang="ts">
 const { t } = useI18n();
+import { useClipboard } from '@vueuse/core';
 import dayjs from 'dayjs';
+import htmlToPdfmake from 'html-to-pdfmake';
 import * as R from 'ramda';
 
 const { data: session } = useAuth();
 
+const subscriptionMapping: Record<string, string> = {
+    subscription: t('data.designer.subscription'),
+    'one-off': t('data.designer.oneOffSale'),
+    nft: 'NFT',
+};
+
+const { durationSelections } = useLicenseSchema(null);
+
 const currentBalance = ref();
 const isLoadingWallet = ref(true);
+
+const { copy: copyAsset, copied: copiedAsset } = useClipboard({});
+const { copy: copyTransaction, copied: copiedTransaction } = useClipboard({});
+
+const truncateId = (item: string, length: number) => {
+    return item.length > length ? item.slice(0, length) + '...' : item;
+};
 
 await useLazyFetch(`/api/wallet`, {
     method: 'post',
@@ -110,9 +127,345 @@ const {
 
 const incoming = computed(() => transactionsSumsData.value?.incomeTotal || 0);
 const outgoing = computed(() => transactionsSumsData.value?.expensesTotal || 0);
+
+const modalOpen = ref(false);
+const selected = ref();
+
+const select = (item: any) => {
+    selected.value = item;
+    modalOpen.value = true;
+};
+
+const { data: marketplaceData, status: marketplaceStatus } = useFetch(`/api/datasets/get-specific-marketplace`, {
+    query: {
+        id: computed(() => selected.value?.assetId || ''),
+    },
+    immediate: false,
+    watch: [selected],
+});
+
+const monetization = computed(() => marketplaceData.value?.monetization?.[0].purchase_offer?.[0]);
+
+const decodedTerms = computed(() => {
+    const termString = selected.value.terms || '';
+    try {
+        return decodeURIComponent(atob(termString));
+    } catch (e) {
+        return termString;
+    }
+});
+
+const generatePDF = () => {
+    if (!selected.value) return;
+
+    const { $pdfMake } = useNuxtApp();
+
+    let termsContent: any[] = [];
+
+    if (decodedTerms.value) {
+        const safeHtml = decodedTerms.value.includes('<')
+            ? decodedTerms.value
+            : `<div>${decodedTerms.value.replace(/\n/g, '<br>')}</div>`;
+
+        const convert = (htmlToPdfmake as any).default || htmlToPdfmake;
+
+        try {
+            termsContent = convert(safeHtml);
+        } catch (e) {
+            console.error('PDF HTML conversion failed, falling back to text', e);
+            termsContent = [{ text: decodedTerms.value }];
+        }
+    }
+
+    const docDefinition = {
+        content: [
+            { text: 'PISTIS - ' + t('transactions.transactionDetails'), style: 'heading' },
+            { text: t('transactions.date'), style: 'subheading' },
+            { text: dayjs(selected.value.createdAt).format('YYYY-MM-DD HH:mm:ss') },
+            { text: t('transactions.transactionId'), style: 'subheading' },
+            { text: selected.value.transactionId },
+            { text: t('transactions.assetId'), style: 'subheading' },
+            { text: selected.value.assetId },
+            { text: t('transactions.assetName'), style: 'subheading' },
+            {
+                text: selected.value.assetName,
+            },
+            { text: t('transactions.amount'), style: 'subheading' },
+            { text: selected.value.amount.toFixed(2) + ' EUR' },
+            { text: t('transactions.amountToProvider'), style: 'subheading' },
+            {
+                text: R.isNil(selected.value.transactionFee)
+                    ? `${selected.value.amount.toFixed(2)} EUR`
+                    : `${(selected.value.amount - selected.value.transactionFee).toFixed(2)} EUR`,
+            },
+            { text: t('transactions.transactionFee'), style: 'subheading' },
+            {
+                text: R.isNil(selected.value.transactionFee)
+                    ? 'None'
+                    : `${selected.value.transactionFee.toFixed(2)} EUR`,
+            },
+            { text: t('transactions.provider'), style: 'subheading' },
+            { text: selected.value.factorySellerName },
+
+            { text: t('transactions.consumer'), style: 'subheading' },
+            { text: selected.value.factoryBuyerName },
+
+            { text: t('data.designer.monetizationMethod'), style: 'subheading' },
+            { text: subscriptionMapping[monetization.value?.type] },
+
+            { text: t('data.designer.price'), style: 'subheading' },
+            {
+                text: monetization.value?.is_free
+                    ? t('data.designer.free')
+                    : monetization.value?.type === 'subscription'
+                      ? monetization.value?.price.toFixed(2) + ' EUR ' + monetization.value?.subscription_frequency
+                      : monetization.value?.price.toFixed(2) + ' EUR',
+            },
+            monetization.value?.type === 'subscription'
+                ? {
+                      text: t('data.designer.dataUpdateFrequency'),
+                      style: 'subheading',
+                  }
+                : {},
+            monetization.value?.type === 'subscription' ? { text: monetization.value?.update_frequency } : {},
+
+            { text: t('data.designer.numberOfResell'), style: 'subheading' },
+            { text: monetization.value?.num_resell },
+
+            { text: t('exclusive'), style: 'subheading' },
+            { text: monetization.value?.is_exclusive ? $('yes') : t('no') },
+
+            { text: t('data.designer.transferable'), style: 'subheading' },
+            { text: monetization.value?.transferable },
+
+            { text: t('data.designer.duration.title'), style: 'subheading' },
+            { text: durationSelections.find((item) => item.value === monetization.value?.duration)?.label },
+
+            { text: t('license'), style: 'subheading' },
+            { text: monetization.value?.license?.label },
+
+            { text: decodedTerms.value ? t('transactions.terms') : '', style: 'subheading' },
+            ...termsContent,
+        ],
+        styles: {
+            heading: {
+                fontSize: 18,
+                bold: true,
+                margin: [0, 0, 0, 10],
+                color: '#705df7',
+            },
+            subheading: {
+                fontSize: 13,
+                bold: true,
+                margin: [0, 15, 0, 5],
+            },
+            body: {
+                fontSize: 12,
+                lineHeight: 1.2,
+            },
+            link: {
+                color: '#705df7',
+            },
+        },
+        pageMargins: [40, 60, 40, 60],
+    };
+
+    $pdfMake.createPdf(docDefinition).download(`transaction_details_${selected.value.transactionId}.pdf`);
+};
 </script>
 
 <template>
+    <UModal v-model="modalOpen" :ui="{ width: 'w-full sm:max-w-[1000px]' }" class="text-gray-600 relative">
+        <UIcon
+            v-if="marketplaceStatus !== 'pending'"
+            name="material-symbols-light:close"
+            class="w-6 h-6 absolute right-2 top-2 cursor-pointer"
+            @click="modalOpen = false"
+        />
+        <div v-if="marketplaceStatus === 'pending'" class="flex flex-col w-full text-lg py-4 px-4">
+            <UProgress animation="carousel" color="primary" />
+        </div>
+        <UCard v-else>
+            <template #header>
+                <span class="text-primary-600 font-semibold">{{ $t('transactions.transactionDetails') }}</span>
+                <UButton size="xs" icon="fa6-solid:file-pdf" class="focus:outline-none ml-4" @click="generatePDF">{{
+                    $t('transactions.downloadPDF')
+                }}</UButton>
+            </template>
+            <div v-if="selected" class="w-full flex flex-col gap-4 text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.date') }}
+                        </span>
+                        <span>{{ dayjs(selected.createdAt).format('DD/MM/YYYY') }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.transactionId') }}
+                        </span>
+                        <span
+                            >{{ truncateId(selected.transactionId, 20) }}
+                            <UIcon
+                                name="mingcute:copy-line"
+                                class="w-4 h-4 cursor-pointer"
+                                @click="copyTransaction(selected.transactionId)"
+                            />
+                            <UIcon
+                                v-show="copiedTransaction"
+                                name="ic:baseline-check"
+                                class="w-4 h-4 text-green-500 transition-all duration-100"
+                            />
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.assetId') }}
+                        </span>
+                        <span
+                            >{{ truncateId(selected.assetId, 20) }}
+                            <UIcon
+                                name="mingcute:copy-line"
+                                class="w-4 h-4 cursor-pointer"
+                                @click="copyAsset(selected.assetId)"
+                            />
+                            <UIcon
+                                v-show="copiedAsset"
+                                name="ic:baseline-check"
+                                class="w-4 h-4 text-green-500 transition-all duration-100"
+                            />
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.assetTitle') }}
+                        </span>
+                        <span>{{ selected.assetName }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.fullAmount') }}
+                        </span>
+                        <span>{{ selected.amount.toFixed(2) }} EUR</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.detailedAmount') }}
+                        </span>
+                        <span
+                            >{{ (selected.amount - selected.transactionFee).toFixed(2) }} EUR /
+                            {{ selected.transactionFee.toFixed(2) }} EUR</span
+                        >
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.provider') }}
+                        </span>
+                        <span>{{ selected.factorySellerName }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('transactions.consumer') }}
+                        </span>
+                        <span>{{ selected.factoryBuyerName }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.monetizationMethod') }}
+                        </span>
+                        <span>{{ subscriptionMapping[monetization?.type] }}</span>
+                    </div>
+
+                    <div v-if="monetization?.type === 'subscription'" class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.price') }}
+                        </span>
+                        <span>{{
+                            monetization?.is_free
+                                ? $t('data.designer.free') + ' ' + monetization?.subscription_frequency
+                                : monetization?.price.toFixed(2) + ' EUR ' + monetization?.subscription_frequency
+                        }}</span>
+                    </div>
+
+                    <div v-else class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.price') }}
+                        </span>
+                        <span>{{
+                            monetization?.is_free ? $t('data.designer.free') : monetization?.price.toFixed(2) + ' EUR '
+                        }}</span>
+                    </div>
+
+                    <div v-if="monetization?.type === 'subscription'" class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.dataUpdateFrequency') }}
+                        </span>
+                        <span>{{ monetization?.update_frequency }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.numberOfResell') }}
+                        </span>
+                        <span>{{ monetization?.num_resell }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.numberOfShare') }}
+                        </span>
+                        <span>{{ monetization?.num_reshare }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('exclusive') }}
+                        </span>
+                        <span>{{ monetization?.is_exclusive ? t$('yes') : $t('no') }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.transferable') }}
+                        </span>
+                        <span>{{ monetization?.transferable }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.duration.title') }}
+                        </span>
+                        <span>{{
+                            durationSelections.find((item) => item.value === monetization?.duration)?.label
+                        }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('license') }}
+                        </span>
+                        <a class="text-primary-500" :href="monetization?.license?.resource" target="_blank">{{
+                            monetization?.license?.label
+                        }}</a>
+                    </div>
+                </div>
+                <div v-if="decodedTerms" class="w-full flex flex-col gap-1">
+                    <span class="text-gray-400">{{ $t('transactions.terms') }}</span>
+                    <div class="max-h-96 flex flex-col gap-2 overflow-y-scroll scrollbar pr-6">
+                        <div class="prose text-sm prose-h2:text-center max-w-full" v-html="decodedTerms"></div>
+                    </div>
+                </div>
+            </div>
+        </UCard>
+    </UModal>
     <div class="justify-center items-center px-8 max-w-7xl mx-auto w-full pt-6">
         <ErrorCard
             v-if="error || transactionsSumsError"
@@ -152,6 +505,8 @@ const outgoing = computed(() => transactionsSumsData.value?.expensesTotal || 0);
                             icon: 'i-heroicons-circle-stack-20-solid',
                             label: $t('data.wallet.noTransactions'),
                         }"
+                        :single-select="true"
+                        @select="select"
                     >
                         <template #createdAt-data="{ row }">
                             <span v-if="row.createdAt" class="flex items-center justify-center">{{
