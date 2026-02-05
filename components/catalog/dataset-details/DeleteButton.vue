@@ -79,7 +79,7 @@ watch(
 const canDelete = computed(() => status.value === 'success' && error.value === null && isBought.value === false);
 
 const openOfferDetailsPage = (offer) => {
-    window.open(`${config.public.factoryUrl}/marketplace/dataset-details/${offer}`);
+    window.open(`${config.public.factoryUrl}/marketplace/dataset-details/${offer}?pm=cloud`);
 };
 
 const showConfirmationWindow = ref(false);
