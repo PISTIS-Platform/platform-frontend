@@ -256,43 +256,20 @@ async function loadDatasetMetrics() {
         const sec = (title, arr) => ({ title, items: arr });
 
         relevantDatasetMetrics.value = [
-            sec('Accessibility', [
-                { 'Download URL': fmt(raw.accessibility?.[0]?.downloadUrlAvailability) },
-                { 'Most frequent accessing status codes': fmt(raw.accessibility?.[1]?.accessUrlStatusCode) },
-                { 'Most frequent distribution status codes': fmt(raw.accessibility?.[2]?.downloadUrlStatusCode) },
-            ]),
             sec('Findability', [
                 { 'Keyword usage': fmt(raw.findability?.[0]?.keywordAvailability) },
                 { Categories: fmt(raw.findability?.[1]?.categoryAvailability) },
-                { 'Geo search': fmt(raw.findability?.[2]?.spatialAvailability) },
-                { 'Time based search': fmt(raw.findability?.[3]?.temporalAvailability) },
-            ]),
-            sec('Reusability', [
-                { 'Access restrictions': fmt(raw.reusability?.[0]?.accessRightsAvailability) },
-                { 'License information': fmt(raw.reusability?.[1]?.licenceAvailability) },
-                { 'Access restrictions vocabulary': fmt(raw.reusability?.[2]?.accessRightsVocabularyAlignment) },
-                { 'Contact point': fmt(raw.reusability?.[3]?.contactPointAvailability) },
-                { Publisher: fmt(raw.reusability?.[4]?.publisherAvailability) },
             ]),
             sec('Interoperability', [
-                { 'DCAT-AP compliance': fmt(raw.interoperability?.[0]?.dcatApCompliance) },
                 { Format: fmt(raw.interoperability?.[1]?.formatAvailability) },
-                { 'Media type': fmt(raw.interoperability?.[2]?.mediaTypeAvailability) },
                 {
-                    'Format / Media type from Vocabulary': fmt(
+                    'Format from Vocabulary': fmt(
                         raw.interoperability?.[3]?.formatMediaTypeVocabularyAlignment,
                     ),
                 },
             ]),
             sec('Contextuality', [
                 { 'File size': fmt(raw.contextuality?.[0]?.byteSizeAvailability) },
-                { 'Rights Vocabulary': fmt(raw.contextuality?.[1]?.rightsAvailability) },
-                { 'Spatial data of issue': fmt(raw.findability?.[2]?.spatialAvailability) },
-                {
-                    'Distribution Modification date': fmt(
-                        raw.contextuality?.[3]?.distributions?.[0]?.dateModifiedAvailability,
-                    ),
-                },
                 { 'Temporal data of issue': fmt(raw.contextuality?.[3]?.distributions?.[1]?.dateIssuedAvailability) },
             ]),
         ];
@@ -317,30 +294,11 @@ async function loadDistributionsMetrics() {
             label: d.info?.['distribution-title'] || d.id?.['distribution-id'] || 'Unknown distribution',
             icon: 'i-lucide-box',
             sections: [
-                {
-                    title: 'Accessibility',
-                    items: [
-                        { title: 'Download URL', value: fmt(d.accessibility?.[0]?.downloadUrlAvailability) },
-                        {
-                            title: 'Most frequent accessURL status code',
-                            value: fmt(d.accessibility?.[1]?.accessUrlStatusCode),
-                        },
-                        {
-                            title: 'Most frequent downloadURL status code',
-                            value: fmt(d.accessibility?.[2]?.downloadUrlStatusCode),
-                        },
-                    ],
-                },
-                {
-                    title: 'Reusability',
-                    items: [{ title: 'License information', value: fmt(d.reusability?.[0]?.licenceAvailability) }],
-                },
+
                 {
                     title: 'Contextuality',
                     items: [
                         { title: 'File size', value: fmt(d.contextuality?.[0]?.byteSizeAvailability) },
-                        { title: 'Rights', value: fmt(d.contextuality?.[1]?.rightsAvailability) },
-                        { title: 'Modification date', value: fmt(d.contextuality?.[2]?.dateModifiedAvailability) },
                         { title: 'Date of issue', value: fmt(d.contextuality?.[3]?.dateIssuedAvailability) },
                     ],
                 },
@@ -348,9 +306,8 @@ async function loadDistributionsMetrics() {
                     title: 'Interoperability',
                     items: [
                         { title: 'Format', value: fmt(d.interoperability?.[0]?.formatAvailability) },
-                        { title: 'Media type', value: fmt(d.interoperability?.[1]?.mediaTypeAvailability) },
                         {
-                            title: 'Format/Media type from vocabulary',
+                            title: 'Format from vocabulary',
                             value: fmt(d.interoperability?.[2]?.formatMediaTypeVocabularyAlignment),
                         },
                     ],
