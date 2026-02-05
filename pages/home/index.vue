@@ -7,6 +7,14 @@ import * as R from 'ramda';
 
 const { data: session } = useAuth();
 
+const subscriptionMapping: Record<string, string> = {
+    subscription: t('data.designer.subscription'),
+    'one-off': t('data.designer.oneOffSale'),
+    nft: 'NFT',
+};
+
+const { durationSelections } = useLicenseSchema(null);
+
 const currentBalance = ref();
 const isLoadingWallet = ref(true);
 
@@ -128,6 +136,16 @@ const select = (item: any) => {
     modalOpen.value = true;
 };
 
+const { data: marketplaceData, status: marketplaceStatus } = useFetch(`/api/datasets/get-specific-marketplace`, {
+    query: {
+        id: computed(() => selected.value?.assetId || ''),
+    },
+    immediate: false,
+    watch: [selected],
+});
+
+const monetization = computed(() => marketplaceData.value?.monetization?.[0].purchase_offer?.[0]);
+
 const decodedTerms = computed(() => {
     const termString = selected.value.terms || '';
     try {
@@ -228,7 +246,10 @@ const generatePDF = () => {
             class="w-6 h-6 absolute right-2 top-2 cursor-pointer"
             @click="modalOpen = false"
         />
-        <UCard>
+        <div v-if="marketplaceStatus === 'pending'" class="flex flex-col w-full text-lg mt-6">
+            <UProgress animation="carousel" color="primary" />
+        </div>
+        <UCard v-else>
             <template #header>
                 <span class="text-primary-600 font-semibold">{{ $t('transactions.transactionDetails') }}</span>
                 <UButton size="xs" icon="fa6-solid:file-pdf" class="focus:outline-none ml-4" @click="generatePDF">{{
@@ -318,6 +339,86 @@ const generatePDF = () => {
                             {{ $t('transactions.consumer') }}
                         </span>
                         <span>{{ selected.factoryBuyerName }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.monetizationMethod') }}
+                        </span>
+                        <span>{{ subscriptionMapping[monetization?.type] }}</span>
+                    </div>
+
+                    <div v-if="monetization?.type === 'subscription'" class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.price') }}
+                        </span>
+                        <span>{{
+                            monetization?.is_free
+                                ? $t('data.designer.free') + ' ' + monetization?.subscription_frequency
+                                : monetization?.price.toFixed(2) + ' EUR ' + monetization?.subscription_frequency
+                        }}</span>
+                    </div>
+
+                    <div v-else class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.price') }}
+                        </span>
+                        <span>{{
+                            monetization?.is_free ? $t('data.designer.free') : monetization?.price.toFixed(2) + ' EUR '
+                        }}</span>
+                    </div>
+
+                    <div v-if="monetization?.type === 'subscription'" class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.dataUpdateFrequency') }}
+                        </span>
+                        <span>{{ monetization?.update_frequency }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.numberOfResell') }}
+                        </span>
+                        <span>{{ monetization?.num_resell }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.numberOfShare') }}
+                        </span>
+                        <span>{{ monetization?.num_reshare }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('exclusive') }}
+                        </span>
+                        <span>{{ monetization?.is_exclusive ? t$('yes') : $t('no') }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.transferable') }}
+                        </span>
+                        <span>{{ monetization?.transferable }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('data.designer.duration.title') }}
+                        </span>
+                        <span>{{
+                            durationSelections.find((item) => item.value === monetization?.duration)?.label
+                        }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-400">
+                            {{ $t('license') }}
+                        </span>
+                        <a class="text-primary-500" :href="monetization?.license?.resource" target="_blank">{{
+                            monetization?.license?.label
+                        }}</a>
                     </div>
                 </div>
                 <div v-if="decodedTerms" class="w-full flex flex-col gap-1">
