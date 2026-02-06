@@ -8,6 +8,7 @@ import { DatasetKind } from '~/interfaces/dataset.enum';
 import type { AccessPolicyDetails, AssetOfferingDetails } from '~/interfaces/plan-designer';
 
 const runtimeConfig = useRuntimeConfig();
+const { showSuccessMessage, showErrorMessage } = useAlertMessage();
 
 const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`, {
     query: { page: '' },
@@ -23,6 +24,15 @@ const datasetSelectorRef = ref();
 const assetOfferingRef = ref();
 
 const dataSelectorIsValid = ref(false);
+
+const queryPayload = ref({
+    dateRange: {
+        dateColumn: undefined,
+        fromDate: undefined,
+        toDate: undefined,
+    },
+    selectedColumns: [],
+});
 
 const triggerDatasetSelectorValidation = () => {
     if (datasetSelectorRef.value) {
@@ -347,6 +357,21 @@ const submitAll = async () => {
 
     const assetId = monetizationDetails.value.type === 'nft' ? selectedAsset.value?.id : newAssetId;
 
+    if (completeOrQuery.value === DatasetKind.QUERY_FILTER) {
+        try {
+            await $fetch('/api/datasets/send-query-config', {
+                method: 'POST',
+                body: {
+                    cloudAssetId: assetId,
+                    params: queryPayload.value,
+                },
+            });
+            showSuccessMessage(t('data.designer.query.submit.success'));
+        } catch (error) {
+            showErrorMessage(t('data.designer.query.submit.error') + ': ' + error);
+        }
+    }
+
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
@@ -449,10 +474,10 @@ const changeStep = async (stepNum: number) => {
                 option-attribute="title"
                 :placeholder="$t('data.investmentPlanner.datasetSelectorPlaceholder')"
             >
-                <template #option="{ option: dataset }">
+                <template #option="{ option }">
                     <div class="flex flex-col gap-0.5">
-                        <span class="font-semibold">{{ dataset.title }}</span>
-                        <span class="text-gray-500 text-sm line-clamp-1">{{ dataset.description }}</span>
+                        <span class="font-semibold">{{ option.title }}</span>
+                        <span class="text-gray-500 text-sm line-clamp-1">{{ option.description }}</span>
                     </div>
                 </template>
             </USelectMenu>
@@ -483,10 +508,12 @@ const changeStep = async (stepNum: number) => {
             :complete-or-query="completeOrQuery"
             :asset-offering-details="assetOfferingDetails"
             :monetization-details="monetizationDetails"
+            :query-payload-prop="queryPayload"
             @update:complete-or-query="(value: string) => (completeOrQuery = value)"
             @reset="resetCompleteOrQuery"
             @cancel="handleResetCancel"
             @update:data-selector-is-valid="(val) => (dataSelectorIsValid = val)"
+            @update:query-payload="(val) => (queryPayload = val)"
         />
 
         <MonetizationMethod

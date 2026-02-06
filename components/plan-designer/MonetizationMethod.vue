@@ -72,10 +72,12 @@ const assetOfferingDetailsSchema = z.object({
 });
 
 const isAssetOfferingDetailsValid = computed(() => {
-    return assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success &&
-        monetizationDetails.value.type === 'nft'
-        ? true
-        : props.assetOfferingDetails.keywords.length > 0;
+    const isSchemaValid = assetOfferingDetailsSchema.safeParse(props.assetOfferingDetails).success;
+
+    const areKeywordsValid =
+        monetizationDetails.value.type === 'nft' ? true : props.assetOfferingDetails.keywords.length > 0;
+
+    return isSchemaValid && areKeywordsValid;
 });
 
 const updateFrequencySelections = [

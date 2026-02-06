@@ -462,6 +462,10 @@ export default defineI18nConfig(() => ({
                             to: 'to',
                             toDate: 'To Date',
                         },
+                        submit: {
+                            success: 'Query filter successfully saved',
+                            error: 'There was an error saving the query filter',
+                        },
                     },
                     publishToMarketplace: 'Publish to Marketplace',
                     valuation: {

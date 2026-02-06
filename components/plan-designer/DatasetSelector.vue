@@ -24,12 +24,31 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    queryPayloadProp: {
+        type: Object,
+        required: true,
+    },
+});
+
+const emit = defineEmits([
+    'reset',
+    'update:complete-or-query',
+    'cancel',
+    'update:data-selector-is-valid',
+    'update:query-payload',
+]);
+
+const queryPayload = computed({
+    get() {
+        return props.queryPayloadProp;
+    },
+    set(newValue) {
+        emit('update:query-payload', newValue);
+    },
 });
 
 const assetOfferingDetails = computed(() => props.assetOfferingDetails);
 const monetizationDetails = computed(() => props.monetizationDetails);
-
-const emit = defineEmits(['reset', 'update:complete-or-query', 'cancel', 'update:data-selector-is-valid']);
 
 const dateRangeFormRef = ref();
 const showColumnError = ref(false);
@@ -45,10 +64,15 @@ const selectCompleteOrQuery = (value: string) => {
 };
 
 const clearForms = () => {
-    dateRangeState.dateColumn = undefined;
-    dateRangeState.fromDate = undefined;
-    dateRangeState.toDate = undefined;
-    selectedColumns.value = [];
+    const newPayload = { ...queryPayload.value };
+    newPayload.dateRange = {
+        dateColumn: undefined,
+        fromDate: undefined,
+        toDate: undefined,
+    };
+    newPayload.selectedColumns = [];
+
+    queryPayload.value = newPayload;
     showColumnError.value = false;
     columnSearch.value = '';
 };
@@ -81,19 +105,23 @@ const dataSetSelections = computed(() => [
         info: t('data.designer.selectQueryFilter'),
         value: DatasetKind.QUERY_FILTER,
         disabled:
-            assetOfferingDetails.value.selectedDistribution.format.id !== 'SQL' ||
+            assetOfferingDetails.value.selectedDistribution?.format?.id !== 'SQL' ||
             monetizationDetails.value.type === 'nft',
     },
 ]);
 
-watch(assetOfferingDetails.value, () => {
-    if (
-        assetOfferingDetails.value.selectedDistribution.format.id !== 'SQL' &&
-        props.completeOrQuery === DatasetKind.QUERY_FILTER
-    ) {
-        reset();
-    }
-});
+watch(
+    () => assetOfferingDetails.value,
+    () => {
+        if (
+            assetOfferingDetails.value.selectedDistribution?.format?.id !== 'SQL' &&
+            props.completeOrQuery === DatasetKind.QUERY_FILTER
+        ) {
+            reset();
+        }
+    },
+    { deep: true },
+);
 
 const tabItems = [
     {
@@ -112,7 +140,7 @@ const tabItems = [
 
 const selectedTab = ref(0);
 
-//TODO: Get real ones from API
+// TODO: Get real ones from API
 const columns = [
     {
         columnName: 'batteryyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',
@@ -131,8 +159,6 @@ const columns = [
     { columnName: 'timestamp', columnType: 'DateTime' },
 ];
 
-const selectedColumns = ref<string[]>([]);
-
 const filteredColumns = computed(() => {
     let result = [...columns];
     result.sort((a, b) => a.columnName.localeCompare(b.columnName));
@@ -146,36 +172,59 @@ const filteredColumns = computed(() => {
 });
 
 const toggleColumn = (columnName: string) => {
-    if (selectedColumns.value.includes(columnName)) {
-        selectedColumns.value = selectedColumns.value.filter((c) => c !== columnName);
+    let currentColumns = [...(queryPayload.value.selectedColumns || [])];
+
+    if (currentColumns.includes(columnName)) {
+        currentColumns = currentColumns.filter((c) => c !== columnName);
     } else {
-        selectedColumns.value = [...selectedColumns.value, columnName];
+        currentColumns = [...currentColumns, columnName];
     }
+
+    const newPayload = {
+        ...queryPayload.value,
+        selectedColumns: currentColumns,
+    };
+    queryPayload.value = newPayload;
 };
 
 const selectAllColumns = () => {
     const visibleNames = filteredColumns.value.map((c) => c.columnName);
-    selectedColumns.value = [...new Set([...selectedColumns.value, ...visibleNames])];
+    const currentSelected = queryPayload.value.selectedColumns || [];
+    const newSelection = [...new Set([...currentSelected, ...visibleNames])];
+
+    queryPayload.value = {
+        ...queryPayload.value,
+        selectedColumns: newSelection,
+    };
 };
 
 const deselectAllColumns = () => {
     const visibleNames = filteredColumns.value.map((c) => c.columnName);
-    selectedColumns.value = selectedColumns.value.filter((selectedName) => !visibleNames.includes(selectedName));
+    const currentSelected = queryPayload.value.selectedColumns || [];
+
+    const newSelection = currentSelected.filter((selectedName: string) => !visibleNames.includes(selectedName));
+
+    queryPayload.value = {
+        ...queryPayload.value,
+        selectedColumns: newSelection,
+    };
 };
 
 const invertColumnSelection = () => {
     const visibleNames = filteredColumns.value.map((c) => c.columnName);
-    const hiddenSelected = selectedColumns.value.filter((selectedName) => !visibleNames.includes(selectedName));
-    const visibleSelected = selectedColumns.value.filter((selectedName) => visibleNames.includes(selectedName));
-    const visibleUnselected = visibleNames.filter((name) => !visibleSelected.includes(name));
-    selectedColumns.value = [...hiddenSelected, ...visibleUnselected];
-};
+    const currentSelected = queryPayload.value.selectedColumns || [];
 
-const dateRangeState = reactive({
-    dateColumn: undefined,
-    fromDate: undefined,
-    toDate: undefined,
-});
+    const hiddenSelected = currentSelected.filter((selectedName: string) => !visibleNames.includes(selectedName));
+    const visibleSelected = currentSelected.filter((selectedName: string) => visibleNames.includes(selectedName));
+    const visibleUnselected = visibleNames.filter((name) => !visibleSelected.includes(name));
+
+    const newSelection = [...hiddenSelected, ...visibleUnselected];
+
+    queryPayload.value = {
+        ...queryPayload.value,
+        selectedColumns: newSelection,
+    };
+};
 
 const dateRangeSchema = z.object({
     dateColumn: z.string({ required_error: t('required') }).min(1, t('required')),
@@ -191,11 +240,11 @@ const isDataSelectorValid = computed(() => {
     const activeTabKey = tabItems[selectedTab.value]?.key;
 
     if (activeTabKey === 'dateRange') {
-        return dateRangeSchema.safeParse(dateRangeState).success;
+        return dateRangeSchema.safeParse(queryPayload.value.dateRange).success;
     }
 
     if (activeTabKey === 'selectColumns') {
-        return selectedColumns.value.length > 0;
+        return (queryPayload.value.selectedColumns || []).length > 0;
     }
 
     return false;
@@ -211,7 +260,7 @@ const triggerValidation = async () => {
             await formInstance.validate().catch(() => {});
         }
     } else if (activeTabKey === 'selectColumns') {
-        showColumnError.value = selectedColumns.value.length === 0;
+        showColumnError.value = (queryPayload.value.selectedColumns || []).length === 0;
     }
 };
 
@@ -227,16 +276,13 @@ defineExpose({
 });
 
 watch(
-    selectedColumns,
-    (newVal) => {
-        if (newVal.length > 0) showColumnError.value = false;
-    },
-    { deep: true },
-);
-
-watch(
-    [() => dateRangeState.dateColumn, () => dateRangeState.fromDate, () => dateRangeState.toDate],
-    ([newCol, newFrom, newTo], [oldCol, oldFrom, oldTo]) => {
+    [
+        () => queryPayload.value.dateRange?.dateColumn,
+        () => queryPayload.value.dateRange?.fromDate,
+        () => queryPayload.value.dateRange?.toDate,
+        () => queryPayload.value.selectedColumns,
+    ],
+    ([newCol, newFrom, newTo, newColumns], [oldCol, oldFrom, oldTo]) => {
         const formInstance = Array.isArray(dateRangeFormRef.value) ? dateRangeFormRef.value[0] : dateRangeFormRef.value;
 
         if (!formInstance) return;
@@ -244,6 +290,7 @@ watch(
         if (newCol !== oldCol) formInstance.clear('dateColumn');
         if (newFrom !== oldFrom) formInstance.clear('fromDate');
         if (newTo !== oldTo) formInstance.clear('toDate');
+        if (newColumns && newColumns.length > 0) showColumnError.value = false;
     },
 );
 
@@ -307,7 +354,7 @@ watch(
                             <UForm
                                 ref="dateRangeFormRef"
                                 :schema="dateRangeSchema"
-                                :state="dateRangeState"
+                                :state="queryPayload.dateRange"
                                 class="flex items-center gap-4 pb-4"
                             >
                                 <UFormGroup
@@ -319,7 +366,7 @@ watch(
                                     eager-validation
                                 >
                                     <USelectMenu
-                                        v-model="dateRangeState.dateColumn"
+                                        v-model="queryPayload.dateRange.dateColumn"
                                         :options="columns"
                                         :placeholder="$t('data.designer.query.dateRange.selectColumn')"
                                         value-attribute="columnName"
@@ -346,17 +393,23 @@ watch(
                                                     : 'i-heroicons-calendar-days-20-solid'
                                             "
                                             :label="
-                                                dateRangeState.fromDate
-                                                    ? dayjs(dateRangeState.fromDate).format('DD MMMM YYYY')
+                                                queryPayload.dateRange.fromDate
+                                                    ? dayjs(queryPayload.dateRange.fromDate).format('DD MMMM YYYY')
                                                     : $t('data.designer.query.dateRange.fromDate')
                                             "
                                             :class="[
                                                 'min-w-40',
-                                                !dateRangeState.fromDate && !error ? 'text-gray-400 font-normal' : '',
+                                                !queryPayload.dateRange.fromDate && !error
+                                                    ? 'text-gray-400 font-normal'
+                                                    : '',
                                             ]"
                                         />
                                         <template #panel="{ close }">
-                                            <DatePicker v-model="dateRangeState.fromDate" is-required @close="close" />
+                                            <DatePicker
+                                                v-model="queryPayload.dateRange.fromDate"
+                                                is-required
+                                                @close="close"
+                                            />
                                         </template>
                                     </UPopover>
                                 </UFormGroup>
@@ -379,17 +432,23 @@ watch(
                                                     : 'i-heroicons-calendar-days-20-solid'
                                             "
                                             :label="
-                                                dateRangeState.toDate
-                                                    ? dayjs(dateRangeState.toDate).format('DD MMMM YYYY')
+                                                queryPayload.dateRange.toDate
+                                                    ? dayjs(queryPayload.dateRange.toDate).format('DD MMMM YYYY')
                                                     : $t('data.designer.query.dateRange.toDate')
                                             "
                                             :class="[
                                                 'min-w-40',
-                                                !dateRangeState.toDate && !error ? 'text-gray-400 font-normal' : '',
+                                                !queryPayload.dateRange.toDate && !error
+                                                    ? 'text-gray-400 font-normal'
+                                                    : '',
                                             ]"
                                         />
                                         <template #panel="{ close }">
-                                            <DatePicker v-model="dateRangeState.toDate" is-required @close="close" />
+                                            <DatePicker
+                                                v-model="queryPayload.dateRange.toDate"
+                                                is-required
+                                                @close="close"
+                                            />
                                         </template>
                                     </UPopover>
                                 </UFormGroup>
@@ -431,14 +490,14 @@ watch(
                                     <span class="text-xs text-gray-500 whitespace-nowrap">
                                         <span v-if="columnSearch"
                                             >{{
-                                                selectedColumns.filter((c) =>
+                                                (queryPayload.selectedColumns || []).filter((c) =>
                                                     filteredColumns.map((fc) => fc.columnName).includes(c),
                                                 ).length
                                             }}
                                             / {{ filteredColumns.length }} {{ $t('visible') }}</span
                                         >
                                         <span v-else
-                                            >{{ selectedColumns.length }} / {{ columns.length }}
+                                            >{{ (queryPayload.selectedColumns || []).length }} / {{ columns.length }}
                                             {{ $t('selected') }}</span
                                         >
                                     </span>
@@ -454,7 +513,7 @@ watch(
                                     :key="col.columnName"
                                     :class="[
                                         'flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors duration-200 h-12',
-                                        selectedColumns.includes(col.columnName)
+                                        (queryPayload.selectedColumns || []).includes(col.columnName)
                                             ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10'
                                             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800',
                                     ]"
@@ -481,7 +540,7 @@ watch(
                                     </div>
 
                                     <UCheckbox
-                                        :model-value="selectedColumns.includes(col.columnName)"
+                                        :model-value="(queryPayload.selectedColumns || []).includes(col.columnName)"
                                         :name="col.columnName"
                                         class="pointer-events-none ml-2 flex-shrink-0"
                                     />
