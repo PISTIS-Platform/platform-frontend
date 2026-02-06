@@ -206,6 +206,7 @@ async function onSubmit(): Promise<void> {
         // Trigger Dataset Selector Validation
         if (!props.dataSelectorIsValid) {
             emit('trigger-external-validation');
+            showErrorMessage(t('data.designer.query.please'));
         }
 
         // Show generic error message

@@ -357,27 +357,28 @@ const submitAll = async () => {
 
     const assetId = monetizationDetails.value.type === 'nft' ? selectedAsset.value?.id : newAssetId;
 
-    if (completeOrQuery.value === DatasetKind.QUERY_FILTER) {
-        try {
-            await $fetch('/api/datasets/send-query-config', {
-                method: 'POST',
-                body: {
-                    cloudAssetId: assetId,
-                    params: queryPayload.value,
-                },
-            });
-            showSuccessMessage(t('data.designer.query.submit.success'));
-        } catch (error) {
-            showErrorMessage(t('data.designer.query.submit.error') + ': ' + error);
-        }
-    }
-
     try {
         await $fetch(`/api/datasets/publish-data`, {
             method: 'post',
             body,
         });
         submitStatus.value = 'success';
+
+        if (completeOrQuery.value === DatasetKind.QUERY_FILTER) {
+            try {
+                await $fetch('/api/datasets/send-query-config', {
+                    method: 'POST',
+                    body: {
+                        cloudAssetId: assetId,
+                        params: queryPayload.value,
+                    },
+                });
+                showSuccessMessage(t('data.designer.query.submit.success'));
+            } catch (error) {
+                showErrorMessage(t('data.designer.query.submit.error') + ': ' + error);
+            }
+        }
+
         await delay(3);
         submitStatus.value = '';
         await navigateTo(`/marketplace/dataset-details/${assetId}?pm=cloud`);

@@ -455,6 +455,7 @@ export default defineI18nConfig(() => ({
                         },
                     },
                     query: {
+                        please: 'Please fill in the Date Range form OR select at least one column.',
                         dateRange: {
                             dateColumn: 'Date Column',
                             selectColumn: 'Select a column...',

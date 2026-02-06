@@ -226,42 +226,80 @@ const invertColumnSelection = () => {
     };
 };
 
-const dateRangeSchema = z.object({
-    dateColumn: z.string({ required_error: t('required') }).min(1, t('required')),
-    fromDate: z.date({ required_error: t('required') }),
-    toDate: z.date({ required_error: t('required') }),
+const dateRangeSchema = computed(() => {
+    const hasColumns = (queryPayload.value.selectedColumns || []).length > 0;
+
+    if (!hasColumns) {
+        return z.object({
+            dateColumn: z.string({ required_error: t('required') }).min(1, t('required')),
+            fromDate: z.date({ required_error: t('required') }),
+            toDate: z.date({ required_error: t('required') }),
+        });
+    }
+
+    return z
+        .object({
+            dateColumn: z.any().optional(),
+            fromDate: z.any().optional(),
+            toDate: z.any().optional(),
+        })
+        .superRefine((data, ctx) => {
+            const hasValue = (val: any) => val !== undefined && val !== null && val !== '';
+
+            const hasDateCol = hasValue(data.dateColumn);
+            const hasFrom = hasValue(data.fromDate);
+            const hasTo = hasValue(data.toDate);
+
+            if (!hasDateCol && !hasFrom && !hasTo) {
+                return;
+            }
+
+            if (!hasDateCol)
+                ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('required'), path: ['dateColumn'] });
+            if (!hasFrom) ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('required'), path: ['fromDate'] });
+            if (!hasTo) ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('required'), path: ['toDate'] });
+        });
 });
 
 const isDataSelectorValid = computed(() => {
     if (props.completeOrQuery === DatasetKind.COMPLETE) {
         return true;
     }
-
-    const activeTabKey = tabItems[selectedTab.value]?.key;
-
-    if (activeTabKey === 'dateRange') {
-        return dateRangeSchema.safeParse(queryPayload.value.dateRange).success;
-    }
-
-    if (activeTabKey === 'selectColumns') {
-        return (queryPayload.value.selectedColumns || []).length > 0;
-    }
-
-    return false;
+    return dateRangeSchema.value.safeParse(queryPayload.value.dateRange).success;
 });
 
 const triggerValidation = async () => {
-    const activeTabKey = tabItems[selectedTab.value]?.key;
+    const dateRange = queryPayload.value.dateRange;
+    const isDateValid = dateRangeSchema.value.safeParse(dateRange).success;
+    const hasColumns = (queryPayload.value.selectedColumns || []).length > 0;
+    const hasPartialDateData = !!dateRange.dateColumn || !!dateRange.fromDate || !!dateRange.toDate;
 
-    if (activeTabKey === 'dateRange') {
+    if (hasPartialDateData && !isDateValid) {
+        selectedTab.value = 0;
+
+        await nextTick();
         const formInstance = Array.isArray(dateRangeFormRef.value) ? dateRangeFormRef.value[0] : dateRangeFormRef.value;
-
         if (formInstance) {
             await formInstance.validate().catch(() => {});
         }
-    } else if (activeTabKey === 'selectColumns') {
-        showColumnError.value = (queryPayload.value.selectedColumns || []).length === 0;
+        return;
     }
+
+    if (!hasColumns && !isDateValid) {
+        if (selectedTab.value === 0) {
+            const formInstance = Array.isArray(dateRangeFormRef.value)
+                ? dateRangeFormRef.value[0]
+                : dateRangeFormRef.value;
+            if (formInstance) {
+                await formInstance.validate().catch(() => {});
+            }
+        } else {
+            showColumnError.value = true;
+        }
+        return;
+    }
+
+    showColumnError.value = false;
 };
 
 const checkTruncation = (event: Event, columnName: string) => {
@@ -290,7 +328,20 @@ watch(
         if (newCol !== oldCol) formInstance.clear('dateColumn');
         if (newFrom !== oldFrom) formInstance.clear('fromDate');
         if (newTo !== oldTo) formInstance.clear('toDate');
-        if (newColumns && newColumns.length > 0) showColumnError.value = false;
+
+        if (newColumns && newColumns.length > 0) {
+            showColumnError.value = false;
+            if (
+                !queryPayload.value.dateRange?.dateColumn &&
+                !queryPayload.value.dateRange?.fromDate &&
+                !queryPayload.value.dateRange?.toDate
+            ) {
+                formInstance.clear();
+            }
+        }
+
+        const isDateValid = dateRangeSchema.value.safeParse(queryPayload.value.dateRange).success;
+        if (isDateValid) showColumnError.value = false;
     },
 );
 
