@@ -224,7 +224,7 @@ const subscriptionMapping: Record<string, string> = {
                         }}</span>
                     </div>
                 </div>
-                <div class="flex flex-col gap-2">
+                <div v-if="monetizationDetails.updateFrequency" class="flex flex-col gap-2">
                     <span class="text-sm font-semibold text-gray-400">{{
                         $t('data.designer.dataUpdateFrequency')
                     }}</span>
