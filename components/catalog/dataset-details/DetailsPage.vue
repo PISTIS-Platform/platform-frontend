@@ -173,7 +173,6 @@ const buyRequest = async () => {
     const title = Object.values(metadata.value.result?.title ?? {})[0] ?? '';
 
     const url = getPurchaseUrl(factoryPrefix.value);
-    //console.log('url', url);
     const promise = axios.post(
         url,
         {
@@ -181,6 +180,7 @@ const buyRequest = async () => {
             assetFactory: offer.publisher?.organization_id ?? '',
             sellerId: seller.seller_id ?? '',
             price: offer.price ?? 0,
+            nftId: offer.nft_id ?? ''
         },
         {
             headers: {
