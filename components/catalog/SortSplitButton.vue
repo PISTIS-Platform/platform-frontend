@@ -9,6 +9,12 @@ const { t } = useI18n();
 const showDropdown = ref(false);
 const sortDirection = defineModel<string>('direction', { default: 'desc' });
 
+const props = defineProps({
+    isAcquired: {
+        type: Boolean,
+    },
+});
+
 const checked = computed({
     get() {
         return sortDirection.value === 'asc';
@@ -18,12 +24,25 @@ const checked = computed({
     },
 });
 
-const sortOptions = computed(() => [
-    { name: t('SortSplitButton.sortOptions.modified'), id: 'modified' },
-    { name: t('SortSplitButton.sortOptions.relevance'), id: 'relevance' },
-    { name: t('SortSplitButton.sortOptions.title'), id: 'title.en' },
-    { name: t('SortSplitButton.sortOptions.issued'), id: 'issued' },
-]);
+const sortOptions = computed(() => {
+    const options = [
+        {
+            name: props.isAcquired
+                ? t('SortSplitButton.sortOptions.lastPurchased')
+                : t('SortSplitButton.sortOptions.modified'),
+            id: 'modified',
+        },
+        { name: t('SortSplitButton.sortOptions.relevance'), id: 'relevance' },
+        { name: t('SortSplitButton.sortOptions.title'), id: 'title.en' },
+    ];
+
+    if (!props.isAcquired) {
+        options.push({ name: t('SortSplitButton.sortOptions.issued'), id: 'issued' });
+    }
+
+    return options;
+});
+
 const sort = defineModel<string>('sort', { default: 'modified' });
 
 const selectedOption = computed(() => sortOptions.value.find((opt) => opt.id === sort.value)?.name ?? '');

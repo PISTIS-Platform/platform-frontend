@@ -937,6 +937,7 @@ export default defineI18nConfig(() => ({
                     relevance: 'Relevance',
                     title: 'Name',
                     issued: 'Last Created',
+                    lastPurchased: 'Last Purchased',
                 },
                 toggleButton: {
                     ascending: 'Ascending',
