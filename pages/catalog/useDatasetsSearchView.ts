@@ -20,6 +20,7 @@ export interface EnhancedSearchResult {
     getFormats: string[];
     getPublisher?: Publisher | null;
     getSummary?: { title: string; text: string }[];
+    getCatalog?: string;
 }
 
 interface UseDatasetSearchViewOptions<TF extends string, TM, TS extends EnhancedSearchResult> {
@@ -114,6 +115,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
             formats: dcat.getFormats || [],
             datasetType: (dcat as any)?.public === false ? 'kritis' : 'opendata',
             summary: dcat.getSummary || [],
+            catalog: dcat.getCatalog || '',
         }));
     });
 

@@ -20,6 +20,7 @@ interface DataInfoCardProps {
     href?: string;
     to?: string | { name: string; params?: Record<string, any> };
     properties?: Summary[];
+    catalog?: string;
 }
 
 const props = withDefaults(defineProps<DataInfoCardProps>(), {
@@ -81,7 +82,12 @@ const computedWrapperComponent = computed(() => {
                 <!-- Metadata Grid -->
                 <div v-if="properties && properties.length > 0" class="flex flex-row gap-6">
                     <div v-for="(value, key) in properties" :key="key" class="flex-1 overflow-x-hidden">
-                        <SummaryBox class="max-w-full" :title="value.title" :text="value.text || '-'" truncate />
+                        <SummaryBox
+                            class="max-w-full"
+                            :title="props.catalog === 'acquired-data' && key === 0 ? 'purchased' : value.title"
+                            :text="value.text || '-'"
+                            truncate
+                        />
                     </div>
                 </div>
                 <div v-if="props.ghost" class="absolute left-0 top-0 size-full bg-white">

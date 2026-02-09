@@ -37,6 +37,7 @@ const toRoute = computed(() =>
                     :description="item.description"
                     :file-formats="item.formats"
                     :properties="item.summary"
+                    :catalog="item.catalog"
                 />
             </slot>
         </template>

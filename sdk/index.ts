@@ -68,6 +68,7 @@ export function useDcatApSearch() {
                                 : baseGetters.getLicenses?.[0] || '',
                     },
                 ],
+                getCatalog: dataset.catalog.id,
             };
 
             return {
