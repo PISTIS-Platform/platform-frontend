@@ -12,5 +12,8 @@ export default defineEventHandler(async (event) => {
         },
     );
 
-    return !!result.result.results.length;
+    return {
+        isPublished: result.result.results.length > 0,
+        results: result.result.results,
+    };
 });
