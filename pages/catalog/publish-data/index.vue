@@ -69,7 +69,7 @@ const transformSingleDataset = (dataset: Record<string, any>) => ({
     keywords: dataset.keywords?.map((keyword: any) => keyword.id),
 });
 
-const { data: isAssetOnMarketplace } = useAsyncData(
+const { data: isAssetOnMarketplace } = useAsyncData<{ isPublished: boolean; results: Record<string, any>[] }>(
     () =>
         $fetch(`/api/datasets/is-on-marketplace`, {
             query: {
@@ -421,7 +421,7 @@ const changeStep = async (stepNum: number) => {
         <MonetizationMethod
             v-model:monetization-details-prop="monetizationDetails"
             :asset-offering-details="assetOfferingDetails"
-            :asset-on-marketplace="isAssetOnMarketplace"
+            :asset-on-marketplace="isAssetOnMarketplace?.isPublished || false"
             @change-page="changeStep"
             @update:is-free="(value: boolean) => (isFree = value)"
             @update:is-worldwide="(value: boolean) => (isWorldwide = value)"
