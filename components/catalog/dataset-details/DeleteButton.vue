@@ -46,6 +46,12 @@ const offerIds = computed(() => {
     return marketplaceResults.value.map((offer) => offer.id);
 });
 
+const isNft = computed(() => {
+    if (!marketplaceResults.value) return false;
+
+    return marketplaceResults.value.some((offer) => offer.monetization?.[0]?.purchase_offer?.[0]?.type === 'nft');
+});
+
 const isOfferBought = async (offerId: string) => {
     const sceeApi = getSCEEUrl(offerId);
     try {
@@ -98,7 +104,7 @@ const confirmDelete = async () => {
     isDeleting.value = true;
 
     const deletedFromMarketplace = ref(false);
-    if (isPublished.value) {
+    if (isPublished.value && !isNft.value) {
         try {
             for (const offerId of offerIds.value) {
                 await $fetch('/api/catalog/delete-offer-from-marketplace', {
