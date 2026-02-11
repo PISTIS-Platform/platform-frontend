@@ -98,6 +98,46 @@
                                         "
                                         class="update-details"
                                     >
+                                        <!-- GDPR Check -->
+                                        <div
+                                            v-if="
+                                                row.activity?.toLowerCase() === 'gdpr check' ||
+                                                (row.operation_description && row.operation_description.message)
+                                            "
+                                            class="detail-item"
+                                        >
+                                            <div class="detail-header">
+                                                <span class="detail-intro">
+                                                    <strong>Summary:</strong>
+                                                    {{ row.operation_description.message }}
+                                                </span>
+                                            </div>
+                                            <div
+                                                v-if="
+                                                    row.operation_description.recommendations &&
+                                                    row.operation_description.recommendations.length > 0
+                                                "
+                                            >
+                                                <div class="detail-header">
+                                                    <span class="detail-intro">
+                                                        <strong>Recommendations:</strong>
+                                                    </span>
+                                                </div>
+                                                <ul class="section-items-list">
+                                                    <li
+                                                        v-for="(rec, index) in row.operation_description
+                                                            .recommendations"
+                                                        :key="'rec-' + index"
+                                                        class="section-item"
+                                                    >
+                                                        <span class="item-transformation">
+                                                            {{ rec }}
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
                                         <!-- Data Enrichment -->
                                         <div v-if="row.operation_description.data_enrichment" class="detail-item">
                                             <div class="detail-header">
@@ -319,7 +359,8 @@ const hasNoOperationChanges = (operationDescription) => {
         !operationDescription.data_changes &&
         !operationDescription.data_enrichment &&
         !operationDescription.data_transformations &&
-        !operationDescription.schema_changes
+        !operationDescription.schema_changes &&
+        !operationDescription.message
     );
 };
 
@@ -352,6 +393,17 @@ const formatActivityForCopy = (row) => {
 
     if (row.operation_description.data_enrichment) {
         result += `\nData Enrichment: ${row.operation_description.data_enrichment}`;
+    }
+
+    if (row.activity?.toLowerCase() === 'gdpr check' && row.operation_description.message) {
+        result += `\nSummary: ${row.operation_description.message}`;
+        if (
+            row.operation_description.recommendations &&
+            Array.isArray(row.operation_description.recommendations) &&
+            row.operation_description.recommendations.length > 0
+        ) {
+            result += `\nRecommendations:\n- ${row.operation_description.recommendations.join('\n- ')}`;
+        }
     }
 
     return result;
