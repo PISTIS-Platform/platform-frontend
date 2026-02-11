@@ -4,8 +4,6 @@ import { ref } from 'vue';
 
 import { useApiService } from '~/services/apiService';
 
-import mockData from './mock-lineage.json';
-
 const pistisMode = ref('');
 const backendUrl = ref('');
 const datasetFactoryUrl = ref('');
@@ -218,20 +216,6 @@ export const useStore = defineStore('store', () => {
         }
     };
 
-    //Mock Data
-    const loadMockData = async () => {
-        try {
-            const response = mockData;
-            treeObject.value = response;
-            familyTreeData.value = response;
-            lineageFamilyID.value = extractFamilyId(response);
-            parseTableData(treeObject.value);
-            console.log('Mock Data used:', response);
-        } catch (error) {
-            console.error('Loading mock data failed:', error);
-        }
-    };
-
     const compareDatasets = async (id1, id2) => {
         if (!id1 || !id2) {
             console.error('Two valid dataset IDs must be provided for comparison');
@@ -283,6 +267,16 @@ export const useStore = defineStore('store', () => {
                         'Dataset was successfully ingested via the Job Configurator and registered in the Factory Catalog.';
                 }
 
+                // Handle timestamp override for GDPR Check
+                let displayTimestamp = record.timestamp;
+                if (
+                    record.operation?.toLowerCase() === 'gdpr check' &&
+                    record.operation_description &&
+                    record.operation_description.timestamp
+                ) {
+                    displayTimestamp = record.operation_description.timestamp;
+                }
+
                 tempVersionedObject[recordId] = {
                     id: recordId,
                     version: record.version,
@@ -290,7 +284,7 @@ export const useStore = defineStore('store', () => {
                     activity_description: activityDescription,
                     operation_description: record.operation_description,
                     username: userDisplay,
-                    timestamp: formatDate(record.timestamp),
+                    timestamp: formatDate(displayTimestamp),
                 };
             }
         }
@@ -369,7 +363,6 @@ export const useStore = defineStore('store', () => {
         compareDatasets,
         parseTableData,
         selectTableFilter,
-        loadMockData,
         setBackendUrl,
         setDatasetFactoryUrl,
 
