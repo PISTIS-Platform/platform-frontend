@@ -3,7 +3,7 @@ import { useApiService } from '~/services/apiService';
 
 const config = useRuntimeConfig();
 
-const { getSCEEUrl } = useApiService();
+const { getSCEEUrl, getSCEEBurnNftUrl, getMarketplaceDatasetUrl, getSCEEAssetUrl } = useApiService();
 const { data: session } = useAuth();
 const token = ref(session.value?.token);
 
@@ -32,6 +32,7 @@ watchEffect(async () => {
     dist.value = props.distributions;
 });
 
+// for non nft datasets:
 const { data, status, error } = useAsyncData(() =>
     $fetch('/api/datasets/is-on-marketplace', {
         query: { id: props.datasetId },
@@ -76,6 +77,60 @@ watch(
     { immediate: true },
 );
 
+// for nft datasets:
+const isNft = ref(false);
+const nftId = ref<string | null>(null);
+
+const isNftOffer = async (datasetId: string): Promise<boolean> => {
+    const sceeApi = getSCEEAssetUrl(datasetId);
+    try {
+        const response = await $fetch(sceeApi, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token.value}`,
+            },
+        });
+        return response?.response?.sale?.saleType === 'nft';
+    } catch (err) {
+        console.error('SCEE ERROR:', err);
+        return false;
+    }
+};
+
+const getNftId = async (datasetId: string): Promise<string | null> => {
+    const marketplaceApi = getMarketplaceDatasetUrl(datasetId);
+
+    try {
+        const response = await $fetch(marketplaceApi, {
+            method: 'GET',
+        });
+
+        return response.result.monetization?.[0]?.purchase_offer?.[0]?.nft_id ?? null;
+    } catch (err) {
+        console.error('SCEE ERROR:', err);
+        return null;
+    }
+};
+
+watch(
+    () => props.datasetId,
+    async (datasetId) => {
+        if (!datasetId) {
+            nftId.value = null;
+            return;
+        }
+
+        isNft.value = await isNftOffer(datasetId);
+
+        if (isNft.value) {
+            nftId.value = await getNftId(datasetId);
+        } else {
+            nftId.value = null;
+        }
+    },
+    { immediate: true },
+);
+
 const canDelete = computed(() => status.value === 'success' && error.value === null && isBought.value === false);
 
 const openOfferDetailsPage = (offer) => {
@@ -98,7 +153,7 @@ const confirmDelete = async () => {
     isDeleting.value = true;
 
     const deletedFromMarketplace = ref(false);
-    if (isPublished.value) {
+    if (isPublished.value && !isNft.value) {
         try {
             for (const offerId of offerIds.value) {
                 await $fetch('/api/catalog/delete-offer-from-marketplace', {
@@ -113,7 +168,21 @@ const confirmDelete = async () => {
         }
     }
 
-    if (!isPublished.value || (isPublished.value && deletedFromMarketplace.value)) {
+    if (isNft.value) {
+        try {
+            await $fetch('/api/catalog/delete-offer-from-marketplace', {
+                method: 'DELETE',
+                query: { offerId: props.datasetId },
+            });
+
+            deletedFromMarketplace.value = true;
+        } catch (err) {
+            console.error('DELETE FROM MARKETPLACE ERROR:', err);
+            return;
+        }
+    }
+
+    if (!isPublished.value || deletedFromMarketplace.value) {
         try {
             const response = await $fetch('/api/catalog/delete-dataset', {
                 method: 'DELETE',
@@ -125,11 +194,6 @@ const confirmDelete = async () => {
 
             deleteInfo.value = response.info;
             deleteSuccess.value = true;
-
-            setTimeout(() => {
-                showConfirmationWindow.value = false;
-                router.back();
-            }, 3500);
         } catch (err) {
             console.error('DELETE ERROR:', err);
             deleteError.value = true;
@@ -137,6 +201,29 @@ const confirmDelete = async () => {
             isDeleting.value = false;
         }
     }
+
+    if (isNft.value && deletedFromMarketplace.value && deleteSuccess.value) {
+        const sceeBurnNftApi = getSCEEBurnNftUrl();
+        try {
+            await $fetch(sceeBurnNftApi, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token.value}`,
+                    'Content-Type': 'application/json',
+                },
+                body: {
+                    nft_id: nftId.value,
+                },
+            });
+        } catch (err) {
+            console.error('BURN NFT ERROR:', err);
+        }
+    }
+
+    setTimeout(() => {
+        showConfirmationWindow.value = false;
+        router.back();
+    }, 3500);
 };
 </script>
 
@@ -183,6 +270,23 @@ const confirmDelete = async () => {
                     </ul>
                 </div>
 
+                <div v-if="isNft">
+                    <p class="px-6 pt-10 font-semibold text-gray-700">
+                        This dataset has not yet been acquired but it has been published in the marketplace as NFT.
+                    </p>
+                    <br />
+                    <p class="px-6 text-gray-700">The following offer will also be deleted:</p>
+                    <ul class="px-12">
+                        <li
+                            class="list-disc cursor-pointer underline text-gray-700"
+                            @click="openOfferDetailsPage(props.datasetId)"
+                        >
+                            {{ `${config.public.factoryUrl}/marketplace/dataset-details/${props.datasetId}` }}
+                            <UIcon name="i-heroicons-arrow-top-right-on-square" class="text-pistis-600"></UIcon>
+                        </li>
+                    </ul>
+                </div>
+
                 <div class="flex justify-end space-x-4 p-6">
                     <UButton variant="solid" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>
                     <UButton variant="solid" color="red" @click="confirmDelete">Delete</UButton>
@@ -211,6 +315,12 @@ const confirmDelete = async () => {
                     <ul class="list-disc pl-5">
                         <li v-for="offer in offerIds" :key="offer.id">
                             <span class="font-medium">{{ offer }}</span>
+                        </li>
+                    </ul>
+                    <p v-if="isNft" class="font-semibold my-1">Deleted from marketplace:</p>
+                    <ul class="list-disc pl-5">
+                        <li>
+                            <span class="font-medium">{{ props.datasetId }}</span>
                         </li>
                     </ul>
                     <p class="font-semibold mb-1 mt-3">Dataset was also removed from:</p>
