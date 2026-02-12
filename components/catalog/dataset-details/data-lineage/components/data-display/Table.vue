@@ -39,16 +39,18 @@
                     </tr>
 
                     <!-- Render Table Rows -->
+                    <!-- Note: Use dataset_id for highlighting instead of id (which includes event suffix like "-0", "-1")
+                         This ensures all events for the same dataset highlight together when hovering -->
                     <tr
                         v-for="(row, rowIndex) in filteredTableData"
                         :key="rowIndex"
                         :class="{
-                            highlighted: String(row.id) === String(hoveredRow) && !props.useRedHighlight,
+                            highlighted: String(row.dataset_id) === String(hoveredRow) && !props.useRedHighlight,
                             'highlighted-parent':
-                                hoveredParents.map(String).includes(String(row.id)) && !props.useRedHighlight,
+                                hoveredParents.map(String).includes(String(row.dataset_id)) && !props.useRedHighlight,
                             'highlighted-red':
-                                (String(row.id) === String(hoveredRow) && props.useRedHighlight) ||
-                                props.selectedDiff.map(String).includes(String(row.id)),
+                                (String(row.dataset_id) === String(hoveredRow) && props.useRedHighlight) ||
+                                props.selectedDiff.map(String).includes(String(row.dataset_id)),
                         }"
                     >
                         <td class="text-center align-middle version-column">{{ row.version }}</td>
