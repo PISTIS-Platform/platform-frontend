@@ -152,6 +152,26 @@ const confirmDelete = async () => {
 
     isDeleting.value = true;
 
+    const isBurned = ref(false);
+    if (isNft.value) {
+        const sceeBurnNftApi = getSCEEBurnNftUrl();
+        try {
+            await $fetch(sceeBurnNftApi, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token.value}`,
+                    'Content-Type': 'application/json',
+                },
+                body: {
+                    nft_id: nftId.value,
+                },
+            });
+            isBurned.value = true;
+        } catch (err) {
+            console.error('BURN NFT ERROR:', err);
+        }
+    }
+
     const deletedFromMarketplace = ref(false);
     if (isPublished.value && !isNft.value) {
         try {
@@ -168,7 +188,7 @@ const confirmDelete = async () => {
         }
     }
 
-    if (isNft.value) {
+    if (isNft.value && isBurned.value) {
         try {
             await $fetch('/api/catalog/delete-offer-from-marketplace', {
                 method: 'DELETE',
@@ -199,24 +219,6 @@ const confirmDelete = async () => {
             deleteError.value = true;
         } finally {
             isDeleting.value = false;
-        }
-    }
-
-    if (isNft.value && deletedFromMarketplace.value && deleteSuccess.value) {
-        const sceeBurnNftApi = getSCEEBurnNftUrl();
-        try {
-            await $fetch(sceeBurnNftApi, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token.value}`,
-                    'Content-Type': 'application/json',
-                },
-                body: {
-                    nft_id: nftId.value,
-                },
-            });
-        } catch (err) {
-            console.error('BURN NFT ERROR:', err);
         }
     }
 
