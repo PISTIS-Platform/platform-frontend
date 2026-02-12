@@ -6,5 +6,6 @@ const searchTypeValue = defineModel<string>('search-type');
     <div class="pr-4">
         <input v-model="searchTypeValue" type="radio" name="search-type" value="metadata" checked /> Metadata
     </div>
-    <div><input v-model="searchTypeValue" type="radio" name="search-type" value="data" /> Data</div>
+    <div class="pr-4"><input v-model="searchTypeValue" type="radio" name="search-type" value="data" /> Data</div>
+    <div><input v-model="searchTypeValue" type="radio" name="search-type" value="openDataPortal" /> EU Data Portal</div>
 </template>
