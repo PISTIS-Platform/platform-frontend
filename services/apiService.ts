@@ -11,6 +11,9 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getDatasetUrl = (datasetId: string) => `${baseUrl}/srv/search/datasets/${datasetId}`;
 
+    const getMarketplaceDatasetUrl = (datasetId: string) =>
+        `${config.public.cloudUrl}/srv/search/datasets/${datasetId}`;
+
     const getUserFactoryUrl = () => `${config.public.cloudUrl}/srv/factories-registry/api/factories/user-factory`;
 
     const getInvestUrl = (datasetId: string) => `${config.public.factoryUrl}/invest/${datasetId}`;
@@ -43,12 +46,18 @@ export const useApiService = (pistisMode: string = 'cloud') => {
     const getSCEEUrl = (offerId: string) =>
         `${config.public.factoryUrl}/srv/smart-contract-execution-engine/api/scee/getTransactionInfo/assetId/${offerId}`;
 
+    const getSCEEAssetUrl = (datasetId: string) =>
+        `${config.public.factoryUrl}/srv/smart-contract-execution-engine/api/scee/GetAsset/${datasetId}`;
+
+    const getSCEEBurnNftUrl = () => `${config.public.factoryUrl}/srv/smart-contract-execution-engine/api/scee/burnNFT`;
+
     return {
         baseUrl,
         getSearchUrl,
         getRepoUrl,
         getDistributionsUrl,
         getDatasetUrl,
+        getMarketplaceDatasetUrl,
         getUserFactoryUrl,
         getInvestUrl,
         getFeedbackUrl,
@@ -62,5 +71,7 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getLineageDataUrl,
         getMarketplaceSparqlEndpoint,
         getSCEEUrl,
+        getSCEEAssetUrl,
+        getSCEEBurnNftUrl,
     };
 };
