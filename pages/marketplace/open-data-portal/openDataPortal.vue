@@ -5,29 +5,17 @@ import Sidebar from 'primevue/sidebar';
 import { useDatasetSearchView } from '@/pages/catalog/useDatasetsSearchView';
 import { useSearchParams } from '@/pages/catalog/useSearchParams';
 import { useSelectedFacets } from '@/pages/catalog/useSelectedFacets';
-// import { ref, toRef } from 'vue'
 import { useDcatApSearch } from '@/sdk';
 
 const queryClient = useQueryClient();
 
-// const route = useRoute();
-// const pistisMode = computed(() => route.query.pistisMode || 'factory');
-
 const searchInput = defineModel<string>('searchInput', { required: true });
+const searchType = defineModel<string>('searchType', { default: 'openDataPortal' });
 const hvdModel = defineModel<boolean>('hvd', { required: true });
 const livedataModel = defineModel<boolean>('livedata', { required: true });
 const selectedFacets = toRef(useSelectedFacets());
 const searchParams = useSearchParams();
-// const page = defineModel<number>('page', { required: true });
 const sidebarVisible = ref(false);
-const route = useRoute();
-
-const searchType = computed(() => {
-    if (route.query.pm === 'openData') return 'openDataPortal';
-    if (route.query.type === 'metadata') return 'metadata';
-    if (route.query.type === 'data') return 'data';
-    return 'metadata';
-});
 
 function toggleFacetSidebar() {
     sidebarVisible.value = !sidebarVisible.value;
@@ -70,46 +58,6 @@ let dsv = useDatasetSearchView({
 onMounted(() => {
     queryClient.invalidateQueries();
 });
-
-const { data: session } = useAuth();
-const token = ref(session.value?.token);
-const dqDatasets = ref([]);
-const dqGetSearchResultsCount = ref(0);
-const dqGetSearchResultsPagesCount = ref(0);
-const dqIsLoading = ref(true);
-const dqIsFetching = ref(true);
-const doDataSearch = async () => {
-    console.log('searching data');
-    dqDatasets.value = [];
-    dqGetSearchResultsCount.value = 0;
-    dqGetSearchResultsPagesCount.value = 0;
-    dqIsLoading.value = true;
-    dqIsFetching.value = true;
-    try {
-        const url = 'https://pistis-market.eu/srv/distributed-query/search';
-        const response = await fetch(url, {
-            method: 'POST',
-            body: JSON.stringify({ dataQuery: searchInput.value }),
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token.value}`,
-            },
-        });
-        const data = await response.json();
-        if (data.success) {
-            dqDatasets.value = data.datasets;
-            dqGetSearchResultsCount.value = dqDatasets.length;
-            dqGetSearchResultsPagesCount.value = Math.ceil(dqGetSearchResultsCount / 10);
-            console.log(dqDatasets.value);
-        }
-    } catch (error) {
-        console.error('Error fetching resources:', error);
-    } finally {
-        dqIsLoading.value = false;
-        dqIsFetching.value = false;
-    }
-    return false;
-};
 </script>
 
 <template>
@@ -124,11 +72,6 @@ const doDataSearch = async () => {
                 mobile
                 :facets="availableFacetsFormatted"
             />
-            <div v-if="searchType === 'data'" class="flex flex-col rounded facets-overlay">
-                <div class="w-80 p-4 facets-overlay-container">
-                    <div class="p-4 facets-overlay-text">Facets are not available when searching directly in data</div>
-                </div>
-            </div>
         </Sidebar>
         <div
             class="w-full relative mx-auto grid max-w-content-max grid-cols-1 sm:grid-cols-[minmax(auto,20rem)_1fr] mt-4"
@@ -177,20 +120,11 @@ const doDataSearch = async () => {
                             </SearchInfoPanel>
                         </div>
                         <SearchItems
-                            v-if="searchType === 'metadata'"
                             :items="datasets"
                             :get-search-results-pages-count="getSearchResultsPagesCount"
                             :is-loading="isLoading"
                             :is-fetching="isFetching"
                             :show-only-public="showOnlyPublic"
-                        />
-                        <SearchItems
-                            v-if="searchType === 'data'"
-                            :items="dqDatasets"
-                            :get-search-results-pages-count="dqGetSearchResultsPagesCount"
-                            :is-loading="dqIsLoading"
-                            :is-fetching="dqIsFetching"
-                            :show-only-public="false"
                         />
                     </section>
                 </div>
@@ -198,24 +132,3 @@ const doDataSearch = async () => {
         </div>
     </PageContainer>
 </template>
-
-<style>
-.facets-overlay {
-    position: relative;
-    left: -100%;
-    justify-content: top;
-    background: rgba(255, 255, 255, 0.66);
-    padding-top: 5em;
-    padding-bottom: 5em;
-}
-.facets-overlay-container {
-    position: sticky;
-    top: 10em;
-}
-.facets-overlay-text {
-    background: #e5e5e5;
-    border-radius: 0.75rem;
-    color: #000000;
-    text-align: center;
-}
-</style>
