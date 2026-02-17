@@ -134,7 +134,8 @@ onMounted(() => {
         v-if="
             !(
                 (pistisMode === 'cloud' && props.title === 'Catalogues') ||
-                (pistisMode === 'factory' && props.title === 'Streaming Datasets')
+                (pistisMode === 'factory' && props.title === 'Streaming Datasets') ||
+                (pistisMode === 'openData' && props.title === 'Streaming Datasets')
             )
         "
         v-model:collapsed="collapsed"

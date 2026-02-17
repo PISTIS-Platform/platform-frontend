@@ -121,10 +121,10 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
 
     // --- Facets ---
     const availableFacetsDe = getAvailableFacetsLocalized('en');
-    const availableFacetsWithoutHvd = computed(() => availableFacetsDe.value?.filter((facet) => facet.id !== 'is_hvd'));
+    // const availableFacetsWithoutHvd = computed(() => availableFacetsDe.value?.filter((facet) => facet.id !== 'is_hvd'));
     const availableFacetsFormatted = computed(() => {
         return (
-            availableFacetsWithoutHvd.value
+            availableFacetsDe.value
                 ?.map((facet) => ({
                     id: facet.id,
                     label: t(`datasetFacets.facets.${facet.id}`) ?? facet.id,
