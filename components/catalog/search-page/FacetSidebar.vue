@@ -87,8 +87,9 @@ const hasMoreFacets = computed(() => {
                 />
                 <UButton v-if="hasMoreFacets" variant="soft" block @click="showAllFacets = !showAllFacets">
                     {{ showAllFacets ? 'Less filters' : 'More filters' }}
-                    <PhCaretUp
-                        class="text-lg font-semibold transition-transform duration-200 ease-in-out"
+                    <component
+                        :is="PhCaretUp"
+                        class="inline"
                         :class="{
                             'rotate-180': !showAllFacets,
                         }"

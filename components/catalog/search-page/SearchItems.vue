@@ -5,6 +5,7 @@
 import Paginator from 'primevue/paginator';
 
 import { useSearchParams } from '@/pages/catalog/useSearchParams';
+import PhCaretDown from '~icons/ph/caret-down';
 
 const route = useRoute();
 
@@ -51,7 +52,7 @@ const toRoute = computed(() =>
             </div>
         </template>
     </div>
-    <div class="grid w-full place-content-center">
+    <div v-if="!(route.query.pm === 'openData')" class="grid w-full place-content-center">
         <Paginator
             v-model:first="searchParams.queryParams.page.value"
             class="cursor-pointer ring-1 ring-gray-200 rounded shadow-md"
@@ -59,6 +60,9 @@ const toRoute = computed(() =>
             :rows="1"
             :total-records="getSearchResultsPagesCount"
         />
+    </div>
+    <div v-if="route.query.pm === 'openData'" class="m-auto p-10">
+        <UButton>Load more <component :is="PhCaretDown" class="inline" /></UButton>
     </div>
 </template>
 
