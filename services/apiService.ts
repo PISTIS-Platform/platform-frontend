@@ -1,9 +1,19 @@
 export const useApiService = (pistisMode: string = 'cloud') => {
     const config = useRuntimeConfig();
 
-    const baseUrl = pistisMode === 'factory' ? config.public.factoryUrl : config.public.cloudUrl;
+    let baseUrl = config.public.cloudUrl;
+    if (pistisMode === 'factory') {
+        baseUrl = config.public.factoryUrl;
+    }
+    if (pistisMode === 'openData') {
+        baseUrl = config.public.openDataPortalUrl;
+    }
 
-    const getSearchUrl = () => `${baseUrl}/srv/search/`;
+    let searchUrl = `${baseUrl}/srv/search/`;
+    if (pistisMode === 'openData') {
+        searchUrl = `${baseUrl}/api/hub/search/`;
+    }
+    const getSearchUrl = () => searchUrl;
 
     const getRepoUrl = () => `${baseUrl}/srv/repo/`;
 

@@ -8,14 +8,21 @@ import { useSelectedFacets } from '@/pages/catalog/useSelectedFacets';
 import { useDcatApSearch } from '@/sdk';
 
 const queryClient = useQueryClient();
+const route = useRoute();
 
 const searchInput = defineModel<string>('searchInput', { required: true });
-const searchType = defineModel<string>('searchType', { default: 'openDataPortal' });
 const hvdModel = defineModel<boolean>('hvd', { required: true });
 const livedataModel = defineModel<boolean>('livedata', { required: true });
 const selectedFacets = toRef(useSelectedFacets());
 const searchParams = useSearchParams();
 const sidebarVisible = ref(false);
+
+const searchType = computed(() => {
+    if (route.query.pm === 'openData') return 'openDataPortal';
+    if (route.query.type === 'metadata') return 'metadata';
+    if (route.query.type === 'data') return 'data';
+    return 'metadata';
+});
 
 function toggleFacetSidebar() {
     sidebarVisible.value = !sidebarVisible.value;
@@ -87,13 +94,6 @@ onMounted(() => {
                         mobile
                         :facets="availableFacetsFormatted"
                     />
-                    <div v-if="searchType === 'data'" class="flex flex-col rounded facets-overlay">
-                        <div class="w-80 p-4 facets-overlay-container">
-                            <div class="p-4 facets-overlay-text">
-                                Facets are not available when searching directly in data
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div name="content" class="flex flex-col overflow-x-auto">
@@ -110,12 +110,7 @@ onMounted(() => {
                         <SelectedFacetsOverview v-model="selectedFacets" :facets="availableFacetsFormatted" />
                         <div class="flex flex-col pb-6">
                             <SearchInfoPanel v-model:direction="sortDirection" v-model:sort="sort">
-                                <span v-if="searchType === 'metadata'" class="font-semibold text-primary-600">{{
-                                    getSearchResultsCount
-                                }}</span>
-                                <span v-if="searchType === 'data'" class="font-semibold text-primary-600">{{
-                                    dqGetSearchResultsCount
-                                }}</span>
+                                <span class="font-semibold text-primary-600">{{ getSearchResultsCount }}</span>
                                 <span class="font-normal pl-1">{{ $t('searchBar.datasets.found') }}</span>
                             </SearchInfoPanel>
                         </div>

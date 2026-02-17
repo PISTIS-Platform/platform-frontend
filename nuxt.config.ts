@@ -68,6 +68,7 @@ export default defineNuxtConfig({
             orgLogo: '',
             catalogName: '',
             pistisMarketplaceCatalog: '',
+            openDataPortalUrl: '',
         },
         keycloak: {
             issuer: '',
