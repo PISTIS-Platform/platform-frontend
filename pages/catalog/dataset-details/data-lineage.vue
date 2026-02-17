@@ -35,57 +35,66 @@
 
             <!-- Tab Content -->
             <div class="tab-content" :class="{ 'integrity-layout': store.displayState === 'integrity' }">
-                <!-- Left Side: Tree Component (hidden on Integrity tab) -->
-                <div v-if="store.displayState !== 'integrity'" class="tree-column">
-                    <div class="component-container">
-                        <div v-if="store.isLoadingFamilyTree" class="loading-container">
-                            <div class="loading-spinner"></div>
-                            <p class="loading-text">Loading dataset family tree...</p>
-                        </div>
-                        <CustomTreeComponent
-                            v-else-if="store.treeObject"
-                            :add-to-diff="store.addToDiff"
-                            :selected-diff="store.selectedDiff"
-                            :data="store.treeObject"
-                            :reset-diff="store.resetDiff"
-                            @node-hovered="highlightRow"
-                        />
-                        <div v-else class="no-data-message">
-                            <p>No family tree data available</p>
-                        </div>
+                <!-- Error Message - Shown across entire container -->
+                <div v-if="store.familyTreeError && !store.isLoadingFamilyTree" class="error-container">
+                    <div class="error-message">
+                        <p class="error-title">Error loading dataset lineage</p>
+                        <p class="error-text">{{ store.familyTreeError }}</p>
                     </div>
                 </div>
+                <template v-else>
+                    <!-- Left Side: Tree Component (hidden on Integrity tab) -->
+                    <div v-if="store.displayState !== 'integrity'" class="tree-column">
+                        <div class="component-container">
+                            <div v-if="store.isLoadingFamilyTree" class="loading-container">
+                                <div class="loading-spinner"></div>
+                                <p class="loading-text">Loading dataset family tree...</p>
+                            </div>
+                            <CustomTreeComponent
+                                v-else-if="store.treeObject"
+                                :add-to-diff="store.addToDiff"
+                                :selected-diff="store.selectedDiff"
+                                :data="store.treeObject"
+                                :reset-diff="store.resetDiff"
+                                @node-hovered="highlightRow"
+                            />
+                            <div v-else class="no-data-message">
+                                <p>No family tree data available</p>
+                            </div>
+                        </div>
+                    </div>
 
-                <!-- Right Side: Dynamic Content (Table, Compare, or Integrity) -->
-                <div class="table-column" :class="{ 'full-width': store.displayState === 'integrity' }">
-                    <div class="component-container">
-                        <div
-                            v-if="store.isLoadingFamilyTree && store.displayState === 'tracker'"
-                            class="loading-container"
-                        >
-                            <div class="loading-spinner"></div>
-                            <p class="loading-text">Loading dataset history...</p>
+                    <!-- Right Side: Dynamic Content (Table, Compare, or Integrity) -->
+                    <div class="table-column" :class="{ 'full-width': store.displayState === 'integrity' }">
+                        <div class="component-container">
+                            <div
+                                v-if="store.isLoadingFamilyTree && store.displayState === 'tracker'"
+                                class="loading-container"
+                            >
+                                <div class="loading-spinner"></div>
+                                <p class="loading-text">Loading dataset history...</p>
+                            </div>
+                            <Table
+                                v-else-if="store.displayState === 'tracker'"
+                                :headers="[
+                                    { key: 'version', label: 'Version' },
+                                    { key: 'id', label: 'ID' },
+                                    { key: 'activity', label: 'Activity' },
+                                    { key: 'operation_description', label: 'Description' },
+                                    { key: 'username', label: 'Username' },
+                                    { key: 'timestamp', label: 'Timestamp' },
+                                ]"
+                                :table-data="store.tableData ? Object.values(store.tableData) : []"
+                                :hovered-row="hoveredNode"
+                                :hovered-parents="hoveredParents"
+                                :use-red-highlight="useRedHighlight"
+                                :selected-diff="store.selectedDiff"
+                            />
+                            <Compare v-if="store.displayState === 'diff'" :cloud-mode="!isFactory" />
+                            <DataIntegrity v-if="store.displayState === 'integrity'" :lineage-id="lineageID" />
                         </div>
-                        <Table
-                            v-else-if="store.displayState === 'tracker'"
-                            :headers="[
-                                { key: 'version', label: 'Version' },
-                                { key: 'id', label: 'ID' },
-                                { key: 'activity', label: 'Activity' },
-                                { key: 'operation_description', label: 'Description' },
-                                { key: 'username', label: 'Username' },
-                                { key: 'timestamp', label: 'Timestamp' },
-                            ]"
-                            :table-data="store.tableData ? Object.values(store.tableData) : []"
-                            :hovered-row="hoveredNode"
-                            :hovered-parents="hoveredParents"
-                            :use-red-highlight="useRedHighlight"
-                            :selected-diff="store.selectedDiff"
-                        />
-                        <Compare v-if="store.displayState === 'diff'" :cloud-mode="!isFactory" />
-                        <DataIntegrity v-if="store.displayState === 'integrity'" :lineage-id="lineageID" />
                     </div>
-                </div>
+                </template>
             </div>
         </div>
     </div>
@@ -621,5 +630,43 @@ body,
 .no-data-message p {
     margin: 0;
     font-size: 16px;
+}
+
+.error-container {
+    grid-column: 1 / -1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+.error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    border-radius: 8px;
+    color: #c53030;
+    max-width: 800px;
+    width: 100%;
+}
+
+.error-title {
+    margin: 0 0 12px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #c53030;
+}
+
+.error-text {
+    margin: 0;
+    font-size: 16px;
+    color: #742a2a;
+    text-align: center;
+    line-height: 1.5;
 }
 </style>
