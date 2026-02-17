@@ -19,6 +19,8 @@ const props = defineProps<{
     modelValue: Record<string, string[]>;
 }>();
 
+const route = useRoute();
+
 const additionalFilters = computed(() => [
     {
         id: 'dataServices',
@@ -57,18 +59,18 @@ const model = useVModel(props, 'modelValue', emit, { passive: true });
 
 const showAllFacets = ref(false);
 
-const facetsCollapsed = 10;
+const facetsCollapsed = computed(() => (route.query.pm === 'openData' ? 5 : 10));
 
 const visibleFacetGroups = computed(() => {
     if (showAllFacets.value) {
         return mergedFacetGroups.value;
     }
 
-    return mergedFacetGroups.value.slice(0, facetsCollapsed);
+    return mergedFacetGroups.value.slice(0, facetsCollapsed.value);
 });
 
 const hasMoreFacets = computed(() => {
-    return mergedFacetGroups.value.length > facetsCollapsed;
+    return mergedFacetGroups.value.length > facetsCollapsed.value;
 });
 </script>
 
