@@ -18,7 +18,7 @@ export function useSelectedFacets() {
         keywords: refSyncedWithRouteQueryFacet('keywords', [] as string[]),
         // DEU facets:
         ...(pistisMode === 'openData' && {
-            dataScope: refSyncedWithRouteQueryFacet('dataScope', [] as string[]),
+            // dataScope: refSyncedWithRouteQueryFacet('dataScope', [] as string[]),
             is_hvd: refSyncedWithRouteQueryFacet('is_hvd', [] as string[]),
             hvdCategory: refSyncedWithRouteQueryFacet('hvdCategory', [] as string[]),
             country: refSyncedWithRouteQueryFacet('country', [] as string[]),

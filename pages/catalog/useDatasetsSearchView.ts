@@ -66,7 +66,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     // --- Dataset Scope: Model Toggles & Computed Flags ---
     const hvdModel = toRef(options?.hvdModel || false);
     const livedataModel = ref(options?.livedataModel || false);
-    const isHvd = computed(() => (hvdModel.value ? ['true'] : []));
+    const _isHvd = computed(() => (hvdModel.value ? ['true'] : []));
     const isLivedata = computed(() =>
         livedataModel.value
             ? [
@@ -89,7 +89,6 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         queryParams,
         selectedFacets: {
             ...toRefs(selectedFacets.value),
-            is_hvd: isHvd,
             periodicity: isLivedata,
         },
         // headers: searchHeaders,

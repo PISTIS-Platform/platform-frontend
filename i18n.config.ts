@@ -946,15 +946,6 @@ export default defineI18nConfig(() => ({
             },
             datasetFacets: {
                 facets: {
-                    datascopeField: {
-                        countryData: 'National Data',
-                        io: 'International Data',
-                        eu: 'European Union Data',
-                    },
-                    datascope: 'Data scope',
-                    dataServices: {
-                        dataServicesOnly: 'Data services',
-                    },
                     country: 'Provenance',
                     format: 'Formats',
                     scoring: 'Metadata Quality',
