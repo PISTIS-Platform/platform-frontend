@@ -20,7 +20,7 @@ export function useSearchParams(locale?: MaybeRefOrGetter) {
     });
     const dataServices = refSyncedWithRouteQuery('dataServices', 'false');
 
-    const sort = ref('modified');
+    const sort = ref('relevance');
     const sortDirection = ref('desc');
     // const computedSort = computed(() => `${sort.value}+${sortDirection.value}`)
     const computedSort = computed({
@@ -41,7 +41,7 @@ export function useSearchParams(locale?: MaybeRefOrGetter) {
         if (sort.value === 'issued') return `${computedSort.value},relevance+desc,${titleSort}`;
         return computedSort.value;
     });
-    const routerQuerySort = useRouteQuery<string>('sort', 'modified+desc', {
+    const routerQuerySort = useRouteQuery<string>('sort', 'relevance+desc', {
         mode: 'push',
         router: useRouter(),
         route: useRoute(),

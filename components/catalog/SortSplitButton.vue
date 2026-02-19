@@ -43,7 +43,7 @@ const sortOptions = computed(() => {
     return options;
 });
 
-const sort = defineModel<string>('sort', { default: 'modified' });
+const sort = defineModel<string>('sort', { default: 'relevance' });
 
 const selectedOption = computed(() => sortOptions.value.find((opt) => opt.id === sort.value)?.name ?? '');
 
