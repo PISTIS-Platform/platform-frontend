@@ -9,12 +9,13 @@ import PhCaretDown from '~icons/ph/caret-down';
 
 const route = useRoute();
 
-const _props = defineProps<{
+const props = defineProps<{
     items: [];
     getSearchResultsPagesCount: number;
     isLoading: boolean;
     isFetching: boolean;
     showOnlyPublic: boolean;
+    loadMore?: () => void;
 }>();
 const searchParams = useSearchParams();
 const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
@@ -22,6 +23,10 @@ const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
 const toRoute = computed(() =>
     route.query.pm === 'cloud' ? 'marketplace-dataset-details-datasetId' : 'catalog-dataset-details-datasetId',
 );
+
+const loadMoreDatasets = () => {
+    props.loadMore?.();
+};
 </script>
 
 <template>
@@ -62,7 +67,7 @@ const toRoute = computed(() =>
         />
     </div>
     <div v-if="route.query.pm === 'openData'" class="m-auto p-10">
-        <UButton>Load more <component :is="PhCaretDown" class="inline" /></UButton>
+        <UButton @click="loadMoreDatasets">Load more <component :is="PhCaretDown" class="inline" /></UButton>
     </div>
 </template>
 

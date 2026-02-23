@@ -157,6 +157,10 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         );
     });
 
+    function loadMore() {
+        console.log('Load More!');
+    }
+
     return {
         selectedFacets,
         hvdModel,
@@ -172,6 +176,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         getSearchResultsPagesCount,
         isFetching,
         isLoading,
+        loadMore,
         // showOnlyPublic,
     };
 }
