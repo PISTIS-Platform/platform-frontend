@@ -180,7 +180,7 @@ const buyRequest = async () => {
             assetFactory: offer.publisher?.organization_id ?? '',
             sellerId: seller.seller_id ?? '',
             price: offer.price ?? 0,
-            nftId: offer.nft_id ?? ''
+            nftId: offer.nft_id ?? '',
         },
         {
             headers: {
@@ -190,18 +190,36 @@ const buyRequest = async () => {
         },
     );
 
-    toast.promise(promise, {
+    const toastId = toast.loading('Processing Purchase', {
         position: 'bottom-center',
-        loading: 'Processing your purchase...',
-        success: () => `Successfully purchased ${title}`,
-        error: (err) => err?.response?.data?.reason || 'An error occurred while processing your request.',
+        description: 'Please wait while we complete your transaction...',
+        style: {
+            background: '#FFF7ED',
+            color: '#F97316',
+            // border: '1px solid #F97316',
+            padding: '20px',
+            fontSize: '15px',
+            minWidth: '420px',
+        },
     });
 
     try {
         const res = await promise;
+        toast.dismiss(toastId);
+
+        toast.success('Purchase Successful', {
+            position: 'bottom-center',
+            description: `Your purchase of "${title}" is now available in your acquired data catalog.`,
+        });
         console.log('Purchase complete', res.data);
         datasetIsBought.value = true;
     } catch (err) {
+        toast.dismiss(toastId);
+
+        toast.error('Purchase Failed', {
+            position: 'bottom-center',
+            description: err?.response?.data?.reason || 'An error occurred while processing your request.',
+        });
         console.error('Purchase failed', err);
     } finally {
         buyIsLoading.value = false;
