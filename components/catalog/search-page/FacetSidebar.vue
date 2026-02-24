@@ -82,7 +82,7 @@ const hasMoreFacets = computed(() => {
                 <KFacetGroup
                     v-for="facet of visibleFacetGroups"
                     :id="`facet-group-${facet.id}`"
-                    :key="facet.id"
+                    :key="JSON.stringify(facet)"
                     v-model="model[facet.id]"
                     :title="facet.label"
                     :facets="facet.items"

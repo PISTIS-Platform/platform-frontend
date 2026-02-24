@@ -205,9 +205,11 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     watch(
         () => [queryParams.q.value, queryParams.qt.value, sort.value, sortDirection.value, selectedFacets.value],
         () => {
-            if (isSearchAfterMode.value) {
-                accumulatedResults.value = [];
-            }
+            if (!isSearchAfterMode.value) return;
+
+            accumulatedResults.value = [];
+            queryParams.searchAfterSort.value = undefined;
+            queryParams.pitId.value = undefined;
         },
         { deep: true },
     );
