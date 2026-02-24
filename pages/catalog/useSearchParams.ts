@@ -50,6 +50,42 @@ export function useSearchParams(locale?: MaybeRefOrGetter) {
         },
     });
 
+    const rawSearchAfterSort = refSyncedWithRouteQuery<string | undefined>('searchAfterSort', undefined);
+
+    const rawPitId = refSyncedWithRouteQuery<string | undefined>('pitId', undefined);
+
+    const searchAfterSort = computed<string | undefined>({
+        get() {
+            if (pm.value === 'openData') {
+                return rawSearchAfterSort.value;
+            }
+            return undefined;
+        },
+        set(val) {
+            if (pm.value === 'openData') {
+                rawSearchAfterSort.value = val;
+            } else {
+                rawSearchAfterSort.value = undefined;
+            }
+        },
+    });
+
+    const pitId = computed<string | undefined>({
+        get() {
+            if (pm.value === 'openData') {
+                return rawPitId.value;
+            }
+            return undefined;
+        },
+        set(val) {
+            if (pm.value === 'openData') {
+                rawPitId.value = val;
+            } else {
+                rawPitId.value = undefined;
+            }
+        },
+    });
+
     const sort = ref('modified');
     const sortDirection = ref('desc');
     // const computedSort = computed(() => `${sort.value}+${sortDirection.value}`)
@@ -88,6 +124,8 @@ export function useSearchParams(locale?: MaybeRefOrGetter) {
             sort: finalComputedSort,
             dataServices,
             searchAfter,
+            searchAfterSort,
+            pitId,
         },
         sort,
         sortDirection,

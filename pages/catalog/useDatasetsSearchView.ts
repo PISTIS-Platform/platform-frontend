@@ -55,6 +55,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     //     forceUserToken: toStringOrFirst(route?.query?.['force-user-token']),
     // };
     const { queryParams, sort, sortDirection } = options?.searchParams ? options.searchParams : useSearchParams();
+    const isSearchAfterMode = computed(() => queryParams.searchAfter?.value === 'true');
     const selectedFacets = options.selectedFacets ? toRef(options.selectedFacets) : toRef(useSelectedFacets());
 
     // const searchHeaders = computed(() => ({
@@ -79,6 +80,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     // --- Search API Integration ---
     const { useSearch } = options.hubSearchQueryDefinition ? options.hubSearchQueryDefinition() : useDcatApSearch();
     const {
+        query,
         getSearchResultsEnhanced,
         getSearchResultsCount,
         getSearchResultsPagesCount,
@@ -94,6 +96,16 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         // headers: searchHeaders,
     });
 
+    const searchMetaData = computed(() => {
+        const data = query.data.value as any;
+        if (!data?.result) return null;
+
+        return {
+            sort: data.result.sort,
+            pitId: data.result.pitId,
+        };
+    });
+
     const { doSearch } = useSearchInput(options);
 
     // --- Search Info Panel ---
@@ -102,9 +114,31 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     //     () => `${numOfSearchResults.value} ${t('kdw.views.DatasetSearchView.datasets')}`,
     // );
 
+    const accumulatedResults = ref<TS[]>([]);
+
+    watch(
+        () => getSearchResultsEnhanced.value,
+        (newResults) => {
+            if (!newResults) return;
+            if (!isSearchAfterMode.value) return;
+
+            if (!queryParams.searchAfterSort?.value) {
+                accumulatedResults.value = [...newResults];
+                return;
+            }
+
+            const existingIds = new Set(accumulatedResults.value.map((r: any) => r.getId));
+
+            const filteredNewResults = newResults.filter((r: any) => !existingIds.has(r.getId));
+
+            accumulatedResults.value.push(...filteredNewResults);
+        },
+        { immediate: true },
+    );
+
     // --- Datasets Mapping (Search Result Cards) ---
     const datasets = computed(() => {
-        const results = getSearchResultsEnhanced.value;
+        const results = isSearchAfterMode.value ? accumulatedResults.value : getSearchResultsEnhanced.value;
         if (!results || !results.length) return [];
         return results.map((dcat) => ({
             id: dcat.getId,
@@ -158,8 +192,25 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     });
 
     function loadMore() {
-        console.log('Load More!');
+        if (!searchMetaData.value) return;
+
+        const { sort, pitId } = searchMetaData.value;
+
+        if (!sort || !pitId) return;
+
+        queryParams.searchAfterSort.value = sort.join(',');
+        queryParams.pitId.value = pitId;
     }
+
+    watch(
+        () => [queryParams.q.value, queryParams.qt.value, sort.value, sortDirection.value, selectedFacets.value],
+        () => {
+            if (isSearchAfterMode.value) {
+                accumulatedResults.value = [];
+            }
+        },
+        { deep: true },
+    );
 
     return {
         selectedFacets,
