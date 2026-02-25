@@ -25,7 +25,6 @@ const props = withDefaults(
 
 const router = useRouter();
 const route = useRoute();
-const config = useRuntimeConfig();
 const pistisMode = route.query.pm;
 
 const platform = pistisMode === 'cloud' ? 'marketplace' : 'catalog';
@@ -136,7 +135,7 @@ const fetchMetadata = async () => {
 
             // If the dataset is not mine, check if I have bought it
             if (isNotOwn.value != false) {
-                checkDataset(metadata.value.result?.id);
+                checkDatasetIsBought(metadata.value.result?.id);
             }
         }
         if (pistisMode == 'factory') {
@@ -246,48 +245,14 @@ const openInsightsResult = async () => {
     }
 };
 
-const checkDatasetExists = async (datasetId) => {
-    const query = `
-    PREFIX dcat: <http://www.w3.org/ns/dcat#>
-    PREFIX pistis: <https://www.pistis-project.eu/ns/voc#>
-
-    ASK {
-      ?dataset a dcat:Dataset ;
-               pistis:offer ?offer .
-      ?offer pistis:marketplaceOfferId "${datasetId}" .
-    }
-  `;
-
-    const params = new URLSearchParams({
-        'default-graph-uri': '',
-        query,
-        format: 'application/sparql-results+json',
-        timeout: '0',
-        signal_void: 'on',
-    });
-
+const checkDatasetIsBought = async (datasetId: string) => {
+    const result = await useAsyncData(() =>
+        $fetch('/api/datasets/is-bought', {
+            query: { id: datasetId },
+        }),
+    );
     try {
-        const response = await fetch(`${config.public.factoryUrl}/srv/virtuoso/sparql?${params.toString()}`, {
-            headers: {
-                Accept: 'application/sparql-results+json',
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`SPARQL query failed: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.boolean;
-    } catch (error) {
-        console.error('SPARQL direct fetch failed:', error);
-        throw error;
-    }
-};
-
-const checkDataset = async (id: string) => {
-    try {
-        datasetIsBought.value = await checkDatasetExists(id);
+        datasetIsBought.value = result.data?.value?.isBought ?? false;
     } catch (err) {
         console.error(err);
     }
