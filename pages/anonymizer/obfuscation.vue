@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { type Dataset, type Preview, type TableRow } from '~/interfaces/dataset-preview';
+import { type Dataset, type Preview, type TableRow, type RiskMetrics } from '~/interfaces/dataset-preview';
 import { type ConfigEmit, type ObfuscationBody, type SortedMasks } from '~/interfaces/mask-settings';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
@@ -26,6 +26,11 @@ const anonymizerStore = useAnonymizerStore();
  * Reference to nuxt router.
  */
 const router = useRouter();
+
+/**
+ * Risk metrics of the obfuscation preview.
+ */
+const riskMetrics = ref({} as RiskMetrics);
 
 /**
  * Preview of the dataset before anonymisation.
@@ -157,6 +162,8 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
 
             obfuscatedRows.value = formatPreview(dataset);
 
+            riskMetrics.value = dataset.result.metadata.risk;
+
             loadingPreview.value = false;
         } else {
             submittingObfuscation.value = true;
@@ -215,30 +222,34 @@ onMounted(async () => {
 
             <h2 class="text-2xl">Obfuscation Settings</h2>
             <div v-if="masksAreLoaded" class="w-full flex overflow-x-scroll gap-2 pb-5">
-                <MaskTile
-                    v-for="(type, column) in rawPreview.columns"
-                    :key="column"
-                    :column="column"
-                    :masks="masks[type]"
-                    :default="rawPreview.recommendation[column]"
-                    @config-change="
+                <MaskTile v-for="(type, column) in rawPreview.columns" :key="column" :column="column"
+                    :masks="masks[type]" :default="rawPreview.recommendation[column]" @config-change="
                         (config: ConfigEmit) => {
                             configureBody(config);
                         }
-                    "
-                />
+                    " />
             </div>
             <h1 v-else>Masks are loading...</h1>
-            <UButton class="w-48" :disabled="loadingPreview" @click="submitObfuscation(true)"
-                >Preview Transformation
+            <UButton class="w-48" :disabled="loadingPreview" @click="submitObfuscation(true)">Preview Transformation
             </UButton>
 
             <div :hidden="hidePreview" class="mt-3">
                 <h1 class="text-2xl">Anonymization Preview</h1>
                 <UTable class="mt-5" :rows="obfuscatedRows" :loading="loadingPreview" />
-                <UButton class="w-44 mt-5" :loading="submittingObfuscation" @click="submitObfuscation(false)"
-                    >Apply Transformation</UButton
-                >
+                <div class="mt-3">
+                    <h3 class="text-md font-bold">Risk of Reidentification</h3>
+                    <p>The risk of reidentification after this transformation is:</p>
+                    <ul class="ml-4">
+                        <li>- Percentage of records at risk: {{ riskMetrics.recordsAtRisk * 100 }}%</li>
+                        <li>- Highest risk of any single record: {{ riskMetrics.highestRisk * 100 }}%</li>
+                        <li>
+                            - The average success rate when reidentifying records is:
+                            {{ riskMetrics.successRate * 100 }}%
+                        </li>
+                    </ul>
+                </div>
+                <UButton class="w-44 mt-5" :loading="submittingObfuscation" @click="submitObfuscation(false)">Apply
+                    Transformation</UButton>
             </div>
         </div>
     </UCard>
