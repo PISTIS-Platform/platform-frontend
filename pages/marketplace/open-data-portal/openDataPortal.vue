@@ -39,6 +39,7 @@ let isFetching;
 let showOnlyPublic;
 let doSearch;
 let loadMore;
+let hasMoreResults;
 
 let dsv = useDatasetSearchView({
     isPublic: true,
@@ -62,6 +63,7 @@ let dsv = useDatasetSearchView({
     showOnlyPublic,
     doSearch,
     loadMore,
+    hasMoreResults,
 } = dsv);
 
 onMounted(() => {
@@ -123,6 +125,7 @@ onMounted(() => {
                             :is-fetching="isFetching"
                             :show-only-public="showOnlyPublic"
                             :load-more="loadMore"
+                            :has-more-results="hasMoreResults"
                         />
                     </section>
                 </div>

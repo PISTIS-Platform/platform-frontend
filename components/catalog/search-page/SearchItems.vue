@@ -16,6 +16,7 @@ const props = defineProps<{
     isFetching: boolean;
     showOnlyPublic: boolean;
     loadMore?: () => void;
+    hasMoreResults?: boolean;
 }>();
 const searchParams = useSearchParams();
 const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
@@ -67,7 +68,9 @@ const loadMoreDatasets = () => {
         />
     </div>
     <div v-if="route.query.pm === 'openData'" class="m-auto p-10">
-        <UButton @click="loadMoreDatasets">Load more <component :is="PhCaretDown" class="inline" /></UButton>
+        <UButton v-if="hasMoreResults" @click="loadMoreDatasets"
+            >Load more <component :is="PhCaretDown" class="inline"
+        /></UButton>
     </div>
 </template>
 

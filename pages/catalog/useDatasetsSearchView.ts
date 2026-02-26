@@ -202,17 +202,25 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         queryParams.pitId.value = pitId;
     }
 
-    watch(
-        () => [queryParams.q.value, queryParams.qt.value, sort.value, sortDirection.value, selectedFacets.value],
-        () => {
-            if (!isSearchAfterMode.value) return;
-
-            accumulatedResults.value = [];
-            queryParams.searchAfterSort.value = undefined;
-            queryParams.pitId.value = undefined;
-        },
-        { deep: true },
+    const searchKey = computed(() =>
+        JSON.stringify({
+            q: queryParams.q.value,
+            qt: queryParams.qt.value,
+            sort: sort.value,
+            dir: sortDirection.value,
+            facets: selectedFacets.value,
+        }),
     );
+
+    watch(searchKey, () => {
+        if (!isSearchAfterMode.value) return;
+
+        accumulatedResults.value = [];
+        queryParams.searchAfterSort.value = undefined;
+        queryParams.pitId.value = undefined;
+    });
+
+    const hasMoreResults = computed(() => accumulatedResults.value.length < (getSearchResultsCount.value ?? 0));
 
     return {
         selectedFacets,
@@ -230,6 +238,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         isFetching,
         isLoading,
         loadMore,
+        hasMoreResults,
         // showOnlyPublic,
     };
 }
