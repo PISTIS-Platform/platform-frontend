@@ -9,6 +9,8 @@ import { useDataTruncator } from '@/composables/useDataTruncator';
 import { useApiService } from '~/services/apiService';
 import PhCaretLeft from '~icons/ph/caret-left';
 
+import UnpublishButton from './UnpublishButton.vue';
+
 const props = withDefaults(
     defineProps<{
         headline?: string;
@@ -117,6 +119,7 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
+        console.log('CATALOG:', catalog.value);
         distributions.value = data.result.distributions;
         isStream.value = metadata.value.result?.distributions?.[0]?.title?.en === 'Kafka Stream';
         if (pistisMode == 'cloud') {
@@ -340,6 +343,10 @@ const investOpen = ref(false);
                                                 : '/catalog/dataset-details/data-lineage',
                                         query: { id: accessID, pm: pistisMode, url: backendUrl },
                                     }"
+                                />
+                                <UnpublishButton
+                                    v-if="pistisMode === 'cloud' && !isNotOwn"
+                                    :dataset-id="props.datasetId"
                                 />
                                 <UButton
                                     v-if="pistisMode === 'factory'"
