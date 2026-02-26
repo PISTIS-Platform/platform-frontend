@@ -7,18 +7,84 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDcatApSearch } from '@/sdk';
 
 export function useSearchParams(locale?: MaybeRefOrGetter) {
+    const route = useRoute();
+    const pm = computed(() => route.query.pm as string | undefined);
+
     const { refSyncedWithRouteQuery } = useDcatApSearch();
     const q = refSyncedWithRouteQuery('q', '');
     const qt = refSyncedWithRouteQuery('qt', 'metadata');
     const limit = refSyncedWithRouteQuery('limit', 10);
     const displayedPage = refSyncedWithRouteQuery('page', 1);
-    const page = computed({
-        get: () => displayedPage.value - 1,
-        set: (val: number) => {
-            displayedPage.value = val + 1;
+    const page = computed<number | undefined>({
+        get() {
+            if (pm.value !== 'openData') {
+                return displayedPage.value - 1;
+            }
+            // removes page parameter for search with search_after
+            return undefined;
+        },
+        set(val) {
+            if (pm.value !== 'openData' && typeof val === 'number') {
+                displayedPage.value = val + 1;
+            } else {
+                displayedPage.value = undefined;
+            }
         },
     });
     const dataServices = refSyncedWithRouteQuery('dataServices', 'false');
+
+    const searchAfter = computed({
+        get() {
+            if (pm.value === 'openData') {
+                return 'true';
+            }
+            // removes search_after for factory/ cloud search
+            return undefined;
+        },
+        set(val) {
+            if (pm.value === 'openData') {
+                val;
+            } else {
+                undefined;
+            }
+        },
+    });
+
+    const rawSearchAfterSort = refSyncedWithRouteQuery<string | undefined>('searchAfterSort', undefined);
+
+    const rawPitId = refSyncedWithRouteQuery<string | undefined>('pitId', undefined);
+
+    const searchAfterSort = computed<string | undefined>({
+        get() {
+            if (pm.value === 'openData') {
+                return rawSearchAfterSort.value;
+            }
+            return undefined;
+        },
+        set(val) {
+            if (pm.value === 'openData') {
+                rawSearchAfterSort.value = val;
+            } else {
+                rawSearchAfterSort.value = undefined;
+            }
+        },
+    });
+
+    const pitId = computed<string | undefined>({
+        get() {
+            if (pm.value === 'openData') {
+                return rawPitId.value;
+            }
+            return undefined;
+        },
+        set(val) {
+            if (pm.value === 'openData') {
+                rawPitId.value = val;
+            } else {
+                rawPitId.value = undefined;
+            }
+        },
+    });
 
     const sort = ref('relevance');
     const sortDirection = ref('desc');
@@ -57,6 +123,9 @@ export function useSearchParams(locale?: MaybeRefOrGetter) {
             page,
             sort: finalComputedSort,
             dataServices,
+            searchAfter,
+            searchAfterSort,
+            pitId,
         },
         sort,
         sortDirection,

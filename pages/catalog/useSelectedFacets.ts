@@ -16,6 +16,17 @@ export function useSelectedFacets() {
         catalog: refSyncedWithRouteQueryFacet('catalog', [] as string[]),
         isInvestmentActive: refSyncedWithRouteQueryFacet('investment_offer.is_active', [] as string[]),
         keywords: refSyncedWithRouteQueryFacet('keywords', [] as string[]),
+        // DEU facets:
+        ...(pistisMode === 'openData' && {
+            // dataScope: refSyncedWithRouteQueryFacet('dataScope', [] as string[]),
+            is_hvd: refSyncedWithRouteQueryFacet('is_hvd', [] as string[]),
+            hvdCategory: refSyncedWithRouteQueryFacet('hvdCategory', [] as string[]),
+            country: refSyncedWithRouteQueryFacet('country', [] as string[]),
+            scoring: refSyncedWithRouteQueryFacet('scoring', [] as string[]),
+            subject: refSyncedWithRouteQueryFacet('subject', [] as string[]),
+            contactPoint: refSyncedWithRouteQueryFacet('contactPoint', [] as string[]),
+            type: refSyncedWithRouteQueryFacet('type', [] as string[]),
+        }),
     };
 }
 

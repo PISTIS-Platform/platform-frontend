@@ -26,6 +26,8 @@ export function useSearchInput(options) {
         queryParams.q.value = searchInput.value;
         queryParams.qt.value = searchType.value;
         queryParams.page.value = 0;
+        queryParams.searchAfterSort.value = undefined;
+        queryParams.pitId.value = undefined;
     }
 
     return { searchInput, searchType, doSearch };

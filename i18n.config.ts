@@ -947,23 +947,9 @@ export default defineI18nConfig(() => ({
             },
             datasetFacets: {
                 facets: {
-                    datascopeField: {
-                        countryData: 'National Data',
-                        io: 'International Data',
-                        eu: 'European Union Data',
-                    },
-                    datascope: 'Data scope',
-                    dataServices: {
-                        dataServicesOnly: 'Data services',
-                    },
                     country: 'Provenance',
                     format: 'Formats',
-                    scoring: {
-                        badScoring: 'Any',
-                        sufficientScoring: 'Sufficient',
-                        goodScoring: 'Good',
-                        excellentScoring: 'Excellent',
-                    },
+                    scoring: 'Metadata Quality',
                     publisher: 'Data Provider',
                     license: 'Licences',
                     purchaseOfferLicense: 'Licences',
@@ -975,6 +961,12 @@ export default defineI18nConfig(() => ({
                     monetizationType: 'Monetisation Type',
                     is_free: 'Price',
                     isInvestmentActive: 'Investment Offer',
+                    dataScope: 'Data Scope',
+                    hvdCategory: 'High-Value-Dataset Category',
+                    is_hvd: 'High-Value-Dataset',
+                    subject: 'Subject',
+                    contactPoint: 'Contact Point',
+                    type: 'Type',
                 },
                 title: 'Filters',
                 and: 'AND',

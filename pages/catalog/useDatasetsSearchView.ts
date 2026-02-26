@@ -55,6 +55,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     //     forceUserToken: toStringOrFirst(route?.query?.['force-user-token']),
     // };
     const { queryParams, sort, sortDirection } = options?.searchParams ? options.searchParams : useSearchParams();
+    const isSearchAfterMode = computed(() => queryParams.searchAfter?.value === 'true');
     const selectedFacets = options.selectedFacets ? toRef(options.selectedFacets) : toRef(useSelectedFacets());
 
     // const searchHeaders = computed(() => ({
@@ -66,7 +67,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     // --- Dataset Scope: Model Toggles & Computed Flags ---
     const hvdModel = toRef(options?.hvdModel || false);
     const livedataModel = ref(options?.livedataModel || false);
-    const isHvd = computed(() => (hvdModel.value ? ['true'] : []));
+    const _isHvd = computed(() => (hvdModel.value ? ['true'] : []));
     const isLivedata = computed(() =>
         livedataModel.value
             ? [
@@ -79,6 +80,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     // --- Search API Integration ---
     const { useSearch } = options.hubSearchQueryDefinition ? options.hubSearchQueryDefinition() : useDcatApSearch();
     const {
+        query,
         getSearchResultsEnhanced,
         getSearchResultsCount,
         getSearchResultsPagesCount,
@@ -89,10 +91,19 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         queryParams,
         selectedFacets: {
             ...toRefs(selectedFacets.value),
-            is_hvd: isHvd,
             periodicity: isLivedata,
         },
         // headers: searchHeaders,
+    });
+
+    const searchMetaData = computed(() => {
+        const data = query.data.value as any;
+        if (!data?.result) return null;
+
+        return {
+            sort: data.result.sort,
+            pitId: data.result.pitId,
+        };
     });
 
     const { doSearch } = useSearchInput(options);
@@ -103,9 +114,31 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     //     () => `${numOfSearchResults.value} ${t('kdw.views.DatasetSearchView.datasets')}`,
     // );
 
+    const accumulatedResults = ref<TS[]>([]);
+
+    watch(
+        () => getSearchResultsEnhanced.value,
+        (newResults) => {
+            if (!newResults) return;
+            if (!isSearchAfterMode.value) return;
+
+            if (!queryParams.searchAfterSort?.value) {
+                accumulatedResults.value = [...newResults];
+                return;
+            }
+
+            const existingIds = new Set(accumulatedResults.value.map((r: any) => r.getId));
+
+            const filteredNewResults = newResults.filter((r: any) => !existingIds.has(r.getId));
+
+            accumulatedResults.value.push(...filteredNewResults);
+        },
+        { immediate: true },
+    );
+
     // --- Datasets Mapping (Search Result Cards) ---
     const datasets = computed(() => {
-        const results = getSearchResultsEnhanced.value;
+        const results = isSearchAfterMode.value ? accumulatedResults.value : getSearchResultsEnhanced.value;
         if (!results || !results.length) return [];
         return results.map((dcat) => ({
             id: dcat.getId,
@@ -121,10 +154,10 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
 
     // --- Facets ---
     const availableFacetsDe = getAvailableFacetsLocalized('en');
-    const availableFacetsWithoutHvd = computed(() => availableFacetsDe.value?.filter((facet) => facet.id !== 'is_hvd'));
+    // const availableFacetsWithoutHvd = computed(() => availableFacetsDe.value?.filter((facet) => facet.id !== 'is_hvd'));
     const availableFacetsFormatted = computed(() => {
         return (
-            availableFacetsWithoutHvd.value
+            availableFacetsDe.value
                 ?.map((facet) => ({
                     id: facet.id,
                     label: t(`datasetFacets.facets.${facet.id}`) ?? facet.id,
@@ -158,6 +191,37 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         );
     });
 
+    function loadMore() {
+        if (!searchMetaData.value) return;
+
+        const { sort, pitId } = searchMetaData.value;
+
+        if (!sort || !pitId) return;
+
+        queryParams.searchAfterSort.value = sort.join(',');
+        queryParams.pitId.value = pitId;
+    }
+
+    const searchKey = computed(() =>
+        JSON.stringify({
+            q: queryParams.q.value,
+            qt: queryParams.qt.value,
+            sort: sort.value,
+            dir: sortDirection.value,
+            facets: selectedFacets.value,
+        }),
+    );
+
+    watch(searchKey, () => {
+        if (!isSearchAfterMode.value) return;
+
+        accumulatedResults.value = [];
+        queryParams.searchAfterSort.value = undefined;
+        queryParams.pitId.value = undefined;
+    });
+
+    const hasMoreResults = computed(() => accumulatedResults.value.length < (getSearchResultsCount.value ?? 0));
+
     return {
         selectedFacets,
         hvdModel,
@@ -173,6 +237,8 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
         getSearchResultsPagesCount,
         isFetching,
         isLoading,
+        loadMore,
+        hasMoreResults,
         // showOnlyPublic,
     };
 }
