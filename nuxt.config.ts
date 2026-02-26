@@ -68,7 +68,7 @@ export default defineNuxtConfig({
             orgLogo: '',
             catalogName: '',
             pistisMarketplaceCatalog: '',
-            openDataPortalUrl: '',
+            openDataPortalUrl: 'https://data.europa.eu',
         },
         keycloak: {
             issuer: '',
