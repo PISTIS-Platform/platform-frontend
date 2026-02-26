@@ -134,9 +134,9 @@ interface WorkflowTableRow {
 
 onMounted(() => {
     getWorkflowRunList();
-    setInterval(() => {
-        getWorkflowRunList()
-    }, 60000)
+    //setInterval(() => {
+    //    getWorkflowRunList()
+    //}, 60000)
 })
 
 //getWorkflowRunList();

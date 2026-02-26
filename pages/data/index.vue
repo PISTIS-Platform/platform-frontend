@@ -473,7 +473,6 @@ const DATA_CHECK_IN_API_METHOD = i18n.t('data.dataCheckInApiMethod');
 const dataset_format = ['csv', 'json', 'tsv', 'parquet', 'xml', 'xlsx'];
 const http_methods = ['GET', 'POST'];
 const periodicity = ['hourly', 'daily', 'monthly'];
-const isDisabled = ref(true);
 
 const workflowServices = ref([]);
 const datasetName = ref('');
@@ -863,25 +862,7 @@ const runJobConfigurator = async (services: [string]) => {
                         <label for="datasetEncrytion" class="text-sm font-medium text-neutral-700 mt-7 mr-7">{{
                             $t('data.datasetEncrytion')
                         }}</label>
-                        <input
-                            id="checkbox"
-                            v-model="datasetEncrytion"
-                            :disabled="isDisabled"
-                            type="checkbox"
-                            class="mt-7 w-6 h-6 p-1"
-                        />
-                    </div>
-                    <div class="container w-full flex">
-                        <label for="gdprChecking" class="text-sm font-medium text-neutral-700 ml-15 mt-7 w-40">{{
-                            $t('data.gdprChecking')
-                        }}</label>
-                        <input
-                            id="checkbox"
-                            v-model="gdprChecking"
-                            :disabled="isDisabled"
-                            type="checkbox"
-                            class="mt-7 w-6 h-6"
-                        />
+                        <input id="checkbox" v-model="datasetEncrytion" type="checkbox" class="mt-7 w-6 h-6 p-1" />
                     </div>
                 </div>
             </div>
