@@ -440,8 +440,8 @@ console.log(answersLog.value);
                             icon="i-heroicons-arrow-down-tray"
                             @click="downloadFile"
                         >
-                            {{ $t('catalogue.downloadDistribution')
-                            }}<span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                            {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.downloadDistribution') }}
+                            <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
                         </UButton>
 
                         <UButtonGroup v-if="!isStream">

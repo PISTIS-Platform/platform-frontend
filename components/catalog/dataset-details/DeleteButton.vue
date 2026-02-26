@@ -152,6 +152,29 @@ const confirmDelete = async () => {
 
     isDeleting.value = true;
 
+    const isBurned = ref(false);
+    if (isNft.value) {
+        const sceeBurnNftApi = getSCEEBurnNftUrl();
+        try {
+            await $fetch(sceeBurnNftApi, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token.value}`,
+                    'Content-Type': 'application/json',
+                },
+                body: {
+                    nft_id: nftId.value,
+                },
+            });
+            isBurned.value = true;
+        } catch (err) {
+            console.error('BURN NFT ERROR:', err);
+            isDeleting.value = false;
+            deleteError.value = true;
+            return;
+        }
+    }
+
     const deletedFromMarketplace = ref(false);
     if (isPublished.value && !isNft.value) {
         try {
@@ -164,11 +187,13 @@ const confirmDelete = async () => {
             deletedFromMarketplace.value = true;
         } catch (err) {
             console.error('DELETE FROM MARKETPLACE ERROR:', err);
+            isDeleting.value = false;
+            deleteError.value = true;
             return;
         }
     }
 
-    if (isNft.value) {
+    if (isNft.value && isBurned.value) {
         try {
             await $fetch('/api/catalog/delete-offer-from-marketplace', {
                 method: 'DELETE',
@@ -178,6 +203,8 @@ const confirmDelete = async () => {
             deletedFromMarketplace.value = true;
         } catch (err) {
             console.error('DELETE FROM MARKETPLACE ERROR:', err);
+            isDeleting.value = false;
+            deleteError.value = true;
             return;
         }
     }
@@ -194,44 +221,37 @@ const confirmDelete = async () => {
 
             deleteInfo.value = response.info;
             deleteSuccess.value = true;
+
+            setTimeout(() => {
+                showConfirmationWindow.value = false;
+                router.back();
+            }, 3500);
         } catch (err) {
             console.error('DELETE ERROR:', err);
             deleteError.value = true;
+            isDeleting.value = false;
+            return;
         } finally {
             isDeleting.value = false;
         }
     }
-
-    if (isNft.value && deletedFromMarketplace.value && deleteSuccess.value) {
-        const sceeBurnNftApi = getSCEEBurnNftUrl();
-        try {
-            await $fetch(sceeBurnNftApi, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token.value}`,
-                    'Content-Type': 'application/json',
-                },
-                body: {
-                    nft_id: nftId.value,
-                },
-            });
-        } catch (err) {
-            console.error('BURN NFT ERROR:', err);
-        }
-    }
-
-    setTimeout(() => {
-        showConfirmationWindow.value = false;
-        router.back();
-    }, 3500);
 };
 </script>
 
 <template>
     <div v-if="props.catalog === 'my-data'">
-        <UButton v-if="canDelete" variant="solid" color="red" icon="i-heroicons-trash" @click="openConfirmationWindow">
+        <UButton
+            v-if="canDelete && !isDeleting"
+            variant="solid"
+            color="red"
+            icon="i-heroicons-trash"
+            @click="openConfirmationWindow"
+        >
             Delete dataset
         </UButton>
+        <UTooltip v-else-if="isDeleting" text="Dataset is deleting...">
+            <UButton :disabled="true" color="red" icon="i-heroicons-trash"> Delete dataset </UButton>
+        </UTooltip>
         <UTooltip v-else text="Dataset has been acquired and cannot be deleted.">
             <UButton :disabled="true" color="red" icon="i-heroicons-trash"> Delete dataset </UButton>
         </UTooltip>
@@ -289,7 +309,8 @@ const confirmDelete = async () => {
 
                 <div class="flex justify-end space-x-4 p-6">
                     <UButton variant="solid" color="gray" @click="showConfirmationWindow = false">Cancel</UButton>
-                    <UButton variant="solid" color="red" @click="confirmDelete">Delete</UButton>
+                    <UButton v-if="isDeleting" :disabled="true" variant="solid" color="red">Delete</UButton>
+                    <UButton v-else variant="solid" color="red" @click="confirmDelete">Delete</UButton>
                 </div>
                 <div v-if="isDeleting" class="flex justify-end text-gray-600 px-6 pb-6">
                     <div class="animate-spin rounded-full h-5 w-5 border-t-2"></div>

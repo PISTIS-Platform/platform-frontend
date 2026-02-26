@@ -51,6 +51,7 @@ export const useStore = defineStore('store', () => {
 
     // Loading States
     const isLoadingFamilyTree = ref(false);
+    const familyTreeError = ref(null);
 
     // External Store Dependencies
     // const authStore = useAuthStore();
@@ -184,10 +185,16 @@ export const useStore = defineStore('store', () => {
 
     const fetchData = async (lineageID, token) => {
         isLoadingFamilyTree.value = true;
+        familyTreeError.value = null;
         lineageFamilyID.value = null;
 
         if (!token) {
             console.error('No access token found');
+            familyTreeError.value = 'No access token found';
+            // Clear previous data
+            treeObject.value = null;
+            familyTreeData.value = null;
+            tableData.value = null;
             isLoadingFamilyTree.value = false;
             return;
         }
@@ -211,12 +218,35 @@ export const useStore = defineStore('store', () => {
             familyTreeData.value = responseData;
             lineageFamilyID.value = extractFamilyId(responseData);
             parseTableData(responseData);
+            familyTreeError.value = null;
 
             if (import.meta.env.DEV) {
                 console.log('Family tree API response:', responseData);
             }
         } catch (error) {
             console.error('Family tree API request failed:', error);
+
+            // Clear previous data to prevent showing stale lineage
+            treeObject.value = null;
+            familyTreeData.value = null;
+            tableData.value = null;
+            lineageFamilyID.value = null;
+
+            // Extract error message from response
+            if (error.response) {
+                // Handle API error responses
+                const errorMessage =
+                    error.response.data?.error ||
+                    error.response.data?.message ||
+                    `Failed to load dataset lineage (${error.response.status})`;
+                familyTreeError.value = errorMessage;
+            } else if (error.request) {
+                // Network error
+                familyTreeError.value = 'Network error: Unable to connect to the lineage tracker service';
+            } else {
+                // Other errors
+                familyTreeError.value = error.message || 'Failed to load dataset lineage';
+            }
         } finally {
             isLoadingFamilyTree.value = false;
         }
@@ -377,6 +407,7 @@ export const useStore = defineStore('store', () => {
         isLoadingDiff,
         isLoadingFamilyTree,
         diffError,
+        familyTreeError,
 
         // Actions
         setPistisMode,
