@@ -69,7 +69,7 @@ export default defineNuxtConfig({
             catalogName: '',
             pistisMarketplaceCatalog: '',
             openDataPortalUrl: 'https://data.europa.eu',
-            factoryName: '',
+            organisationFullname: '',
         },
         keycloak: {
             issuer: '',
@@ -80,10 +80,10 @@ export default defineNuxtConfig({
         authSecret: '',
         catalogName: '',
         walletAlias: '',
-        organisationFullname: '',
         pistisMode: '',
         piveauHubRepoXApiKey: '',
         marketplaceApiKey: '',
+        factoryName: '',
     },
 
     modules: [
