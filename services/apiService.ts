@@ -77,7 +77,6 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getDatasetDiffUrlLimited,
         getDatasetDiffUrl,
         getLineageDataUrl,
-        getMarketplaceSparqlEndpoint,
         getSCEEUrl,
         getSCEEAssetUrl,
         getSCEEBurnNftUrl,
