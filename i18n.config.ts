@@ -197,6 +197,7 @@ export default defineI18nConfig(() => ({
                 required: 'Required',
                 price: 'Must be 10 EUR or above',
                 integer: 'Number must be an integer',
+                extraTermsMax: 'Extra terms cannot exceed 2048 characters',
             },
             home: {
                 home: 'Home',

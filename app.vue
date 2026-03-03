@@ -4,9 +4,15 @@ import 'vue-sonner/style.css';
 import { Toaster } from 'vue-sonner';
 
 const appConfig = useAppConfig();
+const { factoryName } = useRuntimeConfig().public;
+
+const capitalizedTitle = computed(() => {
+    if (!factoryName) return '';
+    return factoryName.charAt(0).toUpperCase() + factoryName.slice(1).toLowerCase();
+});
 
 useHead({
-    titleTemplate: (title) => `${title ? title + ' • ' : ''}${appConfig.name}`,
+    titleTemplate: (title) => `${title ? title + ' • ' : ''}${capitalizedTitle.value} ${appConfig.name}`,
     htmlAttrs: { class: 'h-full bg-neutral-50' },
 });
 </script>

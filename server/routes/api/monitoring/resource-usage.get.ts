@@ -1,6 +1,7 @@
 import { PrometheusDriver } from 'prometheus-query';
 
-const { prometheusUrl, factoryName } = useRuntimeConfig();
+const { prometheusUrl } = useRuntimeConfig();
+const { factoryName } = useRuntimeConfig().public;
 
 const isDevAcme = factoryName === 'develop' || factoryName === 'acme';
 
