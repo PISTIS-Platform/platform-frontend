@@ -41,8 +41,6 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getLineageDataUrl = (backendUrl: string) => `${backendUrl}/srv/lineage-tracker/get_dataset_family_tree`;
 
-    const getMarketplaceSparqlEndpoint = () => `https://pistis-market.eu/srv/virtuoso/sparql`;
-
     const getSCEEUrl = (offerId: string) =>
         `${config.public.factoryUrl}/srv/smart-contract-execution-engine/api/scee/getTransactionInfo/assetId/${offerId}`;
 
@@ -69,7 +67,6 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getDatasetDiffUrlLimited,
         getDatasetDiffUrl,
         getLineageDataUrl,
-        getMarketplaceSparqlEndpoint,
         getSCEEUrl,
         getSCEEAssetUrl,
         getSCEEBurnNftUrl,
