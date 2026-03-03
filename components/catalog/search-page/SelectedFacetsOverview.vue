@@ -129,10 +129,15 @@ function clearAllFacets() {
                     @click="removeSelectedFacetById(facet.title, facet.id)"
                 >
                     <div class="flex flex-row flex-nowrap items-center gap-1 whitespace-nowrap">
-                        <Typography>{{ facet.label || facet.title }}:</Typography>
-                        <Typography variant="paragraph-1">
-                            {{ facet.value }}
-                        </Typography>
+                        <div v-if="facet.label === 'High-Value-Dataset'">
+                            <Typography>High-Value-Datasets only</Typography>
+                        </div>
+                        <div v-else>
+                            <Typography>{{ facet.label || facet.title }}: </Typography>
+                            <Typography variant="paragraph-1">
+                                {{ facet.value }}
+                            </Typography>
+                        </div>
                     </div>
                 </KInteractiveChip>
             </div>
