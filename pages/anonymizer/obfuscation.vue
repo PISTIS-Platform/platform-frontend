@@ -161,10 +161,10 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
             });
 
             console.log('Full API Response:', response);
-
             const result = response.data.value.result;
             obfuscatedRows.value = formatPreview(result.dataset);
             riskMetrics.value = result.metadata.risk;
+
 
 
             loadingPreview.value = false;
