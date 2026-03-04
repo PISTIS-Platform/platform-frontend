@@ -153,15 +153,18 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
             loadingPreview.value = true;
 
             //Fetch a preview of the obfuscation
-            let dataset = (await $fetch('/api/anonymizer/preview', {
+            const response = await useFetch('/api/anonymizer/preview', {
                 method: 'POST',
                 body: {
                     config: obfuscationBody,
                 },
-            })) as Dataset;
+            });
 
-            console.log('API Response', dataset)
-            obfuscatedRows.value = formatPreview(dataset);
+            console.log('Full API Response:', response);
+
+            obfuscatedRows.value = formatPreview(response.result.dataset);
+            const metadata = response.result.metadata as any;
+            riskMetrics.value = metadata.risk;
 
             riskMetrics.value = dataset.result.metadata.risk;
 
