@@ -26,6 +26,7 @@ interface CardProps {
     pistisSchema: object;
     data: PropertyTableEntryNode;
     onSave?: () => void;
+    size: number;
 }
 
 const props = withDefaults(defineProps<CardProps>(), {
@@ -75,6 +76,15 @@ const isEnrichmentDisabled = computed(() => ['pdf', 'xml'].includes(fileExtensio
 onMounted(() => {
     fetchMetadata();
 });
+
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
 
 // Determine filename based on title if possible:
 let downloadFileName = 'download';
@@ -407,7 +417,12 @@ console.log(answersLog.value);
             <div class="flex justify-between">
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
                     <UBadge color="secondary" variant="soft" size="xs" class="rounded-full">{{ format }}</UBadge>
-                    <div>{{ title }}</div>
+                    <div>
+                        {{ title }}
+                        <span v-if="props.size" class="font-semibold text-xs text-gray-400"
+                            >({{ formatBytes(props.size) }})</span
+                        >
+                    </div>
                 </div>
                 <div class="flex">
                     <div class="space-x-2 pr-5">
@@ -440,8 +455,8 @@ console.log(answersLog.value);
                             icon="i-heroicons-arrow-down-tray"
                             @click="downloadFile"
                         >
-                            {{ $t('catalogue.downloadDistribution')
-                            }}<span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                            {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.downloadDistribution') }}
+                            <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
                         </UButton>
 
                         <UButtonGroup v-if="!isStream">

@@ -166,6 +166,7 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
             obfuscatedRows.value = formatPreview(result.dataset);
             riskMetrics.value = result.metadata.risk;
 
+
             loadingPreview.value = false;
         } else {
             submittingObfuscation.value = true;
