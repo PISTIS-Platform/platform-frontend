@@ -9,6 +9,8 @@ import { useDataTruncator } from '@/composables/useDataTruncator';
 import { useApiService } from '~/services/apiService';
 import PhCaretLeft from '~icons/ph/caret-left';
 
+import UnpublishButton from './UnpublishButton.vue';
+
 const props = withDefaults(
     defineProps<{
         headline?: string;
@@ -25,7 +27,6 @@ const props = withDefaults(
 
 const router = useRouter();
 const route = useRoute();
-const config = useRuntimeConfig();
 const pistisMode = route.query.pm;
 
 const platform = pistisMode === 'cloud' ? 'marketplace' : 'catalog';
@@ -53,7 +54,8 @@ const offerId = ref('');
 const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
 const rateDatasetUrl = computed(() => getFeedbackUrl(offerId.value));
 const buyIsLoading = ref(false);
-const isStream = ref(false);
+const isStream = ref<boolean | null>(null);
+const isStreamStateSet = ref(false);
 const isLoading = ref(true);
 const datasetIsBought = ref(false);
 const distributions = ref(['']);
@@ -118,8 +120,10 @@ const fetchMetadata = async () => {
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
+        console.log('CATALOG:', catalog.value);
         distributions.value = data.result.distributions;
         isStream.value = metadata.value.result?.distributions?.[0]?.title?.en === 'Kafka Stream';
+        isStreamStateSet.value = true;
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
@@ -136,7 +140,7 @@ const fetchMetadata = async () => {
 
             // If the dataset is not mine, check if I have bought it
             if (isNotOwn.value != false) {
-                checkDataset(metadata.value.result?.id);
+                checkDatasetIsBought(metadata.value.result?.id);
             }
         }
         if (pistisMode == 'factory') {
@@ -180,7 +184,7 @@ const buyRequest = async () => {
             assetFactory: offer.publisher?.organization_id ?? '',
             sellerId: seller.seller_id ?? '',
             price: offer.price ?? 0,
-            nftId: offer.nft_id ?? ''
+            nftId: offer.nft_id ?? '',
         },
         {
             headers: {
@@ -190,18 +194,36 @@ const buyRequest = async () => {
         },
     );
 
-    toast.promise(promise, {
+    const toastId = toast.loading('Processing Purchase', {
         position: 'bottom-center',
-        loading: 'Processing your purchase...',
-        success: () => `Successfully purchased ${title}`,
-        error: (err) => err?.response?.data?.reason || 'An error occurred while processing your request.',
+        description: 'Please wait while we complete your transaction...',
+        style: {
+            background: '#FFF7ED',
+            color: '#F97316',
+            // border: '1px solid #F97316',
+            padding: '20px',
+            fontSize: '15px',
+            minWidth: '420px',
+        },
     });
 
     try {
         const res = await promise;
+        toast.dismiss(toastId);
+
+        toast.success('Purchase Successful', {
+            position: 'bottom-center',
+            description: `Your purchase of "${title}" is now available in your acquired data catalog.`,
+        });
         console.log('Purchase complete', res.data);
         datasetIsBought.value = true;
     } catch (err) {
+        toast.dismiss(toastId);
+
+        toast.error('Purchase Failed', {
+            position: 'bottom-center',
+            description: err?.response?.data?.reason || 'An error occurred while processing your request.',
+        });
         console.error('Purchase failed', err);
     } finally {
         buyIsLoading.value = false;
@@ -228,56 +250,25 @@ const openInsightsResult = async () => {
     }
 };
 
-const checkDatasetExists = async (datasetId) => {
-    const query = `
-    PREFIX dcat: <http://www.w3.org/ns/dcat#>
-    PREFIX pistis: <https://www.pistis-project.eu/ns/voc#>
-
-    ASK {
-      ?dataset a dcat:Dataset ;
-               pistis:offer ?offer .
-      ?offer pistis:marketplaceOfferId "${datasetId}" .
-    }
-  `;
-
-    const params = new URLSearchParams({
-        'default-graph-uri': '',
-        query,
-        format: 'application/sparql-results+json',
-        timeout: '0',
-        signal_void: 'on',
-    });
-
+const checkDatasetIsBought = async (datasetId: string) => {
+    const result = await useAsyncData(() =>
+        $fetch('/api/datasets/is-bought', {
+            query: { id: datasetId },
+        }),
+    );
     try {
-        const response = await fetch(`${config.public.factoryUrl}/srv/virtuoso/sparql?${params.toString()}`, {
-            headers: {
-                Accept: 'application/sparql-results+json',
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`SPARQL query failed: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.boolean;
-    } catch (error) {
-        console.error('SPARQL direct fetch failed:', error);
-        throw error;
-    }
-};
-
-const checkDataset = async (id: string) => {
-    try {
-        datasetIsBought.value = await checkDatasetExists(id);
+        datasetIsBought.value = result.data?.value?.isBought ?? false;
     } catch (err) {
         console.error(err);
     }
 };
 
-onMounted(() => {
-    fetchMetadata();
-    getUserFactory();
+const isOwnershipSet = ref(false);
+
+onMounted(async () => {
+    await Promise.all([fetchMetadata(), getUserFactory()]);
+
+    isOwnershipSet.value = true;
 });
 
 // Dataset desecription truncator "show more"
@@ -346,7 +337,7 @@ const investOpen = ref(false);
                             <div class="flex flex-row gap-2">
                                 <!-- hide data lineage and quality assessment in marketplace until they work -->
                                 <UButton
-                                    v-if="!isStream"
+                                    v-if="isStreamStateSet && !isStream"
                                     size="sm"
                                     variant="solid"
                                     :label="$t('buttons.dataLineage')"
@@ -357,6 +348,10 @@ const investOpen = ref(false);
                                                 : '/catalog/dataset-details/data-lineage',
                                         query: { id: accessID, pm: pistisMode, url: backendUrl },
                                     }"
+                                />
+                                <UnpublishButton
+                                    v-if="pistisMode === 'cloud' && isOwnershipSet && !isNotOwn"
+                                    :dataset-id="props.datasetId"
                                 />
                                 <UButton
                                     v-if="pistisMode === 'factory'"

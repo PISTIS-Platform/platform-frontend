@@ -166,6 +166,8 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
             const metadata = response.result.metadata as any;
             riskMetrics.value = metadata.risk;
 
+            riskMetrics.value = dataset.result.metadata.risk;
+
             loadingPreview.value = false;
         } else {
             submittingObfuscation.value = true;

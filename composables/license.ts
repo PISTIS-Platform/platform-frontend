@@ -40,7 +40,7 @@ export const useLicenseSchema = (monetizationDetailsRef: Ref) => {
     const licenseSchema = z
         .object({
             license: z.string().min(1, t('val.required')),
-            extraTerms: z.string().optional(),
+            extraTerms: z.string().max(2048, t('val.extraTermsMax')).optional(),
             contractTerms: z.string().min(1, t('val.required')),
             isExclusive: z.boolean().optional(),
             region: z.string().array().optional(),
