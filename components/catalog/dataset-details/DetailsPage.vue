@@ -326,6 +326,7 @@ const investOpen = ref(false);
                             </Typography>
                         </button>
                         <LinkedDataSelector
+                            v-if="factoryPrefix === 'develop' || factoryPrefix === 'acme'"
                             :resource-id="props.datasetId"
                             resource="datasets"
                             class="text-pistis-600 text-sm"
