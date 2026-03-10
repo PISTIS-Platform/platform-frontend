@@ -39,8 +39,11 @@ export const useApiService = (pistisMode: string = 'cloud') => {
     const getAnonymizerUrl = (datasetId: string, distributionId: string, lang: string = 'en') =>
         `/anonymizer?datasetId=${datasetId}&distribution=${distributionId}&language=${lang}`;
 
-    const getMatchingDatasetsUrl = (offerId: string) =>
+    const getSimilarityBasedMatchingDatasetsUrl = (offerId: string) =>
         `${config.public.cloudUrl}/srv/matchmaking-services/api/mms/${encodeURIComponent(offerId)}?format=json`;
+
+    const getUserBasedMatchingDatasetsUrl = (offerId: string) =>
+        `${config.public.cloudUrl}/srv/matchmaking-services/api/mms/user/recs/${encodeURIComponent(offerId)}?format=json`;
 
     const getBlockchainHashUrl = () => `${config.public.factoryUrl}/srv/lineage-tracker/blockchain-hash`;
 
@@ -72,7 +75,8 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getPurchaseUrl,
         getEnrichmentUrl,
         getAnonymizerUrl,
-        getMatchingDatasetsUrl,
+        getSimilarityBasedMatchingDatasetsUrl,
+        getUserBasedMatchingDatasetsUrl,
         getBlockchainHashUrl,
         getDatasetDiffUrlLimited,
         getDatasetDiffUrl,

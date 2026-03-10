@@ -478,9 +478,16 @@ const investOpen = ref(false);
 
                     <UCard v-if="pistisMode === 'cloud' && !isLoading && !isNFT">
                         <template #header>
-                            <SubHeading :title="$t('matchmakingService.recommendationsHeader')" />
+                            <SubHeading :title="$t('matchmakingService.similarityRecommendations')" />
                         </template>
-                        <MatchingDatasetDetails :dataset-id="datasetId" />
+                        <MatchingDatasetDetails :dataset-id="datasetId" :mode="'similarityBased'" />
+                    </UCard>
+
+                    <UCard v-if="pistisMode === 'cloud' && !isLoading && !isNFT">
+                        <template #header>
+                            <SubHeading :title="$t('matchmakingService.userBasedRecommendations')" />
+                        </template>
+                        <MatchingDatasetDetails :dataset-id="datasetId" :mode="'userBased'" />
                     </UCard>
                 </div>
 
