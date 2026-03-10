@@ -13,8 +13,8 @@ export async function getSimilarityBasedMatchingDatasets(offerId: string) {
     return response.data;
 }
 
-export async function getUserBasedMatchingDatasets(offerId: string) {
-    const response = await axios.get(getUserBasedMatchingDatasetsUrl(offerId));
+export async function getUserBasedMatchingDatasets(organizationId: string) {
+    const response = await axios.get(getUserBasedMatchingDatasetsUrl(organizationId));
 
     return response.data;
 }

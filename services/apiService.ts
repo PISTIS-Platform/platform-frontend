@@ -43,7 +43,7 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         `${config.public.cloudUrl}/srv/matchmaking-services/api/mms/${encodeURIComponent(offerId)}?format=json`;
 
     const getUserBasedMatchingDatasetsUrl = (offerId: string) =>
-        `${config.public.cloudUrl}/srv/matchmaking-services/api/mms/user/recs/${encodeURIComponent(offerId)}?format=json`;
+        `${config.public.cloudUrl}/srv/user-matchmaking-services/api/mms/users/recs/${encodeURIComponent(offerId)}?format=json`;
 
     const getBlockchainHashUrl = () => `${config.public.factoryUrl}/srv/lineage-tracker/blockchain-hash`;
 

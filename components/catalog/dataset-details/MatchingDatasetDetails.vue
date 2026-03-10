@@ -5,6 +5,7 @@ import { getSimilarityBasedMatchingDatasets, getUserBasedMatchingDatasets } from
 
 const props = defineProps<{
     datasetId: string;
+    organizationId: string;
     mode: 'similarityBased' | 'userBased';
 }>();
 const matchingDatasets = ref<any[]>([]);
@@ -15,7 +16,7 @@ const loadData = async () => {
     try {
         const response =
             props.mode == 'userBased'
-                ? await getUserBasedMatchingDatasets(props.datasetId)
+                ? await getUserBasedMatchingDatasets(props.organizationId)
                 : await getSimilarityBasedMatchingDatasets(props.datasetId);
         matchingDatasets.value = Object.values(response.data).slice(1);
         hasMatchingDatasets.value = true;
