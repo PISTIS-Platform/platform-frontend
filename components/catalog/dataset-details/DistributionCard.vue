@@ -467,6 +467,19 @@ console.log(answersLog.value);
                             </UDropdown>
                         </UButtonGroup>
                     </div>
+
+                    <div v-if="pistisMode == 'openData'" class="flex gap-x-3">
+                        <UButton
+                            variant="solid"
+                            color="primary"
+                            size="sm"
+                            icon="i-heroicons-arrow-down-tray"
+                            @click="downloadFile"
+                        >
+                            {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.downloadDistribution') }}
+                            <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                        </UButton>
+                    </div>
                 </div>
             </div>
             <div v-if="pistisMode == 'factory' && showTable" class="flex flex-wrap pt-4 pb-5 pl-4">
