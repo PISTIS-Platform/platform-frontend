@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 
 const workflowStatus = ref({ RunId: 'none', Status: '---', 'Catalogue Link': '---' });
 const workflowList = ref([]);
+const isWorkflowListLoading = ref(true);
 const { t } = useI18n();
 const runId = ref('');
 const config = useRuntimeConfig();
@@ -60,6 +61,7 @@ const getWorkflowRun = async (id: string) => {
 };
 
 const getWorkflowRunList = async () => {
+    isWorkflowListLoading.value = true;
     workflowList.value = [];
 
     try {
@@ -77,6 +79,8 @@ const getWorkflowRunList = async () => {
         workflowList.value = JSON.parse(json_data)['dag_runs'];
     } catch (error) {
         console.error('Error:', error);
+    } finally {
+        isWorkflowListLoading.value = false;
     }
 };
 
@@ -259,7 +263,10 @@ const cleanResults = () => {
                     <UInput v-model="assetsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
                 </template>
                 <UTable v-model:sort="assetsSortBy" :columns="assetsColumns" :rows="assetsPaginatedRows"
-                    sort-mode="manual">
+                    :loading="isWorkflowListLoading" :empty-state="{
+                        icon: 'i-heroicons-circle-stack-20-solid',
+                        label: isWorkflowListLoading ? 'Loading workflows...' : 'No items.',
+                    }" sort-mode="manual">
                     <template #dag_run_id-data="{ row }">
                         <NuxtLink :to="'/data/workflow-execution'" class="text-sm text-blue-500 underline"
                             @click="getWorkflowRun(row.dag_run_id)">{{ row.dag_run_id }}</NuxtLink>
