@@ -303,7 +303,13 @@ const cleanResults = () => {
                     </template>
                     <template #end_date-data="{ row }">
                         <div class="w-full rounded-md mt-4 mb-2 ">
-                            <span>{{ new Date(row.end_date).toISOString() }}</span>
+                            <span>
+                                {{
+                                    (!row.end_date || new Date(row.end_date).toISOString() === '1970-01-01T00:00:00.000Z')
+                                        ? ''
+                                        : new Date(row.end_date).toISOString()
+                                }}
+                            </span>
                         </div>
                     </template>
                     <template #note-data="{ row }">
