@@ -1004,7 +1004,8 @@ export default defineI18nConfig(() => ({
                 'is-active': 'Investment Offer Status',
             },
             matchmakingService: {
-                recommendationsHeader: 'Recommended Datasets',
+                similarityRecommendations: 'Similar Datasets',
+                userBasedRecommendations: 'Datasets For You',
             },
         },
     },
