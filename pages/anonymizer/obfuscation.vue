@@ -153,42 +153,38 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
             loadingPreview.value = true;
 
             //Fetch a preview of the obfuscation
-            const response = await useFetch('/api/anonymizer/preview', {
+            const response = await $fetch('/api/anonymizer/preview', {
                 method: 'POST',
                 body: {
                     config: obfuscationBody,
                 },
             });
 
-            console.log('Full API Response:', response);
-            const result = response.data.value;
-            obfuscatedRows.value = formatPreview(result.dataset);
-            riskMetrics.value = result.metadata.risk;
-
-
+            // Note: $fetch returns the data directly, not a wrapper with .data.value
+            obfuscatedRows.value = formatPreview(response.dataset);
+            riskMetrics.value = response.metadata.risk;
 
             loadingPreview.value = false;
         } else {
             submittingObfuscation.value = true;
             //Apply the obfuscation to the entire original dataset
-            const response = await useFetch('/api/anonymizer/obfuscate', {
+            const response = await $fetch('/api/anonymizer/obfuscate', {
                 method: 'POST',
                 body: {
                     config: obfuscationBody,
                 },
             });
 
-            if (response.data.value['code'] === 200) {
+            if (response['code'] === 200) {
                 window.alert('Successfully anonymized dataset!');
             } else {
                 window.alert('Something went wrong!');
             }
 
             //Update preview to reflect changes
-            const updatedData = await useFetch('/api/anonymizer/preview');
-            const data = updatedData.data.value;
+            const updatedData = await $fetch('/api/anonymizer/preview');
+            const result: Preview = updatedData.result;
 
-            const result: Preview = data.result;
             anonymizerStore.changePreview(result);
             delete obfuscationBody.delete;
 
