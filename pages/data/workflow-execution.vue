@@ -195,7 +195,7 @@ const cleanResults = () => {
             </div>
         </div>
         <div class="flex justify-between items-center mt-2 w-full">
-            <UCard class="mt-4 mr-6 w-1/2 border-2 border-pistis-200">
+            <UCard class="mt-4 mr-6 w-full border-2 border-pistis-200">
                 <template #header>
                     <SubHeading :title="$t('data.workflowStatus')" />
                 </template>
@@ -239,22 +239,7 @@ const cleanResults = () => {
                     </div>
                 </Placeholder>
             </UCard>
-            <UCard class="mt-4 w-1/2 border-2 border-teal-400">
-                <template #header>
-                    <SubHeading :title="$t('data.gdpr')" />
-                </template>
-                <!--<SubHeading v-if="Object.keys(workflowStatus).length" :title="$t('data.gdpr')" class="mt-4 mb-2" />-->
-                <Placeholder class="h-16">
-                    <ul class="w-full flex ml-1 mr-5 mb-8">
-                        <li v-for="msg in gdprMessages" :key="msg.id"
-                            class="w-full flex mt-2 ml-2 mb-2 mr-2 bg-green-400 items-center border-2 border-green-400 shadow rounded-lg cursor-move text-sm font-medium">
-                            <div class="rounded-m ml-5 mt-2 mb-2 mr-1 font-medium text-black font-normal">
-                                {{ msg.text }}
-                            </div>
-                        </li>
-                    </ul>
-                </Placeholder>
-            </UCard>
+
         </div>
 
         <div class="w-full flex items-end gap-4">
