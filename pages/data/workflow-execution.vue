@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 
 const workflowStatus = ref({ RunId: 'none', Status: '---', 'Catalogue Link': '---' });
 const workflowList = ref([]);
+const isWorkflowListLoading = ref(true);
 const { t } = useI18n();
 const runId = ref('');
 const config = useRuntimeConfig();
@@ -60,6 +61,7 @@ const getWorkflowRun = async (id: string) => {
 };
 
 const getWorkflowRunList = async () => {
+    isWorkflowListLoading.value = true;
     workflowList.value = [];
 
     try {
@@ -77,6 +79,8 @@ const getWorkflowRunList = async () => {
         workflowList.value = JSON.parse(json_data)['dag_runs'];
     } catch (error) {
         console.error('Error:', error);
+    } finally {
+        isWorkflowListLoading.value = false;
     }
 };
 
@@ -191,7 +195,7 @@ const cleanResults = () => {
             </div>
         </div>
         <div class="flex justify-between items-center mt-2 w-full">
-            <UCard class="mt-4 mr-6 w-1/2 border-2 border-pistis-200">
+            <UCard class="mt-4 mr-6 w-full border-2 border-pistis-200">
                 <template #header>
                     <SubHeading :title="$t('data.workflowStatus')" />
                 </template>
@@ -235,22 +239,7 @@ const cleanResults = () => {
                     </div>
                 </Placeholder>
             </UCard>
-            <UCard class="mt-4 w-1/2 border-2 border-teal-400">
-                <template #header>
-                    <SubHeading :title="$t('data.gdpr')" />
-                </template>
-                <!--<SubHeading v-if="Object.keys(workflowStatus).length" :title="$t('data.gdpr')" class="mt-4 mb-2" />-->
-                <Placeholder class="h-16">
-                    <ul class="w-full flex ml-1 mr-5 mb-8">
-                        <li v-for="msg in gdprMessages" :key="msg.id"
-                            class="w-full flex mt-2 ml-2 mb-2 mr-2 bg-green-400 items-center border-2 border-green-400 shadow rounded-lg cursor-move text-sm font-medium">
-                            <div class="rounded-m ml-5 mt-2 mb-2 mr-1 font-medium text-black font-normal">
-                                {{ msg.text }}
-                            </div>
-                        </li>
-                    </ul>
-                </Placeholder>
-            </UCard>
+
         </div>
 
         <div class="w-full flex items-end gap-4">
@@ -259,7 +248,10 @@ const cleanResults = () => {
                     <UInput v-model="assetsSearchString" size="md" :placeholder="$t('search')" class="w-full ml-6" />
                 </template>
                 <UTable v-model:sort="assetsSortBy" :columns="assetsColumns" :rows="assetsPaginatedRows"
-                    sort-mode="manual">
+                    :loading="isWorkflowListLoading" :empty-state="{
+                        icon: 'i-heroicons-circle-stack-20-solid',
+                        label: isWorkflowListLoading ? 'Loading workflows...' : 'No items.',
+                    }" sort-mode="manual">
                     <template #dag_run_id-data="{ row }">
                         <NuxtLink :to="'/data/workflow-execution'" class="text-sm text-blue-500 underline"
                             @click="getWorkflowRun(row.dag_run_id)">{{ row.dag_run_id }}</NuxtLink>
@@ -268,7 +260,11 @@ const cleanResults = () => {
                         <div class="text-center">
                             <span :class="[
                                 'rounded-md px-4 py-1 font-medium',
-                                row.state === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
+                                row.state === 'success'
+                                    ? 'bg-green-100 text-green-800'
+                                    : row.state === 'running'
+                                        ? 'bg-purple-100 text-purple-800'
+                                        : 'bg-red-100 text-red-800',
                             ]">{{ row.state }}
                             </span>
                         </div>
@@ -296,7 +292,13 @@ const cleanResults = () => {
                     </template>
                     <template #end_date-data="{ row }">
                         <div class="w-full rounded-md mt-4 mb-2 ">
-                            <span>{{ new Date(row.end_date).toISOString() }}</span>
+                            <span>
+                                {{
+                                    (!row.end_date || new Date(row.end_date).toISOString() === '1970-01-01T00:00:00.000Z')
+                                        ? ''
+                                        : new Date(row.end_date).toISOString()
+                                }}
+                            </span>
                         </div>
                     </template>
                     <template #note-data="{ row }">
