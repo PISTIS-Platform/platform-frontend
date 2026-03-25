@@ -468,17 +468,18 @@ console.log(answersLog.value);
                         </UButtonGroup>
                     </div>
 
-                    <div v-if="pistisMode == 'openData'" class="flex gap-x-3">
-                        <UButton
-                            variant="solid"
-                            color="primary"
-                            size="sm"
-                            icon="i-heroicons-arrow-down-tray"
-                            @click="downloadFile"
+                    <div v-if="pistisMode === 'openData'" class="flex gap-x-3">
+                        <a
+                            :href="props.downloadUrl"
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded bg-primary text-white hover:bg-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
                         >
+                            <UIcon name="i-heroicons-arrow-down-tray" />
                             {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.downloadDistribution') }}
                             <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                        </UButton>
+                        </a>
                     </div>
                 </div>
             </div>
