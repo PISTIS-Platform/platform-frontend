@@ -27,6 +27,7 @@ interface CardProps {
     data: PropertyTableEntryNode;
     onSave?: () => void;
     size: number;
+    license: object;
 }
 
 const props = withDefaults(defineProps<CardProps>(), {
@@ -240,6 +241,15 @@ const {
     showReport,
 } = useGdprQuestions(props.datasetId);
 console.log(answersLog.value);
+
+const handleLicenseOpen = (value) => {
+    navigateTo(value.resource, {
+        external: true,
+        open: {
+            target: '_blank',
+        },
+    });
+};
 </script>
 
 <template>
@@ -418,10 +428,16 @@ console.log(answersLog.value);
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
                     <UBadge color="secondary" variant="soft" size="xs" class="rounded-full">{{ format }}</UBadge>
                     <div>
-                        {{ title }}
-                        <span v-if="props.size" class="font-semibold text-xs text-gray-400"
-                            >({{ formatBytes(props.size) }})</span
-                        >
+                        <div>
+                            {{ title }}
+                            <span v-if="props.size" class="font-semibold text-xs text-gray-400"
+                                >({{ formatBytes(props.size) }})</span
+                            >
+                        </div>
+                        <div v-if="license" class="font-semibold text-xs text-gray-400">
+                            License:
+                            <span class="cursor-pointer" @click="handleLicenseOpen(license)">{{ license.label }}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="flex">
@@ -437,7 +453,7 @@ console.log(answersLog.value);
                         >
                     </div>
 
-                    <div v-if="pistisMode == 'factory'" class="flex gap-x-3">
+                    <div v-if="pistisMode == 'factory'" class="flex gap-x-3 self-center">
                         <UButton
                             v-if="!isStream && answersLog"
                             variant="solid"

@@ -59,6 +59,7 @@ const getFormattedDistributions = computed(() => {
                 'JSON-LD': dist.getLinkedData.jsonld,
             },
             size: distribution?.byte_size ?? null,
+            license: distribution?.license ?? null,
         };
     });
 });
@@ -162,6 +163,7 @@ onMounted(() => {
                                 :dataset-id="datasetId"
                                 :distribution-id="distribution.id"
                                 :size="distribution.size"
+                                :license="distribution.license"
                             />
                             <div
                                 v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"

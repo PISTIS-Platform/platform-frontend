@@ -19,7 +19,7 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getDistributionsUrl = () => `${baseUrl}/srv/repo/distributions/`;
 
-    const getDatasetUrl = (datasetId: string) => `${baseUrl}/srv/search/datasets/${datasetId}`;
+    const getDatasetUrl = (datasetId: string) => `${searchUrl}/datasets/${datasetId}`;
 
     const getMarketplaceDatasetUrl = (datasetId: string) =>
         `${config.public.cloudUrl}/srv/search/datasets/${datasetId}`;
