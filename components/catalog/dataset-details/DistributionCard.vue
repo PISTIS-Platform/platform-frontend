@@ -528,7 +528,7 @@ console.log(answersLog.value);
                                 </UDropdown>
                             </UButtonGroup>
                         </div>
-                        <div v-if="isEncrypted" class="flex gap-x-3">
+                        <!-- <div v-if="isEncrypted" class="flex gap-x-3">
                             <UButton
                                 variant="solid"
                                 color="primary"
@@ -539,7 +539,17 @@ console.log(answersLog.value);
                             >
                                 {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.decryptDistribution') }}
                             </UButton>
-                        </div>
+                        </div> -->
+                        <UButton
+                            variant="solid"
+                            color="primary"
+                            size="sm"
+                            :loading="decryptInProgress"
+                            :disabled="decryptInProgress"
+                            @click="decryptFile"
+                        >
+                            {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.decryptDistribution') }}
+                        </UButton>
                     </div>
 
                     <div v-if="pistisMode === 'openData'" class="flex gap-x-3">
