@@ -7,6 +7,8 @@ import { DatasetKind } from '~/interfaces/dataset.enum';
 
 const { t } = useI18n();
 
+const formatColumnName = (name: string): string => name.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
+
 const props = defineProps({
     selected: {
         type: Object as PropType<{ id: number | string; title: string; description: string }>,
@@ -123,6 +125,20 @@ watch(
     { deep: true },
 );
 
+watch(
+    () => assetOfferingDetails.value.selectedDistribution?.id,
+    (newId, oldId) => {
+        if (newId === oldId) return;
+        clearForms();
+        columns.value = [];
+        columnsStatus.value = 'idle';
+        // Fetch eagerly so columns are ready when the user switches to Q/F
+        if (assetOfferingDetails.value.selectedDistribution?.format?.id === 'SQL') {
+            fetchColumns();
+        }
+    },
+);
+
 const tabItems = [
     {
         key: 'dateRange',
@@ -140,27 +156,40 @@ const tabItems = [
 
 const selectedTab = ref(0);
 
-// TODO: Get real ones from API
-const columns = [
-    {
-        columnName: 'batteryyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',
-        columnType: 'Integer',
-    },
-    { columnName: 'errors', columnType: 'String' },
-    { columnName: 'humidity', columnType: 'Float' },
-    { columnName: 'id', columnType: 'String' },
-    { columnName: 'location', columnType: 'String' },
-    { columnName: 'notes', columnType: 'Text' },
-    { columnName: 'pressure', columnType: 'Float' },
-    { columnName: 'sensor_id', columnType: 'String' },
-    { columnName: 'signal', columnType: 'Integer' },
-    { columnName: 'status', columnType: 'String' },
-    { columnName: 'temperature', columnType: 'Float' },
-    { columnName: 'timestamp', columnType: 'DateTime' },
-];
+interface Column {
+    columnName: string;
+    columnType: string;
+}
+
+const columns = ref<Column[]>([]);
+const columnsStatus = ref<'idle' | 'pending' | 'error'>('idle');
+
+const fetchColumns = async () => {
+    const distributionId = assetOfferingDetails.value.selectedDistribution?.id;
+    const datasetId = props.selected?.id;
+    if (!distributionId || !datasetId) return;
+
+    columnsStatus.value = 'pending';
+    columns.value = [];
+    try {
+        const response = await $fetch<{
+            data_model: { columns: { name: string; dataType: string }[] };
+        }>('/api/datasets/get-columns', {
+            query: { datasetId, distributionId },
+        });
+        columns.value = response.data_model.columns.map((col) => ({
+            columnName: col.name,
+            columnType: col.dataType,
+        }));
+        columnsStatus.value = 'idle';
+    } catch {
+        columnsStatus.value = 'error';
+        columns.value = [];
+    }
+};
 
 const filteredColumns = computed(() => {
-    let result = [...columns];
+    let result = [...columns.value];
     result.sort((a, b) => a.columnName.localeCompare(b.columnName));
     if (columnSearch.value) {
         const query = columnSearch.value.toLowerCase();
@@ -307,6 +336,51 @@ const checkTruncation = (event: Event, columnName: string) => {
     truncationState[columnName] = target.scrollWidth > target.clientWidth;
 };
 
+const filteredRowsStatus = ref<'idle' | 'pending' | 'error' | 'success'>('idle');
+const filteredRowsCount = ref<number | null>(null);
+
+const fetchFilteredRows = async () => {
+    const { dateColumn, fromDate, toDate } = queryPayload.value.dateRange;
+    const assetUuid = props.selected?.id;
+    if (!dateColumn || !fromDate || !toDate || !assetUuid) return;
+
+    const dateColumnType = columns.value.find((c) => c.columnName === dateColumn)?.columnType ?? 'date';
+
+    filteredRowsStatus.value = 'pending';
+    filteredRowsCount.value = null;
+    try {
+        const response = await $fetch<unknown[]>('/api/datasets/get-rows', {
+            query: {
+                assetUuid,
+                columnName: dateColumn,
+                columnDatatype: dateColumnType,
+                startDate: new Date(fromDate).toUTCString(),
+                endDate: new Date(toDate).toUTCString(),
+            },
+        });
+        filteredRowsCount.value = Array.isArray(response) ? response.length : null;
+        filteredRowsStatus.value = 'success';
+    } catch {
+        filteredRowsStatus.value = 'error';
+    }
+};
+
+watch(
+    [
+        () => queryPayload.value.dateRange?.dateColumn,
+        () => queryPayload.value.dateRange?.fromDate,
+        () => queryPayload.value.dateRange?.toDate,
+    ],
+    ([dateColumn, fromDate, toDate]) => {
+        if (dateColumn && fromDate && toDate) {
+            fetchFilteredRows();
+        } else {
+            filteredRowsStatus.value = 'idle';
+            filteredRowsCount.value = null;
+        }
+    },
+);
+
 defineExpose({
     openSwitchWarning,
     triggerValidation,
@@ -401,7 +475,7 @@ watch(
                             </span>
                         </div>
 
-                        <div v-if="item.key === 'dateRange'" class="flex items-center gap-4">
+                        <div v-if="item.key === 'dateRange'" class="flex flex-col gap-3">
                             <UForm
                                 ref="dateRangeFormRef"
                                 :schema="dateRangeSchema"
@@ -424,7 +498,19 @@ watch(
                                         option-attribute="columnName"
                                         class="min-w-64"
                                         :color="error ? 'red' : 'white'"
-                                    />
+                                    >
+                                        <template #label>
+                                            <span v-if="queryPayload.dateRange.dateColumn">
+                                                {{ formatColumnName(queryPayload.dateRange.dateColumn) }}
+                                            </span>
+                                            <span v-else class="text-gray-400">
+                                                {{ $t('data.designer.query.dateRange.selectColumn') }}
+                                            </span>
+                                        </template>
+                                        <template #option="{ option }">
+                                            {{ formatColumnName(option.columnName) }}
+                                        </template>
+                                    </USelectMenu>
                                 </UFormGroup>
                                 <UFormGroup
                                     v-slot="{ error }"
@@ -504,6 +590,27 @@ watch(
                                     </UPopover>
                                 </UFormGroup>
                             </UForm>
+                            <div v-if="filteredRowsStatus !== 'idle'" class="flex items-center gap-2 text-xs">
+                                <UIcon
+                                    v-if="filteredRowsStatus === 'pending'"
+                                    name="i-heroicons-arrow-path"
+                                    class="w-4 h-4 animate-spin text-gray-400"
+                                />
+                                <template v-else-if="filteredRowsStatus === 'success'">
+                                    <UIcon name="i-heroicons-check-circle" class="w-4 h-4 text-green-500" />
+                                    <span class="text-gray-600">
+                                        {{
+                                            filteredRowsCount !== null
+                                                ? `${filteredRowsCount} rows match the selected date range`
+                                                : 'Filter applied'
+                                        }}
+                                    </span>
+                                </template>
+                                <template v-else-if="filteredRowsStatus === 'error'">
+                                    <UIcon name="i-heroicons-exclamation-circle" class="w-4 h-4 text-red-500" />
+                                    <span class="text-red-500">{{ $t('data.designer.query.columns.fetchError') }}</span>
+                                </template>
+                            </div>
                         </div>
 
                         <div v-if="item.key === 'selectColumns'" class="flex flex-col gap-4">
@@ -555,7 +662,24 @@ watch(
                                 </div>
                             </div>
 
+                            <!-- Loading state -->
                             <div
+                                v-if="columnsStatus === 'pending'"
+                                class="flex items-center justify-center min-h-[200px]"
+                            >
+                                <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
+                            </div>
+
+                            <!-- Error state -->
+                            <div
+                                v-else-if="columnsStatus === 'error'"
+                                class="flex items-center justify-center min-h-[200px] text-sm text-red-500 gap-2"
+                            >
+                                <UIcon name="i-heroicons-exclamation-circle" class="w-4 h-4" />
+                                <span>{{ $t('data.designer.query.columns.fetchError') }}</span>
+                            </div>
+                            <div
+                                v-else
                                 class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 min-h-[200px] p-2 rounded-lg transition-all max-h-[400px] overflow-y-auto"
                                 :class="showColumnError ? 'ring-1 ring-red-500 bg-red-50 dark:bg-red-900/10' : ''"
                             >
@@ -572,7 +696,7 @@ watch(
                                 >
                                     <div class="flex items-baseline gap-2 overflow-hidden flex-1 min-w-0">
                                         <UTooltip
-                                            :text="col.columnName"
+                                            :text="formatColumnName(col.columnName)"
                                             :popper="{ placement: 'top' }"
                                             :prevent="!truncationState[col.columnName]"
                                             class="min-w-0"
@@ -582,7 +706,7 @@ watch(
                                                 class="font-medium truncate block"
                                                 @mouseenter="checkTruncation($event, col.columnName)"
                                             >
-                                                {{ col.columnName }}
+                                                {{ formatColumnName(col.columnName) }}
                                             </span>
                                         </UTooltip>
                                         <span class="text-xs text-gray-500 font-mono flex-shrink-0"
