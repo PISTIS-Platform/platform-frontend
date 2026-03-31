@@ -134,8 +134,6 @@ const liveSearchResult = computed(() => store.liveSearchResult);
 
 const { selectColumn, setColumnStatus } = store;
 
-const toast = useToast();
-
 // Reactive state
 const search = ref({});
 const selected = ref(false);
@@ -150,50 +148,42 @@ const selectedColumn = ref(props.column);
 const selectOption = (value) => {
     if (!value) return;
 
-    if (isUnique(value.name) || value.label) {
-        selected.value = true;
-        emit('selected');
+    selected.value = true;
+    emit('selected');
 
-        const columnId = props.id;
-        const name = value.name;
-        selectedColumn.value = value;
+    const columnId = props.id;
+    const name = value.name;
+    selectedColumn.value = value;
 
-        transformable.value = isTransformable(dataType.value, selectedColumn.value.dataType);
+    transformable.value = isTransformable(dataType.value, selectedColumn.value.dataType);
 
-        setColumnStatus({
+    setColumnStatus({
+        id: columnId,
+        selected: selected.value,
+        transformable: transformable.value,
+        name: name,
+    });
+
+    // Only basic data types have label property. In that case propertyName should be empty
+    if (selectedColumn.value.label) {
+        selectColumn({
             id: columnId,
-            selected: selected.value,
-            transformable: transformable.value,
-            name: name,
+            selectedColumn: {
+                dataType: selectedColumn.value.dataType,
+                name: originalName.value,
+                propertyName: '',
+                propertyURI: '',
+            },
         });
-
-        // Only basic data types have label property. In that case propertyName should be empty
-        if (selectedColumn.value.label) {
-            selectColumn({
-                id: columnId,
-                selectedColumn: {
-                    dataType: selectedColumn.value.dataType,
-                    name: originalName.value,
-                    propertyName: '',
-                    propertyURI: '',
-                },
-            });
-        } else {
-            selectColumn({
-                id: columnId,
-                selectedColumn: {
-                    dataType: selectedColumn.value.dataType,
-                    name: originalName.value,
-                    propertyName: selectedColumn.value.name,
-                    propertyURI: selectedColumn.value.nameURI,
-                },
-            });
-        }
     } else {
-        toast.add({
-            title: 'Warning',
-            description: 'The value of each column property must be unique.',
-            color: 'orange',
+        selectColumn({
+            id: columnId,
+            selectedColumn: {
+                dataType: selectedColumn.value.dataType,
+                name: originalName.value,
+                propertyName: selectedColumn.value.name,
+                propertyURI: selectedColumn.value.nameURI,
+            },
         });
     }
 };
@@ -242,10 +232,6 @@ const reset = () => {
             name: '',
         });
     }
-};
-
-const isUnique = (name) => {
-    return !columnsStatus.value.some((column) => column.name.trim().toLowerCase() === name.trim().toLowerCase());
 };
 
 onMounted(() => {

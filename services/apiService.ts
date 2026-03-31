@@ -19,7 +19,7 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getDistributionsUrl = () => `${baseUrl}/srv/repo/distributions/`;
 
-    const getDatasetUrl = (datasetId: string) => `${baseUrl}/srv/search/datasets/${datasetId}`;
+    const getDatasetUrl = (datasetId: string) => `${searchUrl}/datasets/${datasetId}`;
 
     const getMarketplaceDatasetUrl = (datasetId: string) =>
         `${config.public.cloudUrl}/srv/search/datasets/${datasetId}`;
@@ -39,8 +39,11 @@ export const useApiService = (pistisMode: string = 'cloud') => {
     const getAnonymizerUrl = (datasetId: string, distributionId: string, lang: string = 'en') =>
         `/anonymizer?datasetId=${datasetId}&distribution=${distributionId}&language=${lang}`;
 
-    const getMatchingDatasetsUrl = (offerId: string) =>
+    const getSimilarityBasedMatchingDatasetsUrl = (offerId: string) =>
         `${config.public.cloudUrl}/srv/matchmaking-services/api/mms/${encodeURIComponent(offerId)}?format=json`;
+
+    const getUserBasedMatchingDatasetsUrl = (offerId: string) =>
+        `${config.public.cloudUrl}/srv/user-matchmaking-services/api/mms/users/recs/${encodeURIComponent(offerId)}?format=json`;
 
     const getBlockchainHashUrl = () => `${config.public.factoryUrl}/srv/lineage-tracker/blockchain-hash`;
 
@@ -50,8 +53,6 @@ export const useApiService = (pistisMode: string = 'cloud') => {
     const getDatasetDiffUrl = (backendUrl: string) => `${backendUrl}/srv/lineage-tracker/get_datasets_diff`;
 
     const getLineageDataUrl = (backendUrl: string) => `${backendUrl}/srv/lineage-tracker/get_dataset_family_tree`;
-
-    const getMarketplaceSparqlEndpoint = () => `https://pistis-market.eu/srv/virtuoso/sparql`;
 
     const getSCEEUrl = (offerId: string) =>
         `${config.public.factoryUrl}/srv/smart-contract-execution-engine/api/scee/getTransactionInfo/assetId/${offerId}`;
@@ -74,12 +75,12 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getPurchaseUrl,
         getEnrichmentUrl,
         getAnonymizerUrl,
-        getMatchingDatasetsUrl,
+        getSimilarityBasedMatchingDatasetsUrl,
+        getUserBasedMatchingDatasetsUrl,
         getBlockchainHashUrl,
         getDatasetDiffUrlLimited,
         getDatasetDiffUrl,
         getLineageDataUrl,
-        getMarketplaceSparqlEndpoint,
         getSCEEUrl,
         getSCEEAssetUrl,
         getSCEEBurnNftUrl,

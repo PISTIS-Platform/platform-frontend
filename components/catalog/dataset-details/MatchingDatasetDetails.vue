@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { getMatchingDatasets } from './MatchmakingService';
+import { getSimilarityBasedMatchingDatasets, getUserBasedMatchingDatasets } from './MatchmakingService';
 
 const props = defineProps<{
     datasetId: string;
+    organizationId: string;
+    mode: 'similarityBased' | 'userBased';
 }>();
 const matchingDatasets = ref<any[]>([]);
 
@@ -12,7 +14,10 @@ const hasMatchingDatasets = ref(false);
 
 const loadData = async () => {
     try {
-        const response = await getMatchingDatasets(props.datasetId);
+        const response =
+            props.mode == 'userBased'
+                ? await getUserBasedMatchingDatasets(props.organizationId)
+                : await getSimilarityBasedMatchingDatasets(props.datasetId);
         matchingDatasets.value = Object.values(response.data).slice(1);
         hasMatchingDatasets.value = true;
     } catch (error) {

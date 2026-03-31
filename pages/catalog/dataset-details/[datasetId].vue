@@ -63,6 +63,8 @@ const getFormattedDistributions = computed(() => {
             },
 
             pistisSchema: distribution?.pistis_schema ?? null,
+            size: distribution?.byte_size ?? null,
+            license: distribution?.license ?? null,
         };
     });
 });
@@ -177,6 +179,8 @@ onMounted(() => {
                                 :dataset-id="datasetId"
                                 :distribution-id="distribution.id"
                                 :pistis-schema="distribution.pistisSchema"
+                                :size="distribution.size"
+                                :license="distribution.license"
                             />
                             <div
                                 v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"

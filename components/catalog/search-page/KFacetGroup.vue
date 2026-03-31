@@ -64,6 +64,16 @@ watch(
     { immediate: true },
 );
 
+const showHVD = ['true'];
+const hvdOn = computed({
+    get() {
+        return model.value?.includes('true');
+    },
+    set(val: boolean) {
+        model.value = val ? showHVD : [];
+    },
+});
+
 const panelPreset = {
     header: ({ props }: { props: PanelProps }) => ({
         class: [
@@ -196,10 +206,23 @@ onMounted(() => {
             </label>
         </div>
         <div
+            v-if="props.title === 'High-Value-Dataset'"
+            class="flex justify-between items-center py-3 text-surface-text px-3 text-sm border-b border-surface-200"
+            :class="{
+                'border-b border-b-primary bg-primary-light font-semibold': hvdOn,
+            }"
+        >
+            <Typography class="text-sm" :class="{ 'font-semibold': hvdOn }">High-Value-Datasets only</Typography>
+            <label class="switch">
+                <button class="slider round" :class="{ active: hvdOn }" @click="hvdOn = !hvdOn"></button>
+            </label>
+        </div>
+        <div
             v-if="
                 !(
                     (props.title === 'Investment Offer' && allInvestOffersOn) ||
-                    (props.title === 'Streaming Datasets' && allStreamDataOn)
+                    (props.title === 'Streaming Datasets' && allStreamDataOn) ||
+                    props.title === 'High-Value-Dataset'
                 )
             "
             class="flex-1 border-b border-neutral-300"

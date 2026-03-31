@@ -54,7 +54,8 @@ const offerId = ref('');
 const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
 const rateDatasetUrl = computed(() => getFeedbackUrl(offerId.value));
 const buyIsLoading = ref(false);
-const isStream = ref(false);
+const isStream = ref<boolean | null>(null);
+const isStreamStateSet = ref(false);
 const isLoading = ref(true);
 const datasetIsBought = ref(false);
 const distributions = ref(['']);
@@ -122,6 +123,7 @@ const fetchMetadata = async () => {
         console.log('CATALOG:', catalog.value);
         distributions.value = data.result.distributions;
         isStream.value = metadata.value.result?.distributions?.[0]?.title?.en === 'Kafka Stream';
+        isStreamStateSet.value = true;
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
             // console.log('preis:' + purchaseOffer.price);
@@ -261,9 +263,12 @@ const checkDatasetIsBought = async (datasetId: string) => {
     }
 };
 
-onMounted(() => {
-    fetchMetadata();
-    getUserFactory();
+const isOwnershipSet = ref(false);
+
+onMounted(async () => {
+    await Promise.all([fetchMetadata(), getUserFactory()]);
+
+    isOwnershipSet.value = true;
 });
 
 // Dataset desecription truncator "show more"
@@ -321,6 +326,7 @@ const investOpen = ref(false);
                             </Typography>
                         </button>
                         <LinkedDataSelector
+                            v-if="factoryPrefix === 'develop' || factoryPrefix === 'acme'"
                             :resource-id="props.datasetId"
                             resource="datasets"
                             class="text-pistis-600 text-sm"
@@ -332,7 +338,7 @@ const investOpen = ref(false);
                             <div class="flex flex-row gap-2">
                                 <!-- hide data lineage and quality assessment in marketplace until they work -->
                                 <UButton
-                                    v-if="!isStream"
+                                    v-if="isStreamStateSet && !isStream"
                                     size="sm"
                                     variant="solid"
                                     :label="$t('buttons.dataLineage')"
@@ -345,7 +351,7 @@ const investOpen = ref(false);
                                     }"
                                 />
                                 <UnpublishButton
-                                    v-if="pistisMode === 'cloud' && !isNotOwn"
+                                    v-if="pistisMode === 'cloud' && isOwnershipSet && !isNotOwn"
                                     :dataset-id="props.datasetId"
                                 />
                                 <UButton
@@ -472,9 +478,24 @@ const investOpen = ref(false);
 
                     <UCard v-if="pistisMode === 'cloud' && !isLoading && !isNFT">
                         <template #header>
-                            <SubHeading :title="$t('matchmakingService.recommendationsHeader')" />
+                            <SubHeading :title="$t('matchmakingService.similarityRecommendations')" />
                         </template>
-                        <MatchingDatasetDetails :dataset-id="datasetId" />
+                        <MatchingDatasetDetails
+                            :dataset-id="datasetId"
+                            :organization-id="organizationId"
+                            :mode="'similarityBased'"
+                        />
+                    </UCard>
+
+                    <UCard v-if="pistisMode === 'cloud' && !isLoading && !isNFT">
+                        <template #header>
+                            <SubHeading :title="$t('matchmakingService.userBasedRecommendations')" />
+                        </template>
+                        <MatchingDatasetDetails
+                            :dataset-id="datasetId"
+                            :organization-id="organizationId"
+                            :mode="'userBased'"
+                        />
                     </UCard>
                 </div>
 

@@ -16,5 +16,5 @@ export default defineEventHandler(async (event) => {
     });
     const json = await response.json();
 
-    return json['result']['dataset'];
+    return json['result'];
 });
