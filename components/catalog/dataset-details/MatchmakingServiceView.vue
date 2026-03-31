@@ -8,7 +8,7 @@ const { datasetId } = defineProps<{
 
 <template>
     <div class="pb-5">
-        <Typography variant="by-heading-4"> {{ $t('matchmakingService.recommendationsHeader') }}</Typography>
+        <Typography variant="by-heading-4"> {{ $t('matchmakingService.similarityRecommendations') }}</Typography>
     </div>
-    <MatchingDatasetDetails :dataset-id="datasetId" />
+    <MatchingDatasetDetails :dataset-id="datasetId" mode="similarityBased" />
 </template>

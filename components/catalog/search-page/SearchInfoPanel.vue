@@ -1,6 +1,10 @@
 <script setup lang="ts">
 // import SortSplitButton from '../../../components/sort-split-button/SortSplitButton.vue';
-
+const props = defineProps({
+    isAcquired: {
+        type: Boolean,
+    },
+});
 const sort = defineModel<string>('sort', { default: 'relevance' });
 const direction = defineModel<string>('direction', { default: 'desc' });
 </script>
@@ -14,7 +18,7 @@ const direction = defineModel<string>('direction', { default: 'desc' });
                 </p>
             </div>
             <div>
-                <SortSplitButton v-model:direction="direction" v-model:sort="sort" />
+                <SortSplitButton v-model:direction="direction" v-model:sort="sort" :is-acquired="props.isAcquired" />
             </div>
         </div>
     </section>

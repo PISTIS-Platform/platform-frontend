@@ -11,6 +11,7 @@ const PropertyTable = defineComponent({
         root: { type: Boolean, default: false },
         node: { type: Object as PropType<PropertyTableEntryNode>, required: true },
         pistisMode: String,
+        catalogId: String,
     },
     setup(props, { slots }) {
         const node = toRef(props, 'node');
@@ -34,6 +35,13 @@ const PropertyTable = defineComponent({
                     return null;
                 }
 
+                if (props.catalogId === 'acquired-data' && data.id === 'catalogRecord') {
+                    return null;
+                }
+
+                const title =
+                    props.catalogId === 'acquired-data' && data.id === 'modified' ? 'Purchased date' : data.label;
+
                 const itemSlot = slots.item;
                 if (itemSlot && !isVNodeEmpty(itemSlot?.({ data, idx, depth })))
                     return itemSlot?.({ data, idx, depth });
@@ -42,7 +50,7 @@ const PropertyTable = defineComponent({
                     return !!data.data && data.data.length > 0
                         ? h(
                               SummaryBox,
-                              { title: data.label },
+                              { title },
                               {
                                   text: h('span', {}, renderNodes(data.data || [], depth + 1)),
                               },

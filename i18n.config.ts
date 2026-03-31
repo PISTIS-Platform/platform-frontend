@@ -28,6 +28,7 @@ export default defineI18nConfig(() => ({
             catalogue: {
                 downloadGDPR: 'Download GDPR Report',
                 downloadDistribution: 'Download Distribution',
+                connectionDetails: 'Connection Details',
             },
             companySizes: {
                 SMALL: 'Small',
@@ -96,6 +97,16 @@ export default defineI18nConfig(() => ({
                 incoming: 'Incoming',
                 monthlyIncome: 'Income in the last 30 days',
                 monthlyExpenses: 'Expenses in the last 30 days',
+                transactionDetails: 'Transaction Details',
+                transactionId: 'Transaction ID',
+                assetId: 'Asset ID',
+                assetTitle: 'Asset Title',
+                fullAmount: 'Full Amount',
+                detailedAmount: 'Amount to Data Provider / Transaction Fee',
+                terms: 'Terms and conditions',
+                downloadPDF: 'Download PDF',
+                amountToProvider: 'Amount to Provider',
+                transactionFee: 'Transaction Fee',
             },
             settings: {
                 title: 'Factory Settings',
@@ -187,6 +198,7 @@ export default defineI18nConfig(() => ({
                 required: 'Required',
                 price: 'Must be 10 EUR or above',
                 integer: 'Number must be an integer',
+                extraTermsMax: 'Extra terms cannot exceed 2048 characters',
             },
             home: {
                 home: 'Home',
@@ -967,6 +979,7 @@ export default defineI18nConfig(() => ({
                     relevance: 'Relevance',
                     title: 'Name',
                     issued: 'Last Created',
+                    lastPurchased: 'Last Purchased',
                 },
                 toggleButton: {
                     ascending: 'Ascending',
@@ -975,23 +988,9 @@ export default defineI18nConfig(() => ({
             },
             datasetFacets: {
                 facets: {
-                    datascopeField: {
-                        countryData: 'National Data',
-                        io: 'International Data',
-                        eu: 'European Union Data',
-                    },
-                    datascope: 'Data scope',
-                    dataServices: {
-                        dataServicesOnly: 'Data services',
-                    },
                     country: 'Provenance',
                     format: 'Formats',
-                    scoring: {
-                        badScoring: 'Any',
-                        sufficientScoring: 'Sufficient',
-                        goodScoring: 'Good',
-                        excellentScoring: 'Excellent',
-                    },
+                    scoring: 'Metadata Quality',
                     publisher: 'Data Provider',
                     license: 'Licences',
                     purchaseOfferLicense: 'Licences',
@@ -1003,6 +1002,12 @@ export default defineI18nConfig(() => ({
                     monetizationType: 'Monetisation Type',
                     is_free: 'Price',
                     isInvestmentActive: 'Investment Offer',
+                    dataScope: 'Data Scope',
+                    hvdCategory: 'High-Value-Dataset Category',
+                    is_hvd: 'High-Value-Dataset',
+                    subject: 'Subject',
+                    contactPoint: 'Contact Point',
+                    type: 'Type',
                 },
                 title: 'Filters',
                 and: 'AND',
@@ -1039,7 +1044,8 @@ export default defineI18nConfig(() => ({
                 'is-active': 'Investment Offer Status',
             },
             matchmakingService: {
-                recommendationsHeader: 'Recommended Datasets',
+                similarityRecommendations: 'Similar Datasets',
+                userBasedRecommendations: 'Datasets For You',
             },
         },
     },

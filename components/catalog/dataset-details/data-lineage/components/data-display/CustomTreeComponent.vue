@@ -184,7 +184,12 @@ const buildNodeMap = (data) => {
     const nodeMap = {};
     Object.values(data).forEach((group) => {
         Object.keys(group).forEach((id) => {
-            const node = group[id];
+            const datasetEvents = group[id];
+
+            // Each dataset can have multiple events (array) or a single event (object)
+            // For tree visualization, use the first event to represent the dataset node
+            const node = Array.isArray(datasetEvents) ? datasetEvents[0] : datasetEvents;
+
             nodeMap[id] = {
                 id,
                 ...node,
@@ -815,7 +820,10 @@ const findParentNodes = (datasetId) => {
     // Find the parent ID
     for (const lineageId in props.data) {
         if (datasetId in props.data[lineageId]) {
-            current = props.data[lineageId][datasetId].derived_from;
+            const datasetEvents = props.data[lineageId][datasetId];
+            // Extract first event from array to get parent relationship
+            const node = Array.isArray(datasetEvents) ? datasetEvents[0] : datasetEvents;
+            current = node.derived_from;
             break;
         }
     }
@@ -826,7 +834,10 @@ const findParentNodes = (datasetId) => {
         for (const lineageId in props.data) {
             if (current in props.data[lineageId]) {
                 parents.push(current);
-                current = props.data[lineageId][current].derived_from;
+                const datasetEvents = props.data[lineageId][current];
+                // Extract first event from array to traverse up the lineage chain
+                const node = Array.isArray(datasetEvents) ? datasetEvents[0] : datasetEvents;
+                current = node.derived_from;
                 found = true;
                 break;
             }
@@ -1113,7 +1124,10 @@ const createConnectorsSVG = () => {
 
     // Go through all data to find parent-child relationships
     Object.values(props.data).forEach((lineage) => {
-        Object.entries(lineage).forEach(([childId, childData]) => {
+        Object.entries(lineage).forEach(([childId, childDataEvents]) => {
+            // Extract first event from array to determine parent-child connections
+            const childData = Array.isArray(childDataEvents) ? childDataEvents[0] : childDataEvents;
+
             if (!childData.derived_from) return;
 
             const parentId = childData.derived_from;

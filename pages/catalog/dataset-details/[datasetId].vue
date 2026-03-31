@@ -20,6 +20,7 @@ const pistisMode = route.query.pm;
 const { getDatasetUrl } = useApiService(pistisMode);
 
 const datasetId = useRouteParams('datasetId');
+const catalogId = ref('');
 
 ensureDatasetId(datasetId);
 
@@ -62,6 +63,8 @@ const getFormattedDistributions = computed(() => {
             },
 
             pistisSchema: distribution?.pistis_schema ?? null,
+            size: distribution?.byte_size ?? null,
+            license: distribution?.license ?? null,
         };
     });
 });
@@ -74,6 +77,7 @@ const fetchDistributionMetadata = async () => {
     try {
         const response = await fetch(searchUrl);
         distributionMetadata.value = await response.json();
+        catalogId.value = distributionMetadata.value.result?.catalog?.id;
     } catch (error) {
         console.error('Error fetching metadata:', error);
     }
@@ -175,6 +179,8 @@ onMounted(() => {
                                 :dataset-id="datasetId"
                                 :distribution-id="distribution.id"
                                 :pistis-schema="distribution.pistisSchema"
+                                :size="distribution.size"
+                                :license="distribution.license"
                             />
                             <div
                                 v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"
@@ -226,6 +232,7 @@ onMounted(() => {
                         data: resultEnhanced?.getPropertyTable2 || undefined,
                     }"
                     :pistis-mode="'factory'"
+                    :catalog-id="catalogId"
                 />
             </template>
         </DetailsPage>

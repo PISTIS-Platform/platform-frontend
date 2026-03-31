@@ -4,9 +4,10 @@ import 'vue-sonner/style.css';
 import { Toaster } from 'vue-sonner';
 
 const appConfig = useAppConfig();
+const { organisationFullname } = useRuntimeConfig().public;
 
 useHead({
-    titleTemplate: (title) => `${title ? title + ' • ' : ''}${appConfig.name}`,
+    titleTemplate: (title) => `${title ? title + ' • ' : ''}${organisationFullname} ${appConfig.name}`,
     htmlAttrs: { class: 'h-full bg-neutral-50' },
 });
 </script>

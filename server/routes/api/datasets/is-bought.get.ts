@@ -1,13 +1,13 @@
 const {
-    public: { cloudUrl },
+    public: { factoryUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const session = event.context.session;
 
-    const result: Record<string, any> = await $fetch(
-        `${cloudUrl}/srv/search/search?q=${query.id}&filters=dataset&fields=offer.original_id.raw&includes=id,offer,monetization`,
+    const result = await $fetch(
+        `${factoryUrl}/srv/search/search?q=${query.id}&filters=dataset&facets={"catalog":["acquired-data"]}&fields=offer.marketplace_offer_id.raw&includes=id,offer`,
         {
             method: 'GET',
             headers: {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     );
 
     return {
-        isPublished: result.result.results.length > 0,
+        isBought: result.result.results.length > 0,
         results: result.result.results,
     };
 });

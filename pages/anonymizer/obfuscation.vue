@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { type Dataset, type Preview, type TableRow } from '~/interfaces/dataset-preview';
+import { type Preview, type RiskMetrics, type TableRow } from '~/interfaces/dataset-preview';
 import { type ConfigEmit, type ObfuscationBody, type SortedMasks } from '~/interfaces/mask-settings';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
@@ -26,6 +26,11 @@ const anonymizerStore = useAnonymizerStore();
  * Reference to nuxt router.
  */
 const router = useRouter();
+
+/**
+ * Risk metrics of the obfuscation preview.
+ */
+const riskMetrics = ref({} as RiskMetrics);
 
 /**
  * Preview of the dataset before anonymisation.
@@ -148,37 +153,38 @@ async function submitObfuscation(isPreview: boolean): Promise<void> {
             loadingPreview.value = true;
 
             //Fetch a preview of the obfuscation
-            let dataset = (await $fetch('/api/anonymizer/preview', {
-                method: 'POST',
-                body: {
-                    config: obfuscationBody,
-                },
-            })) as Dataset;
-
-            obfuscatedRows.value = formatPreview(dataset);
-
-            loadingPreview.value = false;
-        } else {
-            submittingObfuscation.value = true;
-            //Apply the obfuscation to the entire original dataset
-            const response = await useFetch('/api/anonymizer/obfuscate', {
+            const response = await $fetch('/api/anonymizer/preview', {
                 method: 'POST',
                 body: {
                     config: obfuscationBody,
                 },
             });
 
-            if (response.data.value['code'] === 200) {
+            // Note: $fetch returns the data directly, not a wrapper with .data.value
+            obfuscatedRows.value = formatPreview(response.dataset);
+            riskMetrics.value = response.metadata.risk;
+
+            loadingPreview.value = false;
+        } else {
+            submittingObfuscation.value = true;
+            //Apply the obfuscation to the entire original dataset
+            const response = await $fetch('/api/anonymizer/obfuscate', {
+                method: 'POST',
+                body: {
+                    config: obfuscationBody,
+                },
+            });
+
+            if (response['code'] === 200) {
                 window.alert('Successfully anonymized dataset!');
             } else {
                 window.alert('Something went wrong!');
             }
 
             //Update preview to reflect changes
-            const updatedData = await useFetch('/api/anonymizer/preview');
-            const data = updatedData.data.value;
+            const updatedData = await $fetch('/api/anonymizer/preview');
+            const result: Preview = updatedData.result;
 
-            const result: Preview = data.result;
             anonymizerStore.changePreview(result);
             delete obfuscationBody.delete;
 
@@ -236,6 +242,18 @@ onMounted(async () => {
             <div :hidden="hidePreview" class="mt-3">
                 <h1 class="text-2xl">Anonymization Preview</h1>
                 <UTable class="mt-5" :rows="obfuscatedRows" :loading="loadingPreview" />
+                <div class="mt-3">
+                    <h3 class="text-md font-bold">Risk of Reidentification</h3>
+                    <p>The risk of reidentification after this transformation is:</p>
+                    <ul class="ml-4">
+                        <li>- Percentage of records at risk: {{ riskMetrics.recordsAtRisk * 100 }}%</li>
+                        <li>- Highest risk of any single record: {{ riskMetrics.highestRisk * 100 }}%</li>
+                        <li>
+                            - The average success rate when reidentifying records is:
+                            {{ riskMetrics.successRate * 100 }}%
+                        </li>
+                    </ul>
+                </div>
                 <UButton class="w-44 mt-5" :loading="submittingObfuscation" @click="submitObfuscation(false)"
                     >Apply Transformation</UButton
                 >

@@ -473,7 +473,6 @@ const DATA_CHECK_IN_API_METHOD = i18n.t('data.dataCheckInApiMethod');
 const dataset_format = ['csv', 'json', 'tsv', 'parquet', 'xml', 'xlsx'];
 const http_methods = ['GET', 'POST'];
 const periodicity = ['hourly', 'daily', 'monthly'];
-const isDisabled = ref(true);
 
 const workflowServices = ref([]);
 const datasetName = ref('');
@@ -483,6 +482,8 @@ const datasetEncrytion = ref('false');
 const gdprChecking = ref('false');
 let fileUpload = ref<File | null>(null);
 const runId = ref('None');
+const isRunningWorkflow = ref(false);
+const runWorkflowButtonText = ref('Run Workflow');
 const wfRunTimeSpecific = ref('');
 const wfPeriodicity = ref('');
 const datasetCategory = ref('');
@@ -677,6 +678,9 @@ const sanitizeFilename = (raw: string): string =>
         .slice(0, 255);
 
 const runJobConfigurator = async (services: [string]) => {
+    isRunningWorkflow.value = true;
+    runWorkflowButtonText.value = 'Running Workflow...';
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     const formData = new FormData();
     let isoDateString = wfRunTimeSpecific.value;
     let periodicity = wfPeriodicity.value;
@@ -788,9 +792,13 @@ const runJobConfigurator = async (services: [string]) => {
         /*jsonResponse = JSON.stringify(data, null, 2);*/
 
         runId.value = responseContent.dag_run_id;
+        isRunningWorkflow.value = false;
+        runWorkflowButtonText.value = 'Run Workflow';
     } catch (error: any) {
         console.error('Error:', error);
         alert(`Error: ${error.message}`);
+        isRunningWorkflow.value = false;
+        runWorkflowButtonText.value = 'Run Workflow';
     }
 };
 </script>
@@ -863,25 +871,7 @@ const runJobConfigurator = async (services: [string]) => {
                         <label for="datasetEncrytion" class="text-sm font-medium text-neutral-700 mt-7 mr-7">{{
                             $t('data.datasetEncrytion')
                         }}</label>
-                        <input
-                            id="checkbox"
-                            v-model="datasetEncrytion"
-                            :disabled="isDisabled"
-                            type="checkbox"
-                            class="mt-7 w-6 h-6 p-1"
-                        />
-                    </div>
-                    <div class="container w-full flex">
-                        <label for="gdprChecking" class="text-sm font-medium text-neutral-700 ml-15 mt-7 w-40">{{
-                            $t('data.gdprChecking')
-                        }}</label>
-                        <input
-                            id="checkbox"
-                            v-model="gdprChecking"
-                            :disabled="isDisabled"
-                            type="checkbox"
-                            class="mt-7 w-6 h-6"
-                        />
+                        <input id="checkbox" v-model="datasetEncrytion" type="checkbox" class="mt-7 w-6 h-6 p-1" />
                     </div>
                 </div>
             </div>
@@ -1139,10 +1129,14 @@ const runJobConfigurator = async (services: [string]) => {
             </div>
             <div class="rounded-md text-center">
                 <button
-                    class="px-4 py-2 bg-primary-600 text-white text-sm rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    :class="[
+                        'px-4 py-2 text-white text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500',
+                        isRunningWorkflow ? 'bg-[#c5c8ff] cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700',
+                    ]"
+                    :disabled="isRunningWorkflow"
                     @click="runJobConfigurator(workflowServices)"
                 >
-                    Run Workflow
+                    {{ runWorkflowButtonText }}
                 </button>
             </div>
         </div>

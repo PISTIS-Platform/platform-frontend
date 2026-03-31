@@ -49,6 +49,10 @@ const {
     hubSearchQueryDefinition: useDcatApSearch,
 });
 
+const isAcquiredSelected = computed(() => {
+    return selectedFacets.value.catalog[0] === 'acquired-data' ? true : false;
+});
+
 onMounted(() => {
     queryClient.invalidateQueries();
 });
@@ -90,7 +94,11 @@ onMounted(() => {
                     <section name="datasets" class="mb-10 flex flex-col gap-6 px-6">
                         <SelectedFacetsOverview v-model="selectedFacets" :facets="availableFacetsFormatted" />
                         <div class="flex flex-col gap-6">
-                            <SearchInfoPanel v-model:direction="sortDirection" v-model:sort="sort">
+                            <SearchInfoPanel
+                                v-model:direction="sortDirection"
+                                v-model:sort="sort"
+                                :is-acquired="isAcquiredSelected"
+                            >
                                 <span class="font-semibold text-primary-600">{{ getSearchResultsCount }}</span>
                                 <span class="font-normal pl-1">{{ $t('searchBar.datasets.found') }}</span>
                             </SearchInfoPanel>

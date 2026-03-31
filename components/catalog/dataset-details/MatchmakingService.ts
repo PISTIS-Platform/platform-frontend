@@ -4,10 +4,17 @@ import { useApiService } from '~/services/apiService';
 
 const route = useRoute();
 const pistisMode = route.query.pm;
-const { getMatchingDatasetsUrl } = useApiService(pistisMode);
+const { getSimilarityBasedMatchingDatasetsUrl } = useApiService(pistisMode);
+const { getUserBasedMatchingDatasetsUrl } = useApiService(pistisMode);
 
-export async function getMatchingDatasets(offerId: string) {
-    const response = await axios.get(getMatchingDatasetsUrl(offerId));
+export async function getSimilarityBasedMatchingDatasets(offerId: string) {
+    const response = await axios.get(getSimilarityBasedMatchingDatasetsUrl(offerId));
+
+    return response.data;
+}
+
+export async function getUserBasedMatchingDatasets(organizationId: string) {
+    const response = await axios.get(getUserBasedMatchingDatasetsUrl(organizationId));
 
     return response.data;
 }

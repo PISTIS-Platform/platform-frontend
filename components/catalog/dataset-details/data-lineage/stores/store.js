@@ -4,8 +4,6 @@ import { ref } from 'vue';
 
 import { useApiService } from '~/services/apiService';
 
-import mockData from './mock-lineage.json';
-
 const pistisMode = ref('');
 const backendUrl = ref('');
 const datasetFactoryUrl = ref('');
@@ -53,6 +51,7 @@ export const useStore = defineStore('store', () => {
 
     // Loading States
     const isLoadingFamilyTree = ref(false);
+    const familyTreeError = ref(null);
 
     // External Store Dependencies
     // const authStore = useAuthStore();
@@ -168,9 +167,15 @@ export const useStore = defineStore('store', () => {
                 continue;
             }
 
-            for (const record of Object.values(lineageGroup)) {
-                if (record && typeof record === 'object' && record.family_id) {
-                    return record.family_id;
+            for (const datasetEvents of Object.values(lineageGroup)) {
+                // Each dataset can have multiple events (array) or a single event (object)
+                // Convert to array format for consistent processing
+                const records = Array.isArray(datasetEvents) ? datasetEvents : [datasetEvents];
+
+                for (const record of records) {
+                    if (record && typeof record === 'object' && record.family_id) {
+                        return record.family_id;
+                    }
                 }
             }
         }
@@ -180,10 +185,16 @@ export const useStore = defineStore('store', () => {
 
     const fetchData = async (lineageID, token) => {
         isLoadingFamilyTree.value = true;
+        familyTreeError.value = null;
         lineageFamilyID.value = null;
 
         if (!token) {
             console.error('No access token found');
+            familyTreeError.value = 'No access token found';
+            // Clear previous data
+            treeObject.value = null;
+            familyTreeData.value = null;
+            tableData.value = null;
             isLoadingFamilyTree.value = false;
             return;
         }
@@ -207,28 +218,37 @@ export const useStore = defineStore('store', () => {
             familyTreeData.value = responseData;
             lineageFamilyID.value = extractFamilyId(responseData);
             parseTableData(responseData);
+            familyTreeError.value = null;
 
             if (import.meta.env.DEV) {
                 console.log('Family tree API response:', responseData);
             }
         } catch (error) {
             console.error('Family tree API request failed:', error);
+
+            // Clear previous data to prevent showing stale lineage
+            treeObject.value = null;
+            familyTreeData.value = null;
+            tableData.value = null;
+            lineageFamilyID.value = null;
+
+            // Extract error message from response
+            if (error.response) {
+                // Handle API error responses
+                const errorMessage =
+                    error.response.data?.error ||
+                    error.response.data?.message ||
+                    `Failed to load dataset lineage (${error.response.status})`;
+                familyTreeError.value = errorMessage;
+            } else if (error.request) {
+                // Network error
+                familyTreeError.value = 'Network error: Unable to connect to the lineage tracker service';
+            } else {
+                // Other errors
+                familyTreeError.value = error.message || 'Failed to load dataset lineage';
+            }
         } finally {
             isLoadingFamilyTree.value = false;
-        }
-    };
-
-    //Mock Data
-    const loadMockData = async () => {
-        try {
-            const response = mockData;
-            treeObject.value = response;
-            familyTreeData.value = response;
-            lineageFamilyID.value = extractFamilyId(response);
-            parseTableData(treeObject.value);
-            console.log('Mock Data used:', response);
-        } catch (error) {
-            console.error('Loading mock data failed:', error);
         }
     };
 
@@ -269,29 +289,58 @@ export const useStore = defineStore('store', () => {
         for (const lineageId in apiData) {
             const lineageGroup = apiData[lineageId];
 
-            for (const recordId in lineageGroup) {
-                const record = lineageGroup[recordId];
+            for (const datasetId in lineageGroup) {
+                const datasetEvents = lineageGroup[datasetId];
 
-                // Combine user_group and username into display string
-                const userDisplay = record.user_group ? `${record.user_group} ${record.username}` : record.username;
+                // Each dataset can have multiple events (array) or a single event (object)
+                // Convert to array format for consistent processing
+                const records = Array.isArray(datasetEvents) ? datasetEvents : [datasetEvents];
 
-                // Add description for CREATE operations
-                const operationUpper = String(record.operation).toUpperCase();
-                let activityDescription = null;
-                if (operationUpper === 'CREATE') {
-                    activityDescription =
-                        'Dataset was successfully ingested via the Job Configurator and registered in the Factory Catalog.';
-                }
+                records.forEach((record, index) => {
+                    // Create unique row ID by appending event index to dataset UUID
+                    // Example: "737ad274-ae97-4cb5-aad2-e3cde541771f-0", "737ad274-ae97-4cb5-aad2-e3cde541771f-1"
+                    const rowId = `${datasetId}-${index}`;
 
-                tempVersionedObject[recordId] = {
-                    id: recordId,
-                    version: record.version,
-                    activity: transformActivityToDisplay(record.operation),
-                    activity_description: activityDescription,
-                    operation_description: record.operation_description,
-                    username: userDisplay,
-                    timestamp: formatDate(record.timestamp),
-                };
+                    // Combine user_group and username into display string
+                    // Remove leading slash from user_group if present
+                    const userGroup = record.user_group?.startsWith('/')
+                        ? record.user_group.substring(1)
+                        : record.user_group;
+                    const userDisplay = userGroup ? `${userGroup} ${record.username}` : record.username;
+
+                    // Add description for CREATE operations
+                    const operationUpper = String(record.operation).toUpperCase();
+                    let activityDescription = null;
+                    if (operationUpper === 'CREATE') {
+                        activityDescription =
+                            'Dataset was successfully ingested via the Job Configurator and registered in the Factory Catalog.';
+                    }
+
+                    // Handle timestamp override for GDPR Check
+                    let displayTimestamp = record.timestamp;
+                    if (
+                        record.operation?.toLowerCase() === 'gdpr check' &&
+                        record.operation_description &&
+                        record.operation_description.timestamp
+                    ) {
+                        displayTimestamp = record.operation_description.timestamp;
+                    }
+
+                    tempVersionedObject[rowId] = {
+                        id: rowId,
+                        dataset_id: datasetId,
+                        version: record.version,
+                        activity: transformActivityToDisplay(record.operation),
+                        activity_description: activityDescription,
+                        operation_description: record.operation_description,
+                        username: userDisplay,
+                        timestamp: formatDate(displayTimestamp),
+                        family_id: record.family_id,
+                        dataset_name: record.dataset_name,
+                        visibility_status: record.visibility_status,
+                        derived_from: record.derived_from,
+                    };
+                });
             }
         }
 
@@ -358,6 +407,7 @@ export const useStore = defineStore('store', () => {
         isLoadingDiff,
         isLoadingFamilyTree,
         diffError,
+        familyTreeError,
 
         // Actions
         setPistisMode,
@@ -369,7 +419,6 @@ export const useStore = defineStore('store', () => {
         compareDatasets,
         parseTableData,
         selectTableFilter,
-        loadMockData,
         setBackendUrl,
         setDatasetFactoryUrl,
 

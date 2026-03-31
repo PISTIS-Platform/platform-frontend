@@ -5,22 +5,29 @@
 import Paginator from 'primevue/paginator';
 
 import { useSearchParams } from '@/pages/catalog/useSearchParams';
+import PhCaretDown from '~icons/ph/caret-down';
 
 const route = useRoute();
 
-const _props = defineProps<{
+const props = defineProps<{
     items: [];
     getSearchResultsPagesCount: number;
     isLoading: boolean;
     isFetching: boolean;
     showOnlyPublic: boolean;
+    loadMore?: () => void;
+    hasMoreResults?: boolean;
 }>();
 const searchParams = useSearchParams();
 const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
 
 const toRoute = computed(() =>
-    route.query.pm === 'cloud' ? 'marketplace-dataset-details-datasetId' : 'catalog-dataset-details-datasetId',
+    route.query.pm === 'factory' ? 'catalog-dataset-details-datasetId' : 'marketplace-dataset-details-datasetId',
 );
+
+const loadMoreDatasets = () => {
+    props.loadMore?.();
+};
 </script>
 
 <template>
@@ -37,6 +44,7 @@ const toRoute = computed(() =>
                     :description="item.description"
                     :file-formats="item.formats"
                     :properties="item.summary"
+                    :catalog="item.catalog"
                 />
             </slot>
         </template>
@@ -50,7 +58,7 @@ const toRoute = computed(() =>
             </div>
         </template>
     </div>
-    <div class="grid w-full place-content-center">
+    <div v-if="!(route.query.pm === 'openData')" class="grid w-full place-content-center">
         <Paginator
             v-model:first="searchParams.queryParams.page.value"
             class="cursor-pointer ring-1 ring-gray-200 rounded shadow-md"
@@ -58,6 +66,11 @@ const toRoute = computed(() =>
             :rows="1"
             :total-records="getSearchResultsPagesCount"
         />
+    </div>
+    <div v-if="route.query.pm === 'openData'" class="m-auto p-10">
+        <UButton v-if="hasMoreResults" @click="loadMoreDatasets"
+            >Load more <component :is="PhCaretDown" class="inline"
+        /></UButton>
     </div>
 </template>
 

@@ -5,6 +5,7 @@
 
 import type { FacetList } from '@/utils/types';
 // import KFacetGroup from '../base/facet-group/KFacetGroup.vue';
+import PhCaretUp from '~icons/ph/caret-up';
 
 // Need to export the types so that the generics work properly
 export type { Facet } from '@/utils/types';
@@ -18,6 +19,8 @@ const props = defineProps<{
     modelValue: Record<string, string[]>;
 }>();
 
+const route = useRoute();
+
 const additionalFilters = computed(() => [
     {
         id: 'dataServices',
@@ -26,16 +29,49 @@ const additionalFilters = computed(() => [
     },
 ]);
 
-const mergedFacetGroups = computed(() => [
-    ...facets.value.filter((f) => f.items.length > 0),
-    ...additionalFilters.value,
-]);
+const mergedFacetGroups = computed(() => {
+    const result = [];
+    const baseFacets = facets.value.filter((f) => f.items.length > 0);
+
+    const hasMonetizationFacet = ref(false);
+
+    for (const facet of baseFacets) {
+        result.push(facet);
+
+        if (facet.id === 'monetizationType') {
+            result.push(...additionalFilters.value);
+            hasMonetizationFacet.value = true;
+        }
+    }
+
+    if (!hasMonetizationFacet.value) {
+        result.push(...additionalFilters.value);
+    }
+
+    return result;
+});
 
 const emit = defineEmits(['update:modelValue']);
 
 const { facets } = toRefs(props);
 
 const model = useVModel(props, 'modelValue', emit, { passive: true });
+
+const showAllFacets = ref(false);
+
+const facetsCollapsed = computed(() => (route.query.pm === 'openData' ? 5 : 10));
+
+const visibleFacetGroups = computed(() => {
+    if (showAllFacets.value) {
+        return mergedFacetGroups.value;
+    }
+
+    return mergedFacetGroups.value.slice(0, facetsCollapsed.value);
+});
+
+const hasMoreFacets = computed(() => {
+    return mergedFacetGroups.value.length > facetsCollapsed.value;
+});
 </script>
 
 <template>
@@ -44,13 +80,23 @@ const model = useVModel(props, 'modelValue', emit, { passive: true });
         <template v-else>
             <div class="flex w-80 flex-col rounded bg-neutral-200 border border-neutral-300 shadow-md">
                 <KFacetGroup
-                    v-for="facet of mergedFacetGroups"
+                    v-for="facet of visibleFacetGroups"
                     :id="`facet-group-${facet.id}`"
                     :key="JSON.stringify(facet)"
                     v-model="model[facet.id]"
                     :title="facet.label"
                     :facets="facet.items"
                 />
+                <UButton v-if="hasMoreFacets" variant="soft" block @click="showAllFacets = !showAllFacets">
+                    {{ showAllFacets ? 'Less filters' : 'More filters' }}
+                    <component
+                        :is="PhCaretUp"
+                        class="inline"
+                        :class="{
+                            'rotate-180': !showAllFacets,
+                        }"
+                    />
+                </UButton>
             </div>
         </template>
     </div>
