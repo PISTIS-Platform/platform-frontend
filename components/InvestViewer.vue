@@ -48,13 +48,17 @@ type InvestmentPlan = {
     terms: string;
 };
 
+const maxPurchasable = computed(() =>
+    investmentPlan.value ? Math.min(investmentPlan.value.remainingShares, investmentPlan.value.maxShares) : 0,
+);
+
 const schema = computed(() =>
     z.object({
         sharesToPurchase: z
             .number()
-            .min(1, { message: t('invest.pleaseError', { min: 1, max: investmentPlan.value?.maxShares }) })
-            .max(investmentPlan.value?.maxShares, {
-                message: t('invest.pleaseError', { min: 1, max: investmentPlan.value?.maxShares }),
+            .min(1, { message: t('invest.pleaseError', { min: 1, max: maxPurchasable.value }) })
+            .max(maxPurchasable.value, {
+                message: t('invest.pleaseError', { min: 1, max: maxPurchasable.value }),
             }),
     }),
 );
@@ -103,7 +107,7 @@ const purchaseShares = async () => {
 
 const numberOfSharesError = computed(() => {
     if (!investmentPlan.value) return false;
-    return state.sharesToPurchase < 1 || state.sharesToPurchase > investmentPlan.value.maxShares;
+    return state.sharesToPurchase < 1 || state.sharesToPurchase > maxPurchasable.value;
 });
 </script>
 
@@ -190,16 +194,7 @@ const numberOfSharesError = computed(() => {
                                     <span class="text-gray-400 uppercase text-xs font-semibold">{{
                                         $t('invest.sharePercentage')
                                     }}</span>
-                                    <span
-                                        ><span class="text-base"
-                                            >{{
-                                                (investmentPlan.percentageOffer / investmentPlan.totalShares).toFixed(
-                                                    3,
-                                                )
-                                            }}%</span
-                                        >
-                                        per share</span
-                                    >
+                                    <span class="text-base">{{ investmentPlan.percentageOffer.toFixed(2) }}%</span>
                                 </div>
                             </div>
                             <div class="flex flex-col gap-4 w-full">
@@ -264,7 +259,7 @@ const numberOfSharesError = computed(() => {
                                         type="number"
                                         size="md"
                                         min="1"
-                                        :max="investmentPlan.maxShares"
+                                        :max="maxPurchasable"
                                         class="w-32"
                                         :disabled="Boolean(userHasInvested)"
                                     >
