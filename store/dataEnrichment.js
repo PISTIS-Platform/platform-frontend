@@ -36,6 +36,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     const distributionId = ref(null);
     const type = ref(null);
     const savingIsLoading = ref(false);
+    const validateIsLoading = ref(false);
 
     const toast = useToast();
 
@@ -210,7 +211,7 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
     };
 
     const validateAsset = async (fileName) => {
-        // savingIsLoading.value = true;
+        validateIsLoading.value = true;
 
         const requestData = {
             metadata: {
@@ -238,7 +239,6 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
             return response;
             // await saveAsset(fileName);
         } catch (e) {
-            // savingIsLoading.value = false;
             console.log('Fetch error:', e);
 
             const errorMessage =
@@ -250,6 +250,8 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
                 icon: 'i-lucide-x-circle',
                 color: 'red',
             });
+        } finally {
+            validateIsLoading.value = false;
         }
     };
 
@@ -357,5 +359,6 @@ export const useDataEnrichmentStore = defineStore('dataEnrichment', () => {
         setDistributionId,
         setFileType,
         savingIsLoading,
+        validateIsLoading,
     };
 });
