@@ -201,10 +201,10 @@ const filteredColumns = computed(() => {
 });
 
 const toggleColumn = (columnName: string) => {
-    let currentColumns = [...(queryPayload.value.selectedColumns || [])];
+    let currentColumns = queryPayload.value.selectedColumns ?? [];
 
     if (currentColumns.includes(columnName)) {
-        currentColumns = currentColumns.filter((c) => c !== columnName);
+        currentColumns = currentColumns.filter((c: any) => c !== columnName);
     } else {
         currentColumns = [...currentColumns, columnName];
     }
