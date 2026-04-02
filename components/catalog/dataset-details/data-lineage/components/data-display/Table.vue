@@ -662,21 +662,21 @@ const parseSchemaChanges = (schemaChanges) => {
     }
 
     // Parse added columns
-    const addedMatch = schemaChanges.match(/Added (\d+) column\(s\): (.*?)\./);
+    const addedMatch = schemaChanges.match(/Added (\d+) columns?\(?s?\)?: (.*?)\./);
     if (addedMatch) {
         const addedColumns = addedMatch[2].split(', ').map((col) => col.trim());
         changes.push(...addedColumns.map((col) => ({ type: 'added', text: col })));
     }
 
     // Parse removed columns
-    const removedMatch = schemaChanges.match(/Removed (\d+) column\(s\): (.*?)\./);
+    const removedMatch = schemaChanges.match(/Removed (\d+) columns?\(?s?\)?: (.*?)\./);
     if (removedMatch) {
         const removedColumns = removedMatch[2].split(', ').map((col) => col.trim());
         changes.push(...removedColumns.map((col) => ({ type: 'removed', text: col })));
     }
 
     // Parse renamed columns
-    const renamedMatch = schemaChanges.match(/Renamed (\d+) column\(s\): (.*?)\./);
+    const renamedMatch = schemaChanges.match(/Renamed (\d+) columns?\(?s?\)?: (.*?)\./);
     if (renamedMatch) {
         const renamedPairs = renamedMatch[2].split(', ').map((pair) => {
             const [oldName, newName] = pair.split(' → ').map((name) => name.trim().replace(/['"]/g, ''));
@@ -1332,21 +1332,22 @@ tbody tr.highlighted-red td.copyable-cell:hover {
 /* Styling for the bullet point list */
 .section-items-list {
     list-style-type: none;
-    padding-left: 16px;
+    padding-left: 8px;
     margin: 0;
 }
 
 .section-item {
     padding: 2px 0;
-    position: relative;
+    display: flex;
+    align-items: baseline;
 }
 
 .section-item:has(.item-transformation)::before {
     content: '•';
-    position: absolute;
-    left: -12px;
     color: #9e9e9e;
     font-size: 14px;
+    margin-right: 6px;
+    flex-shrink: 0;
 }
 
 .section-item:has(.item-added, .item-removed, .item-renamed, .item-enrichment, .item-modified)::before {
@@ -1355,54 +1356,53 @@ tbody tr.highlighted-red td.copyable-cell:hover {
 
 .item-added::before {
     content: '+';
-    position: absolute;
-    left: -12px;
     color: #333333;
     font-size: 16px;
+    margin-right: 4px;
 }
 
 .item-removed::before {
     content: '-';
-    position: absolute;
-    left: -12px;
     color: #333333;
     font-size: 16px;
+    margin-right: 4px;
 }
 
 .item-renamed::before,
 .item-modified::before {
-    content: '•';
-    position: absolute;
-    left: -12px;
+    content: '~';
     color: #333333;
     font-size: 14px;
+    margin-right: 4px;
 }
 
 .item-enrichment::before {
     content: '•';
-    position: absolute;
-    left: -12px;
     color: #333333;
     font-size: 14px;
+    margin-right: 4px;
 }
 
 .item-added {
     color: #333333;
     font-weight: 500;
-    position: relative;
+    display: flex;
+    align-items: baseline;
 }
 
 .item-removed {
     color: #333333;
     font-weight: 500;
-    position: relative;
+    display: flex;
+    align-items: baseline;
 }
 
 .item-renamed,
 .item-modified {
     color: #333333;
     font-weight: 500;
-    position: relative;
+    display: flex;
+    align-items: baseline;
 }
 
 .item-transformation {
@@ -1413,7 +1413,8 @@ tbody tr.highlighted-red td.copyable-cell:hover {
 .item-enrichment {
     color: #333333;
     font-weight: 500;
-    position: relative;
+    display: flex;
+    align-items: baseline;
 }
 
 .section-item .item-added,
@@ -1504,7 +1505,7 @@ tbody tr.highlighted-red td.version-column {
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .detail-content {
@@ -1558,7 +1559,7 @@ tbody tr.highlighted-red td.version-column {
     color: #444444;
     font-size: 0.95em;
     line-height: 1.5;
-    margin-bottom: 12px;
+    margin-bottom: 0;
     font-style: italic;
 }
 
