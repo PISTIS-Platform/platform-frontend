@@ -28,6 +28,9 @@ interface CardProps {
     onSave?: () => void;
     size: number;
     license: object;
+    isTransformed: string;
+    isAnonymized: string;
+    isEncrypted: string;
 }
 
 const props = withDefaults(defineProps<CardProps>(), {
@@ -45,9 +48,6 @@ const catalog = ref(null);
 const showTable = ref(false);
 
 const searchUrl = getDatasetUrl(props.datasetId);
-const isTransformed = ref();
-const isAnonymized = ref();
-const isEncrypted = ref();
 const hasPistisSchema = computed(() => !!props.pistisSchema);
 
 const isStream = computed(() => props.title.toLowerCase() === 'kafka stream' && props.format.toLowerCase() === 'csv');
@@ -58,9 +58,6 @@ const fetchMetadata = async () => {
         const data = await response.json();
         copyData.topic = `ds-${data.result.id}`;
         catalog.value = data.result.catalog.id;
-        isTransformed.value = data.result.distributions.some((transformation) => transformation?.is_transformed);
-        isAnonymized.value = data.result.distributions.some((anonymization) => anonymization?.is_anonymized);
-        isEncrypted.value = data.result.distributions.some((encryption) => encryption?.is_encrypted);
     } catch (error) {
         console.error('Error fetching the metadata. ERROR: ', error);
     }
