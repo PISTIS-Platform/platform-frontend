@@ -571,7 +571,13 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                                     class="w-full"
                                     :ui="{ width: 'max-w-xs', base: 'text-wrap' }"
                                 >
-                                    <UButton variant="solid" size="lg" color="secondary" block disabled>
+                                    <UButton
+                                        variant="solid"
+                                        size="lg"
+                                        block
+                                        disabled
+                                        class="!bg-gray-400 !text-gray-600"
+                                    >
                                         <span v-if="price">Buy</span>
                                         <span v-else>Get</span>
                                     </UButton>
