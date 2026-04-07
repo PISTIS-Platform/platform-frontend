@@ -235,7 +235,6 @@ const {
     showInfo,
     information,
     answersLog,
-    showReport,
 } = useGdprQuestions(props.datasetId);
 console.log(answersLog.value);
 
@@ -451,16 +450,6 @@ const handleLicenseOpen = (value) => {
                     </div>
 
                     <div v-if="pistisMode == 'factory'" class="flex gap-x-3 self-center">
-                        <UButton
-                            v-if="!isStream && answersLog"
-                            variant="solid"
-                            color="primary"
-                            size="sm"
-                            icon="i-heroicons-arrow-down-tray"
-                            @click="showReport()"
-                        >
-                            {{ $t('catalogue.downloadGDPR') }}
-                        </UButton>
                         <UButton
                             variant="solid"
                             color="primary"
