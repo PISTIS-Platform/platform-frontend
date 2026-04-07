@@ -32,7 +32,13 @@
                 </UTooltip>
             </div>
             <div v-if="!isValidated" class="flex items-center">
-                <UButton v-if="isValidColumnChoices" size="md" color="secondary" @click="callValidateAsset(fileName)">
+                <UButton
+                    v-if="isValidColumnChoices"
+                    size="md"
+                    color="secondary"
+                    :loading="store.validateIsLoading"
+                    @click="callValidateAsset(fileName)"
+                >
                     Validate dataset
                 </UButton>
                 <UTooltip

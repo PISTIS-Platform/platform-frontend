@@ -22,7 +22,7 @@ const searchParams = useSearchParams();
 const itemsCount = computed(() => searchParams?.queryParams?.limit ?? 10);
 
 const toRoute = computed(() =>
-    route.query.pm === 'cloud' ? 'marketplace-dataset-details-datasetId' : 'catalog-dataset-details-datasetId',
+    route.query.pm === 'factory' ? 'catalog-dataset-details-datasetId' : 'marketplace-dataset-details-datasetId',
 );
 
 const loadMoreDatasets = () => {

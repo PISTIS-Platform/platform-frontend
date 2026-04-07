@@ -295,6 +295,9 @@ const _truncatedEllipsedDescription = computed(() => {
 // })
 
 const investOpen = ref(false);
+
+const devFactoryPrefixes = ['develop', 'acme'];
+const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.value));
 </script>
 
 <template>
@@ -326,7 +329,7 @@ const investOpen = ref(false);
                             </Typography>
                         </button>
                         <LinkedDataSelector
-                            v-if="factoryPrefix === 'develop' || factoryPrefix === 'acme'"
+                            v-if="showLinkedData"
                             :resource-id="props.datasetId"
                             resource="datasets"
                             class="text-pistis-600 text-sm"

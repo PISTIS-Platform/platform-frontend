@@ -680,7 +680,7 @@ const sanitizeFilename = (raw: string): string =>
 const runJobConfigurator = async (services: [string]) => {
     isRunningWorkflow.value = true;
     runWorkflowButtonText.value = 'Running Workflow...';
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     const formData = new FormData();
     let isoDateString = wfRunTimeSpecific.value;
     let periodicity = wfPeriodicity.value;
@@ -1131,7 +1131,7 @@ const runJobConfigurator = async (services: [string]) => {
                 <button
                     :class="[
                         'px-4 py-2 text-white text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500',
-                        isRunningWorkflow ? 'bg-[#c5c8ff] cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'
+                        isRunningWorkflow ? 'bg-[#c5c8ff] cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700',
                     ]"
                     :disabled="isRunningWorkflow"
                     @click="runJobConfigurator(workflowServices)"

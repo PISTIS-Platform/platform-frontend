@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { type Dataset, type Preview, type TableRow, type RiskMetrics } from '~/interfaces/dataset-preview';
+import { type Preview, type RiskMetrics, type TableRow } from '~/interfaces/dataset-preview';
 import { type ConfigEmit, type ObfuscationBody, type SortedMasks } from '~/interfaces/mask-settings';
 import { useAnonymizerStore } from '~/store/anonymizer';
 
@@ -221,15 +221,22 @@ onMounted(async () => {
 
             <h2 class="text-2xl">Obfuscation Settings</h2>
             <div v-if="masksAreLoaded" class="w-full flex overflow-x-scroll gap-2 pb-5">
-                <MaskTile v-for="(type, column) in rawPreview.columns" :key="column" :column="column"
-                    :masks="masks[type]" :default="rawPreview.recommendation[column]" @config-change="
+                <MaskTile
+                    v-for="(type, column) in rawPreview.columns"
+                    :key="column"
+                    :column="column"
+                    :masks="masks[type]"
+                    :default="rawPreview.recommendation[column]"
+                    @config-change="
                         (config: ConfigEmit) => {
                             configureBody(config);
                         }
-                    " />
+                    "
+                />
             </div>
             <h1 v-else>Masks are loading...</h1>
-            <UButton class="w-48" :disabled="loadingPreview" @click="submitObfuscation(true)">Preview Transformation
+            <UButton class="w-48" :disabled="loadingPreview" @click="submitObfuscation(true)"
+                >Preview Transformation
             </UButton>
 
             <div :hidden="hidePreview" class="mt-3">
@@ -247,8 +254,9 @@ onMounted(async () => {
                         </li>
                     </ul>
                 </div>
-                <UButton class="w-44 mt-5" :loading="submittingObfuscation" @click="submitObfuscation(false)">Apply
-                    Transformation</UButton>
+                <UButton class="w-44 mt-5" :loading="submittingObfuscation" @click="submitObfuscation(false)"
+                    >Apply Transformation</UButton
+                >
             </div>
         </div>
     </UCard>
