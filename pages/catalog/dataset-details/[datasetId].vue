@@ -68,6 +68,7 @@ const getFormattedDistributions = computed(() => {
             isTransformed: distribution?.is_transformed ?? null,
             isAnonymized: distribution?.is_anonymized ?? null,
             isEncrypted: distribution?.is_encrypted ?? null,
+            isStream: distribution?.access_service ?? false,
         };
     });
 });
@@ -187,6 +188,7 @@ onMounted(() => {
                                 :is-transformed="distribution.isTransformed"
                                 :is-anonymized="distribution.isAnonymized"
                                 :is-encrypted="distribution.isEncrypted"
+                                :is-stream="distribution.isStream"
                             />
                             <div
                                 v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"

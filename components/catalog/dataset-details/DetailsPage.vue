@@ -122,7 +122,7 @@ const fetchMetadata = async () => {
         catalog.value = data.result.catalog.id;
         console.log('CATALOG:', catalog.value);
         distributions.value = data.result.distributions;
-        isStream.value = metadata.value.result?.distributions?.[0]?.title?.en === 'Kafka Stream';
+        isStream.value = metadata.value.result?.distributions?.some((d) => d.access_service) ?? false;
         isStreamStateSet.value = true;
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
