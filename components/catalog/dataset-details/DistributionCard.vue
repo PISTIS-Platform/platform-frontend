@@ -31,6 +31,7 @@ interface CardProps {
     isTransformed: string;
     isAnonymized: string;
     isEncrypted: string;
+    isStream: boolean;
 }
 
 const props = withDefaults(defineProps<CardProps>(), {
@@ -49,8 +50,6 @@ const showTable = ref(false);
 
 const searchUrl = getDatasetUrl(props.datasetId);
 const hasPistisSchema = computed(() => !!props.pistisSchema);
-
-const isStream = computed(() => props.title.toLowerCase() === 'kafka stream' && props.format.toLowerCase() === 'csv');
 
 const fetchMetadata = async () => {
     try {
