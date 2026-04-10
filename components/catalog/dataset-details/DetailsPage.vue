@@ -341,7 +341,7 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                             <div class="flex flex-row gap-2">
                                 <!-- hide data lineage and quality assessment in marketplace until they work -->
                                 <UButton
-                                    v-if="isStreamStateSet && !isStream"
+                                    v-if="isStreamStateSet && !isStream && pistisMode !== 'openData'"
                                     size="sm"
                                     variant="solid"
                                     :label="$t('buttons.dataLineage')"
