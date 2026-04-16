@@ -245,10 +245,6 @@ const handleLicenseOpen = (value) => {
         },
     });
 };
-
-watchEffect(() => {
-    console.log('SIZE:', props.size);
-});
 </script>
 
 <template>
