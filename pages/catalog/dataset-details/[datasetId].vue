@@ -81,6 +81,7 @@ const fetchDistributionMetadata = async () => {
     try {
         const response = await fetch(searchUrl);
         distributionMetadata.value = await response.json();
+        console.log('DATA:', distributionMetadata.value);
         catalogId.value = distributionMetadata.value.result?.catalog?.id;
     } catch (error) {
         console.error('Error fetching metadata:', error);

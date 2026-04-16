@@ -245,6 +245,10 @@ const handleLicenseOpen = (value) => {
         },
     });
 };
+
+watchEffect(() => {
+    console.log('SIZE:', props.size);
+});
 </script>
 
 <template>
@@ -426,7 +430,7 @@ const handleLicenseOpen = (value) => {
                         <div>
                             {{ title }}
                             <span v-if="props.size" class="font-semibold text-xs text-gray-400"
-                                >({{ formatBytes(props.size) }})</span
+                                >(<span v-if="props.format === 'SQL'">~</span>{{ formatBytes(props.size) }})</span
                             >
                         </div>
                         <div v-if="license" class="font-semibold text-xs text-gray-400">
