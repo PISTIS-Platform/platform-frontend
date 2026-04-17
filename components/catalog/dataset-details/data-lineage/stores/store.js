@@ -278,6 +278,10 @@ export const useStore = defineStore('store', () => {
             return 'DATASET REGISTERED';
         } else if (operationUpper === 'UPDATE') {
             return 'DATASET UPDATED';
+        } else if (operationUpper === 'PUBLISH') {
+            return 'DATASET PUBLISHED';
+        } else if (operationUpper === 'TRANSFER') {
+            return 'DATASET TRANSFERRED';
         }
         return operation || 'Unknown';
     };
@@ -308,12 +312,18 @@ export const useStore = defineStore('store', () => {
                         : record.user_group;
                     const userDisplay = userGroup ? `${userGroup} ${record.username}` : record.username;
 
-                    // Add description for CREATE operations
+                    // Add description for CREATE, PUBLISH, and TRANSFER operations
                     const operationUpper = String(record.operation).toUpperCase();
                     let activityDescription = null;
                     if (operationUpper === 'CREATE') {
                         activityDescription =
                             'Dataset was successfully ingested via the Job Configurator and registered in the Factory Catalog.';
+                    } else if (operationUpper === 'PUBLISH') {
+                        activityDescription =
+                            'Dataset was published to the PISTIS cloud marketplace and made available for discovery and purchase.';
+                    } else if (operationUpper === 'TRANSFER') {
+                        activityDescription =
+                            "Dataset was transferred from the seller's factory to the buyer's factory following a successful purchase.";
                     }
 
                     // Handle timestamp override for GDPR Check
