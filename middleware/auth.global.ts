@@ -3,10 +3,14 @@ export default defineNuxtRouteMiddleware(async (to) => {
     const runtimeConfig = useRuntimeConfig();
 
     if (session.value && session.value?.orgId !== runtimeConfig.public.orgId) {
-        signOut({ callbackUrl: '/' });
+        return signOut({ callbackUrl: '/' });
     }
 
     if (to.path !== '/' && (!session.value || status.value !== 'authenticated')) {
-        signOut({ callbackUrl: '/' });
+        return signOut({ callbackUrl: '/' });
+    }
+
+    if (to.path !== '/' && session.value && !session.value.token) {
+        return signOut({ callbackUrl: '/' });
     }
 });
