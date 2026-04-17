@@ -32,7 +32,7 @@
                 </p>
 
                 <!-- Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-if="hasMetricsAvailable" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div
                         v-for="card in relevantDatasetMetrics"
                         :key="card.title"
@@ -50,47 +50,55 @@
                         </ul>
                     </div>
                 </div>
+                <div v-else>
+                    <p class="italic">No metadata quality assurance available for this dataset.</p>
+                </div>
             </section>
 
             <!-- Distribution Metadata Quality Section -->
             <section class="mb-10">
                 <h3 class="text-2xl font-semibold text-gray-700 mb-2">Distribution Metadata Quality</h3>
-                <p class="text-gray-600 mb-6">
-                    The following lists the quality measurement of all distributions of the dataset.
-                    <!-- For more information, see our
+                <div v-if="hasDistMetricsAvailable">
+                    <p class="text-gray-600 mb-6">
+                        The following lists the quality measurement of all distributions of the dataset.
+                        <!-- For more information, see our
                     <NuxtLink to="/methodology" class="text-purple-600 hover:underline">methodology page</NuxtLink>. -->
-                </p>
+                    </p>
 
-                <div class="space-y-4">
-                    <!-- NUXT ACCORDIOUNS -->
-                    <UAccordion :items="accordionItems" type="multiple">
-                        <!-- Custom body for every accordion panel -->
-                        <template #item="{ item }">
-                            <div class="p-4 text-gray-700">
-                                <div class="accordion-content p-3 text-sm text-gray-600">
-                                    <div class="space-y-5">
-                                        <div v-for="section in item.sections" :key="section.title">
-                                            <h5 class="text-md font-semibold text-gray-700 mb-2">
-                                                {{ section.title }}
-                                            </h5>
-                                            <ul class="space-y-2 pl-2">
-                                                <li
-                                                    v-for="line in section.items"
-                                                    :key="line.title"
-                                                    class="flex justify-between items-center"
-                                                >
-                                                    <span>{{ line.title }}</span>
-                                                    <span class="distribution-metadata-value font-bold">
-                                                        {{ line.value }}
-                                                    </span>
-                                                </li>
-                                            </ul>
+                    <div class="space-y-4">
+                        <!-- NUXT ACCORDIOUNS -->
+                        <UAccordion :items="accordionItems" type="multiple">
+                            <!-- Custom body for every accordion panel -->
+                            <template #item="{ item }">
+                                <div class="p-4 text-gray-700">
+                                    <div class="accordion-content p-3 text-sm text-gray-600">
+                                        <div class="space-y-5">
+                                            <div v-for="section in item.sections" :key="section.title">
+                                                <h5 class="text-md font-semibold text-gray-700 mb-2">
+                                                    {{ section.title }}
+                                                </h5>
+                                                <ul class="space-y-2 pl-2">
+                                                    <li
+                                                        v-for="line in section.items"
+                                                        :key="line.title"
+                                                        class="flex justify-between items-center"
+                                                    >
+                                                        <span>{{ line.title }}</span>
+                                                        <span class="distribution-metadata-value font-bold">
+                                                            {{ line.value }}
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </template>
-                    </UAccordion>
+                            </template>
+                        </UAccordion>
+                    </div>
+                </div>
+                <div v-else>
+                    <p class="italic">No distribution metadata quality available for this dataset.</p>
                 </div>
             </section>
 
@@ -217,9 +225,9 @@ import { onMounted, ref } from 'vue';
 
 import { useRoute, useRouter } from '#imports';
 import {
-    getDatasetMetrics,
-    getDistributionsDataQualityMetrics,
-    getDistributionsMetrics,
+    getDatasetMetricsMarketplace,
+    getDistributionsDataQualityMetricsMarketplace,
+    getDistributionsMetricsMarketplace,
 } from '~/components/catalog/dataset-details/DataQualityService';
 import PhCaretDown from '~icons/ph/caret-down';
 import PhCaretLeft from '~icons/ph/caret-left';
@@ -233,6 +241,8 @@ const relevantDistributionsMetrics = ref([]);
 const accordionItems = ref([]);
 const accordionItemsDataQuality = ref([]);
 const distributionsNames = ref([]);
+const hasMetricsAvailable = ref(false);
+const hasDistMetricsAvailable = ref(false);
 const hasDistributionDataQualityAvailable = ref(false);
 
 /* helpers function */
@@ -250,8 +260,9 @@ const fmt = (v) => {
 /* dataset metrics */
 async function loadDatasetMetrics() {
     try {
-        const raw = (await getDatasetMetrics(datasetId)).result.results[0];
+        const raw = (await getDatasetMetricsMarketplace(datasetId)).result.results[0];
         datasetMetrics.value = raw;
+        hasMetricsAvailable.value = true;
 
         const sec = (title, arr) => ({ title, items: arr });
 
@@ -304,8 +315,9 @@ async function loadDatasetMetrics() {
 /* distribution metrics */
 async function loadDistributionsMetrics() {
     try {
-        const distributions = (await getDistributionsMetrics(datasetId)).result.results.flat();
+        const distributions = (await getDistributionsMetricsMarketplace(datasetId)).result.results.flat();
         relevantDistributionsMetrics.value = distributions;
+        hasDistMetricsAvailable.value = true;
 
         //relevant for data quality section to get titles for distributions
         distributionsNames.value = distributions.map((item) => ({
@@ -371,7 +383,7 @@ const buildTooltipMessage = (minValue, maxValue) => {
 
 async function loadDistributionsDataQualityMetrics() {
     try {
-        const response = await getDistributionsDataQualityMetrics(datasetId);
+        const response = await getDistributionsDataQualityMetricsMarketplace(datasetId);
         const distributions = response?.result?.distributions || [];
         hasDistributionDataQualityAvailable.value = true;
 

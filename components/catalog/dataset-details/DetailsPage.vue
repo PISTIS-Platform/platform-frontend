@@ -356,12 +356,7 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                                         query: { id: accessID, pm: pistisMode, url: backendUrl },
                                     }"
                                 />
-                                <UnpublishButton
-                                    v-if="pistisMode === 'cloud' && isOwnershipSet && !isNotOwn"
-                                    :dataset-id="props.datasetId"
-                                />
                                 <UButton
-                                    v-if="pistisMode === 'factory'"
                                     size="sm"
                                     variant="solid"
                                     label="Quality Assessment"
@@ -377,6 +372,10 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                                         },
                                         external: true,
                                     }"
+                                />
+                                <UnpublishButton
+                                    v-if="pistisMode === 'cloud' && isOwnershipSet && !isNotOwn"
+                                    :dataset-id="props.datasetId"
                                 />
                                 <template v-if="pistisMode === 'factory'">
                                     <UButton
