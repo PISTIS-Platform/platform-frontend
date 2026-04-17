@@ -57,10 +57,10 @@
                         <td
                             class="align-middle id-column copyable-cell"
                             :class="{ copied: lastCopied === `${rowIndex}-id` }"
-                            @click="copyToClipboard(row.id, rowIndex, 'id')"
+                            @click="copyToClipboard(row.dataset_id, rowIndex, 'id')"
                             @mouseleave="clearHoverSuppression"
                         >
-                            <span class="cell-text">{{ row.id }}</span>
+                            <span class="cell-text">{{ row.dataset_id }}</span>
                             <span v-if="suppressHoverHint !== `${rowIndex}-id`" class="copy-hint">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
