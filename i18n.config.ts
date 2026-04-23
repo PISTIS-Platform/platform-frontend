@@ -302,7 +302,7 @@ export default defineI18nConfig(() => ({
                         unspecified: 'Unspecified frequency of events',
                     },
                 },
-                dataTransformation: 'Data Transformation',
+                dataTransformation: 'Transformation Designer',
                 insightGenerator: 'Insights Generator',
                 analyticsEngine: 'Analytics Engine',
                 mlModelEditor: 'ML Model Editor',
