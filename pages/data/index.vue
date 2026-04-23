@@ -834,12 +834,13 @@ const runJobConfigurator = async (services: [string]) => {
                     <label for="datasetDescription" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
                         $t('data.datasetDescription')
                     }}</label>
-                    <input
+                    <textarea
                         id="datasetDescription"
                         v-model="datasetDescription"
-                        type="text"
-                        class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
-                    />
+                        rows="3"
+                        class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white resize-y overflow-auto"
+                        style="min-height: 2.5rem; max-height: 6rem;"
+                    ></textarea>
                 </div>
                 <div class="rounded-md w-full flex">
                     <label for="datasetKeywords" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
