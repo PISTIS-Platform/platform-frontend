@@ -493,6 +493,7 @@ const listServices = ref([
         name: DATA_CHECK_IN,
         method: DATA_CHECK_IN_FILE_METHOD,
         id: 1,
+        description: 'Upload a dataset file directly.',
         params: [
             {
                 name: 'file (supported CSV, TSV, Json, XML, XLSX and Parquet)',
@@ -506,6 +507,7 @@ const listServices = ref([
         name: DATA_CHECK_IN,
         method: DATA_CHECK_IN_FTP_METHOD,
         id: 2,
+        description: 'Import a dataset from an FTP server.',
         params: [
             {
                 name: 'ftp_server',
@@ -550,13 +552,21 @@ const listServices = ref([
         name: DATA_TRANSFORMATION,
         method: DATA_TRANSFORMATION_RUN_METHOD,
         id: 3,
+        description: 'Please, insert a transformation definition from the Transformation Designer.',
         params: [{ name: 'transformation_definition', type: 'json', vue: 'input', value: '[]' }],
     },
-    { name: INSIGHTS_GENERATOR, method: INSIGHTS_GENERATOR_GENERATE_METHOD, id: 4, params: [] },
+    {
+        name: INSIGHTS_GENERATOR,
+        method: INSIGHTS_GENERATOR_GENERATE_METHOD,
+        id: 4,
+        description: 'Generate insights from the dataset.',
+        params: [],
+    },
     {
         name: DATA_CHECK_IN,
         method: DATA_CHECK_IN_API_METHOD,
         id: 5,
+        description: 'Ingest data from an external API endpoint.',
         params: [
             {
                 name: 'api_url',
@@ -697,6 +707,7 @@ const runJobConfigurator = async (services: [string]) => {
     }
 
     const enrichedServices = services.map((svc: any) => {
+        const { description, ...svcWithoutDescription } = svc;
         if (svc?.method === DATA_CHECK_IN_API_METHOD) {
             const preferred =
                 (typeof fileUpload.value?.name === 'string' && fileUpload.value.name.trim()
@@ -710,14 +721,14 @@ const runJobConfigurator = async (services: [string]) => {
 
             // Set at root level (svc.filename)
             return {
-                ...svc,
+                ...svcWithoutDescription,
                 params: [
                     { name: 'filename', type: 'json', vue: 'textarea', value: finalFilename },
                     ...(svc.params ?? []),
                 ],
             };
         }
-        return svc;
+        return svcWithoutDescription;
     });
 
     formData.append('workflow', JSON.stringify(enrichedServices));
@@ -976,6 +987,9 @@ const runJobConfigurator = async (services: [string]) => {
                         >
                             <div class="rounded-m ml-3 mt-3 mb-2 mr-3 font-medium text-blue-900 font-semibold">
                                 {{ srv.name }}: {{ srv.method }}
+                                <div v-if="srv.description" class="text-xs text-gray-500 font-normal mt-1 mb-1 ml-1">
+                                    {{ srv.description }}
+                                </div>
 
                                 <ul class="ml-3 mr-10 m-5">
                                     <li
