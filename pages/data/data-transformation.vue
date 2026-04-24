@@ -146,13 +146,13 @@ const transformFile = async () => {
         if (contentType === 'application/json') {
             const data = response._data;
             responseContent.value = JSON.stringify(data, null, 2);
-        } else if (contentType?.includes('text/plain')) {
+        } else if (contentType.includes('text/plain')) {
             const data = response._data;
             responseContent.value = data as string;
-        } else if (contentType?.includes('text/xml')) {
+        } else if (contentType.includes('text/xml')) {
             const data = response._data;
             responseContent.value = data as string;
-        } else if (contentType?.includes('application/vnd.ms-excel')) {
+        } else if (contentType.includes('application/vnd.ms-excel')) {
             const blob = new Blob([response._data as string]);
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -207,14 +207,14 @@ const toggleHelp = () => {
     <div class="help-container">
         <div class="help-header" @click="toggleHelp">
             <span class="big-bold-title" style="cursor: pointer;">
-            <Icon :icon="helpExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'" class="dropdown-icon" />
-                How to use the Data Transformation Designer?
+            <Icon :icon="helpExpanded  'mdi:chevron-up' : 'mdi:chevron-down'" class="dropdown-icon" />
+                How to use the Data Transformation Designer
                 
             </span>
         </div>
         <div v-if="helpExpanded" class="help-content">
             <p>
-                The Data Transformation Designer is a safe space to test and define transformations on datasets. <strong>The transformations performed in this component will not be persisted in the PISTIS Platform</strong>. In order to persist the transformed dataset, persist the dataset using the Job Configurator and add the transformation definition generated in this designer to the "Data Transformation".<br>
+                The Data Transformation Designer is a playground to test and define transformations on datasets. <strong>The transformations tested in this interface will not be persisted in the PISTIS Platform</strong>. In order to persist the transformed dataset, copy the transformation definition generated in this designer and paste it in the Job Configurator panel within the Data Transformation block..<br>
 
                 The Data Transformation Designers Component consists on three different sections:<br>
                 <b>1) Transformation Catalog:</b><br>
