@@ -146,13 +146,13 @@ const transformFile = async () => {
         if (contentType === 'application/json') {
             const data = response._data;
             responseContent.value = JSON.stringify(data, null, 2);
-        } else if (contentType.includes('text/plain')) {
+        } else if (contentType?.includes('text/plain')) {
             const data = response._data;
             responseContent.value = data as string;
-        } else if (contentType.includes('text/xml')) {
+        } else if (contentType?.includes('text/xml')) {
             const data = response._data;
             responseContent.value = data as string;
-        } else if (contentType.includes('application/vnd.ms-excel')) {
+        } else if (contentType?.includes('application/vnd.ms-excel')) {
             const blob = new Blob([response._data as string]);
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -207,7 +207,7 @@ const toggleHelp = () => {
     <div class="help-container">
         <div class="help-header" @click="toggleHelp">
             <span class="big-bold-title" style="cursor: pointer;">
-            <Icon :icon="helpExpanded  'mdi:chevron-up' : 'mdi:chevron-down'" class="dropdown-icon" />
+            <Icon :icon="helpExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'" class="dropdown-icon" />
                 How to use the Data Transformation Designer
                 
             </span>
