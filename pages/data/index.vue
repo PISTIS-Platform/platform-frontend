@@ -552,7 +552,7 @@ const listServices = ref([
         name: DATA_TRANSFORMATION,
         method: DATA_TRANSFORMATION_RUN_METHOD,
         id: 3,
-        description: 'Please, insert a transformation definition from the Transformation Designer.',
+        description: 'Please, design the transformation definition before uploading the file using the Transformation Designer and paste it here.',
         params: [{ name: 'transformation_definition', type: 'json', vue: 'input', value: '[]' }],
     },
     {
