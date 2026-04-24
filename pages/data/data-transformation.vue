@@ -208,13 +208,15 @@ const toggleHelp = () => {
         <div class="help-header" @click="toggleHelp">
             <span class="big-bold-title" style="cursor: pointer;">
             <Icon :icon="helpExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'" class="dropdown-icon" />
-                How to use the data transformation
+                How to use the Data Transformation Designer?
                 
             </span>
         </div>
         <div v-if="helpExpanded" class="help-content">
             <p>
-                The Data Transformation Component consists on three different sections:<br>
+                The Data Transformation Designer is a safe space to test and define transformations on datasets. <strong>The transformations performed in this component will not be persisted in the PISTIS Platform</strong>. In order to persist the transformed dataset, persist the dataset using the Job Configurator and add the transformation definition generated in this designer to the "Data Transformation".<br>
+
+                The Data Transformation Designers Component consists on three different sections:<br>
                 <b>1) Transformation Catalog:</b><br>
                 Located at the top left part of the screen, this section allows the user to choose which transformations will be applied over a dataset. Each transformation includes a descriptive text on the information icon and, when expanded, shows all the optional and mandatory parameters to run that transformation. Once the parameters for a transformation have been defined, remember to clic on "Add Transformation" button to add the current transformation to the Transformation Definition JSON section.<br>
                 <b>2) Transformation Definition JSON:</b><br>
