@@ -28,6 +28,7 @@ export default defineI18nConfig(() => ({
             catalogue: {
                 downloadGDPR: 'Download GDPR Report',
                 downloadDistribution: 'Download Distribution',
+                decryptDistribution: 'Decrypt Distribution',
                 connectionDetails: 'Connection Details',
             },
             companySizes: {

@@ -21,6 +21,8 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getDatasetUrl = (datasetId: string) => `${searchUrl}/datasets/${datasetId}`;
 
+    const getDecryptionUrl = () => `${baseUrl}/srv/encryption-decryption-engine/decrypt`;
+
     const getMarketplaceDatasetUrl = (datasetId: string) =>
         `${config.public.cloudUrl}/srv/search/datasets/${datasetId}`;
 
@@ -68,6 +70,7 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getRepoUrl,
         getDistributionsUrl,
         getDatasetUrl,
+        getDecryptionUrl,
         getMarketplaceDatasetUrl,
         getUserFactoryUrl,
         getInvestUrl,
