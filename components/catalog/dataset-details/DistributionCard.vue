@@ -528,28 +528,20 @@ console.log(answersLog.value);
                                 </UDropdown>
                             </UButtonGroup>
                         </div>
-                        <!-- <div v-if="isEncrypted" class="flex gap-x-3">
+                        <div v-if="isEncrypted" class="flex gap-x-3">
+                            <!-- TODO: once ready, add :disabled="decryptInProgress" -->
                             <UButton
                                 variant="solid"
                                 color="primary"
                                 size="sm"
                                 :loading="decryptInProgress"
-                                :disabled="decryptInProgress"
+                                disabled
+                                title="Decryption of encrypted distributions is currently not supported."
                                 @click="decryptFile"
                             >
                                 {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.decryptDistribution') }}
                             </UButton>
-                        </div> -->
-                        <UButton
-                            variant="solid"
-                            color="primary"
-                            size="sm"
-                            :loading="decryptInProgress"
-                            :disabled="decryptInProgress"
-                            @click="decryptFile"
-                        >
-                            {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.decryptDistribution') }}
-                        </UButton>
+                        </div>
                     </div>
 
                     <div v-if="pistisMode === 'openData'" class="flex gap-x-3">
