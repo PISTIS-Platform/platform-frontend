@@ -49,6 +49,14 @@ function toggleInvestSlider() {
     model.value = allInvestOffersOn.value ? allInvestOffers : [];
 }
 
+watch(
+    () => model.value,
+    (val) => {
+        allInvestOffersOn.value = Array.isArray(val) && val.includes('true') && val.includes('false');
+    },
+    { immediate: true },
+);
+
 const allStreamDataOn = ref(false);
 
 function toggleStreamSlider() {
