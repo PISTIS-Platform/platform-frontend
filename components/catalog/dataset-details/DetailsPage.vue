@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import 'vue-sonner/style.css';
 
+import { Icon } from '@iconify/vue';
 import axios from 'axios';
 import { toast } from 'vue-sonner';
 
@@ -59,6 +60,8 @@ const isStreamStateSet = ref(false);
 const isLoading = ref(true);
 const datasetIsBought = ref(false);
 const distributions = ref(['']);
+const showSimilarityBasedInfo = ref(false);
+const showUserBasedInfo = ref(false);
 
 const setDistributionID = async (data) => {
     distributionID.value = data['result']['distributions'][0].id;
@@ -122,7 +125,7 @@ const fetchMetadata = async () => {
         catalog.value = data.result.catalog.id;
         console.log('CATALOG:', catalog.value);
         distributions.value = data.result.distributions;
-        isStream.value = metadata.value.result?.distributions?.[0]?.title?.en === 'Kafka Stream';
+        isStream.value = metadata.value.result?.distributions?.some((d) => d.access_service) ?? false;
         isStreamStateSet.value = true;
         if (pistisMode == 'cloud') {
             // const purchaseOffer = metadata.value.result.monetization[0].purchase_offer;
@@ -295,6 +298,9 @@ const _truncatedEllipsedDescription = computed(() => {
 // })
 
 const investOpen = ref(false);
+
+const devFactoryPrefixes = ['develop', 'acme'];
+const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.value));
 </script>
 
 <template>
@@ -326,7 +332,7 @@ const investOpen = ref(false);
                             </Typography>
                         </button>
                         <LinkedDataSelector
-                            v-if="factoryPrefix === 'develop' || factoryPrefix === 'acme'"
+                            v-if="showLinkedData"
                             :resource-id="props.datasetId"
                             resource="datasets"
                             class="text-pistis-600 text-sm"
@@ -338,7 +344,7 @@ const investOpen = ref(false);
                             <div class="flex flex-row gap-2">
                                 <!-- hide data lineage and quality assessment in marketplace until they work -->
                                 <UButton
-                                    v-if="isStreamStateSet && !isStream"
+                                    v-if="isStreamStateSet && !isStream && pistisMode !== 'openData'"
                                     size="sm"
                                     variant="solid"
                                     :label="$t('buttons.dataLineage')"
@@ -478,7 +484,24 @@ const investOpen = ref(false);
 
                     <UCard v-if="pistisMode === 'cloud' && !isLoading && !isNFT">
                         <template #header>
-                            <SubHeading :title="$t('matchmakingService.similarityRecommendations')" />
+                            <div class="flex">
+                                <SubHeading :title="$t('matchmakingService.similarityRecommendations')" />
+                                <div class="tooltip-container self-center">
+                                    <Icon
+                                        icon="heroicons:information-circle"
+                                        class="text-pistis-600 self-center"
+                                        style="cursor: pointer; font-size: 1.3em; margin-left: 6px"
+                                        @mouseover="showSimilarityBasedInfo = true"
+                                        @mouseleave="showSimilarityBasedInfo = false"
+                                    />
+                                    <div v-if="showSimilarityBasedInfo" class="description-tooltip">
+                                        These recommendations are informed purely by the characteristics of the offers
+                                        and associated datasets. They analyze metadata (e.g., keywords, categories, and
+                                        domain), as well as structural and semantic properties to identify closely
+                                        related offers.
+                                    </div>
+                                </div>
+                            </div>
                         </template>
                         <MatchingDatasetDetails
                             :dataset-id="datasetId"
@@ -489,7 +512,23 @@ const investOpen = ref(false);
 
                     <UCard v-if="pistisMode === 'cloud' && !isLoading && !isNFT">
                         <template #header>
-                            <SubHeading :title="$t('matchmakingService.userBasedRecommendations')" />
+                            <div class="flex">
+                                <SubHeading :title="$t('matchmakingService.userBasedRecommendations')" />
+                                <div class="tooltip-container self-center">
+                                    <Icon
+                                        icon="heroicons:information-circle"
+                                        class="text-pistis-600 self-center"
+                                        style="cursor: pointer; font-size: 1.3em; margin-left: 6px"
+                                        @mouseover="showUserBasedInfo = true"
+                                        @mouseleave="showUserBasedInfo = false"
+                                    />
+                                    <div v-if="showUserBasedInfo" class="description-tooltip">
+                                        These recommendations are generated by analyzing how users interact with data
+                                        offers across the PISTIS Marketplace. From these interactions, user preferences
+                                        are inferred and used to recommend relevant datasets.
+                                    </div>
+                                </div>
+                            </div>
                         </template>
                         <MatchingDatasetDetails
                             :dataset-id="datasetId"
@@ -568,7 +607,13 @@ const investOpen = ref(false);
                                     class="w-full"
                                     :ui="{ width: 'max-w-xs', base: 'text-wrap' }"
                                 >
-                                    <UButton variant="solid" size="lg" color="secondary" block disabled>
+                                    <UButton
+                                        variant="solid"
+                                        size="lg"
+                                        block
+                                        disabled
+                                        class="!bg-gray-400 !text-gray-600"
+                                    >
                                         <span v-if="price">Buy</span>
                                         <span v-else>Get</span>
                                     </UButton>
@@ -618,3 +663,27 @@ const investOpen = ref(false);
         </div>
     </div>
 </template>
+
+<style scoped>
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.description-tooltip {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-left: 8px;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.95em;
+    color: #333;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-50%);
+}
+</style>

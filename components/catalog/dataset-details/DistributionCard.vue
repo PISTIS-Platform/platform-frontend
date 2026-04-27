@@ -27,6 +27,11 @@ interface CardProps {
     data: PropertyTableEntryNode;
     onSave?: () => void;
     size: number;
+    license: object;
+    isTransformed: string;
+    isAnonymized: string;
+    isEncrypted: string;
+    isStream: boolean;
 }
 
 const props = withDefaults(defineProps<CardProps>(), {
@@ -44,12 +49,7 @@ const catalog = ref(null);
 const showTable = ref(false);
 
 const searchUrl = getDatasetUrl(props.datasetId);
-const isTransformed = ref();
-const isAnonymized = ref();
-const isEncrypted = ref();
 const hasPistisSchema = computed(() => !!props.pistisSchema);
-
-const isStream = computed(() => props.title.toLowerCase() === 'kafka stream' && props.format.toLowerCase() === 'csv');
 
 const fetchMetadata = async () => {
     try {
@@ -57,9 +57,6 @@ const fetchMetadata = async () => {
         const data = await response.json();
         copyData.topic = `ds-${data.result.id}`;
         catalog.value = data.result.catalog.id;
-        isTransformed.value = data.result.distributions.some((transformation) => transformation?.is_transformed);
-        isAnonymized.value = data.result.distributions.some((anonymization) => anonymization?.is_anonymized);
-        isEncrypted.value = data.result.distributions.some((encryption) => encryption?.is_encrypted);
     } catch (error) {
         console.error('Error fetching the metadata. ERROR: ', error);
     }
@@ -292,9 +289,17 @@ const {
     showInfo,
     information,
     answersLog,
-    showReport,
 } = useGdprQuestions(props.datasetId);
 console.log(answersLog.value);
+
+const handleLicenseOpen = (value) => {
+    navigateTo(value.resource, {
+        external: true,
+        open: {
+            target: '_blank',
+        },
+    });
+};
 </script>
 
 <template>
@@ -473,10 +478,16 @@ console.log(answersLog.value);
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
                     <UBadge color="secondary" variant="soft" size="xs" class="rounded-full">{{ format }}</UBadge>
                     <div>
-                        {{ title }}
-                        <span v-if="props.size" class="font-semibold text-xs text-gray-400"
-                            >({{ formatBytes(props.size) }})</span
-                        >
+                        <div>
+                            {{ title }}
+                            <span v-if="props.size" class="font-semibold text-xs text-gray-400"
+                                >(<span v-if="props.format === 'SQL'">~</span>{{ formatBytes(props.size) }})</span
+                            >
+                        </div>
+                        <div v-if="license" class="font-semibold text-xs text-gray-400">
+                            License:
+                            <span class="cursor-pointer" @click="handleLicenseOpen(license)">{{ license.label }}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="flex">

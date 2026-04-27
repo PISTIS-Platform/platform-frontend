@@ -263,9 +263,7 @@ async function loadDatasetMetrics() {
             sec('Interoperability', [
                 { Format: fmt(raw.interoperability?.[1]?.formatAvailability) },
                 {
-                    'Format from Vocabulary': fmt(
-                        raw.interoperability?.[3]?.formatMediaTypeVocabularyAlignment,
-                    ),
+                    'Format from Vocabulary': fmt(raw.interoperability?.[3]?.formatMediaTypeVocabularyAlignment),
                 },
             ]),
             sec('Contextuality', [
@@ -294,7 +292,6 @@ async function loadDistributionsMetrics() {
             label: d.info?.['distribution-title'] || d.id?.['distribution-id'] || 'Unknown distribution',
             icon: 'i-lucide-box',
             sections: [
-
                 {
                     title: 'Contextuality',
                     items: [

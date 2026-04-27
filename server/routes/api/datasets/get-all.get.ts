@@ -3,8 +3,13 @@ const {
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (_event) => {
+    // const session = _event.context.session;
+
     const catalogResults: string[] = await $fetch(`${factoryUrl}/srv/search/datasets?catalogue=my-data`, {
         method: 'GET',
+        // headers: {
+        //     Authorization: `Bearer ${session?.token}`,
+        // },
     });
 
     //TODO: Currently having to make multiple calls to each ID since there is not a simpler way to get direct results
@@ -18,6 +23,9 @@ export default defineEventHandler(async (_event) => {
     for (const catalogResult of catalogResults) {
         const assetResult: Record<string, any> = await $fetch(`${factoryUrl}/srv/search/datasets/${catalogResult}`, {
             method: 'GET',
+            // headers: {
+            //     Authorization: `Bearer ${session?.token}`,
+            // },
         });
 
         results.push(assetResult.result as Record<string, any>);

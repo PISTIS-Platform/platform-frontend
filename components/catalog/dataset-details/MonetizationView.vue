@@ -145,6 +145,12 @@ const handleLicenseOpen = (value) => {
                     </template>
                 </SummaryBox>
 
+                <SummaryBox v-if="data.purchase_offer[0].price" :title="$t('monetization.price')">
+                    <template #text>
+                        {{ data.purchase_offer[0].price + ' €' }}
+                    </template>
+                </SummaryBox>
+
                 <SummaryBox
                     v-if="
                         data.purchase_offer[0].type?.toLowerCase() !== 'nft' && data.purchase_offer[0].update_frequency

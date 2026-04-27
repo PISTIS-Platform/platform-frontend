@@ -345,6 +345,11 @@ const confirmDelete = async () => {
                         </li>
                     </ul>
                     <p class="font-semibold mb-1 mt-3">Dataset was also removed from:</p>
+                    <ul v-if="deleteInfo.streamDeleted" class="list-disc pl-5">
+                        <li>
+                            <span class="font-medium">Streaming Data</span>
+                        </li>
+                    </ul>
                     <ul v-if="deleteInfo.metricsDeleted" class="list-disc pl-5">
                         <li>
                             <span class="font-medium">Metrics</span>

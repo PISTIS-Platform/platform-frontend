@@ -19,6 +19,11 @@ export default defineEventHandler(async (event) => {
     for (let i = 0; i < results.length; i++) {
         const innerResult = await $fetch<Record<string, any>>(
             `${cloudUrl}/srv/search/search?q=${results[i].cloudAssetId}&filters=dataset&includes=title,description`,
+            {
+                headers: {
+                    Authorization: `Bearer ${session?.token}`,
+                },
+            },
         );
         datasetResults.push(innerResult.result.results[0]);
     }

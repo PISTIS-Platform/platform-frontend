@@ -6,9 +6,9 @@
             <button class="zoom-btn" title="Zoom Out" @click="zoomOut">-</button>
         </div>
 
-        <!-- Tooltip for restricted nodes - positioned at container level -->
+        <!-- Tooltip for restricted / external nodes - positioned at container level -->
         <div v-if="restrictedTooltip.show" class="restricted-tooltip" :style="restrictedTooltip.style">
-            Dataset anonymized
+            {{ restrictedTooltip.message }}
         </div>
 
         <div v-if="loading" class="tree-loading">Loading tree...</div>
@@ -40,6 +40,7 @@
                                         'node-hovered': hoveredNode === node.id,
                                         'node-parent': isParentNode(node.id),
                                         'node-restricted': isNodeRestricted(node.id),
+                                        'node-external': isNodeExternal(node.id),
                                     },
                                 ]"
                                 v-bind="getNodeAttributes(node)"
@@ -96,6 +97,7 @@ const ZOOM_STEP = 0.1;
 const VERTICAL_GAP = 50;
 const _NODE_RADIUS = 25;
 const _PADDING_BASE = 50;
+const ARROW_HEIGHT = 5; // matches border-width on .restricted-tooltip::after
 
 // ========================================
 // REACTIVE STATE
@@ -131,6 +133,7 @@ const restrictedTooltip = ref({
     show: false,
     nodeId: null,
     style: {},
+    message: '',
 });
 
 // ========================================
@@ -699,9 +702,49 @@ const isNodeRestricted = (nodeId) => {
     return false;
 };
 
-// Handle node click with restriction check
+// Dataset UUIDs whose raw data lives in another factory: every ancestor of a
+// Transfer node via derived_from. The Transfer node itself is local.
+const externalUuids = computed(() => {
+    const external = new Set();
+    if (!props.data) return external;
+
+    const nodeByUuid = {};
+    for (const lineageId in props.data) {
+        const lineageGroup = props.data[lineageId];
+        for (const datasetId in lineageGroup) {
+            const events = lineageGroup[datasetId];
+            const records = Array.isArray(events) ? events : [events];
+            for (const record of records) {
+                if (!record || typeof record !== 'object') continue;
+                if (!nodeByUuid[datasetId]) {
+                    nodeByUuid[datasetId] = {
+                        operations: new Set(),
+                        derived_from: record.derived_from ?? null,
+                    };
+                }
+                nodeByUuid[datasetId].operations.add(String(record.operation).toUpperCase());
+            }
+        }
+    }
+
+    const transferUuids = Object.keys(nodeByUuid).filter((uuid) => nodeByUuid[uuid].operations.has('TRANSFER'));
+
+    for (const tUuid of transferUuids) {
+        let current = nodeByUuid[tUuid].derived_from;
+        while (current && !external.has(current)) {
+            external.add(current);
+            current = nodeByUuid[current]?.derived_from ?? null;
+        }
+    }
+
+    return external;
+});
+
+const isNodeExternal = (nodeId) => externalUuids.value.has(nodeId);
+
+// Handle node click. Restricted and external nodes are non-interactive.
 const handleNodeClick = (nodeId) => {
-    if (isNodeRestricted(nodeId)) {
+    if (isNodeRestricted(nodeId) || isNodeExternal(nodeId)) {
         return;
     }
     selectNode(nodeId);
@@ -716,8 +759,10 @@ const isNodeSelected = (nodeId) => {
 // UTILITY FUNCTIONS
 // ========================================
 
-// Calculate optimal tooltip position to keep it within viewport
-const calculateTooltipPosition = (nodeId) => {
+// Calculate optimal tooltip position to keep it within viewport.
+// `tooltipHeight` is measured after the tooltip is rendered so the arrow
+// lands on the circle edge regardless of how many lines the message wraps to.
+const calculateTooltipPosition = (nodeId, tooltipHeight) => {
     const nodeElement = document.querySelector(`[data-node-id="${nodeId}"]`);
     if (!nodeElement || !treeContainer.value) return {};
 
@@ -733,12 +778,12 @@ const calculateTooltipPosition = (nodeId) => {
         zIndex: 1000,
     };
 
-    // Default positioning (tooltip above the node, centered)
+    // Default positioning (tooltip above the node, centered).
     let tooltipX = nodeX;
-    let tooltipY = nodeY - 45;
+    let tooltipY = nodeY - tooltipHeight - ARROW_HEIGHT;
 
     // Check horizontal boundaries and adjust
-    const tooltipWidth = 200; // max-width of tooltip
+    const tooltipWidth = 240; // max-width of tooltip
     if (tooltipX - tooltipWidth / 2 < 10) {
         // Too close to left edge
         tooltipX = tooltipWidth / 2 + 10;
@@ -750,8 +795,7 @@ const calculateTooltipPosition = (nodeId) => {
     // Check vertical boundaries and adjust
     if (tooltipY < 10) {
         // Too close to top edge, show below the node
-        tooltipY = nodeY + nodeRect.height + 10;
-        // Add a class or style to flip the arrow
+        tooltipY = nodeY + nodeRect.height + ARROW_HEIGHT;
         style['--arrow-direction'] = 'up';
     } else {
         style['--arrow-direction'] = 'down';
@@ -767,15 +811,32 @@ const calculateTooltipPosition = (nodeId) => {
 const onNodeHover = (nodeId) => {
     hoveredNode.value = nodeId;
 
-    // Show tooltip for restricted nodes
+    // Show tooltip only for non-interactive nodes (restricted or external)
+    // to explain why they can't be clicked.
+    let tooltipMessage = null;
     if (isNodeRestricted(nodeId)) {
-        // Use nextTick to ensure the DOM is updated before calculating position
+        tooltipMessage = 'Dataset anonymized';
+    } else if (isNodeExternal(nodeId)) {
+        tooltipMessage = 'Cannot compare dataset: Dataset stored in a different factory';
+    }
+
+    if (tooltipMessage) {
+        // First render the tooltip offscreen so the browser lays it out with
+        // the final message; then measure and position it correctly. This
+        // keeps the arrow anchored to the circle edge regardless of wrap.
+        restrictedTooltip.value = {
+            show: true,
+            nodeId: nodeId,
+            style: { position: 'absolute', top: '-9999px', left: '-9999px', zIndex: 1000 },
+            message: tooltipMessage,
+        };
         nextTick(() => {
-            const style = calculateTooltipPosition(nodeId);
+            const tooltipEl = treeContainer.value?.querySelector('.restricted-tooltip');
+            const tooltipHeight = tooltipEl?.getBoundingClientRect().height || 28;
+            const style = calculateTooltipPosition(nodeId, tooltipHeight);
             restrictedTooltip.value = {
-                show: true,
-                nodeId: nodeId,
-                style: style,
+                ...restrictedTooltip.value,
+                style,
             };
         });
     }
@@ -798,11 +859,12 @@ const onNodeLeave = () => {
     hoveredNode.value = null;
     parentNodes.value = [];
 
-    // Hide restricted tooltip
+    // Hide restricted / external tooltip
     restrictedTooltip.value = {
         show: false,
         nodeId: null,
         style: {},
+        message: '',
     };
 
     emit('nodeHovered', null, []);
@@ -998,27 +1060,26 @@ watch(
     },
 );
 
-// Get node attributes for DOM elements
+// Get node attributes for DOM elements. The custom hover tooltip handles the
+// label for every node, so we intentionally don't set `title` (which would
+// show a second, browser-default tooltip).
 const getNodeAttributes = (node) => {
     const isRestricted = node.visibility_status === 'restricted';
-    const baseTitle = `${node.version || 'Unknown'}: ${formatDate(node.timestamp)}`;
-    const ariaLabel = isRestricted
-        ? `Dataset version ${node.version || 'Unknown'} from ${formatDate(node.timestamp)} - Restricted Access`
-        : `Dataset version ${node.version || 'Unknown'} from ${formatDate(node.timestamp)}`;
+    const isExternal = isNodeExternal(node.id);
+    let ariaLabel = `Dataset version ${node.version || 'Unknown'} from ${formatDate(node.timestamp)}`;
+    if (isRestricted) {
+        ariaLabel += ' - Restricted Access';
+    } else if (isExternal) {
+        ariaLabel += ' - From another factory';
+    }
 
-    const attributes = {
+    return {
         'data-id': node.id,
         'data-version': node.version || '',
         'data-restricted': isRestricted,
+        'data-external': isExternal,
         'aria-label': ariaLabel,
     };
-
-    // Only add title for non-restricted nodes to avoid duplicate popups
-    if (!isRestricted) {
-        attributes.title = baseTitle;
-    }
-
-    return attributes;
 };
 
 // Get node version by ID
@@ -1556,6 +1617,18 @@ const treeTransformStyle = computed(() => {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
 }
 
+/* External nodes: upstream of a Transfer, raw data lives in another factory.
+   Visually identical to local nodes; only cursor + tooltip signal they are
+   non-interactive. Hover zoom is suppressed so "unclickable" feels right. */
+.node-external {
+    cursor: not-allowed !important;
+}
+
+.node-external:hover {
+    transform: none !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* ========================================
    SVG CONNECTORS
    ======================================== */
@@ -1639,20 +1712,18 @@ const treeTransformStyle = computed(() => {
    ======================================== */
 
 .restricted-tooltip {
-    background-color: #1a1a1a;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
+    background-color: rgba(60, 64, 67, 0.95);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 5px 9px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 400;
     pointer-events: none;
     white-space: normal;
-    word-wrap: break-word;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    animation: fadeInDown 0.3s ease-out;
-    letter-spacing: 0.3px;
-    max-width: 200px;
-    min-width: 150px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    animation: fadeInDown 0.2s ease-out;
+    width: max-content;
+    max-width: 220px;
     text-align: center;
     line-height: 1.4;
 }
@@ -1661,8 +1732,8 @@ const treeTransformStyle = computed(() => {
     content: '';
     position: absolute;
     left: 50%;
-    margin-left: -6px;
-    border-width: 6px;
+    margin-left: -5px;
+    border-width: 5px;
     border-style: solid;
 }
 
@@ -1670,13 +1741,13 @@ const treeTransformStyle = computed(() => {
 .restricted-tooltip[style*='--arrow-direction: down']::after,
 .restricted-tooltip:not([style*='--arrow-direction'])::after {
     top: 100%;
-    border-color: #1a1a1a transparent transparent transparent;
+    border-color: rgba(60, 64, 67, 0.95) transparent transparent transparent;
 }
 
 .restricted-tooltip[style*='--arrow-direction: up']::after {
     bottom: 100%;
     top: auto;
-    border-color: transparent transparent #1a1a1a transparent;
+    border-color: transparent transparent rgba(60, 64, 67, 0.95) transparent;
 }
 
 /* ========================================

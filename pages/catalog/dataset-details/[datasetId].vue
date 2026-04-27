@@ -64,6 +64,11 @@ const getFormattedDistributions = computed(() => {
 
             pistisSchema: distribution?.pistis_schema ?? null,
             size: distribution?.byte_size ?? null,
+            license: distribution?.license ?? null,
+            isTransformed: distribution?.is_transformed ?? null,
+            isAnonymized: distribution?.is_anonymized ?? null,
+            isEncrypted: distribution?.is_encrypted ?? null,
+            isStream: distribution?.access_service ?? false,
         };
     });
 });
@@ -179,6 +184,11 @@ onMounted(() => {
                                 :distribution-id="distribution.id"
                                 :pistis-schema="distribution.pistisSchema"
                                 :size="distribution.size"
+                                :license="distribution.license"
+                                :is-transformed="distribution.isTransformed"
+                                :is-anonymized="distribution.isAnonymized"
+                                :is-encrypted="distribution.isEncrypted"
+                                :is-stream="distribution.isStream"
                             />
                             <div
                                 v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"

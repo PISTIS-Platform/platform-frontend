@@ -10,6 +10,17 @@ useHead({
     titleTemplate: (title) => `${title ? title + ' • ' : ''}${organisationFullname} ${appConfig.name}`,
     htmlAttrs: { class: 'h-full bg-neutral-50' },
 });
+
+const { data: session, signOut } = useAuth();
+
+watch(
+    () => session.value?.token,
+    (newToken, oldToken) => {
+        if (oldToken && !newToken) {
+            signOut({ callbackUrl: '/' });
+        }
+    },
+);
 </script>
 
 <template>

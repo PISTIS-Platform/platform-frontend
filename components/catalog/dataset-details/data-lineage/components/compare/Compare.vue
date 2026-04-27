@@ -234,7 +234,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 
 import { useStore } from '@/components/catalog/dataset-details/data-lineage/stores/store';
 
-const _props = defineProps({
+defineProps({
     cloudMode: {
         type: Boolean,
         default: false,
@@ -259,10 +259,6 @@ const getVersionTitle = computed(() => {
     return '';
 });
 
-const _getVersionInfo = (id) => {
-    return store.tableData ? store.tableData[id] : null;
-};
-
 const getDatasetNames = computed(() => {
     if (store.selectedDiff.length === 2 && store.tableData) {
         const dataset1Info = store.tableData[store.selectedDiff[0]];
@@ -276,30 +272,6 @@ const getDatasetNames = computed(() => {
     return { dataset1Name: 'Dataset A', dataset2Name: 'Dataset B' };
 });
 
-// Computed property to check if there's data to compare
-const _hasDataToCompare = computed(() => {
-    if (!store.diffData || !store.diffData.diff) return false;
-
-    return (
-        (store.diffData.diff.data_changes.rows_added && store.diffData.diff.data_changes.rows_added.length > 0) ||
-        (store.diffData.diff.data_changes.rows_removed && store.diffData.diff.data_changes.rows_removed.length > 0) ||
-        (store.diffData.diff.data_changes.values_modified &&
-            store.diffData.diff.data_changes.values_modified.length > 0)
-    );
-});
-
-// Get columns from the first dataset (assuming both datasets have same/similar structure)
-const _columns = computed(() => {
-    if (
-        !store.diffData ||
-        !store.diffData.dataset_1 ||
-        !store.diffData.dataset_1[0] ||
-        !store.diffData.dataset_1[0].data_model
-    )
-        return [];
-    return store.diffData.dataset_1[0].data_model.columns.map((col) => col[0]) || [];
-});
-
 // Computed property to get column names from both datasets including added/removed columns
 const columnNames = computed(() => {
     if (!store.diffData) return [];
@@ -310,19 +282,9 @@ const columnNames = computed(() => {
     const columnsAdded = store.diffData.diff?.schema_changes?.columns_added || [];
     const columnsRemoved = store.diffData.diff?.schema_changes?.columns_removed || [];
 
-    // Standard case: Get columns from dataset_1
-    if (store.diffData.dataset_1 && store.diffData.dataset_1[0] && store.diffData.dataset_1[0].data_model) {
-        const columns = store.diffData.dataset_1[0].data_model.columns || [];
-
-        if (columns.length > 0) {
-            if (Array.isArray(columns[0])) {
-                // Format: [["column_name", "column_type"], ...]
-                allColumns = columns.map((col) => col[0]);
-            } else if (typeof columns[0] === 'object') {
-                // Format: [{name: "column_name", dataType: "column_type"}, ...]
-                allColumns = columns.map((col) => col.name);
-            }
-        }
+    // Get columns from dataset_1
+    if (store.diffData.dataset_1?.[0]?.data_model?.columns) {
+        allColumns = extractColumnNames(store.diffData.dataset_1[0].data_model.columns);
     }
 
     // If we have a complete column replacement scenario, we need to make sure
@@ -348,66 +310,46 @@ const columnNames = computed(() => {
 // DATA PROCESSING FUNCTIONS
 // ========================================
 
-// Helper function to build column mappings for datasets
+// Extracts column names from the API's column format.
+// Handles [["name", "type"], ...] and [{name: "name", dataType: "type"}, ...].
+// Returns a Map<index, name> when asMap is true, otherwise an array of names.
+const extractColumnNames = (columns, { asMap = false } = {}) => {
+    if (!columns?.length) return asMap ? new Map() : [];
+
+    const getName = Array.isArray(columns[0]) ? (col) => col[0] : (col) => col.name;
+
+    if (asMap) {
+        const map = new Map();
+        columns.forEach((col, idx) => map.set(idx, getName(col)));
+        return map;
+    }
+    return columns.map(getName);
+};
+
 const buildColumnMappings = () => {
-    const dataset1ColumnMap = new Map();
-    const dataset2ColumnMap = new Map();
+    const dataset1ColumnMap = store.diffData.dataset_1?.[0]?.data_model?.columns
+        ? extractColumnNames(store.diffData.dataset_1[0].data_model.columns, { asMap: true })
+        : new Map();
 
-    // Build dataset_1 column mapping
-    if (store.diffData.dataset_1?.[0]?.data_model?.columns) {
-        const columns = store.diffData.dataset_1[0].data_model.columns;
-        if (columns.length > 0) {
-            if (Array.isArray(columns[0])) {
-                columns.forEach((col, idx) => dataset1ColumnMap.set(idx, col[0]));
-            } else if (typeof columns[0] === 'object') {
-                columns.forEach((col, idx) => dataset1ColumnMap.set(idx, col.name));
-            }
-        }
-    }
-
-    // Build dataset_2 column mapping
-    if (store.diffData.dataset_2?.[0]?.data_model?.columns) {
-        const columns = store.diffData.dataset_2[0].data_model.columns;
-        if (columns.length > 0) {
-            if (Array.isArray(columns[0])) {
-                columns.forEach((col, idx) => dataset2ColumnMap.set(idx, col[0]));
-            } else if (typeof columns[0] === 'object') {
-                columns.forEach((col, idx) => dataset2ColumnMap.set(idx, col.name));
-            }
-        }
-    }
+    const dataset2ColumnMap = store.diffData.dataset_2?.[0]?.data_model?.columns
+        ? extractColumnNames(store.diffData.dataset_2[0].data_model.columns, { asMap: true })
+        : new Map();
 
     return { dataset1ColumnMap, dataset2ColumnMap };
 };
 
-// Helper function to preprocess row change data
+// Build a Map of removed rows keyed by entry_id for fast lookup
 const preprocessRowChanges = () => {
-    const removedRowsSet = new Set();
-    const addedRowsSet = new Set();
     const removedRows = new Map();
-
-    // Process removed rows
     if (store.diffData.diff?.data_changes?.rows_removed) {
         store.diffData.diff.data_changes.rows_removed.forEach((row) => {
             const entryId = row._entry_id || row.entry_id;
             if (entryId) {
-                removedRowsSet.add(entryId);
                 removedRows.set(entryId, row);
             }
         });
     }
-
-    // Process added rows
-    if (store.diffData.diff?.data_changes?.rows_added) {
-        store.diffData.diff.data_changes.rows_added.forEach((row) => {
-            const entryId = row._entry_id || row.entry_id;
-            if (entryId) {
-                addedRowsSet.add(entryId);
-            }
-        });
-    }
-
-    return { removedRowsSet, addedRowsSet, removedRows };
+    return { removedRows };
 };
 
 // Helper function to build dataset_2 rows map
@@ -446,7 +388,7 @@ const processDataset1Rows = (dataset1ColumnMap, dataset2RowsMap, addedColumns, r
 
     const dataset = store.diffData.dataset_1[0];
 
-    dataset.data.rows.forEach((rowArray) => {
+    dataset.data.rows.forEach((rowArray, rowIndex) => {
         const rowObj = {};
 
         // Map array values to column names
@@ -468,6 +410,7 @@ const processDataset1Rows = (dataset1ColumnMap, dataset2RowsMap, addedColumns, r
 
         // Mark as dataset_1 and set entry ID
         rowObj._dataset = 'dataset_1';
+        rowObj._rowIndex = rowIndex;
         const idColumnName = dataset1ColumnMap.get(0);
         let entryId = null;
 
@@ -545,7 +488,7 @@ const getFormattedRows = () => {
     const dataset1EntryIds = new Set();
 
     // Get preprocessing data
-    const { _removedRowsSet, _addedRowsSet, removedRows } = preprocessRowChanges();
+    const { removedRows } = preprocessRowChanges();
     const { dataset1ColumnMap, dataset2ColumnMap } = buildColumnMappings();
 
     // Get added columns info
@@ -571,24 +514,7 @@ const getFormattedRows = () => {
     return allRows;
 };
 
-// Helper function to create a signature for a row based on its values
-const _createRowSignature = (row) => {
-    // Create a stable signature that can be used for comparing rows
-    // Include only data fields (not metadata like _dataset)
-    const dataFields = Object.entries(row)
-        .filter(([key]) => !key.startsWith('_'))
-        .map(([key, value]) => {
-            // Normalize the value: convert null to empty string, trim, convert to string
-            const normalizedValue = value === null || value === undefined ? '' : String(value).trim();
-            return [key, normalizedValue];
-        })
-        .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
-
-    // Create a string signature from the fields
-    const signature = dataFields.map(([key, value]) => `${key}:${value}`).join('|');
-    return signature;
-};
-
+// Fallback: deep field comparison when entry_id matching is unavailable
 // Helper function specifically for identifying removed rows based on the sample data pattern
 const isRowMatchingRemoved = (row, removedRow) => {
     // Get potential matching fields - we need to check the actual available fields
@@ -639,13 +565,6 @@ const paginatedRows = computed(() => {
     return combinedRows.value.slice(startIndex, endIndex);
 });
 
-// Pagination methods
-const _goToPage = (page) => {
-    if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page;
-    }
-};
-
 const nextPage = () => {
     if (currentPage.value < totalPages.value) {
         currentPage.value++;
@@ -660,40 +579,17 @@ const prevPage = () => {
 
 const changeRowsPerPage = (newRowsPerPage) => {
     rowsPerPage.value = newRowsPerPage;
-    currentPage.value = 1; // Reset to first page when changing page size
+    currentPage.value = 1;
 };
-
-// Reset pagination when new comparison data is loaded
-watch(
-    () => store.diffData,
-    () => {
-        currentPage.value = 1;
-    },
-);
 
 // ========================================
 // STYLING & CLASSIFICATION FUNCTIONS
 // ========================================
 
-// Helper function to determine row status class
 const getRowStatusClass = (row) => {
-    if (!store.diffData || !store.diffData.diff) return '';
-
-    // If row is marked as added (from dataset_2)
-    if (row._added) {
-        return 'row-added';
-    }
-
-    // If row is marked as removed (directly from getFormattedRows)
-    if (row._removed) {
-        return 'row-removed';
-    }
-
-    // Check if this row was removed using the row-comparison approach
-    if (isRowRemoved(row)) {
-        return 'row-removed';
-    }
-
+    if (!store.diffData?.diff) return '';
+    if (row._added) return 'row-added';
+    if (isRowRemoved(row)) return 'row-removed';
     return '';
 };
 
@@ -838,55 +734,18 @@ const isRowRemoved = (row) => {
     return removedRows.some((removedRow) => isRowMatchingRemoved(row, removedRow));
 };
 
-// Check if a row was changed
-// TODO: isRowChanged is probably not correct. not values_modifed, but rows changed
-const _isRowChanged = (row) => {
-    if (!store.diffData || !store.diffData.diff || !store.diffData.diff.data_changes?.values_modified) return false;
-
-    // For changed rows, must ensure it's not identified as added or removed
-    if (row._added || row._removed || isRowRemoved(row)) {
-        return false;
-    }
-
-    // For changed rows, match by entry_id against the 'key' property in changed rows
-    if (row._entry_id && store.diffData.diff.changed.length > 0) {
-        const isChanged = store.diffData.diff.changed.some((changedRow) => {
-            return changedRow.key == row._entry_id; // Using == to handle string vs number comparison
-        });
-
-        return isChanged;
-    }
-
-    return false;
-};
-
-// Get row identifier for comparison
-const getRowId = (row) => {
-    return row._entry_id || row.entry_id;
-};
-
 // Check if a specific field in a row was modified
 const isSpecificFieldChanged = (row, columnName) => {
-    const rowId = getRowId(row);
-    if (!rowId) return false;
-
-    // Check in values_modified format
     const valuesModified = store.diffData?.diff?.data_changes?.values_modified;
-    if (valuesModified?.length) {
-        return valuesModified.some(
-            (mod) =>
-                String(mod.row) === String(rowId) && (mod.old_column === columnName || mod.new_column === columnName),
-        );
-    }
+    if (!valuesModified?.length) return false;
 
-    // Fallback to changed format
-    const changedRows = store.diffData?.diff?.data_changes?.changed;
-    if (changedRows?.length) {
-        const changedEntry = changedRows.find((change) => String(change.key) === String(rowId));
-        return !!changedEntry?.changes?.[columnName];
-    }
+    const rowIndex = row._rowIndex;
+    if (rowIndex == null) return false;
 
-    return false;
+    return valuesModified.some(
+        (mod) =>
+            String(mod.row) === String(rowIndex) && (mod.old_column === columnName || mod.new_column === columnName),
+    );
 };
 
 // Helper to format values, showing placeholders for empty values
@@ -896,38 +755,25 @@ const formatValue = (value) => {
 
 // Function to get the old and new values for a changed cell
 const getChangedCellValues = (row, columnName) => {
-    // First check in values_modified format
-    if (store.diffData?.diff?.data_changes?.values_modified) {
-        const modifiedValue = store.diffData.diff.data_changes.values_modified.find(
-            (mod) =>
-                (String(mod.row) === String(row._entry_id) || String(mod.row) === String(row.entry_id)) &&
-                (mod.old_column === columnName || mod.new_column === columnName),
-        );
+    const valuesModified = store.diffData?.diff?.data_changes?.values_modified;
+    if (!valuesModified?.length) return ['(unknown)', '(unknown)'];
 
-        if (modifiedValue) {
-            return [formatValue(modifiedValue.old_value), formatValue(modifiedValue.new_value)];
-        }
-    }
+    const rowIndex = row._rowIndex;
+    if (rowIndex == null) return ['(unknown)', '(unknown)'];
 
-    // Fallback to changed format
-    if (store.diffData?.diff?.changed) {
-        const changedEntry = store.diffData.diff.changed.find(
-            (change) => String(change.key) === String(row._entry_id) || String(change.key) === String(row.entry_id),
-        );
+    const modifiedValue = valuesModified.find(
+        (mod) =>
+            String(mod.row) === String(rowIndex) && (mod.old_column === columnName || mod.new_column === columnName),
+    );
 
-        if (changedEntry?.changes?.[columnName]) {
-            const [oldValue, newValue] = changedEntry.changes[columnName];
-            return [formatValue(oldValue), formatValue(newValue)];
-        }
+    if (modifiedValue) {
+        return [formatValue(modifiedValue.old_value), formatValue(modifiedValue.new_value)];
     }
 
     return ['(unknown)', '(unknown)'];
 };
 
-// Additional helper to get value for a removed column in a row
-// Helper function to get value for added rows
 const getAddedRowValue = (row, column) => {
-    // For added rows, the values are already in the correct format in the row object
     return row[column] !== undefined ? row[column] : '';
 };
 
@@ -960,23 +806,34 @@ const getValueForRemovedColumn = (row, columnName) => {
     return '';
 };
 
-// Function to trigger comparison
+const ready = computed(() => {
+    return isComparing.value && store.diffData && !store.isLoadingDiff && !store.diffError;
+});
+
+// ========================================
+// ACTIONS
+// ========================================
+
 const compareVersions = async () => {
     if (store.selectedDiff.length !== 2) return;
-
     try {
-        // Use the correct function name from the store
-        if (typeof store.fetchDatasetDiff === 'function') {
-            await store.fetchDatasetDiff();
-        } else {
-            return;
-        }
+        await store.fetchDatasetDiff();
     } catch (error) {
-        // Error will be handled by the store
+        // Error handled by the store
     }
 };
 
-// Automatically trigger comparison when two nodes are selected
+// ========================================
+// WATCHERS & LIFECYCLE
+// ========================================
+
+watch(
+    () => store.diffData,
+    () => {
+        currentPage.value = 1;
+    },
+);
+
 watch(
     () => store.selectedDiff,
     (newVal) => {
@@ -984,87 +841,20 @@ watch(
             isComparing.value = true;
             compareVersions();
         } else {
-            // Reset comparison state if selection changes
             isComparing.value = false;
         }
     },
     { deep: true },
 );
 
-// Also trigger comparison when component is mounted if two nodes are already selected
 onMounted(() => {
     if (store.selectedDiff.length === 2) {
         isComparing.value = true;
-        // Only fetch if we don't already have the data
         if (!store.diffData) {
             compareVersions();
         }
     }
 });
-
-// Computed property to determine if data is ready for display
-const ready = computed(() => {
-    return isComparing.value && store.diffData && !store.isLoadingDiff && !store.diffError;
-});
-
-// Helper function to create a row object from an array based on column mappings
-const _createRowObjectFromArray = (rowArray, columnMappings, entryId = null) => {
-    const rowObj = {};
-
-    // Map array values to column names
-    if (columnMappings.length > 0) {
-        // If we have column mappings, use them
-        columnMappings.forEach((colName, idx) => {
-            if (idx < rowArray.length) {
-                rowObj[colName] = rowArray[idx];
-            }
-        });
-    } else {
-        // Fallback: if no column mappings, use index-based keys
-        rowArray.forEach((value, idx) => {
-            rowObj[`column_${idx}`] = value;
-        });
-    }
-
-    if (entryId !== null) {
-        rowObj._entry_id = entryId;
-    }
-
-    return rowObj;
-};
-
-// Helper function to get column type
-const _getColumnType = (columnName, datasetKey) => {
-    if (!store.diffData) return null;
-
-    const dataset =
-        datasetKey === 'dataset_1'
-            ? store.diffData.dataset_1 && store.diffData.dataset_1[0]
-            : store.diffData.dataset_2 && store.diffData.dataset_2[0];
-
-    if (!dataset || !dataset.data_model || !dataset.data_model.columns) return null;
-
-    const columns = dataset.data_model.columns || [];
-
-    // Handle different column formats
-    if (columns.length > 0) {
-        if (Array.isArray(columns[0])) {
-            // Format: [["column_name", "column_type"], ...]
-            const column = columns.find((c) => c[0] === columnName);
-            if (column) {
-                return column[1];
-            }
-        } else if (typeof columns[0] === 'object') {
-            // Format: [{name: "column_name", dataType: "column_type"}, ...]
-            const column = columns.find((c) => c.name === columnName);
-            if (column) {
-                return column.dataType || column.type;
-            }
-        }
-    }
-
-    return null;
-};
 </script>
 
 <style scoped>
