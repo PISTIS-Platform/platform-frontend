@@ -682,8 +682,14 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
     font-size: 0.95em;
     color: #333;
     z-index: 1000;
-    max-width: 300px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transform: translateY(-50%);
+}
+
+@media (min-width: 768px) {
+    .description-tooltip {
+        min-width: 500px;
+        max-width: none;
+    }
 }
 </style>
