@@ -317,6 +317,23 @@ watch(
                                 :ui="{ error: 'absolute -bottom-6' }"
                                 eager-validation
                             >
+                                <template #label>
+                                    <div class="flex items-center gap-1">
+                                        {{ $t('exclusive') }}
+                                        <UTooltip
+                                            text="Grant rights to a single party only (no other licenses issued)"
+                                            :ui="{
+                                                base: 'px-2 py-1 text-xs font-normal whitespace-normal',
+                                                width: 'max-w-[625px]',
+                                            }"
+                                        >
+                                            <UIcon
+                                                name="i-heroicons-question-mark-circle"
+                                                class="w-4 h-4 text-gray-400 cursor-help"
+                                            />
+                                        </UTooltip>
+                                    </div>
+                                </template>
                                 <UCheckbox
                                     v-model="licenseDetails.isExclusive"
                                     name="isExclusive"
@@ -330,8 +347,20 @@ watch(
                                 eager-validation
                             >
                                 <template #label>
-                                    <div class="w-[220px]">
+                                    <div class="w-[240px] flex items-center gap-1">
                                         {{ $t('data.designer.noUseWithBlacklistedDatasets') }}
+                                        <UTooltip
+                                            text="Define whether use with restricted datasets is prohibited (clarify list/source)"
+                                            :ui="{
+                                                base: 'px-2 py-1 text-xs font-normal whitespace-normal',
+                                                width: 'max-w-[625px]',
+                                            }"
+                                        >
+                                            <UIcon
+                                                name="i-heroicons-question-mark-circle"
+                                                class="w-4 h-4 text-gray-400 cursor-help"
+                                            />
+                                        </UTooltip>
                                     </div>
                                 </template>
                                 <UCheckbox
@@ -341,13 +370,35 @@ watch(
                                 />
                             </UFormGroup>
                             <UFormGroup
-                                :label="$t('data.designer.availability')"
                                 name="region"
                                 :required="!isWorldwide"
-                                :ui="{ error: 'absolute -bottom-6' }"
+                                :ui="{ error: 'absolute -bottom-6', label: { required: '' } }"
                                 class="w-full"
                                 eager-validation
                             >
+                                <template #label>
+                                    <div class="flex items-center mb-1">
+                                        {{ $t('data.designer.availability') }}
+                                        <label
+                                            v-if="!isWorldwide"
+                                            class="block font-medium text-gray-700 dark:text-gray-200 after:content-['*'] after:ms-0.5 after:text-red-500 dark:after:text-red-400"
+                                        />
+
+                                        <UTooltip
+                                            text="Specify the countries where the license applies (or choose 'Worldwide')"
+                                            :ui="{
+                                                base: 'px-2 py-1 text-xs font-normal whitespace-normal',
+                                                width: 'max-w-[625px]',
+                                            }"
+                                            class="ml-1"
+                                        >
+                                            <UIcon
+                                                name="i-heroicons-question-mark-circle"
+                                                class="w-4 h-4 text-gray-400 cursor-help"
+                                            />
+                                        </UTooltip>
+                                    </div>
+                                </template>
                                 <USelectMenu
                                     v-model="licenseDetails.region"
                                     searchable
@@ -385,13 +436,33 @@ watch(
                                 />
                             </UFormGroup>
                             <UFormGroup
-                                :label="$t('data.designer.transferable')"
                                 required
                                 name="transferable"
                                 class="text-gray-200 w-full"
-                                :ui="{ error: 'absolute -bottom-6' }"
+                                :ui="{ error: 'absolute -bottom-6', label: { required: '' } }"
                                 eager-validation
                             >
+                                <template #label>
+                                    <div class="flex items-center mb-1">
+                                        {{ $t('data.designer.transferable') }}
+                                        <label
+                                            class="block font-medium text-gray-700 dark:text-gray-200 after:content-['*'] after:ms-0.5 after:text-red-500 dark:after:text-red-400"
+                                        />
+                                        <UTooltip
+                                            text="Allow or prohibit the buyer from transferring (reselling) the license"
+                                            :ui="{
+                                                base: 'px-2 py-1 text-xs font-normal whitespace-normal',
+                                                width: 'max-w-[625px]',
+                                            }"
+                                            class="ml-1"
+                                        >
+                                            <UIcon
+                                                name="i-heroicons-question-mark-circle"
+                                                class="w-4 h-4 text-gray-400 cursor-help"
+                                            />
+                                        </UTooltip>
+                                    </div>
+                                </template>
                                 <USelectMenu
                                     v-model="licenseDetails.transferable"
                                     :ui="{
@@ -407,13 +478,33 @@ watch(
                             </UFormGroup>
                             <UFormGroup
                                 v-if="monetizationDetails.type !== 'one-off'"
-                                :label="$t('data.designer.duration.title')"
                                 name="duration"
                                 required
                                 class="w-full"
-                                :ui="{ error: 'absolute -bottom-6' }"
+                                :ui="{ error: 'absolute -bottom-6', label: { required: '' } }"
                                 eager-validation
                             >
+                                <template #label>
+                                    <div class="flex items-center mb-1">
+                                        {{ $t('data.designer.duration.title') }}
+                                        <label
+                                            class="block font-medium text-gray-700 dark:text-gray-200 after:content-['*'] after:ms-0.5 after:text-red-500 dark:after:text-red-400"
+                                        />
+                                        <UTooltip
+                                            text="Define how long the license remains valid"
+                                            :ui="{
+                                                base: 'px-2 py-1 text-xs font-normal whitespace-normal',
+                                                width: 'max-w-[625px]',
+                                            }"
+                                            class="ml-1"
+                                        >
+                                            <UIcon
+                                                name="i-heroicons-question-mark-circle"
+                                                class="w-4 h-4 text-gray-400 cursor-help"
+                                            />
+                                        </UTooltip>
+                                    </div>
+                                </template>
                                 <USelectMenu
                                     v-model="licenseDetails.duration"
                                     :options="durationSelections"
@@ -442,13 +533,33 @@ watch(
                             class="flex flex-1 gap-4"
                         >
                             <UFormGroup
-                                :label="$t('data.designer.numberOfResell')"
                                 class="w-full"
                                 required
                                 name="numOfResell"
-                                :ui="{ error: 'absolute -bottom-6' }"
+                                :ui="{ error: 'absolute -bottom-6', label: { required: '' } }"
                                 eager-validation
                             >
+                                <template #label>
+                                    <div class="flex items-center mb-1">
+                                        {{ $t('data.designer.numberOfResell') }}
+                                        <label
+                                            class="block font-medium text-gray-700 dark:text-gray-200 after:content-['*'] after:ms-0.5 after:text-red-500 dark:after:text-red-400"
+                                        />
+                                        <UTooltip
+                                            text="Set how many times the license can be resold (only if transferable)"
+                                            :ui="{
+                                                base: 'px-2 py-1 text-xs font-normal whitespace-normal',
+                                                width: 'max-w-[625px]',
+                                            }"
+                                            class="ml-1"
+                                        >
+                                            <UIcon
+                                                name="i-heroicons-question-mark-circle"
+                                                class="w-4 h-4 text-gray-400 cursor-help"
+                                            />
+                                        </UTooltip>
+                                    </div>
+                                </template>
                                 <UInput
                                     v-model.number="licenseDetails.numOfResell"
                                     :placeholder="$t('data.designer.numberOfResell')"
@@ -460,13 +571,33 @@ watch(
                                 </UInput>
                             </UFormGroup>
                             <UFormGroup
-                                :label="$t('data.designer.duration.title')"
                                 name="duration"
                                 required
                                 class="w-full"
-                                :ui="{ error: 'absolute -bottom-6' }"
+                                :ui="{ error: 'absolute -bottom-6', label: { required: '' } }"
                                 eager-validation
                             >
+                                <template #label>
+                                    <div class="flex items-center mb-1">
+                                        {{ $t('data.designer.duration.title') }}
+                                        <label
+                                            class="block font-medium text-gray-700 dark:text-gray-200 after:content-['*'] after:ms-0.5 after:text-red-500 dark:after:text-red-400"
+                                        />
+                                        <UTooltip
+                                            text="Define how long the license remains valid"
+                                            :ui="{
+                                                base: 'px-2 py-1 text-xs font-normal whitespace-normal',
+                                                width: 'max-w-[625px]',
+                                            }"
+                                            class="ml-1"
+                                        >
+                                            <UIcon
+                                                name="i-heroicons-question-mark-circle"
+                                                class="w-4 h-4 text-gray-400 cursor-help"
+                                            />
+                                        </UTooltip>
+                                    </div>
+                                </template>
                                 <USelectMenu
                                     v-model="licenseDetails.duration"
                                     :options="durationSelections"
@@ -510,13 +641,33 @@ watch(
                                 </UInput>
                             </UFormGroup>
                             <UFormGroup
-                                :label="$t('data.designer.duration.title')"
                                 name="duration"
                                 required
                                 class="w-full"
-                                :ui="{ error: 'absolute -bottom-6' }"
+                                :ui="{ error: 'absolute -bottom-6', label: { required: '' } }"
                                 eager-validation
                             >
+                                <template #label>
+                                    <div class="flex items-center mb-1">
+                                        {{ $t('data.designer.duration.title') }}
+                                        <label
+                                            class="block font-medium text-gray-700 dark:text-gray-200 after:content-['*'] after:ms-0.5 after:text-red-500 dark:after:text-red-400"
+                                        />
+                                        <UTooltip
+                                            text="Define how long the license remains valid"
+                                            :ui="{
+                                                base: 'px-2 py-1 text-xs font-normal whitespace-normal',
+                                                width: 'max-w-[625px]',
+                                            }"
+                                            class="ml-1"
+                                        >
+                                            <UIcon
+                                                name="i-heroicons-question-mark-circle"
+                                                class="w-4 h-4 text-gray-400 cursor-help"
+                                            />
+                                        </UTooltip>
+                                    </div>
+                                </template>
                                 <USelectMenu
                                     v-model="licenseDetails.duration"
                                     :options="durationSelections"
