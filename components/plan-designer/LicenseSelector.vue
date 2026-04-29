@@ -75,6 +75,8 @@ const licenseDetails = computed({
     },
 });
 
+const isNonTransferable = computed(() => licenseDetails.value.transferable === 'non-transferable');
+
 const isLicenseValid = computed(() => {
     return licenseSchema.safeParse(licenseDetails.value).success;
 });
@@ -220,7 +222,8 @@ const customValidate = () => {
     if (!isWorldwide.value && !licenseDetails.value?.region?.length)
         errors.push({ path: 'region', message: t('val.required') });
     else formRef.value.clear('region');
-    if (!licenseDetails.value.duration) errors.push({ path: 'duration', message: t('val.required') });
+    if (!licenseDetails.value.duration && !isNonTransferable.value)
+        errors.push({ path: 'duration', message: t('val.required') });
     if (!licenseDetails.value.transferable) errors.push({ path: 'transferable', message: t('val.required') });
     if (!licenseDetails.value.nonRenewalDays) errors.push({ path: 'nonRenewalDays', message: t('val.positive') });
     if (!licenseDetails.value.contractBreachDays)
@@ -244,6 +247,19 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
     licenseToSwitchTo.value = license;
     isOpen.value = true;
 };
+
+watch(
+    () => licenseDetails.value.transferable,
+    (newVal) => {
+        if (newVal === 'non-transferable') {
+            licenseDetails.value = {
+                ...licenseDetails.value,
+                numOfResell: undefined,
+                duration: undefined,
+            };
+        }
+    },
+);
 </script>
 
 <template>
@@ -421,7 +437,10 @@ const handleLicenseUpdate = (license: { code: string; label: string; description
                             </UFormGroup>
                         </div>
 
-                        <div v-if="monetizationDetails.type === 'one-off' && !isFree" class="flex flex-1 gap-4">
+                        <div
+                            v-if="monetizationDetails.type === 'one-off' && !isFree && !isNonTransferable"
+                            class="flex flex-1 gap-4"
+                        >
                             <UFormGroup
                                 :label="$t('data.designer.numberOfResell')"
                                 class="w-full"
