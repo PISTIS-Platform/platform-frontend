@@ -755,10 +755,8 @@ button:hover {
 
 .description-tooltip {
     position: absolute;
-    left: auto;
-    right: auto;
-    top: auto;
-    bottom: auto;
+    top: 50%;
+    left: 100%;
     margin-left: 8px;
     background: #f9f9f9;
     border: 1px solid #ccc;
@@ -767,10 +765,15 @@ button:hover {
     font-size: 0.95em;
     color: #333;
     z-index: 1000;
-    max-width: 300px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    white-space: normal;
     transform: translateY(-50%);
+}
+
+@media (min-width: 768px) {
+    .description-tooltip {
+        min-width: 500px;
+        max-width: none;
+    }
 }
 
 .big-bold-title {
