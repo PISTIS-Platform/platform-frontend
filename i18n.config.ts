@@ -303,6 +303,7 @@ export default defineI18nConfig(() => ({
                         infrequent: 'Occasional events (a few per hour or day)',
                         unspecified: 'Unspecified frequency of events',
                     },
+                    datasetCategory: 'Dataset Category',
                 },
                 dataTransformation: 'Transformation Designer',
                 insightGenerator: 'Insights Generator',

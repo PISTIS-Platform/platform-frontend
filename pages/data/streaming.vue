@@ -174,7 +174,7 @@ const showPassword = ref(false);
                         </div>
                     </template>
                 </UFormGroup>
-                <UFormGroup :label="$t('data.datasetCategory')" name="category">
+                <UFormGroup :label="$t('data.streaming.datasetCategory')" name="category">
                     <USelectMenu
                         v-model="state.category"
                         :options="categorySelectOptions"
@@ -228,7 +228,7 @@ const showPassword = ref(false);
                             <span class="font-normal font-mono">{{ data.description }}</span>
                         </span>
                         <span v-if="data.category" class="flex items-center gap-2 font-bold"
-                            >{{ $t('data.datasetCategory') }}:
+                            >{{ $t('data.datasetCategory') }}
                             <span class="font-normal font-mono">{{ data.category }}</span>
                         </span>
                         <span class="flex items-center gap-2 font-bold"
