@@ -28,5 +28,11 @@ export const useMessagesStore = defineStore('MessagesStore', {
             if (!foundMessage) return;
             foundMessage.readAt = new Date();
         },
+        markAllAsRead(): void {
+            const now = new Date();
+            this.messages.forEach((message: Message) => {
+                if (!message.readAt) message.readAt = now;
+            });
+        },
     },
 });

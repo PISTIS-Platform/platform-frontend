@@ -4,6 +4,7 @@ const {
 
 export default defineEventHandler(async (event) => {
     const query = await getQuery(event);
+    // const session = event.context.session;
 
     const facets = {
         monetizationType: ['one-off', 'subscription'],
@@ -20,6 +21,9 @@ export default defineEventHandler(async (event) => {
             `${cloudUrl}/srv/search/search?page=${page}&limit=1000&filters=dataset&includes=id,title,description,distributions,modified,publisher&facets=${encodeURIComponent(JSON.stringify(facets))}`,
             {
                 method: 'GET',
+                // headers: {
+                //     Authorization: `Bearer ${session?.token}`,
+                // },
             },
         );
         page++;

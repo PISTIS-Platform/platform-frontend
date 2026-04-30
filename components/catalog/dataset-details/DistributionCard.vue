@@ -10,7 +10,7 @@ const route = useRoute();
 
 const pistisMode = route.query.pm;
 
-const { getDatasetUrl } = useApiService(pistisMode);
+const { getDatasetUrl, getDecryptionUrl } = useApiService(pistisMode);
 
 interface CardProps {
     title: string;
@@ -27,6 +27,11 @@ interface CardProps {
     data: PropertyTableEntryNode;
     onSave?: () => void;
     size: number;
+    license: object;
+    isTransformed: string;
+    isAnonymized: string;
+    isEncrypted: string;
+    isStream: boolean;
 }
 
 const props = withDefaults(defineProps<CardProps>(), {
@@ -44,12 +49,7 @@ const catalog = ref(null);
 const showTable = ref(false);
 
 const searchUrl = getDatasetUrl(props.datasetId);
-const isTransformed = ref();
-const isAnonymized = ref();
-const isEncrypted = ref();
 const hasPistisSchema = computed(() => !!props.pistisSchema);
-
-const isStream = computed(() => props.title.toLowerCase() === 'kafka stream' && props.format.toLowerCase() === 'csv');
 
 const fetchMetadata = async () => {
     try {
@@ -57,9 +57,6 @@ const fetchMetadata = async () => {
         const data = await response.json();
         copyData.topic = `ds-${data.result.id}`;
         catalog.value = data.result.catalog.id;
-        isTransformed.value = data.result.distributions.some((transformation) => transformation?.is_transformed);
-        isAnonymized.value = data.result.distributions.some((anonymization) => anonymization?.is_anonymized);
-        isEncrypted.value = data.result.distributions.some((encryption) => encryption?.is_encrypted);
     } catch (error) {
         console.error('Error fetching the metadata. ERROR: ', error);
     }
@@ -140,6 +137,61 @@ async function downloadFile() {
 
             alert('Failed to download the file.');
         }
+    }
+}
+
+const decryptInProgress = ref(false);
+
+async function decryptFile() {
+    if (!props.distributionId) {
+        console.error('decryptFile: missing distributionId');
+        alert('Unable to decrypt: missing distribution id.');
+        return;
+    }
+
+    if (!catalog.value) {
+        console.error('decryptFile: missing catalog id');
+        alert('Unable to decrypt: missing factory information.');
+        return;
+    }
+
+    if (!token) {
+        console.error('decryptFile: missing auth token');
+        alert('Unable to decrypt: no authentication token. Please login again.');
+        return;
+    }
+
+    const decryptUrl = getDecryptionUrl();
+    decryptInProgress.value = true;
+
+    try {
+        await axios.post(
+            decryptUrl,
+            { assetId: props.distributionId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            },
+        );
+
+        // reload to show decrypted distribution
+        window.location.reload();
+    } catch (error) {
+        console.error('Error decrypting distribution:', error);
+
+        let message = 'Failed to decrypt distribution. Please try again.';
+        if (axios.isAxiosError(error) && error.response) {
+            message += `\nStatus: ${error.response.status} - ${error.response.statusText}`;
+            if (error.response.data?.message) {
+                message += `\n${error.response.data.message}`;
+            }
+        }
+
+        alert(message);
+    } finally {
+        decryptInProgress.value = false;
     }
 }
 
@@ -237,9 +289,17 @@ const {
     showInfo,
     information,
     answersLog,
-    showReport,
 } = useGdprQuestions(props.datasetId);
 console.log(answersLog.value);
+
+const handleLicenseOpen = (value) => {
+    navigateTo(value.resource, {
+        external: true,
+        open: {
+            target: '_blank',
+        },
+    });
+};
 </script>
 
 <template>
@@ -418,10 +478,16 @@ console.log(answersLog.value);
                 <div class="flex items-center font-semibold text-neutral-500 space-x-2 pr-5">
                     <UBadge color="secondary" variant="soft" size="xs" class="rounded-full">{{ format }}</UBadge>
                     <div>
-                        {{ title }}
-                        <span v-if="props.size" class="font-semibold text-xs text-gray-400"
-                            >({{ formatBytes(props.size) }})</span
-                        >
+                        <div>
+                            {{ title }}
+                            <span v-if="props.size" class="font-semibold text-xs text-gray-400"
+                                >(<span v-if="props.format === 'SQL'">~</span>{{ formatBytes(props.size) }})</span
+                            >
+                        </div>
+                        <div v-if="license" class="font-semibold text-xs text-gray-400">
+                            License:
+                            <span class="cursor-pointer" @click="handleLicenseOpen(license)">{{ license.label }}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="flex">
@@ -438,47 +504,68 @@ console.log(answersLog.value);
                     </div>
 
                     <div v-if="pistisMode == 'factory'" class="flex gap-x-3">
-                        <UButton
-                            v-if="!isStream && answersLog"
-                            variant="solid"
-                            color="primary"
-                            size="sm"
-                            icon="i-heroicons-arrow-down-tray"
-                            @click="showReport()"
-                        >
-                            {{ $t('catalogue.downloadGDPR') }}
-                        </UButton>
-                        <UButton
-                            variant="solid"
-                            color="primary"
-                            size="sm"
-                            icon="i-heroicons-arrow-down-tray"
-                            @click="downloadFile"
-                        >
-                            {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.downloadDistribution') }}
-                            <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                        </UButton>
-
-                        <UButtonGroup v-if="!isStream">
-                            <UDropdown :items="dropdownItems">
-                                <UTooltip text="Show more">
-                                    <UButton color="primary" variant="solid" icon="i-heroicons-ellipsis-horizontal" />
-                                </UTooltip>
-                            </UDropdown>
-                        </UButtonGroup>
+                        <div v-if="!isEncrypted" class="flex gap-x-3">
+                            <UButton
+                                v-if="!isStream && answersLog"
+                                variant="solid"
+                                color="primary"
+                                size="sm"
+                                icon="i-heroicons-arrow-down-tray"
+                                @click="showReport()"
+                            >
+                                {{ $t('catalogue.downloadGDPR') }}
+                            </UButton>
+                            <UButton
+                                variant="solid"
+                                color="primary"
+                                size="sm"
+                                icon="i-heroicons-arrow-down-tray"
+                                @click="downloadFile"
+                            >
+                                {{
+                                    isStream ? $t('catalogue.connectionDetails') : $t('catalogue.downloadDistribution')
+                                }}
+                                <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
+                            </UButton>
+                            <UButtonGroup v-if="!isStream">
+                                <UDropdown :items="dropdownItems">
+                                    <UTooltip text="Show more">
+                                        <UButton
+                                            color="primary"
+                                            variant="solid"
+                                            icon="i-heroicons-ellipsis-horizontal"
+                                        />
+                                    </UTooltip>
+                                </UDropdown>
+                            </UButtonGroup>
+                        </div>
+                        <div v-if="isEncrypted" class="flex gap-x-3">
+                            <!-- TODO: once ready, add :disabled="decryptInProgress" -->
+                            <UButton
+                                variant="solid"
+                                color="primary"
+                                size="sm"
+                                :loading="decryptInProgress"
+                                disabled
+                                title="Decryption of encrypted distributions is currently not supported."
+                                @click="decryptFile"
+                            >
+                                {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.decryptDistribution') }}
+                            </UButton>
+                        </div>
                     </div>
 
-                    <div v-if="pistisMode == 'openData'" class="flex gap-x-3">
-                        <UButton
-                            variant="solid"
-                            color="primary"
-                            size="sm"
-                            icon="i-heroicons-arrow-down-tray"
-                            @click="downloadFile"
+                    <div v-if="pistisMode === 'openData'" class="flex gap-x-3">
+                        <a
+                            :href="props.downloadUrl"
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded bg-primary text-white hover:bg-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
                         >
+                            <UIcon name="i-heroicons-arrow-down-tray" />
                             {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.downloadDistribution') }}
-                            <span v-if="format === 'SQL'" class="text-xs opacity-60">(as CSV)</span>
-                        </UButton>
+                        </a>
                     </div>
                 </div>
             </div>

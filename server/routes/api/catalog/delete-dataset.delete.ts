@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
             id: string;
             title?: string;
         }>,
+        streamDeleted: false,
         metricsDeleted: false,
         dataQualityDeleted: false,
     };
@@ -38,6 +39,7 @@ export default defineEventHandler(async (event) => {
     const apiKey = config.piveauHubRepoXApiKey;
     const dataStorageApi = `${baseUrl}/srv/factory-data-storage/api`;
     const authToken = authHeader.replace('Bearer ', '');
+    const streamApi = `${baseUrl}/srv/data-connector/api/provider/kafka/${datasetId}`;
     const metricsApi = `${baseUrl}/datasets/${datasetId}/metrics`;
     const dataQualityApi = `${baseUrl}/resources/data-quality/${datasetId}`;
 
@@ -71,11 +73,11 @@ export default defineEventHandler(async (event) => {
         (n: any) => n['@type'] === 'dcat:Distribution' && distributionRefs.some((d: any) => d?.['@id'] === n['@id']),
     );
 
-    // delete distributions
+    let isStream;
+    // delete non stream distributions
     for (const dist of distributions) {
         const distId = dist['@id'];
-        const titles = toArray(dist['dct:title']);
-        const isStream = titles.some((t: any) => t === 'Kafka Stream' || t?.en === 'Kafka Stream');
+        isStream = !!dist['dcat:accessService'];
         const formats = toArray(dist['dct:format']);
         const format = formats[0]?.['@id'] ?? '';
         const accessUrls = toArray(dist['dcat:accessURL']);
@@ -120,44 +122,65 @@ export default defineEventHandler(async (event) => {
     }
 
     // verify all distributions are deleted
-    for (const dist of distributions) {
-        const distId = dist['@id'];
-        const accessUrls = toArray(dist['dcat:accessURL']);
-        const accessUrl = accessUrls[0]?.['@id'];
+    if (!isStream) {
+        for (const dist of distributions) {
+            const distId = dist['@id'];
+            const accessUrls = toArray(dist['dcat:accessURL']);
+            const accessUrl = accessUrls[0]?.['@id'];
 
-        let assetUuid: string | undefined;
+            let assetUuid: string | undefined;
 
-        if (accessUrl) {
-            const url = new URL(accessUrl);
-            assetUuid = url.searchParams.get('asset_uuid') ?? undefined;
-        }
+            if (accessUrl) {
+                const url = new URL(accessUrl);
+                assetUuid = url.searchParams.get('asset_uuid') ?? undefined;
+            }
 
-        if (!accessUrl || !assetUuid) continue;
+            if (!accessUrl || !assetUuid) continue;
 
-        try {
-            const checkResponse = await fetch(accessUrl, {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                },
-            });
+            try {
+                const checkResponse = await fetch(accessUrl, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
 
-            if (![400, 404].includes(checkResponse.status)) {
+                if (![400, 404].includes(checkResponse.status)) {
+                    throw createError({
+                        statusCode: 409,
+                        statusMessage: `Distribution ${distId} is still accessible (status ${checkResponse.status})`,
+                    });
+                }
+            } catch (err: any) {
+                if (err?.statusCode) {
+                    throw err;
+                }
+
                 throw createError({
-                    statusCode: 409,
-                    statusMessage: `Distribution ${distId} is still accessible (status ${checkResponse.status})`,
+                    statusCode: 500,
+                    statusMessage: `Failed to verify deletion of distribution ${distId}`,
                 });
             }
-        } catch (err: any) {
-            if (err?.statusCode) {
-                throw err;
-            }
+        }
+    }
 
+    // delete stream data
+    if (isStream) {
+        const deleteStream = await fetch(streamApi, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+            },
+        });
+        if (!deleteStream.ok) {
+            const msg = await deleteStream.text();
             throw createError({
                 statusCode: 500,
-                statusMessage: `Failed to verify deletion of distribution ${distId}`,
+                statusMessage: `Delete failed: ${msg}`,
             });
         }
+
+        deleteInfo.streamDeleted = true;
     }
 
     // delete dataset metrics

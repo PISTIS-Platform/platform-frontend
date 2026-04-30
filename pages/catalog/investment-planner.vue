@@ -33,7 +33,7 @@ const allBasicFieldsFilledIn = computed(
 
 const monetizationSchema = z
     .object({
-        validOfferDate: z.string().min(1, t('required')),
+        validOfferDate: z.date({ required_error: t('required') }),
         percentageToOfferSharesFor: z.coerce
             .number({ invalid_type_error: t('data.investmentPlanner.errors.number') })
             .min(10, t('data.investmentPlanner.errors.percentageMin'))
@@ -196,7 +196,7 @@ const submitAll = async () => {
         cloudAssetId: assetOfferingDetails.value.id,
         sellerId: accountData.value?.user.sub,
         assetId: uuidV4(),
-        dueDate: monetizationDetails.value.validOfferDate,
+        dueDate: dayjs(monetizationDetails.value.validOfferDate).toISOString(),
         percentageOffer: monetizationDetails.value.percentageToOfferSharesFor,
         totalShares: monetizationDetails.value.numberOfShares,
         maxShares: monetizationDetails.value.maximumSharesToBuy,

@@ -86,7 +86,7 @@ const doDataSearch = async () => {
     dqIsLoading.value = true;
     dqIsFetching.value = true;
     try {
-        const url = 'https://pistis-market.eu/srv/distributed-query/search';
+        const url = '/api/distributed-query/search';
         const response = await fetch(url, {
             method: 'POST',
             body: JSON.stringify({ dataQuery: searchInput.value }),
