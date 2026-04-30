@@ -63,7 +63,7 @@ export const useAnonymizerStore = defineStore('preview', {
         /**
          * Fetch preview the user's currently stored dataset from the anonymiser.
          */
-        async fetchPreview(): Promise<void> {
+        async fetchPreview(): Promise<boolean> {
             const response = await useFetch('/api/anonymizer/preview');
             const data: any = response.data.value;
 
@@ -72,6 +72,7 @@ export const useAnonymizerStore = defineStore('preview', {
                 this.changePreview(result);
             }
             this.previewFetchCode = data.code;
+            return !!result;
         },
         /**
          * Overwrite the list of currently available mask names.
