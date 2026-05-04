@@ -47,6 +47,7 @@ const listServices = ref([
         name: DATA_CHECK_IN,
         method: DATA_CHECK_IN_FILE_METHOD,
         id: 1,
+        description: 'Upload a dataset file directly.',
         params: [
             {
                 name: 'file (supported CSV, TSV, Json, XML, XLSX and Parquet)',
@@ -60,6 +61,7 @@ const listServices = ref([
         name: DATA_CHECK_IN,
         method: DATA_CHECK_IN_FTP_METHOD,
         id: 2,
+        description: 'Import a dataset from an FTP server.',
         params: [
             {
                 name: 'ftp_server',
@@ -104,13 +106,21 @@ const listServices = ref([
         name: DATA_TRANSFORMATION,
         method: DATA_TRANSFORMATION_RUN_METHOD,
         id: 3,
+        description: 'Please, design the transformation definition before uploading the file using the Transformation Designer and paste it here.',
         params: [{ name: 'transformation_definition', type: 'json', vue: 'input', value: '[]' }],
     },
-    { name: INSIGHTS_GENERATOR, method: INSIGHTS_GENERATOR_GENERATE_METHOD, id: 4, params: [] },
+    {
+        name: INSIGHTS_GENERATOR,
+        method: INSIGHTS_GENERATOR_GENERATE_METHOD,
+        id: 4,
+        description: 'Generate insights from the dataset.',
+        params: [],
+    },
     {
         name: DATA_CHECK_IN,
         method: DATA_CHECK_IN_API_METHOD,
         id: 5,
+        description: 'Ingest data from an external API endpoint.',
         params: [
             {
                 name: 'api_url',
@@ -251,6 +261,7 @@ const runJobConfigurator = async (services: [string]) => {
     }
 
     const enrichedServices = services.map((svc: any) => {
+        const { description, ...svcWithoutDescription } = svc;
         if (svc?.method === DATA_CHECK_IN_API_METHOD) {
             const preferred =
                 (typeof fileUpload.value?.name === 'string' && fileUpload.value.name.trim()
@@ -264,14 +275,14 @@ const runJobConfigurator = async (services: [string]) => {
 
             // Set at root level (svc.filename)
             return {
-                ...svc,
+                ...svcWithoutDescription,
                 params: [
                     { name: 'filename', type: 'json', vue: 'textarea', value: finalFilename },
                     ...(svc.params ?? []),
                 ],
             };
         }
-        return svc;
+        return svcWithoutDescription;
     });
 
     formData.append('workflow', JSON.stringify(enrichedServices));
@@ -388,12 +399,13 @@ const runJobConfigurator = async (services: [string]) => {
                     <label for="datasetDescription" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
                         $t('data.datasetDescription')
                     }}</label>
-                    <input
+                    <textarea
                         id="datasetDescription"
                         v-model="datasetDescription"
-                        type="text"
-                        class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
-                    />
+                        rows="3"
+                        class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white resize-y overflow-auto"
+                        style="min-height: 2.5rem; max-height: 6rem;"
+                    ></textarea>
                 </div>
                 <div class="rounded-md w-full flex">
                     <label for="datasetKeywords" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
@@ -529,6 +541,9 @@ const runJobConfigurator = async (services: [string]) => {
                         >
                             <div class="rounded-m ml-3 mt-3 mb-2 mr-3 font-medium text-blue-900 font-semibold">
                                 {{ srv.name }}: {{ srv.method }}
+                                <div v-if="srv.description" class="text-xs text-gray-500 font-normal mt-1 mb-1 ml-1">
+                                    {{ srv.description }}
+                                </div>
 
                                 <ul class="ml-3 mr-10 m-5">
                                     <li
