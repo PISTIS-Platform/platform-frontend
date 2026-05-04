@@ -1,7 +1,8 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-
+import { nextTick } from 'vue';
+    
 import { datasetCategoryOptions } from '~/constants/dataset-categories';
 
 const categoryLang = 'en';
@@ -33,6 +34,23 @@ const datasetName = ref('');
 const datasetDescription = ref('');
 const datasetKeywords = ref('');
 const datasetEncrytion = ref('false');
+
+// Watch for changes to encryption checkbox to enforce mutual exclusion
+watch(
+    () => datasetEncrytion.value,
+    (newVal) => {
+        if (newVal === true || newVal === 'true') {
+            // If Insights Generator is present, uncheck encryption and alert
+            const hasInsights = workflowServices.value.some(srv => srv.name === INSIGHTS_GENERATOR);
+            if (hasInsights) {
+                alert('The Insights Generator and Encryption cannot be included in the same workflow. Please remove one of them.');
+                nextTick(() => {
+                    datasetEncrytion.value = false;
+                });
+            }
+        }
+    }
+);
 const gdprChecking = ref('false');
 let fileUpload = ref<File | null>(null);
 const runId = ref('None');
@@ -179,6 +197,10 @@ const onDrop = () => {
     let keys = Object.keys(workflowServices.value);
     let fileSelected = false;
 
+    const hasInsights = computed(() =>
+        workflowServices.value.some(srv => srv.name === INSIGHTS_GENERATOR)
+    );
+    
     for (let key in keys) {
         let name = workflowServices.value[key]['name'];
         let method = workflowServices.value[key]['method'];
@@ -205,6 +227,19 @@ const onDrop = () => {
             fileUpload.value = null;
         }
     }
+    
+    // Mutual exclusion: if encryption is checked and insights generator is present, remove insights generator and alert
+    if ((datasetEncrytion.value === true || datasetEncrytion.value === 'true') && hasInsights.value) {
+        // Move all Insights Generator services back to Services Available
+        for (let i = workflowServices.value.length - 1; i >= 0; i--) {
+            if (workflowServices.value[i].name === INSIGHTS_GENERATOR) {
+                listServices.value.push(workflowServices.value[i]);
+                workflowServices.value.splice(i, 1);
+            }
+        }
+        alert('The Insights Generator and Encryption cannot be included in the same workflow. Please remove one of them.');
+    }
+    
     runId.value = 'None';
 };
 
