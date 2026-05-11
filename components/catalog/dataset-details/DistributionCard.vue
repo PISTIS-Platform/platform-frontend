@@ -147,6 +147,16 @@ async function downloadFile() {
 
 const decryptInProgress = ref(false);
 
+function getAssetIdFromDownloadUrl(url: string) {
+    try {
+        const parsed = new URL(url);
+        return parsed.searchParams.get('asset_uuid');
+    } catch (error) {
+        const match = url.match(/[?&]asset_uuid=([^&]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+}
+
 async function decryptFile() {
     if (!props.distributionId) {
         console.error('decryptFile: missing distributionId');
@@ -166,13 +176,20 @@ async function decryptFile() {
         return;
     }
 
+    const assetId = getAssetIdFromDownloadUrl(props.downloadUrl);
+    if (!assetId) {
+        console.error('decryptFile: missing assetId in downloadUrl', props.downloadUrl);
+        alert('Unable to decrypt: invalid download URL, missing asset UUID.');
+        return;
+    }
+
     const decryptUrl = getDecryptionUrl();
     decryptInProgress.value = true;
 
     try {
         await axios.post(
             decryptUrl,
-            { assetId: props.distributionId },
+            { assetId },
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -182,7 +199,7 @@ async function decryptFile() {
         );
 
         // reload to show decrypted distribution
-        window.location.reload();
+        // window.location.reload();
     } catch (error) {
         console.error('Error decrypting distribution:', error);
 
@@ -551,8 +568,7 @@ const handleLicenseOpen = (value) => {
                                 color="primary"
                                 size="sm"
                                 :loading="decryptInProgress"
-                                disabled
-                                title="Decryption of encrypted distributions is currently not supported."
+                                :disabled="decryptInProgress"
                                 @click="decryptFile"
                             >
                                 {{ isStream ? $t('catalogue.connectionDetails') : $t('catalogue.decryptDistribution') }}
