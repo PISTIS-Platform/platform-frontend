@@ -129,6 +129,8 @@ import { LicenseCode } from '~/constants/licenses';
 
 const { durationSelections } = useLicenseSchema(monetizationDetails);
 
+const isNonTransferable = computed(() => props.licenseDetails.transferable === 'non-transferable');
+
 const emit = defineEmits(['handlePageSelectionBackwards', 'submitAll']);
 
 const subscriptionMapping: Record<string, string> = {
@@ -352,7 +354,7 @@ const subscriptionMapping: Record<string, string> = {
                         <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.transferable') }}</span>
                         <span>{{ licenseDetails.transferable }}</span>
                     </div>
-                    <div class="flex gap-2 flex-col w-1/2">
+                    <div v-if="!isNonTransferable" class="flex gap-2 flex-col w-1/2">
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.designer.duration.title')
                         }}</span>
@@ -389,7 +391,7 @@ const subscriptionMapping: Record<string, string> = {
                     }}</span>
                     <span>{{ licenseDetails.additionalRenewalTerms }}</span>
                 </div>
-                <div v-if="!R.isNil(licenseDetails.numOfResell)" class="flex gap-2 flex-col">
+                <div v-if="!isNonTransferable && !R.isNil(licenseDetails.numOfResell)" class="flex gap-2 flex-col">
                     <span class="text-sm font-semibold text-gray-400">{{ $t('data.designer.numberOfResell') }}</span>
                     <span>{{ `${licenseDetails.numOfResell} ${$t('times')}` }}</span>
                 </div>

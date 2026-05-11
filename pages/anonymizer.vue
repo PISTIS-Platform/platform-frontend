@@ -18,6 +18,11 @@ const routes = ref([
 const anonymizerStore = useAnonymizerStore();
 
 /**
+ * Reference to the nuxt router.
+ */
+const router = useRouter();
+
+/**
  * Fetch dataset preview on mount.
  */
 onMounted(async () => {
@@ -52,23 +57,35 @@ onMounted(async () => {
         const metadataResponse: AnonymiserResponse<UserMetadata> = (await useFetch('/api/anonymizer/metadata')).data
             .value as AnonymiserResponse<UserMetadata>;
 
-        // If there is no metadata
+        // If there is no metadata for this dataset, load it from the catalogue
         if (
             metadataResponse.code == 404 ||
             (metadataResponse.result && metadataResponse.result.catalogueId != datasetId)
         ) {
-            // Load the dataset from the factory data catalogue
             const loadDatasetResponse: AnonymiserResponse<undefined> = (
                 await useFetch(`/api/anonymizer/dataset/${datasetId}?distribution=${distribution}&language=${language}`)
             ).data.value as AnonymiserResponse<undefined>;
 
             if (loadDatasetResponse.code != 200) {
-                window.alert('Failed to fetch dataset from data catalogue! Please try again.');
+                // Use the specific error message the API returns — it will describe
+                // the exact failure (e.g. nested JSON, parse error, storage issue)
+                // with a generic fallback if the field is absent.
+                const detail = (loadDatasetResponse as any).error;
+                const userMessage = detail
+                    ? `Failed to load dataset:\n\n${detail}`
+                    : 'Failed to fetch dataset from data catalogue. Please try again.';
+                window.alert(userMessage);
+                router.push({ name: 'home' });
+                return;
             }
         }
     }
-    // Fetch the preview from the anonymiser
-    await anonymizerStore.fetchPreview();
+
+    // Fetch the preview — only reached if the dataset loaded successfully
+    const previewSuccess = await anonymizerStore.fetchPreview();
+    if (!previewSuccess) {
+        router.push({ name: 'home' });
+    }
 });
 </script>
 

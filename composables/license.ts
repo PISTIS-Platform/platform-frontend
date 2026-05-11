@@ -158,7 +158,7 @@ export const useLicenseSchema = (monetizationDetailsRef: Ref) => {
                     });
                 }
 
-                if (!data.duration) {
+                if (!data.duration && data.transferable !== 'non-transferable') {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         message: t('val.required'),
@@ -173,7 +173,12 @@ export const useLicenseSchema = (monetizationDetailsRef: Ref) => {
                     });
                 }
 
-                if (!isFree.value && isOneOff.value && R.isNil(data.numOfResell)) {
+                if (
+                    !isFree.value &&
+                    isOneOff.value &&
+                    R.isNil(data.numOfResell) &&
+                    data.transferable !== 'non-transferable'
+                ) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         message: t('val.required'),

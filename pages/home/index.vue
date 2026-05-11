@@ -36,13 +36,13 @@ await useLazyFetch(`/api/wallet`, {
 //cards info data
 const cardInfoData = computed(() => [
     {
-        title: t('transactions.monthlyIncome'),
+        title: t('transactions.totalIncome'),
         iconName: 'i-heroicons-banknotes-20-solid',
         amount: incoming.value.toFixed(2),
         textColor: 'text-green-800',
     },
     {
-        title: t('transactions.monthlyExpenses'),
+        title: t('transactions.totalExpenses'),
         iconName: 'i-heroicons-briefcase-solid',
         amount: outgoing.value.toFixed(2),
         textColor: 'text-red-800',

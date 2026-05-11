@@ -31,7 +31,7 @@ interface CardProps {
     isTransformed: string;
     isAnonymized: string;
     isEncrypted: string;
-    isStream: boolean;
+    hasAccessService: boolean;
 }
 
 const props = withDefaults(defineProps<CardProps>(), {
@@ -69,6 +69,11 @@ const fileExtension = computed(() => {
     return props.format.toLowerCase();
 });
 const isEnrichmentDisabled = computed(() => ['pdf', 'xml'].includes(fileExtension.value));
+
+const hasKafkaStreamTitle = computed(
+    () => props.title.toLowerCase() === 'kafka stream' && props.format.toLowerCase() === 'csv',
+);
+const isStream = computed(() => props.hasAccessService || hasKafkaStreamTitle.value);
 
 onMounted(() => {
     fetchMetadata();

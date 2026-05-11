@@ -49,6 +49,22 @@ function toggleInvestSlider() {
     model.value = allInvestOffersOn.value ? allInvestOffers : [];
 }
 
+const hasBothInvestmentOfferFacets = computed(() => {
+    if (props.title !== 'Investment Offer') return false;
+
+    const ids = props.facets.map((f) => f.id);
+
+    return ids.includes('true') && ids.includes('false');
+});
+
+watch(
+    () => model.value,
+    (val) => {
+        allInvestOffersOn.value = Array.isArray(val) && val.includes('true') && val.includes('false');
+    },
+    { immediate: true },
+);
+
 const allStreamDataOn = ref(false);
 
 function toggleStreamSlider() {
@@ -176,7 +192,7 @@ onMounted(() => {
             />
         </template>
         <div
-            v-if="props.title === 'Investment Offer'"
+            v-if="props.title === 'Investment Offer' && hasBothInvestmentOfferFacets"
             class="flex justify-between items-center py-3 text-surface-text px-3 text-sm border-b border-surface-200"
             :class="{
                 'border-b border-b-primary bg-primary-light font-semibold': allInvestOffersOn,
