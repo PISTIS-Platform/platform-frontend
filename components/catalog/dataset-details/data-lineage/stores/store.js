@@ -61,7 +61,7 @@ export const useStore = defineStore('store', () => {
     // ========================================
 
     // Dataset UUIDs whose raw data lives in another factory: every ancestor of
-    // a Transfer node via derived_from. The Transfer node itself is local.
+    // a Purchase node via derived_from. The Purchase node itself is local.
     const externalUuids = computed(() => {
         const external = new Set();
         const data = familyTreeData.value;
@@ -86,7 +86,7 @@ export const useStore = defineStore('store', () => {
             }
         }
 
-        const transferUuids = Object.keys(nodeByUuid).filter((uuid) => nodeByUuid[uuid].operations.has('TRANSFER'));
+        const transferUuids = Object.keys(nodeByUuid).filter((uuid) => nodeByUuid[uuid].operations.has('PURCHASE'));
 
         for (const tUuid of transferUuids) {
             let current = nodeByUuid[tUuid].derived_from;
@@ -335,8 +335,10 @@ export const useStore = defineStore('store', () => {
             return 'DATASET UPDATED';
         } else if (operationUpper === 'PUBLISH') {
             return 'DATASET PUBLISHED';
-        } else if (operationUpper === 'TRANSFER') {
-            return 'DATASET TRANSFERRED';
+        } else if (operationUpper === 'PURCHASE') {
+            return 'DATASET PURCHASED';
+        } else if (operationUpper === 'APPEND') {
+            return 'DATASET APPENDED';
         }
         return operation || 'Unknown';
     };
@@ -367,7 +369,7 @@ export const useStore = defineStore('store', () => {
                         : record.user_group;
                     const userDisplay = userGroup ? `${userGroup} ${record.username}` : record.username;
 
-                    // Add description for CREATE, PUBLISH, and TRANSFER operations
+                    // Add description for CREATE, PUBLISH, PURCHASE, and APPEND operations
                     const operationUpper = String(record.operation).toUpperCase();
                     let activityDescription = null;
                     if (operationUpper === 'CREATE') {
@@ -376,9 +378,17 @@ export const useStore = defineStore('store', () => {
                     } else if (operationUpper === 'PUBLISH') {
                         activityDescription =
                             'Dataset was published to the PISTIS cloud marketplace and made available for discovery and purchase.';
-                    } else if (operationUpper === 'TRANSFER') {
+                    } else if (operationUpper === 'PURCHASE') {
                         activityDescription =
-                            "Dataset was transferred from the seller's factory to the buyer's factory following a successful purchase.";
+                            'Dataset was purchased on the PISTIS marketplace and transferred into this factory.';
+                    } else if (operationUpper === 'APPEND') {
+                        const od = record.operation_description;
+                        if (od && od.rows_prev != null && od.rows_new != null) {
+                            const added = od.rows_new - od.rows_prev;
+                            activityDescription = `New records were appended to the dataset: ${od.rows_prev} → ${od.rows_new} rows (+${added}).`;
+                        } else {
+                            activityDescription = 'New records were appended to the dataset.';
+                        }
                     }
 
                     // Handle timestamp override for GDPR Check
