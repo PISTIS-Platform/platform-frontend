@@ -528,16 +528,6 @@ const handleLicenseOpen = (value) => {
                     <div v-if="pistisMode == 'factory'" class="flex gap-x-3">
                         <div v-if="!isEncrypted" class="flex gap-x-3">
                             <UButton
-                                v-if="!isStream && answersLog"
-                                variant="solid"
-                                color="primary"
-                                size="sm"
-                                icon="i-heroicons-arrow-down-tray"
-                                @click="showReport()"
-                            >
-                                {{ $t('catalogue.downloadGDPR') }}
-                            </UButton>
-                            <UButton
                                 variant="solid"
                                 color="primary"
                                 size="sm"
@@ -562,7 +552,6 @@ const handleLicenseOpen = (value) => {
                             </UButtonGroup>
                         </div>
                         <div v-if="isEncrypted" class="flex gap-x-3">
-                            <!-- TODO: once ready, add :disabled="decryptInProgress" -->
                             <UButton
                                 variant="solid"
                                 color="primary"

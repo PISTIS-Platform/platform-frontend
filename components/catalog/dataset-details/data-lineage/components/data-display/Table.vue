@@ -231,8 +231,14 @@
                                             </ul>
                                         </div>
 
-                                        <!-- Data Changes -->
-                                        <div v-if="row.operation_description.data_changes" class="detail-item">
+                                        <!-- Data Changes (hidden for Append: redundant with the row count above) -->
+                                        <div
+                                            v-if="
+                                                row.operation_description.data_changes &&
+                                                row.activity !== 'DATASET APPENDED'
+                                            "
+                                            class="detail-item"
+                                        >
                                             <div class="detail-header">
                                                 <span class="detail-intro">
                                                     <strong>Data Changes:</strong>
@@ -1539,11 +1545,11 @@ tbody tr.highlighted-red td.version-column {
 .detail-item {
     font-size: 0.95em;
     line-height: 1.4;
-    padding: 12px 16px;
-    border-left: 2px solid #5632d0;
-    margin: 8px 0;
-    background-color: rgba(86, 50, 208, 0.03);
-    border-radius: 0 6px 6px 0;
+    padding: 8px 10px;
+    border-left: 3px solid #5632d0;
+    margin: 4px 0;
+    background-color: rgba(86, 50, 208, 0.05);
+    border-radius: 4px;
 }
 
 .detail-label {

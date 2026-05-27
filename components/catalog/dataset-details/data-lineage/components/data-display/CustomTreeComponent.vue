@@ -703,7 +703,7 @@ const isNodeRestricted = (nodeId) => {
 };
 
 // Dataset UUIDs whose raw data lives in another factory: every ancestor of a
-// Transfer node via derived_from. The Transfer node itself is local.
+// Purchase node via derived_from. The Purchase node itself is local.
 const externalUuids = computed(() => {
     const external = new Set();
     if (!props.data) return external;
@@ -727,7 +727,7 @@ const externalUuids = computed(() => {
         }
     }
 
-    const transferUuids = Object.keys(nodeByUuid).filter((uuid) => nodeByUuid[uuid].operations.has('TRANSFER'));
+    const transferUuids = Object.keys(nodeByUuid).filter((uuid) => nodeByUuid[uuid].operations.has('PURCHASE'));
 
     for (const tUuid of transferUuids) {
         let current = nodeByUuid[tUuid].derived_from;
