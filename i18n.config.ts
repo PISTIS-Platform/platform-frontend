@@ -429,7 +429,19 @@ export default defineI18nConfig(() => ({
                         datasetSelector: 'Click here to select or search for a published dataset',
                     },
                 },
-
+                valuation: {
+                    title: 'Data Valuation',
+                    header: 'Data Valuation Configuration',
+                    info: 'Select a data offer and create your context by configuring the importance of each data value dimension',
+                    submit: 'Submit Data Valuation',
+                    labels: {
+                        important: 'Important',
+                        somewhatImportant: 'Somewhat Important',
+                        notImportant: 'Not Important',
+                        veryImportant: 'Very Important',
+                        critical: 'Critical',
+                    },
+                },
                 workflow: {
                     runId: 'Run ID',
                     start_date: 'Start Date',
@@ -464,6 +476,8 @@ export default defineI18nConfig(() => ({
                         dqa: 'Data Quality',
                         dqaExplanation:
                             'Quality is a key factor for data value. We assess it for relevant metrics: accuracy, consistency, completeness, uniqueness, validity.',
+                        privacy: 'Privacy',
+                        privacyExplanation: '',
                     },
                     numberOfResell: 'Number of times the dataset can be resold',
                     numberOfShare: 'Number of times the dataset can be shared',
