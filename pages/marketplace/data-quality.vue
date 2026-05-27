@@ -6,7 +6,9 @@ import type { Dimension } from '~/constants/quality-rules';
 import { availableRules, dimensions, ruleDetails } from '~/constants/quality-rules';
 
 // --- Dataset loading state ---
-const showTutorial = ref(true);
+const route = useRoute();
+const hasRouteAssetId = computed(() => !!route.query.id);
+const showTutorial = ref(false);
 const steps = [
     {
         label: 'Step 1: Choose a Dataset',
@@ -87,12 +89,9 @@ watch(selected, () => {
     queryResult.value = null;
 });
 
-const { data: datasetsData } = useFetch<Record<string, any>[]>(`/api/datasets/get-all-foreign-offers`, {
-    query: {
-        nonFree: true,
-    },
-    server: true,
-});
+const { data: datasetsData, status: datasetsStatus } = useAsyncData<Record<string, any>[]>(() =>
+    $fetch('/api/datasets/get-all-foreign-offers', { query: { nonFree: true } }),
+);
 
 const sortByDateDesc = R.sortWith([R.descend(R.prop('modified'))]);
 
@@ -111,12 +110,39 @@ const transformedDatasets = computed(() => {
     );
 });
 
+// Pre-select from loaded list when ?id is in the route
+watch(
+    transformedDatasets,
+    (datasets) => {
+        if (!datasets.length || !hasRouteAssetId.value || selected.value) return;
+        const match = datasets.find((d) => d.id === route.query.id);
+        if (match) selected.value = match;
+    },
+    { immediate: true },
+);
+
+const assetNotFound = computed(
+    () =>
+        hasRouteAssetId.value &&
+        datasetsStatus.value === 'success' &&
+        !transformedDatasets.value.some((d) => d.id === route.query.id),
+);
+
+const isDatasetLocked = computed(() => hasRouteAssetId.value && !!selected.value && !assetNotFound.value);
+
+const datasetColumns = computed<string[]>(() => {
+    const columns = selected.value?.distributions?.[0]?.pistis_schema?.table_schema?.column;
+    if (!Array.isArray(columns)) return [];
+    return columns.map((col: Record<string, any>) => col.column_name).filter(Boolean);
+});
+
 // Dimensions
 // const dimensions = ['accuracy', 'consistency', 'completeness', 'uniqueness', 'validity'];
 // State
 const selectedDimension = ref<'all' | Dimension>('all');
 const expandedDimensions = reactive({});
 dimensions.forEach((dim) => (expandedDimensions[dim] = false));
+const ruleSearch = ref('');
 const tempKeyword = ref('');
 const selectedRules = ref([]);
 const selectedRule = ref(null);
@@ -125,20 +151,37 @@ const invalidFields = ref(new Set());
 const invalidRuleIds = ref(new Set());
 const queryResult = ref(null);
 const dimensionRows = computed(() => {
-    if (!queryResult.value ?? !queryResult.value.content) return [];
-
+    if (!queryResult.value || !queryResult.value.content) return [];
     const scores = queryResult.value.content.dimension_scores ?? {};
-
     return dimensions.map((dimension) => {
-        const score = scores[dimension];
+        const score = scores[dimension] as number | null;
+        return { dimension, score };
+    });
+});
 
+const reportRows = computed(() => {
+    const report = queryResult.value?.content?.report;
+    if (!Array.isArray(report)) return [];
+    return report.map((item: Record<string, any>) => {
+        const kwargs = { ...(item.expectation_config?.kwargs ?? {}) } as Record<string, any>;
+        delete kwargs.batch_id;
+        const kwargsText =
+            Object.entries(kwargs)
+                .map(([k, v]) => `${k}: ${v}`)
+                .join(' · ') || 'No kwargs';
         return {
-            dimension,
-            score: score,
-            status: score === null ? 'Not Evaluated' : score === 1 ? '✅ Pass' : score === 0 ? '❌ Fail' : '',
+            success: item.success as boolean,
+            name: (item.expectation_config?.meta?.name || item.expectation_config?.type || '—') as string,
+            column: (kwargs.column ?? '—') as string,
+            dimension: (item.expectation_config?.meta?.['DQ-dim'] ?? '—') as string,
+            hasException: (item.exception_info?.raised_exception ?? false) as boolean,
+            exceptionMessage: (item.exception_info?.exception_message ?? null) as string | null,
+            kwargsText,
         };
     });
 });
+
+const queryResultAllPass = computed(() => reportRows.value.length > 0 && reportRows.value.every((r) => r.success));
 
 // Drag & Drop
 function onDragStart(ruleId) {
@@ -153,18 +196,31 @@ function onDrop(event) {
 
 // Filtering
 const filteredRulesByDimension = computed(() => {
+    const search = ruleSearch.value.trim().toLowerCase();
+    const rules = search
+        ? availableRules.filter(
+              (rule) => rule.name.toLowerCase().includes(search) || rule.description.toLowerCase().includes(search),
+          )
+        : availableRules;
+
     if (selectedDimension.value === 'all') {
-        // Group by dimension
-        return availableRules.reduce((acc, rule) => {
+        return rules.reduce((acc, rule) => {
             acc[rule.dimension] = acc[rule.dimension] ?? [];
             acc[rule.dimension].push(rule);
             return acc;
         }, {});
     } else {
         return {
-            [selectedDimension.value]: availableRules.filter((rule) => rule.dimension === selectedDimension.value),
+            [selectedDimension.value]: rules.filter((rule) => rule.dimension === selectedDimension.value),
         };
     }
+});
+
+watch(ruleSearch, (term) => {
+    if (!term.trim()) return;
+    Object.keys(filteredRulesByDimension.value).forEach((dim) => {
+        expandedDimensions[dim] = true;
+    });
 });
 
 // Expand/collapse logic
@@ -183,6 +239,8 @@ function addRuleToSelected(rule) {
             specificDataDefaults[field.id] = false;
         } else if (field.type === 'number') {
             specificDataDefaults[field.id] = null;
+        } else if (field.type === 'list' || field.type === 'column_list') {
+            specificDataDefaults[field.id] = [];
         } else {
             specificDataDefaults[field.id] = '';
         }
@@ -404,6 +462,21 @@ function addKeyword(fieldId: string) {
 function removeKeyword(fieldId: string, index: number) {
     selectedRule.value.specificData[fieldId].splice(index, 1);
 }
+
+function addColumnToList(fieldId: string, column: string) {
+    if (!column) return;
+    if (!Array.isArray(selectedRule.value.specificData[fieldId])) {
+        selectedRule.value.specificData[fieldId] = [];
+    }
+    if (!selectedRule.value.specificData[fieldId].includes(column)) {
+        selectedRule.value.specificData[fieldId].push(column);
+    }
+}
+
+function testButton() {
+    console.log(selected.value);
+    console.log(datasetColumns.value);
+}
 </script>
 
 <template>
@@ -417,6 +490,7 @@ function removeKeyword(fieldId: string, index: number) {
                     {{ t('data.quality.headers.title') }}
                 </h3>
                 <div class="mb-4 flex justify-end">
+                    <UButton size="sm" color="green" variant="soft" @click="testButton">Test Button</UButton>
                     <UButton size="sm" color="gray" variant="soft" @click="showTutorial = !showTutorial">
                         {{ showTutorial ? 'Hide Tutorial' : 'Show Tutorial' }}
                     </UButton>
@@ -435,7 +509,22 @@ function removeKeyword(fieldId: string, index: number) {
             </UCard>
 
             <!-- Dataset Selector -->
-            <UCard>
+            <UProgress v-if="datasetsStatus === 'pending'" animation="carousel" />
+            <UAlert
+                v-if="assetNotFound"
+                :title="$t('data.designer.error.noAssetFound')"
+                color="red"
+                variant="subtle"
+                icon="nonicons:not-found-16"
+            />
+            <UAlert
+                v-if="datasetsStatus === 'success' && (!datasetsData || !datasetsData.length)"
+                :title="$t('data.designer.error.noAssetsFound')"
+                color="yellow"
+                variant="subtle"
+                icon="nonicons:not-found-16"
+            />
+            <UCard v-show="datasetsStatus !== 'pending'">
                 <template #header>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-4">
@@ -462,6 +551,7 @@ function removeKeyword(fieldId: string, index: number) {
                     :options="transformedDatasets"
                     option-attribute="title"
                     :placeholder="$t('data.quality.placeholder.datasetSelector')"
+                    :disabled="isDatasetLocked"
                 >
                     <template #option="{ option: dataset }">
                         <div class="flex flex-col gap-0.5">
@@ -471,49 +561,123 @@ function removeKeyword(fieldId: string, index: number) {
                     </template>
                 </USelectMenu>
             </UCard>
-            <!-- <section class="bg-white rounded-lg shadow p-6 border border-gray-200">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <label class="font-semibold text-gray-700 text-sm">
-                            {{ t('data.quality.headers.selectData') }}
-                        </label>
-                        <select v-model="selectedDataset"
-                            class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
-                            @change="$event.target.blur()">
-                            <option v-for="ds in datasets" :key="ds.id" :value="ds">
-                                {{ getDatasetDisplayTitle(ds) }}
-                            </option>
-                        </select>
-                    </div>
-                    <div>
-                        <button class="bg-secondary-500 text-white px-3 py-2 rounded text-sm hover:bg-secondary-600"
-                            @click="exportStagedRules">
-                            {{ t('data.quality.button.sendQuery') }}
-                        </button>
-                    </div>
+            <!-- Query result display -->
+            <section v-if="queryResult" class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+                <!-- Status banner -->
+                <div
+                    :class="[
+                        'px-6 py-4 flex items-center gap-3 border-b',
+                        queryResultAllPass ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
+                    ]"
+                >
+                    <UIcon
+                        :name="queryResultAllPass ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"
+                        :class="['w-6 h-6', queryResultAllPass ? 'text-green-600' : 'text-red-600']"
+                    />
+                    <span :class="['font-semibold text-lg', queryResultAllPass ? 'text-green-800' : 'text-red-800']">
+                        {{ queryResultAllPass ? 'All checks passed' : 'Some checks failed' }}
+                    </span>
+                    <UBadge :color="queryResultAllPass ? 'green' : 'red'" variant="soft" class="ml-auto">
+                        {{ reportRows.filter((r) => r.success).length }} / {{ reportRows.length }} passed
+                    </UBadge>
                 </div>
-            </section> -->
-            <section v-if="queryResult" class="bg-white rounded-lg shadow p-6 border border-gray-200">
-                <table class="min-w-full text-sm text-left text-gray-700">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th>Dimension</th>
-                            <th>Score (0-1)</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
+
+                <!-- Dimension score cards -->
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Dimension Scores</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <div
                             v-for="row in dimensionRows"
                             :key="row.dimension"
-                            :class="row.score === 1 ? 'bg-green-50' : row.score === 0 ? 'bg-red-50' : 'bg-gray-50'"
+                            :class="[
+                                'rounded-lg p-4 text-center border',
+                                row.score === 1
+                                    ? 'bg-green-50 border-green-200'
+                                    : row.score === 0
+                                      ? 'bg-red-50 border-red-200'
+                                      : 'bg-gray-50 border-gray-200',
+                            ]"
                         >
-                            <td class="capitalize">{{ row.dimension }}</td>
-                            <td>{{ typeof row.score === 'number' ? row.score.toFixed(2) : '—' }}</td>
-                            <td>{{ row.status }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                            <div
+                                :class="[
+                                    'text-xs font-semibold uppercase tracking-wide mb-1 capitalize',
+                                    row.score === 1
+                                        ? 'text-green-600'
+                                        : row.score === 0
+                                          ? 'text-red-600'
+                                          : 'text-gray-400',
+                                ]"
+                            >
+                                {{ row.dimension }}
+                            </div>
+                            <div
+                                :class="[
+                                    'text-2xl font-bold',
+                                    row.score === 1
+                                        ? 'text-green-700'
+                                        : row.score === 0
+                                          ? 'text-red-700'
+                                          : 'text-gray-400',
+                                ]"
+                            >
+                                {{ row.score !== null ? Math.round(row.score * 100) + '%' : '—' }}
+                            </div>
+                            <div
+                                :class="[
+                                    'text-xs mt-1',
+                                    row.score === 1
+                                        ? 'text-green-500'
+                                        : row.score === 0
+                                          ? 'text-red-500'
+                                          : 'text-gray-400',
+                                ]"
+                            >
+                                {{ row.score === null ? 'Not evaluated' : row.score === 1 ? 'Pass' : 'Fail' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Per-rule results -->
+                <div class="p-6">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Rule Results</h3>
+                    <table class="min-w-full text-sm text-left">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="pb-2 pr-4 font-semibold text-gray-500">Rule</th>
+                                <th class="pb-2 pr-4 font-semibold text-gray-500">Column</th>
+                                <th class="pb-2 pr-4 font-semibold text-gray-500">Dimension</th>
+                                <th class="pb-2 font-semibold text-gray-500 text-right">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr v-for="(row, i) in reportRows" :key="i">
+                                <td class="py-3 pr-4">
+                                    <UTooltip :text="row.kwargsText">
+                                        <span class="font-mono text-xs text-gray-700 cursor-help">{{ row.name }}</span>
+                                    </UTooltip>
+                                </td>
+                                <td class="py-3 pr-4 text-gray-600">{{ row.column }}</td>
+                                <td class="py-3 pr-4">
+                                    <UBadge color="blue" variant="soft" size="xs" class="capitalize">{{
+                                        row.dimension
+                                    }}</UBadge>
+                                </td>
+                                <td class="py-3 text-right">
+                                    <UTooltip
+                                        v-if="row.hasException"
+                                        :text="row.exceptionMessage ?? 'An exception occurred'"
+                                    >
+                                        <UBadge color="orange" variant="soft" size="xs">Exception</UBadge>
+                                    </UTooltip>
+                                    <UBadge v-else :color="row.success ? 'green' : 'red'" variant="soft" size="xs">
+                                        {{ row.success ? 'Pass' : 'Fail' }}
+                                    </UBadge>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
             <!-- Zones -->
             <div class="flex flex-col md:flex-row gap-8 min-h-[500px]">
@@ -536,6 +700,23 @@ function removeKeyword(fieldId: string, index: number) {
                             </select>
                         </div>
                     </div>
+                    <UInput
+                        v-model="ruleSearch"
+                        placeholder="Search rules..."
+                        icon="i-heroicons-magnifying-glass"
+                        class="mb-4"
+                        :ui="{ icon: { trailing: { pointer: '' } } }"
+                    >
+                        <template v-if="ruleSearch" #trailing>
+                            <UButton
+                                color="gray"
+                                variant="link"
+                                icon="i-heroicons-x-mark-20-solid"
+                                :padded="false"
+                                @click="ruleSearch = ''"
+                            />
+                        </template>
+                    </UInput>
                     <div>
                         <div v-for="(rules, dimension) in filteredRulesByDimension" :key="dimension" class="mb-4">
                             <div
@@ -729,6 +910,61 @@ function removeKeyword(fieldId: string, index: number) {
                                         :class="invalidFields.has(field.id) ? 'border-red-500 ring-1 ring-red-400' : ''"
                                     />
                                     <span class="text-gray-700 text-sm">{{ field.label }}</span>
+                                </div>
+
+                                <!-- Column selector -->
+                                <USelectMenu
+                                    v-else-if="field.type === 'column'"
+                                    v-model="selectedRule.specificData[field.id]"
+                                    :options="datasetColumns"
+                                    :placeholder="field.placeholder || 'Select a column'"
+                                    :class="invalidFields.has(field.id) ? 'ring-1 ring-red-500' : ''"
+                                />
+
+                                <!-- Column list -->
+                                <div v-else-if="field.type === 'column_list'">
+                                    <USelectMenu
+                                        :model-value="null"
+                                        :options="
+                                            datasetColumns.filter(
+                                                (c) => !(selectedRule.specificData[field.id] || []).includes(c),
+                                            )
+                                        "
+                                        :placeholder="field.placeholder || 'Select a column to add'"
+                                        :class="['mb-2', invalidFields.has(field.id) ? 'ring-1 ring-red-500' : '']"
+                                        @update:model-value="addColumnToList(field.id, $event)"
+                                    />
+                                    <div class="flex flex-wrap gap-3 mt-2 p-1 max-h-[168px] overflow-y-auto">
+                                        <div
+                                            v-for="(column, index) in selectedRule.specificData[field.id] || []"
+                                            :key="index"
+                                            class="group inline-flex items-center bg-gray-50 border rounded px-3 py-2 min-h-[44px] flex-none max-w-[320px]"
+                                            :title="column"
+                                        >
+                                            <div class="truncate text-sm mr-3 max-w-[240px]">{{ column }}</div>
+                                            <button
+                                                type="button"
+                                                aria-label="Remove"
+                                                class="ml-2 p-1 rounded text-gray-400 hover:text-red-500 transition-opacity duration-150 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                title="Remove"
+                                                @click="removeKeyword(field.id, index)"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    class="h-4 w-4"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M10 8.586L15.95 2.636a1 1 0 111.414 1.414L11.414 10l5.95 5.95a1 1 0 11-1.414 1.414L10 11.414l-5.95 5.95A1 1 0 012.636 15.95L8.586 10 2.636 4.05A1 1 0 014.05 2.636L10 8.586z"
+                                                        clip-rule="evenodd"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Default input (text/number/etc.) -->
