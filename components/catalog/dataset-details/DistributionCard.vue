@@ -189,7 +189,7 @@ async function decryptFile() {
     try {
         await axios.post(
             decryptUrl,
-            { assetId },
+            { assetId, distributionId: props.distributionId, datasetId: props.datasetId },
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
