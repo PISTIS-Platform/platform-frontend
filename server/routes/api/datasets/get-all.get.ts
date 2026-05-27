@@ -5,6 +5,7 @@ const {
 export default defineEventHandler(async (_event) => {
     const session = _event.context.session;
 
+    // Get all datasets in the My Data catalogue
     const catalogResults: string[] = await $fetch(`${factoryUrl}/srv/search/datasets?catalogue=my-data`, {
         method: 'GET',
         headers: {
