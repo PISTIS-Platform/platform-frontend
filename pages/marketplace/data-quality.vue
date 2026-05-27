@@ -472,11 +472,6 @@ function addColumnToList(fieldId: string, column: string) {
         selectedRule.value.specificData[fieldId].push(column);
     }
 }
-
-function testButton() {
-    console.log(selected.value);
-    console.log(datasetColumns.value);
-}
 </script>
 
 <template>
@@ -490,7 +485,6 @@ function testButton() {
                     {{ t('data.quality.headers.title') }}
                 </h3>
                 <div class="mb-4 flex justify-end">
-                    <UButton size="sm" color="green" variant="soft" @click="testButton">Test Button</UButton>
                     <UButton size="sm" color="gray" variant="soft" @click="showTutorial = !showTutorial">
                         {{ showTutorial ? 'Hide Tutorial' : 'Show Tutorial' }}
                     </UButton>
