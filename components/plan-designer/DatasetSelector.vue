@@ -341,10 +341,9 @@ const filteredRowsCount = ref<number | null>(null);
 
 const fetchFilteredRows = async () => {
     const { dateColumn, fromDate, toDate } = queryPayload.value.dateRange;
-    const assetUuid = props.selected?.id;
+    const accessUrl = props.assetOfferingDetails?.selectedDistribution?.access_url?.[0];
+    const assetUuid = accessUrl ? new URL(accessUrl).searchParams.get('asset_uuid') : null;
     if (!dateColumn || !fromDate || !toDate || !assetUuid) return;
-
-    const dateColumnType = columns.value.find((c) => c.columnName === dateColumn)?.columnType ?? 'date';
 
     filteredRowsStatus.value = 'pending';
     filteredRowsCount.value = null;
@@ -353,12 +352,12 @@ const fetchFilteredRows = async () => {
             query: {
                 assetUuid,
                 columnName: dateColumn,
-                columnDatatype: dateColumnType,
+                columnDatatype: 'date',
                 startDate: new Date(fromDate).toUTCString(),
                 endDate: new Date(toDate).toUTCString(),
             },
         });
-        filteredRowsCount.value = Array.isArray(response) ? response.length : null;
+        filteredRowsCount.value = (response as { data: { rows: unknown[] } }[])?.[0]?.data?.rows?.length ?? null;
         filteredRowsStatus.value = 'success';
     } catch {
         filteredRowsStatus.value = 'error';
