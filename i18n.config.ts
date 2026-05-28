@@ -558,7 +558,7 @@ export default defineI18nConfig(() => ({
                     completeDistribution: 'Complete Distribution',
                     selectDistribution: 'Select the complete distribution',
                     queryFilter: 'Query / Filter',
-                    selectQueryFilter: 'Select a subset of the distribution',
+                    selectQueryFilter: 'Select a subset of the distribution (available only in SQL distributions)',
                     distributionSelected: 'Distribution Selected',
                     distributionSelectedInfo:
                         'Information about the distribution of the dataset you have chosen to publish to the market',
