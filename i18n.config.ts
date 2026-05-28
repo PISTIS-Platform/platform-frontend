@@ -477,6 +477,8 @@ export default defineI18nConfig(() => ({
                             fromDate: 'From Date',
                             to: 'to',
                             toDate: 'To Date',
+                            noDateColumns:
+                                'No date columns available. The distribution must contain at least one column with a date, datetime, or timestamp type.',
                         },
                         submit: {
                             success: 'Query filter successfully saved',

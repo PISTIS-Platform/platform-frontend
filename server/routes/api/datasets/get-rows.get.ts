@@ -7,14 +7,13 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event);
 
     const toYMD = (d: string) => new Date(d).toISOString().slice(0, 10);
-    const today = toYMD(new Date().toISOString());
 
     const params = {
         asset_uuid: query.assetUuid,
         column_name: query.columnName,
-        column_datatype: query.columnDatatype,
-        start_date: query.startDate ? toYMD(query.startDate as string) : today,
-        end_date: query.endDate ? toYMD(query.endDate as string) : today,
+        column_datatype: 'date',
+        start_date: toYMD(query.startDate as string),
+        end_date: toYMD(query.endDate as string),
     };
 
     return await $fetch(`${factoryUrl}/srv/factory-data-storage/api/tables/get_rows`, {
