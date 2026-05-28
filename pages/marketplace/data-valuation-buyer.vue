@@ -87,28 +87,39 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
 
 import { useI18n } from '#imports';
 
 const { t } = useI18n();
 import * as R from 'ramda';
 
-const route = useRoute();
+// const route = useRoute();
 
-const dataValuationPayload = ref({
+const notification = ref('');
+
+// Notification logic
+function showNotification(msg) {
+    notification.value = msg;
+    setTimeout(() => (notification.value = ''), 2500);
+}
+
+const offerMetadata = ref({
     ownerFactoryURL: '',
     distributionId: '',
     datasetId: '',
     accessURL: '',
+    organizationId: '',
 });
 
 const selected = ref<
     | {
           id: string;
           title: string;
-          description: string;
           distributions: Record<string, any>[];
+          monetization: Record<string, any>;
+          offer: {
+              original_id: string;
+          };
       }
     | undefined
 >(undefined);
@@ -116,16 +127,20 @@ const selected = ref<
 watch(selected, () => {
     if (!selected.value) return;
     const distribution = selected.value.distributions?.[0];
-    dataValuationPayload.value.accessURL = distribution?.access_url?.[0];
+    offerMetadata.value.accessURL = distribution?.access_url?.[0];
     try {
-        const url = new URL(dataValuationPayload.value.accessURL || '');
-        dataValuationPayload.value.ownerFactoryURL = `${url.protocol}//${url.host}/`;
+        const url = new URL(offerMetadata.value.accessURL || '');
+        offerMetadata.value.ownerFactoryURL = `${url.protocol}//${url.host}/`;
     } catch (e) {
         // ignore invalid URL
     }
+    offerMetadata.value.datasetId = selected.value.offer.original_id || '';
+    offerMetadata.value.distributionId = distribution?.id || '';
+    offerMetadata.value.organizationId =
+        selected.value.monetization?.[0]?.purchase_offer?.[0]?.publisher?.organization_id || '';
 });
 
-const { data: datasetsData } = useFetch<Record<string, any>[]>(`/api/datasets/get-all-foreign-offers`, {
+const { data: datasetsData } = useFetch<Record<string, any>[]>(`/api/datasets/get-all-foreign-offers-valuation`, {
     query: {
         nonFree: true,
     },
@@ -142,8 +157,9 @@ const transformedDatasets = computed(() => {
         datasetsData.value.map((dataset: Record<string, any>) => ({
             id: dataset.id,
             title: dataset.title.en,
-            description: dataset.description.en,
             distributions: dataset.distributions,
+            monetization: dataset.monetization,
+            offer: dataset.offer,
             modified: dataset.modified,
         })),
     );
@@ -159,9 +175,9 @@ const items = ref([
     { title: t('data.designer.valuation.dqa'), value: 0.5 },
 ]);
 
-const submitUrl = computed(() => {
-    return (route?.query?.submitUrl as string) || '';
-});
+// const submitUrl = computed(() => {
+//     return (route?.query?.submitUrl as string) || '';
+// });
 
 function getLabel(value: number) {
     const labels = [
@@ -175,17 +191,41 @@ function getLabel(value: number) {
 }
 
 async function submit() {
-    const url = submitUrl.value;
-    if (!url) {
-        console.warn('No submitUrl provided. Add ?submitUrl=<target> to the route.');
+    console.log('Selected offer:', selected.value);
+    if (!selected.value) {
+        console.warn('No dataset selected. Please select a dataset before submitting.');
+        showNotification({
+            type: 'warning',
+            message: t('data.valuation.validation.noDataset'),
+        });
         return;
     }
 
+    const dvsUrl = `${offerMetadata.value.ownerFactoryURL}api/datavalue/`;
+
+    const dvsPayload = {
+        originalAssetId: offerMetadata.value.datasetId,
+        distributionId: offerMetadata.value.distributionId,
+        organizationId: offerMetadata.value.organizationId,
+        weights: items.value.reduce((acc, item) => {
+            let key = item.title.toLowerCase().replace(/\s+/g, '_');
+            if (key == 'data_quality') {
+                key = 'dqa';
+            }
+            acc[key] = item.value;
+            return acc;
+        }, {}),
+    };
+
+    console.log('Submitting valuation to:', dvsUrl);
+    // console.log('Submitting valuation with payload:', dvsPayload);
+    console.log('Submitting valuation with payload - stringified:', JSON.stringify(dvsPayload, null, 2));
+
     try {
-        const response = await fetch(url, {
+        const response = await fetch(dvsUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: items.value }),
+            body: JSON.stringify(dvsPayload),
         });
 
         if (!response.ok) {
@@ -201,40 +241,6 @@ async function submit() {
     }
 }
 </script>
-
-<!--style scoped>
-.data-valuation-config {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-}
-.slider-container {
-  margin-bottom: 20px;
-}
-.slider-container label {
-  display: block;
-  margin-bottom: 5px;
-}
-.slider-container input {
-  width: 100%;
-}
-.slider-container span {
-  display: block;
-  margin-top: 5px;
-  font-weight: bold;
-}
-button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-button:hover {
-  background-color: #0056b3;
-}
-</style-->
 
 <style>
 .fade-enter-active,
