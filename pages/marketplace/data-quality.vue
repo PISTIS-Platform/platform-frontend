@@ -165,10 +165,7 @@ const reportRows = computed(() => {
     return report.map((item: Record<string, any>) => {
         const kwargs = { ...(item.expectation_config?.kwargs ?? {}) } as Record<string, any>;
         delete kwargs.batch_id;
-        const kwargsText =
-            Object.entries(kwargs)
-                .map(([k, v]) => `${k}: ${v}`)
-                .join(' · ') || 'No kwargs';
+        const kwargsEntries = Object.entries(kwargs).map(([k, v]) => ({ k, v }));
         return {
             success: item.success as boolean,
             name: (item.expectation_config?.meta?.name || item.expectation_config?.type || '—') as string,
@@ -176,7 +173,7 @@ const reportRows = computed(() => {
             dimension: (item.expectation_config?.meta?.['DQ-dim'] ?? '—') as string,
             hasException: (item.exception_info?.raised_exception ?? false) as boolean,
             exceptionMessage: (item.exception_info?.exception_message ?? null) as string | null,
-            kwargsText,
+            kwargsEntries,
         };
     });
 });
@@ -485,7 +482,13 @@ function addColumnToList(fieldId: string, column: string) {
                     {{ t('data.quality.headers.title') }}
                 </h3>
                 <div class="mb-4 flex justify-end">
-                    <UButton size="sm" color="gray" variant="soft" @click="showTutorial = !showTutorial">
+                    <UButton
+                        size="sm"
+                        color="gray"
+                        variant="soft"
+                        class="focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
+                        @click="showTutorial = !showTutorial"
+                    >
                         {{ showTutorial ? 'Hide Tutorial' : 'Show Tutorial' }}
                     </UButton>
                 </div>
@@ -530,7 +533,7 @@ function addColumnToList(fieldId: string, column: string) {
                         </div>
                         <div>
                             <button
-                                class="bg-secondary-500 text-white px-3 py-2 rounded text-sm hover:bg-secondary-600"
+                                class="bg-secondary-500 text-white px-3 py-2 rounded text-sm hover:bg-secondary-600 focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
                                 @click="exportStagedRules"
                             >
                                 {{ t('data.quality.button.sendQuery') }}
@@ -647,9 +650,25 @@ function addColumnToList(fieldId: string, column: string) {
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="(row, i) in reportRows" :key="i">
                                 <td class="py-3 pr-4">
-                                    <UTooltip :text="row.kwargsText">
+                                    <div class="relative group/kw inline-block">
                                         <span class="font-mono text-xs text-gray-700 cursor-help">{{ row.name }}</span>
-                                    </UTooltip>
+                                        <div
+                                            class="pointer-events-none absolute bottom-full left-0 mb-1.5 z-50 hidden group-hover/kw:block"
+                                        >
+                                            <div class="bg-gray-900 text-white text-xs rounded px-2.5 py-2 shadow-lg">
+                                                <div v-if="row.kwargsEntries.length" class="flex flex-col gap-1">
+                                                    <span
+                                                        v-for="entry in row.kwargsEntries"
+                                                        :key="entry.k"
+                                                        class="whitespace-nowrap"
+                                                    >
+                                                        <span class="font-semibold">{{ entry.k }}:</span> {{ entry.v }}
+                                                    </span>
+                                                </div>
+                                                <span v-else class="whitespace-nowrap">No kwargs</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="py-3 pr-4 text-gray-600">{{ row.column }}</td>
                                 <td class="py-3 pr-4">
@@ -802,7 +821,7 @@ function addColumnToList(fieldId: string, column: string) {
                             </label>
                             <input
                                 v-model="selectedRule.name"
-                                class="border rounded px-3 py-2 w-full"
+                                class="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
                                 placeholder="Enter a custom rule name"
                             />
                         </div>
@@ -812,7 +831,7 @@ function addColumnToList(fieldId: string, column: string) {
                             </label>
                             <textarea
                                 v-model="selectedRule.description"
-                                class="border rounded px-3 py-2 w-full"
+                                class="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
                                 rows="3"
                                 placeholder="Enter a description for this rule"
                             ></textarea>
@@ -827,7 +846,7 @@ function addColumnToList(fieldId: string, column: string) {
                                 min="0"
                                 max="1"
                                 step="0.01"
-                                class="border rounded px-3 py-2 w-full"
+                                class="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
                                 placeholder="Enter proportion of successfully validated rows to pass"
                             />
                         </div>
@@ -886,7 +905,7 @@ function addColumnToList(fieldId: string, column: string) {
                                     v-else-if="field.type === 'select'"
                                     v-model="selectedRule.specificData[field.id]"
                                     :class="[
-                                        'border rounded px-3 py-2 w-full',
+                                        'border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500',
                                         invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
                                     ]"
                                 >
@@ -900,7 +919,7 @@ function addColumnToList(fieldId: string, column: string) {
                                     <input
                                         v-model="selectedRule.specificData[field.id]"
                                         type="checkbox"
-                                        class="mr-2"
+                                        class="mr-2 accent-pistis-500 focus:ring-2 focus:ring-pistis-500"
                                         :class="invalidFields.has(field.id) ? 'border-red-500 ring-1 ring-red-400' : ''"
                                     />
                                     <span class="text-gray-700 text-sm">{{ field.label }}</span>
@@ -971,7 +990,7 @@ function addColumnToList(fieldId: string, column: string) {
                                     :max="field.max"
                                     :step="field.step"
                                     :class="[
-                                        'border rounded px-3 py-2 w-full',
+                                        'border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500',
                                         invalidFields.has(field.id) ? 'border-red-500 bg-red-50' : '',
                                     ]"
                                 />
@@ -986,14 +1005,14 @@ function addColumnToList(fieldId: string, column: string) {
                         <div class="flex gap-4">
                             <button
                                 type="button"
-                                class="bg-secondary-500 text-white px-4 py-2 rounded hover:bg-secondary-600 flex-1"
+                                class="bg-secondary-500 text-white px-4 py-2 rounded hover:bg-secondary-600 flex-1 focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
                                 @click="saveRuleDetails"
                             >
                                 {{ t('data.quality.button.saveDetails') }}
                             </button>
                             <button
                                 type="button"
-                                class="bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600 flex-1"
+                                class="bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600 flex-1 focus:outline-none focus:ring-2 focus:ring-pistis-500 focus:border-pistis-500"
                                 @click="removeSelectedRule"
                             >
                                 {{ t('data.quality.button.removeRule') }}
