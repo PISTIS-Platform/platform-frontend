@@ -20,6 +20,13 @@ const fiatAmount = ref<string>('0.00');
 const depositMethod = ref<'bank' | 'card'>('bank');
 const depositAmount = ref<string>('');
 
+const cardholderName = ref<string>('');
+const cardNumber = ref<string>('');
+const cardExpiry = ref<string>('');
+const cardCvv = ref<string>('');
+const cardBillingAddress = ref<string>('');
+const cardPostalCode = ref<string>('');
+
 const withdrawAmount = ref<string>('');
 const withdrawIban = ref<string>('');
 const withdrawRecipientName = ref<string>('');
@@ -51,6 +58,12 @@ const confirmExchange = async () => await $fetch('/api/wallet/exchange', { metho
 
 const cancelDeposit = () => {
     depositAmount.value = '';
+    cardholderName.value = '';
+    cardNumber.value = '';
+    cardExpiry.value = '';
+    cardCvv.value = '';
+    cardBillingAddress.value = '';
+    cardPostalCode.value = '';
     isDepositOpen.value = false;
 };
 
@@ -277,6 +290,57 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                         </div>
                     </div>
 
+                    <!-- Credit Card details -->
+                    <div v-else-if="depositMethod === 'card'" class="flex flex-col gap-3">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
+                                Cardholder Name
+                            </label>
+                            <UInput v-model="cardholderName" size="lg" placeholder="Jane Doe" />
+                        </div>
+
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
+                                Card Number
+                            </label>
+                            <UInput v-model="cardNumber" size="lg" placeholder="1234 5678 9012 3456" />
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
+                                    Expiry Date
+                                </label>
+                                <UInput v-model="cardExpiry" size="lg" placeholder="MM / YY" />
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
+                                    CVV / CVC
+                                </label>
+                                <UInput
+                                    v-model="cardCvv"
+                                    size="lg"
+                                    placeholder="···"
+                                    type="password"
+                                    maxlength="4"
+                                    @keypress="(e: KeyboardEvent) => !/\d/.test(e.key) && e.preventDefault()"
+                                />
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
+                                    Billing Address
+                                </label>
+                                <UInput v-model="cardBillingAddress" size="lg" placeholder="Street, City" />
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
+                                    Postal Code
+                                </label>
+                                <UInput v-model="cardPostalCode" size="lg" placeholder="12345" />
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                             Amount to Deposit (EUR)
@@ -291,11 +355,21 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                     </div>
 
                     <div class="flex gap-3">
-                        <UButton color="primary" variant="solid" icon="i-heroicons-check" @click="confirmDeposit">
+                        <UButton
+                            color="primary"
+                            variant="solid"
+                            :icon="depositMethod === 'card' ? 'i-heroicons-lock-closed' : 'i-heroicons-check'"
+                            @click="confirmDeposit"
+                        >
                             Confirm Deposit
                         </UButton>
                         <UButton color="white" variant="solid" @click="cancelDeposit">Cancel</UButton>
                     </div>
+
+                    <p v-if="depositMethod === 'card'" class="text-xs text-gray-500 flex items-center gap-1">
+                        <UIcon name="i-heroicons-lock-closed" class="w-4 h-4 shrink-0" />
+                        Your card data is encrypted and handled securely. PISTIS does not store card details.
+                    </p>
                 </div>
             </div>
 
