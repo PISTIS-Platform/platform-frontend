@@ -581,6 +581,7 @@ const generatePDF = () => {
                 </UCard>
             </div>
         </PageContainer>
+        <div class="pb-12" />
     </div>
 </template>
 

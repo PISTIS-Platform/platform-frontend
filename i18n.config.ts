@@ -920,6 +920,7 @@ export default defineI18nConfig(() => ({
                 account: 'Account',
                 factorySettings: 'Factory Settings',
                 systemMonitor: 'System Monitor',
+                wallet: 'My Wallet',
             },
             admin: {
                 services: {
