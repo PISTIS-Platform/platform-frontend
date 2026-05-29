@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { factoryName } = useRuntimeConfig().public;
+const { organisationFullname } = useRuntimeConfig().public;
 const { data: session } = useAuth();
 
 const { data: coinsBalance } = await useFetch<{ balance: number }>('/api/wallet/coins-balance');
@@ -269,7 +269,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                 <strong>Remittance Information / Payment Reference</strong> field, include exactly:
                             </p>
                             <p class="font-bold text-gray-800">
-                                {{ userName }} · <span class="uppercase">{{ factoryName }}</span> · PISTIS
+                                {{ userName }} · <span class="uppercase">{{ organisationFullname }}</span> · PISTIS
                             </p>
                             <p class="text-sm text-yellow-700">
                                 Transfers without this reference may be delayed or rejected.
@@ -355,7 +355,11 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                 Organisation Name
                             </label>
-                            <UInput v-model="withdrawOrgName" size="lg" :placeholder="factoryName?.toUpperCase()" />
+                            <UInput
+                                v-model="withdrawOrgName"
+                                size="lg"
+                                :placeholder="organisationFullname?.toUpperCase()"
+                            />
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
