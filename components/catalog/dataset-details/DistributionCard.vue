@@ -310,9 +310,8 @@ const {
     gdprCheckerOpen,
     showInfo,
     information,
-    answersLog,
+    submitting,
 } = useGdprQuestions(props.datasetId);
-console.log(answersLog.value);
 
 const handleLicenseOpen = (value) => {
     navigateTo(value.resource, {
@@ -368,9 +367,21 @@ const handleLicenseOpen = (value) => {
                         />
                     </div>
                     <div class="w-full flex items-center justify-between absolute bottom-0">
-                        <UButton color="red" variant="outline" class="" @click="cancel()">Cancel</UButton>
-                        <UButton v-if="questionKey === 'q2_2'" class="" @click="nextQuestion()">Finish</UButton>
-                        <UButton v-else :disabled="!answerRef" class="" @click="nextQuestion()">Next</UButton>
+                        <UButton color="red" variant="outline" :disabled="submitting" @click="cancel()">Cancel</UButton>
+                        <UButton
+                            v-if="questionKey === 'q2_2'"
+                            :loading="submitting"
+                            :disabled="submitting"
+                            @click="nextQuestion()"
+                            >Finish</UButton
+                        >
+                        <UButton
+                            v-else
+                            :loading="submitting"
+                            :disabled="!answerRef || submitting"
+                            @click="nextQuestion()"
+                            >Next</UButton
+                        >
                     </div>
                 </div>
             </UCard>
