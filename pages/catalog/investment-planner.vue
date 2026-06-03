@@ -7,9 +7,7 @@ import { z } from 'zod';
 
 import { navigateTo } from '#app';
 
-const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`, {
-    query: { page: '' },
-});
+const { data: accountData } = await useFetch<Record<string, any>>(`/api/account/get-account-details`);
 
 const { showErrorMessage, showSuccessMessage } = useAlertMessage();
 
@@ -33,7 +31,11 @@ const allBasicFieldsFilledIn = computed(
 
 const monetizationSchema = z
     .object({
-        validOfferDate: z.date({ required_error: t('required') }),
+        validOfferDate: z
+            .date({ required_error: t('required') })
+            .refine((date) => !dayjs(date).isBefore(dayjs().startOf('day')), {
+                message: t('data.investmentPlanner.errors.pastDate'),
+            }),
         percentageToOfferSharesFor: z.coerce
             .number({ invalid_type_error: t('data.investmentPlanner.errors.number') })
             .min(10, t('data.investmentPlanner.errors.percentageMin'))
@@ -42,15 +44,11 @@ const monetizationSchema = z
             .number({ invalid_type_error: t('data.investmentPlanner.errors.number') })
             .int(t('data.investmentPlanner.errors.sharesInt'))
             .min(10, t('data.investmentPlanner.errors.sharesMin'))
-            .max(1000, t('data.investmentPlanner.errors.sharesMax'))
-            .refine((val) => val !== null && val !== undefined, {
-                message: t('required'),
-            }),
+            .max(1000, t('data.investmentPlanner.errors.sharesMax')),
         sharePrice: z.coerce
             .number({ invalid_type_error: t('data.investmentPlanner.errors.number') })
             .int(t('data.investmentPlanner.errors.sharePriceInt'))
-            .min(1, t('data.investmentPlanner.errors.sharePriceMin'))
-            .refine((val) => val !== null && val !== undefined, { message: t('required') }),
+            .min(1, t('data.investmentPlanner.errors.sharePriceMin')),
         maximumSharesToBuy: z.coerce
             .number({ invalid_type_error: t('data.investmentPlanner.errors.number') })
             .int(t('data.investmentPlanner.errors.maxSharesInt'))
@@ -58,8 +56,7 @@ const monetizationSchema = z
         termsAndConditions: z
             .string()
             .min(10, t('data.investmentPlanner.errors.termsMin'))
-            .max(10000, t('data.investmentPlanner.errors.termsMax'))
-            .refine((val) => val !== null && val !== undefined, { message: t('required') }),
+            .max(10000, t('data.investmentPlanner.errors.termsMax')),
     })
     .superRefine((data, ctx) => {
         if (data.maximumSharesToBuy > data.numberOfShares) {
@@ -70,20 +67,6 @@ const monetizationSchema = z
             });
         }
     });
-
-const customValidate = () => {
-    const errors = [];
-    const totalErrors = monetizationSchema.safeParse(monetizationDetails.value).error?.issues;
-    if (totalErrors?.length) {
-        for (const error of totalErrors) {
-            errors.push({ path: error.path[0], message: error.message });
-        }
-    }
-    if (monetizationDetails.value.maximumSharesToBuy >= monetizationDetails.value.numberOfShares) {
-        errors.push({ path: 'maximumSharesToBuy', message: t('data.investmentPlanner.errors.maxSharesExceed') });
-    }
-    return errors;
-};
 
 const isMonetizationValid = computed(() => monetizationSchema.safeParse(monetizationDetails.value).success);
 
@@ -96,7 +79,12 @@ const percentageOfShare = computed(() => {
     );
 });
 
-const assetOfferingDetails = ref({
+const assetOfferingDetails = ref<{
+    id: string | number;
+    title: string;
+    description: string;
+    keywords: string[];
+}>({
     id: '',
     title: '',
     description: '',
@@ -104,7 +92,14 @@ const assetOfferingDetails = ref({
 });
 
 const selected = ref<
-    { id: string | number; title: string; description: string; distributions: Record<string, any>[] } | undefined
+    | {
+          id: string | number;
+          title: string;
+          description: string;
+          distributions: Record<string, any>[];
+          keywords: string[];
+      }
+    | undefined
 >(undefined);
 
 watch(selected, () => {
@@ -112,6 +107,7 @@ watch(selected, () => {
     assetOfferingDetails.value.title = selected.value.title;
     assetOfferingDetails.value.description = selected.value.description;
     assetOfferingDetails.value.id = selected.value.id;
+    assetOfferingDetails.value.keywords = selected.value.keywords ?? [];
 });
 
 const {
@@ -138,15 +134,19 @@ const transformedDatasets = computed(() => {
             description: dataset.description.en,
             distributions: dataset.distributions,
             modified: dataset.modified,
+            keywords: dataset.keywords?.map((keyword: any) => keyword.id) ?? [],
         })),
     );
 });
 
+const publishedAssetId = ref<string | null>(null);
+const isLocked = computed(() => publishedAssetId.value !== null);
+
 const steps = computed(() => [
-    { name: t('data.investmentPlanner.steps.selectDataset'), isActive: true },
+    { name: t('data.investmentPlanner.steps.selectDataset'), isActive: !isLocked.value },
     {
         name: t('data.investmentPlanner.steps.investmentPlanner'),
-        isActive: selected.value && isAssetOfferingDetailsValid.value,
+        isActive: !isLocked.value && Boolean(selected.value) && isAssetOfferingDetailsValid.value,
     },
     {
         name: t('data.investmentPlanner.steps.preview'),
@@ -175,60 +175,56 @@ const onInvestmentSubmit = () => {
 };
 
 const loading = ref(false);
+const newAssetId = uuidV4();
+
+const buildInvestmentPayload = () => ({
+    type: 'investment',
+    cloudAssetId: String(assetOfferingDetails.value.id),
+    sellerId: accountData.value?.user.sub,
+    assetId: newAssetId,
+    dueDate: dayjs(monetizationDetails.value.validOfferDate).toISOString(),
+    percentageOffer: monetizationDetails.value.percentageToOfferSharesFor,
+    totalShares: monetizationDetails.value.numberOfShares,
+    maxShares: monetizationDetails.value.maximumSharesToBuy,
+    price: monetizationDetails.value.sharePrice,
+    status: true,
+    terms: monetizationDetails.value.termsAndConditions,
+    description: assetOfferingDetails.value.description,
+    maxInvestors: monetizationDetails.value.numberOfShares,
+});
+
+type InvestmentPayload = ReturnType<typeof buildInvestmentPayload>;
+
+const submittedPayload = ref<InvestmentPayload | null>(null);
 
 const submitAll = async () => {
-    const objToSend: {
-        type: string;
-        cloudAssetId: string;
-        sellerId: string;
-        assetId: string;
-        dueDate: string;
-        percentageOffer: number;
-        totalShares: number;
-        maxShares: number;
-        price: number;
-        status: boolean;
-        terms: string;
-        description: string;
-        maxInvestors: number;
-    } = {
-        type: 'investment',
-        cloudAssetId: assetOfferingDetails.value.id,
-        sellerId: accountData.value?.user.sub,
-        assetId: uuidV4(),
-        dueDate: dayjs(monetizationDetails.value.validOfferDate).toISOString(),
-        percentageOffer: monetizationDetails.value.percentageToOfferSharesFor,
-        totalShares: monetizationDetails.value.numberOfShares,
-        maxShares: monetizationDetails.value.maximumSharesToBuy,
-        price: monetizationDetails.value.sharePrice,
-        status: true,
-        terms: monetizationDetails.value.termsAndConditions,
-        description: assetOfferingDetails.value.description,
-        maxInvestors: monetizationDetails.value.numberOfShares,
-    };
-
+    if (loading.value) return;
     loading.value = true;
 
     try {
-        await $fetch(`/api/datasets/publish-data`, {
-            method: 'POST',
-            body: objToSend,
-        });
-        showSuccessMessage(t('data.investmentPlanner.successfullyPublishedAsInvestmentPlan'));
-
-        try {
-            await $fetch(`/api/investment/submit-investment`, {
+        if (publishedAssetId.value === null) {
+            const payload = buildInvestmentPayload();
+            submittedPayload.value = payload;
+            await $fetch(`/api/datasets/publish-data`, {
                 method: 'POST',
-                body: objToSend,
+                body: payload,
             });
-            showSuccessMessage(t('data.investmentPlanner.success'));
-            await delay(2);
-            navigateTo(`/marketplace/dataset-details/${objToSend.cloudAssetId}?pm=cloud`);
-        } catch {
-            showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlan'));
+            publishedAssetId.value = newAssetId;
+            showSuccessMessage(t('data.investmentPlanner.successfullyPublishedAsInvestmentPlan'));
         }
+
+        await $fetch(`/api/investment/submit-investment`, {
+            method: 'POST',
+            body: submittedPayload.value,
+        });
+        showSuccessMessage(t('data.investmentPlanner.success'));
+        navigateTo(`/marketplace/dataset-details/${submittedPayload.value!.cloudAssetId}?pm=cloud`);
     } catch {
-        showErrorMessage(t('data.investmentPlanner.errors.couldNotPublishInvestmentPlan'));
+        if (publishedAssetId.value === null) {
+            showErrorMessage(t('data.investmentPlanner.errors.couldNotPublishInvestmentPlan'));
+        } else {
+            showErrorMessage(t('data.investmentPlanner.errors.couldNotCreateInvestmentPlanAfterPublish'));
+        }
     } finally {
         loading.value = false;
     }
@@ -289,7 +285,6 @@ const submitAll = async () => {
         <UForm
             :schema="monetizationSchema"
             :state="monetizationDetails"
-            :validate="customValidate"
             class="flex flex-col space-y-5"
             @submit="onInvestmentSubmit"
         >
@@ -316,10 +311,11 @@ const submitAll = async () => {
                                         eager-validation
                                         required
                                     >
-                                        <UPopover :popper="{ placement: 'bottom-start' }">
+                                        <UPopover :popper="{ placement: 'bottom-start' }" :disabled="isLocked">
                                             <UButton
                                                 color="white"
                                                 icon="i-heroicons-calendar-days-20-solid"
+                                                :disabled="isLocked"
                                                 :label="
                                                     monetizationDetails.validOfferDate
                                                         ? dayjs(monetizationDetails.validOfferDate).format(
@@ -337,6 +333,7 @@ const submitAll = async () => {
                                             <template #panel="{ close }">
                                                 <DatePicker
                                                     v-model="monetizationDetails.validOfferDate"
+                                                    :min-date="dayjs().startOf('day').toDate()"
                                                     is-required
                                                     @close="close"
                                                 />
@@ -355,6 +352,7 @@ const submitAll = async () => {
                                             v-model.number="monetizationDetails.percentageToOfferSharesFor"
                                             :placeholder="$t('data.investmentPlanner.percentageOfOwnership')"
                                             type="number"
+                                            :disabled="isLocked"
                                         >
                                             <template #trailing>
                                                 <span class="text-gray-500 text-xs">%</span>
@@ -376,6 +374,7 @@ const submitAll = async () => {
                                         v-model.number="monetizationDetails.numberOfShares"
                                         :placeholder="$t('data.investmentPlanner.numberOfSharesPlaceholder')"
                                         type="number"
+                                        :disabled="isLocked"
                                     >
                                         <template #trailing>
                                             <span class="text-gray-500 text-xs">shares</span>
@@ -394,6 +393,7 @@ const submitAll = async () => {
                                         v-model.number="monetizationDetails.sharePrice"
                                         :placeholder="$t('data.investmentPlanner.sharePricePlaceholder')"
                                         type="number"
+                                        :disabled="isLocked"
                                     >
                                         <template #trailing>
                                             <span class="text-gray-500 text-xs">EUR</span>
@@ -414,6 +414,7 @@ const submitAll = async () => {
                                         v-model.number="monetizationDetails.maximumSharesToBuy"
                                         :placeholder="$t('data.investmentPlanner.maximumSharesToBuyPlaceholder')"
                                         type="number"
+                                        :disabled="isLocked"
                                     >
                                         <template #trailing>
                                             <span class="text-gray-500 text-xs">shares</span>
@@ -458,6 +459,7 @@ const submitAll = async () => {
                                     <UTextarea
                                         v-model="monetizationDetails.termsAndConditions"
                                         :placeholder="$t('data.investmentPlanner.termsAndConditions')"
+                                        :disabled="isLocked"
                                     />
                                 </UFormGroup>
                             </div>
@@ -466,8 +468,10 @@ const submitAll = async () => {
                 </div>
             </UCard>
             <div v-if="selectedPage === 1" class="relative w-full items-center justify-between flex mt-6">
-                <UButton color="white" size="lg" @click="changeStep(selectedPage - 1)">Previous</UButton>
-                <UButton size="lg" type="submit">Next</UButton>
+                <UButton color="white" size="lg" :disabled="isLocked" @click="changeStep(selectedPage - 1)"
+                    >Previous</UButton
+                >
+                <UButton size="lg" type="submit" :disabled="isLocked">Next</UButton>
             </div>
         </UForm>
         <div v-show="selectedPage === 2" class="w-full">
@@ -549,7 +553,11 @@ const submitAll = async () => {
         v-if="datasetsStatus !== 'pending' && selectedPage === 2"
         class="relative w-full items-center justify-between flex mt-6"
     >
-        <UButton color="white" size="lg" :disabled="selectedPage === 0" @click="changeStep(selectedPage - 1)"
+        <UButton
+            color="white"
+            size="lg"
+            :disabled="selectedPage === 0 || isLocked"
+            @click="changeStep(selectedPage - 1)"
             >Previous</UButton
         >
         <UButton
@@ -559,7 +567,7 @@ const submitAll = async () => {
             @click="changeStep(selectedPage + 1)"
             >Next</UButton
         >
-        <UButton v-if="selectedPage === 2" size="lg" @click="submitAll">
+        <UButton v-if="selectedPage === 2" size="lg" :disabled="loading" @click="submitAll">
             <UIcon v-if="loading" name="svg-spinners:270-ring-with-bg" />
             <span v-else> {{ $t('submit') }}</span>
         </UButton>

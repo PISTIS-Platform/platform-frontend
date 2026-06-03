@@ -369,6 +369,7 @@ export default defineI18nConfig(() => ({
                     errors: {
                         couldNotPublishInvestmentPlan: 'Could not publish investment plan. An error has occurred.',
                         number: 'Please enter a valid number',
+                        pastDate: 'The valid offer date cannot be in the past',
                         percentageMin: 'Percentage cannot be lower than 10%',
                         percentageMax: 'Percentage cannot exceed 49%',
                         sharesInt: 'Total number of shares must be a whole number',
@@ -378,11 +379,12 @@ export default defineI18nConfig(() => ({
                         sharePriceMin: 'Share price cannot be negative or zero',
                         maxSharesInt: 'Maximum shares per investor must be a whole number',
                         maxSharesMin: 'Maximum shares per investor cannot be negative or zero',
-                        maxSharesExceed:
-                            'Maximum shares per investor cannot exceed or equal the total number of shares',
+                        maxSharesExceed: 'Maximum shares per investor cannot exceed the total number of shares',
                         termsMin: 'Terms and conditions must be at least 10 characters long',
                         termsMax: 'Terms and conditions cannot exceed 10,000 characters',
                         couldNotCreateInvestmentPlan: 'Could not create investment plan. An error has occurred.',
+                        couldNotCreateInvestmentPlanAfterPublish:
+                            'The dataset was published but the investment plan could not be created. Click Submit again to retry — this will not re-publish.',
                         couldNotRetrieveDatasets:
                             'Could not retrieve datasets available for investment. An error has occurred.',
                         noAssetsFoundError:
