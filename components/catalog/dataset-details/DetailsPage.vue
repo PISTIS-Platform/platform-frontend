@@ -20,6 +20,7 @@ const props = withDefaults(
         datasetId: string;
         summary?: { title: string; text: string }[];
         descriptionMarkup?: string;
+        hasPistisSchema?: boolean;
     }>(),
     {
         headline: 'Dataset',
@@ -357,19 +358,31 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                                     }"
                                 />
                                 <UButton
+                                    v-if="
+                                        (pistisMode === 'cloud' &&
+                                            props.hasPistisSchema &&
+                                            isOwnershipSet &&
+                                            isNotOwn) ||
+                                        pistisMode === 'factory'
+                                    "
                                     size="sm"
                                     variant="solid"
                                     label="Quality Assessment"
                                     :to="{
                                         path:
                                             pistisMode === 'cloud'
-                                                ? '/marketplace/dataset-details/data-quality'
+                                                ? '/marketplace/data-quality'
                                                 : '/catalog/dataset-details/data-quality',
-                                        query: {
-                                            datasetId,
-                                            title,
-                                            subtitle,
-                                        },
+                                        query:
+                                            pistisMode === 'cloud'
+                                                ? {
+                                                      id: datasetId,
+                                                  }
+                                                : {
+                                                      datasetId,
+                                                      title,
+                                                      subtitle,
+                                                  },
                                         external: true,
                                     }"
                                 />

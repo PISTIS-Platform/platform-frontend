@@ -64,9 +64,12 @@ const getFormattedDistributions = computed(() => {
             isAnonymized: distribution?.is_anonymized ?? null,
             isEncrypted: distribution?.is_encrypted ?? null,
             isStream: distribution?.access_service ?? false,
+            pistisSchema: distribution?.pistis_schema ?? null,
         };
     });
 });
+
+const hasPistisSchema = computed(() => getFormattedDistributions.value.some((d) => d.pistisSchema));
 
 const searchUrl = getDatasetUrl(datasetId.value);
 
@@ -141,6 +144,7 @@ onMounted(() => {
                 },
             ]"
             :description-markup="resultEnhanced?.getDescriptionMarkup"
+            :has-pistis-schema="hasPistisSchema"
         >
             <template #sections>
                 <UCard>
