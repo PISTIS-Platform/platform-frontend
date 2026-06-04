@@ -367,7 +367,6 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                                     "
                                     size="sm"
                                     variant="solid"
-                                    label="Quality Assessment"
                                     :to="{
                                         path:
                                             pistisMode === 'cloud'
@@ -385,7 +384,9 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                                                   },
                                         external: true,
                                     }"
-                                />
+                                >
+                                    {{ pistisMode === 'factory' ? 'Quality Assessment' : 'Quality Query' }}
+                                </UButton>
                                 <UnpublishButton
                                     v-if="pistisMode === 'cloud' && isOwnershipSet && !isNotOwn"
                                     :dataset-id="props.datasetId"
