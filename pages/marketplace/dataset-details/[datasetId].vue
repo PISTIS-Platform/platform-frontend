@@ -65,6 +65,7 @@ const getFormattedDistributions = computed(() => {
             isEncrypted: distribution?.is_encrypted ?? null,
             isStream: distribution?.access_service ?? false,
             pistisSchema: distribution?.pistis_schema ?? null,
+            hasAccessService: distribution?.access_service ?? false,
         };
     });
 });
@@ -175,7 +176,7 @@ onMounted(() => {
                                 :is-transformed="distribution.isTransformed"
                                 :is-anonymized="distribution.isAnonymized"
                                 :is-encrypted="distribution.isEncrypted"
-                                :is-stream="distribution.isStream"
+                                :has-access-service="distribution.hasAccessService"
                             />
                             <div
                                 v-if="i === truncatedFormattedDistributions.length - 1 && isDistributionsTruncated"

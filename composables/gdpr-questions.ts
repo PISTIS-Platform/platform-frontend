@@ -1,9 +1,10 @@
 export const useGdprQuestions = (datasetId: string) => {
-    const { showSuccessMessage /*, showErrorMessage*/ } = useAlertMessage();
+    const { showSuccessMessage, showErrorMessage } = useAlertMessage();
     const questionKey = ref('q1');
     const answerRef = ref();
     const gdprCheckerOpen = ref(false);
     const showInfo = ref(false);
+    const submitting = ref(false);
     const answersLog = ref<Record<string, any>>({});
 
     const information = {
@@ -222,14 +223,14 @@ export const useGdprQuestions = (datasetId: string) => {
         }
     };
 
-    const nextQuestion = () => {
+    const nextQuestion = async () => {
         saveCurrentAnswer();
         if (questionKey.value === 'q1') {
             if (answerRef.value === 'yes') {
                 questionKey.value = 'q2';
                 answerRef.value = null;
             } else if (answerRef.value === 'no') {
-                submit();
+                await submit();
             } else {
                 questionKey.value = 'q1_1';
                 answerRef.value = null;
@@ -268,16 +269,16 @@ export const useGdprQuestions = (datasetId: string) => {
             }
         } else if (questionKey.value === 'q1_5') {
             if (answerRef.value === 'yes') {
-                submit();
+                await submit();
             } else {
                 questionKey.value = 'q2';
                 answerRef.value = null;
             }
         } else if (questionKey.value === 'q2') {
             if (answerRef.value === 'yes') {
-                submit();
+                await submit();
             } else if (answerRef.value === 'no') {
-                submit();
+                await submit();
             } else {
                 questionKey.value = 'q2_1';
                 answerRef.value = null;
@@ -291,7 +292,7 @@ export const useGdprQuestions = (datasetId: string) => {
                 answerRef.value = null;
             }
         } else {
-            submit();
+            await submit();
         }
     };
 
@@ -305,13 +306,41 @@ export const useGdprQuestions = (datasetId: string) => {
         resetState();
         gdprCheckerOpen.value = false;
     };
-    const submit = () => {
-        console.log('Final Answers:', answersLog.value);
-        gdprCheckerOpen.value = false;
-        questionKey.value = 'q1';
-        answerRef.value = null;
-        showSuccessMessage('Your answers have been submitted successfully to GDPR checker!');
-        return answersLog.value;
+    const Q2_2_VALUE_MAP: Record<string, string> = {
+        'contractual necessity': 'contract',
+    };
+
+    const buildQuestionnaire = () => {
+        const questionnaire: Record<string, string> = {};
+        for (const [key, value] of Object.entries(answersLog.value)) {
+            if (key === 'datasetId' || typeof value !== 'string') continue;
+            const upperKey = key.toUpperCase();
+            questionnaire[upperKey] = upperKey === 'Q2_2' ? (Q2_2_VALUE_MAP[value] ?? value) : value;
+        }
+        return questionnaire;
+    };
+
+    const submit = async () => {
+        if (submitting.value) return;
+        submitting.value = true;
+        try {
+            await $fetch('/api/gdpr-checker/check-compliance', {
+                method: 'POST',
+                body: {
+                    assetId: datasetId,
+                    questionnaire: buildQuestionnaire(),
+                },
+            });
+            showSuccessMessage('Your answers have been submitted successfully to GDPR checker!');
+            gdprCheckerOpen.value = false;
+            questionKey.value = 'q1';
+            answerRef.value = null;
+            answersLog.value = {};
+        } catch {
+            showErrorMessage('Could not submit GDPR check answers. Please try again.');
+        } finally {
+            submitting.value = false;
+        }
     };
 
     const showReport = (_datasetId: string) => {
@@ -329,6 +358,7 @@ export const useGdprQuestions = (datasetId: string) => {
         information,
         showInfo,
         submit,
+        submitting,
         answersLog,
         showReport,
     };

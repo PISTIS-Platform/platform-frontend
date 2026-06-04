@@ -20,7 +20,8 @@ const PropertyTable = defineComponent({
             if (data.type === 'value') return h('span', data.data);
             if (data.id !== 'publisherEmail_value' && data.id !== 'resource_value') return h('span', data.data.label);
 
-            if (data.id === 'publisherEmail_value' || data.id === 'resource_value')
+            if (data.id === 'publisherEmail_value') return h('span');
+            if (data.id === 'resource_value')
                 return h(
                     'span',
                     h('a', { class: 'text-primary hover:text-primary', href: data.data.href }, data.data.label),

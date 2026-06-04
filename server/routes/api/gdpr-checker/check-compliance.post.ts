@@ -3,10 +3,10 @@ const {
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    const body = await readBody(event);
     const session = event.context.session;
+    const body = await readBody(event);
 
-    return $fetch(`${factoryUrl}/srv/data-connector/api/provider/query-selector`, {
+    return $fetch(`${factoryUrl}/srv/gdpr-checker/api/gdpr_checker/checkGDPRCompliance`, {
         method: 'POST',
         body,
         headers: {

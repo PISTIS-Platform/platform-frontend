@@ -188,6 +188,12 @@ const fetchColumns = async () => {
     }
 };
 
+const DATE_TYPES = ['date', 'datetime', 'timestamp'];
+
+const dateColumns = computed(() =>
+    columns.value.filter((col) => DATE_TYPES.some((t) => col.columnType.toLowerCase().includes(t))),
+);
+
 const filteredColumns = computed(() => {
     let result = [...columns.value];
     result.sort((a, b) => a.columnName.localeCompare(b.columnName));
@@ -341,10 +347,9 @@ const filteredRowsCount = ref<number | null>(null);
 
 const fetchFilteredRows = async () => {
     const { dateColumn, fromDate, toDate } = queryPayload.value.dateRange;
-    const assetUuid = props.selected?.id;
+    const accessUrl = props.assetOfferingDetails?.selectedDistribution?.access_url?.[0];
+    const assetUuid = accessUrl ? new URL(accessUrl).searchParams.get('asset_uuid') : null;
     if (!dateColumn || !fromDate || !toDate || !assetUuid) return;
-
-    const dateColumnType = columns.value.find((c) => c.columnName === dateColumn)?.columnType ?? 'date';
 
     filteredRowsStatus.value = 'pending';
     filteredRowsCount.value = null;
@@ -353,12 +358,12 @@ const fetchFilteredRows = async () => {
             query: {
                 assetUuid,
                 columnName: dateColumn,
-                columnDatatype: dateColumnType,
+                columnDatatype: 'date',
                 startDate: new Date(fromDate).toUTCString(),
                 endDate: new Date(toDate).toUTCString(),
             },
         });
-        filteredRowsCount.value = Array.isArray(response) ? response.length : null;
+        filteredRowsCount.value = (response as { data: { rows: unknown[] } }[])?.[0]?.data?.rows?.length ?? null;
         filteredRowsStatus.value = 'success';
     } catch {
         filteredRowsStatus.value = 'error';
@@ -480,7 +485,7 @@ watch(
                                 ref="dateRangeFormRef"
                                 :schema="dateRangeSchema"
                                 :state="queryPayload.dateRange"
-                                class="flex items-center gap-4 pb-4"
+                                class="flex items-center gap-4 pb-2"
                             >
                                 <UFormGroup
                                     v-slot="{ error }"
@@ -492,12 +497,13 @@ watch(
                                 >
                                     <USelectMenu
                                         v-model="queryPayload.dateRange.dateColumn"
-                                        :options="columns"
+                                        :options="dateColumns"
                                         :placeholder="$t('data.designer.query.dateRange.selectColumn')"
                                         value-attribute="columnName"
                                         option-attribute="columnName"
                                         class="min-w-64"
                                         :color="error ? 'red' : 'white'"
+                                        :disabled="!dateColumns.length"
                                     >
                                         <template #label>
                                             <span v-if="queryPayload.dateRange.dateColumn">
@@ -520,10 +526,11 @@ watch(
                                     required
                                     eager-validation
                                 >
-                                    <UPopover :popper="{ placement: 'bottom-start' }">
+                                    <UPopover :popper="{ placement: 'bottom-start' }" :disabled="!dateColumns.length">
                                         <UButton
                                             variant="outline"
                                             :color="error ? 'red' : 'white'"
+                                            :disabled="!dateColumns.length"
                                             :icon="
                                                 error
                                                     ? 'i-heroicons-exclamation-circle-20-solid'
@@ -559,10 +566,11 @@ watch(
                                     required
                                     eager-validation
                                 >
-                                    <UPopover :popper="{ placement: 'bottom-start' }">
+                                    <UPopover :popper="{ placement: 'bottom-start' }" :disabled="!dateColumns.length">
                                         <UButton
                                             variant="outline"
                                             :color="error ? 'red' : 'white'"
+                                            :disabled="!dateColumns.length"
                                             :icon="
                                                 error
                                                     ? 'i-heroicons-exclamation-circle-20-solid'
@@ -590,6 +598,13 @@ watch(
                                     </UPopover>
                                 </UFormGroup>
                             </UForm>
+                            <div
+                                v-if="columnsStatus === 'idle' && columns.length > 0 && !dateColumns.length"
+                                class="flex items-center gap-2 text-xs text-amber-600"
+                            >
+                                <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4 shrink-0" />
+                                <span>{{ $t('data.designer.query.dateRange.noDateColumns') }}</span>
+                            </div>
                             <div v-if="filteredRowsStatus !== 'idle'" class="flex items-center gap-2 text-xs">
                                 <UIcon
                                     v-if="filteredRowsStatus === 'pending'"

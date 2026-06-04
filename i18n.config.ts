@@ -28,6 +28,7 @@ export default defineI18nConfig(() => ({
             catalogue: {
                 downloadGDPR: 'Download GDPR Report',
                 downloadDistribution: 'Download Distribution',
+                decryptDistribution: 'Decrypt Distribution',
                 connectionDetails: 'Connection Details',
             },
             companySizes: {
@@ -95,8 +96,8 @@ export default defineI18nConfig(() => ({
                 inputMessage: 'Search in asset name...',
                 outgoing: 'Outgoing',
                 incoming: 'Incoming',
-                monthlyIncome: 'Income in the last 30 days',
-                monthlyExpenses: 'Expenses in the last 30 days',
+                totalIncome: 'Total Income',
+                totalExpenses: 'Total Expenses',
                 transactionDetails: 'Transaction Details',
                 transactionId: 'Transaction ID',
                 assetId: 'Asset ID',
@@ -209,6 +210,7 @@ export default defineI18nConfig(() => ({
                 notifications: 'Notifications',
                 title: 'Notifications',
                 markRead: 'Mark as read',
+                markAllRead: 'Mark all as read',
                 hide: 'Hide',
                 noNotifications: 'No notifications available.',
             },
@@ -301,8 +303,9 @@ export default defineI18nConfig(() => ({
                         infrequent: 'Occasional events (a few per hour or day)',
                         unspecified: 'Unspecified frequency of events',
                     },
+                    datasetCategory: 'Dataset Category',
                 },
-                dataTransformation: 'Data Transformation',
+                dataTransformation: 'Transformation Designer',
                 insightGenerator: 'Insights Generator',
                 analyticsEngine: 'Analytics Engine',
                 mlModelEditor: 'ML Model Editor',
@@ -366,6 +369,7 @@ export default defineI18nConfig(() => ({
                     errors: {
                         couldNotPublishInvestmentPlan: 'Could not publish investment plan. An error has occurred.',
                         number: 'Please enter a valid number',
+                        pastDate: 'The valid offer date cannot be in the past',
                         percentageMin: 'Percentage cannot be lower than 10%',
                         percentageMax: 'Percentage cannot exceed 49%',
                         sharesInt: 'Total number of shares must be a whole number',
@@ -375,11 +379,12 @@ export default defineI18nConfig(() => ({
                         sharePriceMin: 'Share price cannot be negative or zero',
                         maxSharesInt: 'Maximum shares per investor must be a whole number',
                         maxSharesMin: 'Maximum shares per investor cannot be negative or zero',
-                        maxSharesExceed:
-                            'Maximum shares per investor cannot exceed or equal the total number of shares',
+                        maxSharesExceed: 'Maximum shares per investor cannot exceed the total number of shares',
                         termsMin: 'Terms and conditions must be at least 10 characters long',
                         termsMax: 'Terms and conditions cannot exceed 10,000 characters',
                         couldNotCreateInvestmentPlan: 'Could not create investment plan. An error has occurred.',
+                        couldNotCreateInvestmentPlanAfterPublish:
+                            'The dataset was published but the investment plan could not be created. Click Submit again to retry — this will not re-publish.',
                         couldNotRetrieveDatasets:
                             'Could not retrieve datasets available for investment. An error has occurred.',
                         noAssetsFoundError:
@@ -474,6 +479,8 @@ export default defineI18nConfig(() => ({
                             fromDate: 'From Date',
                             to: 'to',
                             toDate: 'To Date',
+                            noDateColumns:
+                                'No date columns available. The distribution must contain at least one column with a date, datetime, or timestamp type.',
                         },
                         submit: {
                             success: 'Query filter successfully saved',
@@ -555,7 +562,7 @@ export default defineI18nConfig(() => ({
                     completeDistribution: 'Complete Distribution',
                     selectDistribution: 'Select the complete distribution',
                     queryFilter: 'Query / Filter',
-                    selectQueryFilter: 'Select a subset of the distribution',
+                    selectQueryFilter: 'Select a subset of the distribution (available only in SQL distributions)',
                     distributionSelected: 'Distribution Selected',
                     distributionSelectedInfo:
                         'Information about the distribution of the dataset you have chosen to publish to the market',
@@ -703,8 +710,8 @@ export default defineI18nConfig(() => ({
                     },
                 },
                 usage: {
-                    title: 'Data Usage and Intention Analytics',
-                    analytics: 'Usage Analytics',
+                    title: 'Feedback',
+                    analytics: 'Feedback',
                     questionnaire: 'Questionnaire',
                     dashboard: 'Dashboard',
                     questionnaireInfo: 'Display the questionnaire for selected dataset',
@@ -915,6 +922,7 @@ export default defineI18nConfig(() => ({
                 account: 'Account',
                 factorySettings: 'Factory Settings',
                 systemMonitor: 'System Monitor',
+                wallet: 'My Wallet',
             },
             admin: {
                 services: {

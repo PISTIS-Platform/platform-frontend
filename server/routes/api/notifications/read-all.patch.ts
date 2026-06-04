@@ -1,14 +1,12 @@
 const {
-    public: { factoryUrl },
+    public: { cloudUrl },
 } = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    const body = await readBody(event);
     const session = event.context.session;
 
-    return $fetch(`${factoryUrl}/srv/data-connector/api/provider/query-selector`, {
-        method: 'POST',
-        body,
+    return $fetch(`${cloudUrl}/srv/notifications/api/notifications/user/read-all`, {
+        method: 'PATCH',
         headers: {
             Authorization: `Bearer ${session?.token}`,
         },

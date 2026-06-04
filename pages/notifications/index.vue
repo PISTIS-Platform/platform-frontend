@@ -47,12 +47,24 @@ const hide = async (id: string | number) => {
     });
     messagesStore.hideMessage(id);
 };
+
+const hasUnread = computed(() => shownNotifications.value.some((n) => !n.readAt));
+
+const markAllAsRead = async () => {
+    await $fetch('/api/notifications/read-all', { method: 'PATCH' });
+    messagesStore.markAllAsRead();
+};
 </script>
 
 <template>
     <div class="justify-start h-full items-center px-8 max-w-7xl mx-auto w-full">
         <PageContainer>
             <div v-if="status === 'success'" class="flex flex-col gap-6 mt-2 w-full">
+                <div class="flex justify-end -mt-4 -mb-2">
+                    <UButton v-if="hasUnread" color="gray" @click="markAllAsRead">
+                        {{ $t('notifications.markAllRead') }}
+                    </UButton>
+                </div>
                 <UCard
                     v-for="notification in sortedNotifications"
                     :key="notification.id"

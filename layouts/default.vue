@@ -7,11 +7,12 @@ import {
     UserCircleIcon,
     XMarkIcon,
 } from '@heroicons/vue/24/outline';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { useMessagesStore } from '~/store/messages';
 
 const route = useRoute();
+const router = useRouter();
 
 const messagesStore = useMessagesStore();
 
@@ -59,6 +60,10 @@ const navigation = ref([
 ]);
 
 const userNavigation: { name: string; href: string }[] = [
+    {
+        name: t('user.wallet'),
+        href: '/user-wallet',
+    },
     {
         name: t('user.account'),
         href: '/account',
@@ -160,14 +165,16 @@ function isActive(item: any) {
                                     class="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                                 >
                                     <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
-                                        <a
-                                            :href="item.href"
+                                        <button
+                                            type="button"
                                             :class="[
                                                 active ? 'bg-primary-100' : '',
-                                                'block px-4 py-2 text-sm text-gray-700',
+                                                'block w-full text-left px-4 py-2 text-sm text-gray-700',
                                             ]"
-                                            >{{ $t(item.name) }}</a
+                                            @click="router.push(item.href)"
                                         >
+                                            {{ $t(item.name) }}
+                                        </button>
                                     </MenuItem>
                                     <MenuItem v-slot="{ active }">
                                         <a
@@ -251,9 +258,9 @@ function isActive(item: any) {
                         <DisclosureButton
                             v-for="item in userNavigation"
                             :key="item.name"
-                            as="a"
-                            :href="item.href"
-                            class="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-500 hover:bg-opacity-75"
+                            as="button"
+                            class="block w-full text-left rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-500 hover:bg-opacity-75"
+                            @click="router.push(item.href)"
                         >
                             {{ $t(item.name) }}
                         </DisclosureButton>

@@ -1,456 +1,11 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
+import { nextTick } from 'vue';
+    
+import { datasetCategoryOptions } from '~/constants/dataset-categories';
 
 const categoryLang = 'en';
-
-const datasetCategoryOptions = [
-    {
-        pref_label: {
-            mt: 'Kwistjonijiet internazzjonali',
-            el: 'Διεθνή θέματα',
-            da: 'Internationale spørgsmål',
-            pt: 'Questões internacionais',
-            fi: 'Kansainväliset kysymykset',
-            sv: 'Internationella frågor',
-            en: 'International issues',
-            no: 'Internasjonale temaer',
-            bg: 'Международни въпроси',
-            it: 'Tematiche internazionali',
-            fr: 'Questions internationales',
-            es: 'Asuntos internacionales',
-            nl: 'Internationale vraagstukken',
-            hu: 'Nemzetközi ügyek',
-            sl: 'Mednarodna vprašanja',
-            et: 'Rahvusvahelised küsimused',
-            ro: 'Chestiuni internaționale',
-            de: 'Internationale Themen',
-            cs: 'Mezinárodní otázky',
-            hr: 'Međunarodni pitanja',
-            lt: 'Tarptautiniai klausimai',
-            sk: 'Medzinárodné otázky',
-            nb: 'Internasjonale temaer',
-            pl: 'Kwestie międzynarodowe',
-            lv: 'Starptautiski jautājumi',
-            ga: 'Saincheisteanna idirnáisiúnta',
-            nn: 'Internasjonale tema',
-        },
-        id: 'INTR',
-    },
-    {
-        pref_label: {
-            de: 'Landwirtschaft, Fischerei, Forstwirtschaft und Nahrungsmittel',
-            da: 'Landbrug, fiskeri, skovbrug og fødevarer',
-            no: 'Jordbruk, fiskeri, skogbruk og mat',
-            hr: 'Poljoprivreda, ribarstvo, šumarstvo i hrana',
-            mt: 'Agrikoltura, sajd, forestrija u ikel',
-            nb: 'Jordbruk, fiskeri, skogbruk og mat',
-            fi: 'Maatalous, kalastus, metsätalous ja elintarvikkeet',
-            el: 'Γεωργία, αλιεία, δασοκομία και τρόφιμα',
-            pt: 'Agricultura, pesca, silvicultura e alimentação',
-            ro: 'Agricultură, pescuit, silvicultură şi hrană',
-            sk: 'Poľnohospodárstvo, rybné hospodárstvo, lesníctvo a potravinárstvo',
-            cs: 'Zemědělství, rybolov, lesnictví a výživa',
-            et: 'Põllumajandus, kalandus, metsandus ja toiduained',
-            fr: 'Agriculture, pêche, sylviculture et alimentation',
-            sv: 'Jordbruk, fiske, skogsbruk och livsmedel',
-            nl: 'Landbouw, visserij, bosbouw en voeding',
-            bg: 'Селско стопанство, рибарство, горско стопанство и храни',
-            en: 'Agriculture, fisheries, forestry and food',
-            ga: 'Talmhaíocht, iascach, foraoiseacht agus bia',
-            sl: 'Kmetijstvo, ribištvo, gozdarstvo in prehrana',
-            es: 'Agricultura, pesca, silvicultura y alimentación',
-            pl: 'Rolnictwo, rybołówstwo, leśnictwo i żywność',
-            lt: 'Žemės ūkis, žuvininkystė, miškininkystė ir maistas',
-            hu: 'Mezőgazdaság, halászat, erdészet és élelmiszer',
-            it: 'Agricoltura, pesca, silvicoltura e prodotti alimentari',
-            lv: 'Lauksaimniecība, zivsaimniecība, mežsaimniecība un pārtika',
-            nn: 'Jordbruk, fiskeri, skogbruk og mat',
-        },
-        id: 'AGRI',
-    },
-    {
-        pref_label: {
-            el: 'Πληθυσμός και κοινωνία',
-            bg: 'Население и общество',
-            da: 'Befolkning og samfund',
-            cs: 'Populace a společnost',
-            hr: 'Stanovništvo i društvo',
-            ro: 'Populaţie şi societate',
-            pt: 'População e sociedade',
-            no: 'Befolkning og samfunn',
-            nn: 'Befolkning og samfunn',
-            sl: 'Prebivalstvo in družba',
-            mt: 'Popolazzjoni u soċjetà',
-            fr: 'Population et société',
-            es: 'Población y sociedad',
-            it: 'Popolazione e società',
-            et: 'Elanikkond ja ühiskond',
-            nl: 'Bevolking en samenleving',
-            de: 'Bevölkerung und Gesellschaft',
-            fi: 'Väestö ja yhteiskunta',
-            lt: 'Gyventojų skaičius ir visuomenė',
-            nb: 'Befolkning og samfunn',
-            sk: 'Obyvateľstvo a spoločnosť',
-            sv: 'Befolkning och samhälle',
-            hu: 'Népesség és társadalom',
-            ga: 'Daonra agus sochaí',
-            en: 'Population and society',
-            lv: 'Iedzīvotāji un sabiedrība',
-            pl: 'Ludność i społeczeństwo',
-        },
-        id: 'SOCI',
-    },
-    {
-        pref_label: {
-            en: 'Provisional data',
-            sk: 'Predbežné údaje',
-            da: 'Midlertidige data',
-            fr: 'Données provisoires',
-            pt: 'Dados provisórios',
-            fi: 'Alustavat tiedot',
-            ga: 'Sonraí sealadacha',
-            pl: 'Dane tymczasowe',
-            es: 'Datos provisionales',
-            et: 'Esialgsed andmed',
-            lt: 'Laikinieji duomenys',
-            nl: 'Voorlopige gegevens',
-            it: 'Dati provvisori',
-            bg: 'НЕОКОНЧАТЕЛНИ ДАННИ',
-            cs: 'Předběžné údaje',
-            sl: 'Začasni podatki',
-            hr: 'Privremeni podaci',
-            mt: 'Dejta provviżorja',
-            lv: 'Provizoriski dati',
-            hu: 'Ideiglenes adatok',
-            sv: 'Tillfälliga uppgifter',
-            de: 'Vorläufige Daten',
-            el: 'Προσωρινά δεδομένα',
-            ro: 'Date provizorii',
-        },
-        id: 'OP_DATPRO',
-    },
-    {
-        pref_label: {
-            nb: 'Helse',
-            fr: 'Santé',
-            sk: 'Zdravotníctvo',
-            en: 'Health',
-            sl: 'Zdravje',
-            it: 'Salute',
-            et: 'Tervis',
-            cs: 'Zdraví',
-            de: 'Gesundheit',
-            hu: 'Egészségügy',
-            nn: 'Helse',
-            mt: 'Saħħa',
-            bg: 'Здраве',
-            hr: 'Zdravlje',
-            da: 'Sundhed',
-            lv: 'Veselība',
-            pt: 'Saúde',
-            nl: 'Gezondheid',
-            es: 'Salud',
-            ro: 'Sănătate',
-            no: 'Helse',
-            pl: 'Zdrowie',
-            fi: 'Terveys',
-            lt: 'Sveikata',
-            ga: 'Sláinte',
-            sv: 'Hälsa',
-            el: 'Υγεία',
-        },
-        id: 'HEAL',
-    },
-    {
-        pref_label: {
-            lv: 'Transports',
-            nb: 'Transport',
-            hu: 'Közlekedés',
-            da: 'Transport',
-            cs: 'Doprava',
-            it: 'Trasporti',
-            nl: 'Vervoer',
-            sk: 'Doprava',
-            hr: 'Promet',
-            mt: 'Trasport',
-            sv: 'Transport',
-            no: 'Transport',
-            pl: 'Transport',
-            ga: 'Iompar',
-            fr: 'Transports',
-            en: 'Transport',
-            fi: 'Liikenne',
-            et: 'Transport',
-            el: 'Μεταφορές',
-            lt: 'Transportas',
-            ro: 'Transport',
-            sl: 'Transport',
-            de: 'Verkehr',
-            pt: 'Transportes',
-            nn: 'Transport',
-            bg: 'Транспорт',
-            es: 'Transporte',
-        },
-        id: 'TRAN',
-    },
-    {
-        pref_label: {
-            lt: 'Švietimas, kultūra ir sportas',
-            pl: 'Edukacja, kultura i sport',
-            sv: 'Utbildning, kultur och sport',
-            bg: 'Образование, култура и спорт',
-            sl: 'Izobraževanje, kultura in šport',
-            da: 'Uddannelse, kultur og sport',
-            en: 'Education, culture and sport',
-            de: 'Bildung, Kultur und Sport',
-            fr: 'Éducation, culture et sport',
-            hu: 'Oktatás, kultúra és sport',
-            no: 'Utdanning, kultur og sport',
-            cs: 'Vzdělávání, kultura a sport',
-            pt: 'Educação, cultura e desporto',
-            et: 'Haridus, kultuur ja sport',
-            ga: 'Oideachas, cultúr agus spórt',
-            lv: 'Izglītība, kultūra un sports',
-            fi: 'Koulutus, kulttuuri ja urheilu',
-            ro: 'Educaţie, cultură şi sport',
-            nb: 'Utdanning, kultur og sport',
-            nn: 'Utdanning, kultur og sport',
-            sk: 'Vzdelávanie, kultúra a šport',
-            hr: 'Obrazovanje, kultura i sport',
-            nl: 'Onderwijs, cultuur en sport',
-            el: 'Παιδεία, πολιτιστικά θέματα και αθλητισμός',
-            mt: 'Edukazzjoni, kultura u sport',
-            es: 'Educación, cultura y deportes',
-            it: 'Istruzione, cultura e sport',
-        },
-        id: 'EDUC',
-    },
-    {
-        pref_label: {
-            pl: 'Sprawiedliwość, ustrój sądów i bezpieczeństwo publiczne',
-            hu: 'Igazságügy, jogrendszer és közbiztonság',
-            sl: 'Pravosodje, pravni sistem in javna varnost',
-            ro: 'Justiție, sistem juridic și siguranță publică',
-            pt: 'Justiça, sistema judiciário e segurança pública',
-            hr: 'Pravosuđe, pravni sustav i javna sigurnost',
-            nl: 'Justitie, rechtsstelsel en openbare veiligheid',
-            et: 'Õigusemõistmine, õigussüsteem ja avalik turvalisus',
-            el: 'Δικαιoσύνη, νομικό σύστημα και δημόσια ασφάλεια',
-            cs: 'Spravedlnost, právní systém a veřejná bezpečnost',
-            no: 'Justis, rettssystem og allmenn sikkerhet',
-            lt: 'Teisingumas, teisės sistema ir visuomenės sauga',
-            mt: 'Ġustizzja, sistema legali u sigurtà pubblika',
-            en: 'Justice, legal system and public safety',
-            lv: 'Tieslietas, tiesību sistēma un sabiedrības drošība',
-            da: 'Retfærdighed, retssystem og offentlig sikkerhed',
-            bg: 'Правосъдие, съдебна система и обществена безопасност',
-            nn: 'Justis, rettssystem og allmenn tryggleik',
-            sv: 'Rättvisa, rättsliga system och allmän säkerhet',
-            sk: 'Spravodlivosť, právny systém a verejná bezpečnosť',
-            es: 'Justicia, sistema judicial y seguridad pública',
-            de: 'Justiz, Rechtssystem und öffentliche Sicherheit',
-            fr: 'Justice, système juridique et sécurité publique',
-            ga: 'Ceartas, córas dlí agus sábháilteacht an phobail',
-            it: 'Giustizia, sistema giuridico e sicurezza pubblica',
-            nb: 'Justis, rettssystem og allmenn sikkerhet',
-            fi: 'Oikeus, oikeusjärjestelmä ja yleinen turvallisuus',
-        },
-        id: 'JUST',
-    },
-    {
-        pref_label: {
-            da: 'Videnskab og teknologi',
-            de: 'Wissenschaft und Technologie',
-            hr: 'Znanost i tehnologija',
-            nb: 'Vitenskap og teknologi',
-            ro: 'Ştiinţă şi tehnologie',
-            nl: 'Wetenschap en technologie',
-            el: 'Επιστήμη και τεχνολογία',
-            it: 'Scienza e tecnologia',
-            ga: 'Eolaíocht agus teicneolaíocht',
-            nn: 'Vitskap og teknologi',
-            cs: 'Věda a technika',
-            pl: 'Nauka i technologia',
-            pt: 'Ciência e tecnologia',
-            lv: 'Zinātne un tehnoloģija',
-            es: 'Ciencia y tecnología',
-            bg: 'Наука и tехнологии',
-            hu: 'Tudomány és technológia',
-            fr: 'Science et technologie',
-            sl: 'Znanost in tehnologija',
-            no: 'Vitenskap og teknologi',
-            sk: 'Veda a technika',
-            mt: 'Xjenza u teknoloġija',
-            fi: 'Tiede ja teknologia',
-            lt: 'Mokslas ir technologijos',
-            sv: 'Vetenskap och teknik',
-            en: 'Science and technology',
-            et: 'Teadus ja tehnoloogia',
-        },
-        id: 'TECH',
-    },
-    {
-        pref_label: {
-            sl: 'Regije in mesta',
-            da: 'Regioner og byer',
-            it: 'Regioni e città',
-            es: 'Regiones y ciudades',
-            hr: 'Regije i gradovi',
-            nl: "Regio's en steden",
-            lt: 'Regionai ir miestai',
-            el: 'Περιφέρειες και πόλεις',
-            hu: 'Régiók és városok',
-            nn: 'Regionar og byar',
-            ro: 'Regiuni şi orașe',
-            lv: 'Reģioni un pilsētas',
-            mt: 'Reġjuni u bliet',
-            bg: 'Региони и градове',
-            cs: 'Regiony a města',
-            fi: 'Alueet ja kaupungit',
-            de: 'Regionen und Städte',
-            pl: 'Regiony i miasta',
-            no: 'Regioner og byer',
-            ga: 'Réigiúin agus cathracha',
-            pt: 'Regiões e cidades',
-            fr: 'Régions et villes',
-            nb: 'Regioner og byer',
-            en: 'Regions and cities',
-            sk: 'Regióny a mestá',
-            sv: 'Regioner och städer',
-            et: 'Piirkonnad ja linnad',
-        },
-        id: 'REGI',
-    },
-    {
-        pref_label: {
-            el: 'Ενέργεια',
-            ro: 'Energie',
-            da: 'Energi',
-            sk: 'Energetika',
-            nb: 'Energi',
-            nl: 'Energie',
-            de: 'Energie',
-            sl: 'Energetika',
-            no: 'Energi',
-            it: 'Energia',
-            lt: 'Energetika',
-            nn: 'Energi',
-            pl: 'Energia',
-            hu: 'Energia',
-            lv: 'Enerģētika',
-            es: 'Energía',
-            bg: 'Енергетика',
-            cs: 'Energie',
-            en: 'Energy',
-            et: 'Energeetika',
-            fr: 'Énergie',
-            sv: 'Energi',
-            hr: 'Energetika',
-            ga: 'Fuinneamh',
-            fi: 'Energia',
-            mt: 'Enerġija',
-            pt: 'Energia',
-        },
-        id: 'ENER',
-    },
-    {
-        pref_label: {
-            es: 'Gobierno y sector público',
-            ro: 'Guvern şi sector public',
-            el: 'Κυβέρνηση και δημόσιος τομέας',
-            en: 'Government and public sector',
-            bg: 'Правителство и публичен сектор',
-            ga: 'Rialtas agus earnáil phoiblí',
-            lv: 'Valdība un sabiedriskais sektors',
-            cs: 'Vláda a veřejný sektor',
-            nn: 'Forvaltning og offentleg sektor',
-            it: 'Governo e settore pubblico',
-            mt: 'Gvern u settur pubbliku',
-            hr: 'Vlada i javni sektor',
-            sl: 'Vlada in javni sektor',
-            no: 'Forvaltning og offentlig sektor',
-            pl: 'Rząd i sektor publiczny',
-            sv: 'Regeringen och den offentliga sektorn',
-            de: 'Regierung und öffentlicher Sektor',
-            hu: 'Kormányzat és közszféra',
-            fi: 'Valtioneuvosto ja julkinen sektori',
-            da: 'Regeringen og den offentlige sektor',
-            et: 'Valitsus ja avalik sektor',
-            fr: 'Gouvernement et secteur public',
-            sk: 'Vláda a verejný sektor',
-            lt: 'Vyriausybė ir viešasis sektorius',
-            nb: 'Forvaltning og offentlig sektor',
-            nl: 'Overheid en publieke sector',
-            pt: 'Governo e setor público',
-        },
-        id: 'GOVE',
-    },
-    {
-        pref_label: {
-            lv: 'Vide',
-            ga: 'Comhshaol',
-            sk: 'Životné prostredie',
-            mt: 'Ambjent',
-            fr: 'Environnement',
-            nb: 'Miljø',
-            hu: 'Környezet',
-            fi: 'Ympäristö',
-            en: 'Environment',
-            nn: 'Miljø',
-            nl: 'Milieu',
-            el: 'Περιβάλλον',
-            hr: 'Okoliš',
-            it: 'Ambiente',
-            de: 'Umwelt',
-            lt: 'Aplinka',
-            cs: 'Životní prostředí',
-            no: 'Miljø',
-            pl: 'Środowisko',
-            sl: 'Okolje',
-            es: 'Medio ambiente',
-            bg: 'Околна среда',
-            et: 'Keskkond',
-            ro: 'Mediu',
-            sv: 'Miljö',
-            pt: 'Ambiente',
-            da: 'Miljø',
-        },
-        id: 'ENVI',
-    },
-    {
-        pref_label: {
-            cs: 'Hospodářství a finance',
-            mt: 'Ekonomija u finanzi',
-            sv: 'Ekonomi och finans',
-            fr: 'Économie et finances',
-            hu: 'Gazdaság és pénzügy',
-            pl: 'Gospodarka i finanse',
-            de: 'Wirtschaft und Finanzen',
-            lv: 'Ekonomika un finanses',
-            en: 'Economy and finance',
-            sl: 'Gospodarstvo in finance',
-            ga: 'Geilleagar agus airgeadas',
-            nb: 'Økonomi og finans',
-            sk: 'Hospodárstvo a financie',
-            es: 'Economía y finanzas',
-            bg: 'Икономика и финанси',
-            da: 'Økonomi og finanser',
-            nl: 'Economie en financiën',
-            et: 'Majandus ja rahandus',
-            el: 'Οικονομία και χρηματοοικονομικά θέματα',
-            it: 'Economia e finanze',
-            lt: 'Ekonomika ir finansai',
-            ro: 'Economie şi finanţe',
-            no: 'Økonomi og finans',
-            hr: 'Ekonomija i financije',
-            fi: 'Talous ja raha-asiat',
-            nn: 'Økonomi og finans',
-            pt: 'Economia e finanças',
-        },
-        id: 'ECON',
-    },
-];
 
 // Compute options for USelectMenu: array of { label, value }
 const categorySelectOptions = computed(() =>
@@ -479,6 +34,23 @@ const datasetName = ref('');
 const datasetDescription = ref('');
 const datasetKeywords = ref('');
 const datasetEncrytion = ref('false');
+
+// Watch for changes to encryption checkbox to enforce mutual exclusion
+watch(
+    () => datasetEncrytion.value,
+    (newVal) => {
+        if (newVal === true || newVal === 'true') {
+            // If Insights Generator is present, uncheck encryption and alert
+            const hasInsights = workflowServices.value.some(srv => srv.name === INSIGHTS_GENERATOR);
+            if (hasInsights) {
+                alert('The Insights Generator and Encryption cannot be included in the same workflow. Please remove one of them.');
+                nextTick(() => {
+                    datasetEncrytion.value = false;
+                });
+            }
+        }
+    }
+);
 const gdprChecking = ref('false');
 let fileUpload = ref<File | null>(null);
 const runId = ref('None');
@@ -493,6 +65,7 @@ const listServices = ref([
         name: DATA_CHECK_IN,
         method: DATA_CHECK_IN_FILE_METHOD,
         id: 1,
+        description: 'Upload a dataset file directly.',
         params: [
             {
                 name: 'file (supported CSV, TSV, Json, XML, XLSX and Parquet)',
@@ -506,6 +79,7 @@ const listServices = ref([
         name: DATA_CHECK_IN,
         method: DATA_CHECK_IN_FTP_METHOD,
         id: 2,
+        description: 'Import a dataset from an FTP server.',
         params: [
             {
                 name: 'ftp_server',
@@ -550,13 +124,21 @@ const listServices = ref([
         name: DATA_TRANSFORMATION,
         method: DATA_TRANSFORMATION_RUN_METHOD,
         id: 3,
+        description: 'Please, design the transformation definition before uploading the file using the Transformation Designer and paste it here.',
         params: [{ name: 'transformation_definition', type: 'json', vue: 'input', value: '[]' }],
     },
-    { name: INSIGHTS_GENERATOR, method: INSIGHTS_GENERATOR_GENERATE_METHOD, id: 4, params: [] },
+    {
+        name: INSIGHTS_GENERATOR,
+        method: INSIGHTS_GENERATOR_GENERATE_METHOD,
+        id: 4,
+        description: 'Generate insights from the dataset.',
+        params: [],
+    },
     {
         name: DATA_CHECK_IN,
         method: DATA_CHECK_IN_API_METHOD,
         id: 5,
+        description: 'Ingest data from an external API endpoint.',
         params: [
             {
                 name: 'api_url',
@@ -615,6 +197,10 @@ const onDrop = () => {
     let keys = Object.keys(workflowServices.value);
     let fileSelected = false;
 
+    const hasInsights = computed(() =>
+        workflowServices.value.some(srv => srv.name === INSIGHTS_GENERATOR)
+    );
+    
     for (let key in keys) {
         let name = workflowServices.value[key]['name'];
         let method = workflowServices.value[key]['method'];
@@ -641,6 +227,19 @@ const onDrop = () => {
             fileUpload.value = null;
         }
     }
+    
+    // Mutual exclusion: if encryption is checked and insights generator is present, remove insights generator and alert
+    if ((datasetEncrytion.value === true || datasetEncrytion.value === 'true') && hasInsights.value) {
+        // Move all Insights Generator services back to Services Available
+        for (let i = workflowServices.value.length - 1; i >= 0; i--) {
+            if (workflowServices.value[i].name === INSIGHTS_GENERATOR) {
+                listServices.value.push(workflowServices.value[i]);
+                workflowServices.value.splice(i, 1);
+            }
+        }
+        alert('The Insights Generator and Encryption cannot be included in the same workflow. Please remove one of them.');
+    }
+    
     runId.value = 'None';
 };
 
@@ -697,6 +296,7 @@ const runJobConfigurator = async (services: [string]) => {
     }
 
     const enrichedServices = services.map((svc: any) => {
+        const { description, ...svcWithoutDescription } = svc;
         if (svc?.method === DATA_CHECK_IN_API_METHOD) {
             const preferred =
                 (typeof fileUpload.value?.name === 'string' && fileUpload.value.name.trim()
@@ -710,14 +310,14 @@ const runJobConfigurator = async (services: [string]) => {
 
             // Set at root level (svc.filename)
             return {
-                ...svc,
+                ...svcWithoutDescription,
                 params: [
                     { name: 'filename', type: 'json', vue: 'textarea', value: finalFilename },
                     ...(svc.params ?? []),
                 ],
             };
         }
-        return svc;
+        return svcWithoutDescription;
     });
 
     formData.append('workflow', JSON.stringify(enrichedServices));
@@ -834,12 +434,13 @@ const runJobConfigurator = async (services: [string]) => {
                     <label for="datasetDescription" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
                         $t('data.datasetDescription')
                     }}</label>
-                    <input
+                    <textarea
                         id="datasetDescription"
                         v-model="datasetDescription"
-                        type="text"
-                        class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white"
-                    />
+                        rows="3"
+                        class="mt-4 block w-full sm:text-sm border-neutral-300 rounded-md ml-4 text-black bg-white resize-y overflow-auto"
+                        style="min-height: 2.5rem; max-height: 6rem;"
+                    ></textarea>
                 </div>
                 <div class="rounded-md w-full flex">
                     <label for="datasetKeywords" class="mt-4 block text-sm font-medium text-neutral-700 w-40">{{
@@ -975,6 +576,9 @@ const runJobConfigurator = async (services: [string]) => {
                         >
                             <div class="rounded-m ml-3 mt-3 mb-2 mr-3 font-medium text-blue-900 font-semibold">
                                 {{ srv.name }}: {{ srv.method }}
+                                <div v-if="srv.description" class="text-xs text-gray-500 font-normal mt-1 mb-1 ml-1">
+                                    {{ srv.description }}
+                                </div>
 
                                 <ul class="ml-3 mr-10 m-5">
                                     <li

@@ -278,7 +278,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -298,7 +298,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -318,7 +318,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -338,7 +338,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -358,7 +358,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -397,7 +397,7 @@ export const ruleDetails = {
             {
                 id: 'column_A',
                 label: 'Column A',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The first column name.',
                 required: true,
             },
@@ -405,7 +405,7 @@ export const ruleDetails = {
                 id: 'column_B',
                 label: 'Column B',
                 placeholder: 'The second column name.',
-                type: 'text',
+                type: 'column',
                 required: true,
             },
             {
@@ -422,7 +422,7 @@ export const ruleDetails = {
             {
                 id: 'column_A',
                 label: 'Column A',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The first column name.',
                 required: true,
             },
@@ -430,7 +430,7 @@ export const ruleDetails = {
                 id: 'column_B',
                 label: 'Column B',
                 placeholder: 'The second column name.',
-                type: 'text',
+                type: 'column',
                 required: true,
             },
         ],
@@ -441,7 +441,7 @@ export const ruleDetails = {
             {
                 id: 'column_A',
                 label: 'Column A',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The first column name.',
                 required: true,
             },
@@ -449,7 +449,7 @@ export const ruleDetails = {
                 id: 'column_B',
                 label: 'Column B',
                 placeholder: 'The second column name.',
-                type: 'text',
+                type: 'column',
                 required: true,
             },
             {
@@ -469,7 +469,7 @@ export const ruleDetails = {
                 //TODO: Improve UX, Make proper list.
                 id: 'column_list',
                 label: 'Column List',
-                type: 'list',
+                type: 'column_list',
                 placeholder: 'Enter column names separated by commas or newlines',
                 required: true,
                 rows: 3,
@@ -488,7 +488,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -524,7 +524,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -560,7 +560,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -596,7 +596,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -632,7 +632,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -658,7 +658,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -683,7 +683,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -719,7 +719,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -755,7 +755,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -791,7 +791,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -810,7 +810,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -829,7 +829,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -884,7 +884,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -904,7 +904,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -923,7 +923,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -943,7 +943,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -955,7 +955,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -968,7 +968,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -1004,7 +1004,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -1040,7 +1040,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -1053,7 +1053,7 @@ export const ruleDetails = {
                 //TODO: Improve UX. Make proper list.
                 id: 'column_list',
                 label: 'Column List',
-                type: 'list',
+                type: 'column_list',
                 placeholder: 'Set of columns to be checked.',
                 rows: 3,
             },
@@ -1066,7 +1066,7 @@ export const ruleDetails = {
                 //TODO: Improve UX. Make proper list.
                 id: 'column_list',
                 label: 'Column List',
-                type: 'list',
+                type: 'column_list',
                 placeholder: 'The column names to evaluate.',
                 rows: 3,
             },
@@ -1079,7 +1079,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -1091,7 +1091,7 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
@@ -1112,14 +1112,14 @@ export const ruleDetails = {
             {
                 id: 'column',
                 label: 'Column Name',
-                type: 'text',
+                type: 'column',
                 placeholder: 'The column name.',
                 required: true,
             },
             {
                 id: 'type_',
                 label: 'Datatype',
-                type: 'text',
+                type: 'column',
                 placeholder: 'A string representing the data type that each column should have as entries.',
                 required: true,
             },
@@ -1163,7 +1163,7 @@ export const ruleDetails = {
                 //TODO: Improve UX. Make proper list.
                 id: 'column_list',
                 label: 'Column List',
-                type: 'list',
+                type: 'column_list',
                 placeholder: 'The column names, in the correct order.',
                 rows: 3,
                 required: true,
@@ -1177,7 +1177,7 @@ export const ruleDetails = {
                 //TODO: Improve UX. Make proper list.
                 id: 'column_set',
                 label: 'Column Set',
-                type: 'list',
+                type: 'column_list',
                 placeholder: 'The column names, in any order.',
                 rows: 3,
                 required: true,

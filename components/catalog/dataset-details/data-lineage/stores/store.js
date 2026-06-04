@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { useApiService } from '~/services/apiService';
 
@@ -57,6 +57,51 @@ export const useStore = defineStore('store', () => {
     // const authStore = useAuthStore();
 
     // ========================================
+    // DERIVED STATE
+    // ========================================
+
+    // Dataset UUIDs whose raw data lives in another factory: every ancestor of
+    // a Purchase node via derived_from. The Purchase node itself is local.
+    const externalUuids = computed(() => {
+        const external = new Set();
+        const data = familyTreeData.value;
+        if (!data) return external;
+
+        const nodeByUuid = {};
+        for (const lineageId in data) {
+            const lineageGroup = data[lineageId];
+            for (const datasetId in lineageGroup) {
+                const events = lineageGroup[datasetId];
+                const records = Array.isArray(events) ? events : [events];
+                for (const record of records) {
+                    if (!record || typeof record !== 'object') continue;
+                    if (!nodeByUuid[datasetId]) {
+                        nodeByUuid[datasetId] = {
+                            operations: new Set(),
+                            derived_from: record.derived_from ?? null,
+                        };
+                    }
+                    nodeByUuid[datasetId].operations.add(String(record.operation).toUpperCase());
+                }
+            }
+        }
+
+        const transferUuids = Object.keys(nodeByUuid).filter((uuid) => nodeByUuid[uuid].operations.has('PURCHASE'));
+
+        for (const tUuid of transferUuids) {
+            let current = nodeByUuid[tUuid].derived_from;
+            while (current && !external.has(current)) {
+                external.add(current);
+                current = nodeByUuid[current]?.derived_from ?? null;
+            }
+        }
+
+        return external;
+    });
+
+    const isExternalVersion = (uuid) => externalUuids.value.has(uuid);
+
+    // ========================================
     // DIFF MANAGEMENT ACTIONS
     // ========================================
 
@@ -98,6 +143,16 @@ export const useStore = defineStore('store', () => {
             const errorMessage = 'Two datasets must be selected for comparison';
             console.error(errorMessage);
             diffError.value = errorMessage;
+            return;
+        }
+
+        // Row-level diff requires the raw dataset to live in the current
+        // instance's FDS. Anything upstream of a Transfer node originated in
+        // another factory, so no instance reachable from here can serve it.
+        if (isExternalVersion(id1) || isExternalVersion(id2)) {
+            diffError.value = 'Row-level comparison is unavailable for versions from another factory.';
+            diffData.value = null;
+            isLoadingDiff.value = false;
             return;
         }
 
@@ -278,6 +333,12 @@ export const useStore = defineStore('store', () => {
             return 'DATASET REGISTERED';
         } else if (operationUpper === 'UPDATE') {
             return 'DATASET UPDATED';
+        } else if (operationUpper === 'PUBLISH') {
+            return 'DATASET PUBLISHED';
+        } else if (operationUpper === 'PURCHASE') {
+            return 'DATASET PURCHASED';
+        } else if (operationUpper === 'APPEND') {
+            return 'DATASET APPENDED';
         }
         return operation || 'Unknown';
     };
@@ -308,12 +369,26 @@ export const useStore = defineStore('store', () => {
                         : record.user_group;
                     const userDisplay = userGroup ? `${userGroup} ${record.username}` : record.username;
 
-                    // Add description for CREATE operations
+                    // Add description for CREATE, PUBLISH, PURCHASE, and APPEND operations
                     const operationUpper = String(record.operation).toUpperCase();
                     let activityDescription = null;
                     if (operationUpper === 'CREATE') {
                         activityDescription =
                             'Dataset was successfully ingested via the Job Configurator and registered in the Factory Catalog.';
+                    } else if (operationUpper === 'PUBLISH') {
+                        activityDescription =
+                            'Dataset was published to the PISTIS cloud marketplace and made available for discovery and purchase.';
+                    } else if (operationUpper === 'PURCHASE') {
+                        activityDescription =
+                            'Dataset was purchased on the PISTIS marketplace and transferred into this factory.';
+                    } else if (operationUpper === 'APPEND') {
+                        const od = record.operation_description;
+                        if (od && od.rows_prev != null && od.rows_new != null) {
+                            const added = od.rows_new - od.rows_prev;
+                            activityDescription = `New records were appended to the dataset: ${od.rows_prev} → ${od.rows_new} rows (+${added}).`;
+                        } else {
+                            activityDescription = 'New records were appended to the dataset.';
+                        }
                     }
 
                     // Handle timestamp override for GDPR Check
@@ -421,6 +496,7 @@ export const useStore = defineStore('store', () => {
         selectTableFilter,
         setBackendUrl,
         setDatasetFactoryUrl,
+        isExternalVersion,
 
         // Utilities (exposed for components that need them)
         capitalizeFirstLetter,

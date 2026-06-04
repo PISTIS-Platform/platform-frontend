@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
+import { datasetCategoryOptions } from '~/constants/dataset-categories';
 import { StreamingFormat, StreamingGranularity } from '~/constants/streaming';
 
 const {
@@ -54,6 +55,13 @@ const streamingGranularityChoices = [
     },
 ];
 
+const categorySelectOptions = computed(() =>
+    datasetCategoryOptions.map((opt) => ({
+        label: opt.pref_label['en'],
+        value: opt.id,
+    })),
+);
+
 const selectedFormat = computed(() =>
     streamingFormatChoices.find((item: { label: string; value: string }) => item.value === state.format),
 );
@@ -67,6 +75,7 @@ const selectedGranularity = computed(() =>
 const state = reactive({
     title: undefined,
     description: undefined,
+    category: undefined as { label: string; value: string } | undefined,
     format: streamingFormatChoices[0].value,
     granularity: streamingGranularityChoices[4].value,
 });
@@ -96,7 +105,7 @@ const onSubmit = async () => {
             saslMechanism: string;
         }>(`/api/connector/get-streaming-details`, {
             method: 'POST',
-            body: state,
+            body: { ...state, category: state.category?.value },
         });
         data.value.id = details.id;
         data.value.topic = details.topic;
@@ -107,6 +116,7 @@ const onSubmit = async () => {
         data.value.brokerUrls = details.bootstrapServers.trim().replace(/^https?:\/\//, '');
         data.value.securityProtocol = details.securityProtocol;
         data.value.saslMechanism = details.saslMechanism;
+        data.value.category = state.category?.label;
         data.value.format = state.format;
         data.value.granularity = state.granularity;
 
@@ -164,6 +174,15 @@ const showPassword = ref(false);
                         </div>
                     </template>
                 </UFormGroup>
+                <UFormGroup :label="$t('data.streaming.datasetCategory')" name="category">
+                    <USelectMenu
+                        v-model="state.category"
+                        :options="categorySelectOptions"
+                        :disabled="loaded"
+                        placeholder=" Select Category ... "
+                        :ui="{ base: 'disabled:opacity-40' }"
+                    />
+                </UFormGroup>
                 <UFormGroup :label="$t('data.streaming.format')" name="format">
                     <div class="flex items-center gap-2">
                         <URadio
@@ -207,6 +226,10 @@ const showPassword = ref(false);
                         <span class="flex items-center gap-2 font-bold"
                             >{{ $t('data.streaming.descriptionPlain') }}:
                             <span class="font-normal font-mono">{{ data.description }}</span>
+                        </span>
+                        <span v-if="data.category" class="flex items-center gap-2 font-bold"
+                            >{{ $t('data.datasetCategory') }}
+                            <span class="font-normal font-mono">{{ data.category }}</span>
                         </span>
                         <span class="flex items-center gap-2 font-bold"
                             >{{ $t('data.streaming.format') }}:

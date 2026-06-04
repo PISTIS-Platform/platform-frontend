@@ -7,7 +7,8 @@ export default defineEventHandler(async (event) => {
     const session = event.context.session;
 
     return event.$fetch(
-        `${factoryUrl}/srv/job-configurator/workflow/getWorkflowRunList?workflow_id=pistis_workflow_template`,
+        `${factoryUrl}/srv/job-configurator/workflow/getWorkflowRunListPaginated?workflow_id=pistis_workflow_template`,
+
         {
             method: 'POST',
             body,

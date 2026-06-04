@@ -5,6 +5,7 @@ const { getSCEEBurnNftUrl, getMarketplaceDatasetUrl, getSCEEAssetUrl } = useApiS
 const { data: session } = useAuth();
 const token = ref(session.value?.token);
 
+const isLoading = ref(true);
 const isDeleting = ref(false);
 const deleteSuccess = ref(false);
 const deleteError = ref(false);
@@ -16,6 +17,8 @@ const props = defineProps({
 });
 
 const router = useRouter();
+
+const saleType = ref('');
 
 // for nft datasets:
 const isNft = ref(false);
@@ -30,10 +33,13 @@ const isNftOffer = async (datasetId: string): Promise<boolean> => {
                 Authorization: `Bearer ${token.value}`,
             },
         });
+        saleType.value = response?.response?.sale?.saleType;
         return response?.response?.sale?.saleType === 'nft';
     } catch (err) {
         console.error('SCEE ERROR:', err);
         return false;
+    } finally {
+        isLoading.value = false;
     }
 };
 
@@ -128,16 +134,29 @@ const confirmDelete = async () => {
 </script>
 
 <template>
-    <div>
+    <div v-if="!isLoading">
         <UButton
-            v-if="!isDeleting"
+            v-if="!isDeleting && saleType != 'subscription'"
             size="sm"
             color="secondary"
             variant="solid"
             label="Unpublish"
             @click="openConfirmationWindow"
         />
-        <UTooltip v-else text="Dataset gets unpublished...">
+        <UTooltip v-else-if="isDeleting" text="Dataset gets unpublished...">
+            <UButton :disabled="true" color="secondary" size="sm" label="Unpublish" />
+        </UTooltip>
+        <UTooltip
+            v-else-if="saleType == 'subscription'"
+            text="This is a subscription offer. At the moment it cannot be unpublished."
+            :ui="{
+                width: 'max-w-xs',
+                base: 'whitespace-normal break-words h-auto',
+            }"
+        >
+            <UButton :disabled="true" color="secondary" size="sm" label="Unpublish" />
+        </UTooltip>
+        <UTooltip v-else text="Unpublish is not available.">
             <UButton :disabled="true" color="secondary" size="sm" label="Unpublish" />
         </UTooltip>
         <UModal v-model="showConfirmationWindow" :ui="{ width: 'max-w-none w-[650px]' }">
@@ -180,5 +199,8 @@ const confirmDelete = async () => {
                 <p class="text-gray-600 mt-2">You will be redirected...</p>
             </div>
         </UModal>
+    </div>
+    <div v-else>
+        <UButton :disabled="true" color="secondary" size="sm" label="Unpublish" />
     </div>
 </template>
