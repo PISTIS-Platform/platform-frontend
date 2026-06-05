@@ -92,8 +92,12 @@ import { useI18n } from '#imports';
 
 const { t } = useI18n();
 import * as R from 'ramda';
+import { boolean, number } from 'zod';
 
 // const route = useRoute();
+
+const runtimeConfig = useRuntimeConfig();
+const ownFactoryOrgId = runtimeConfig.public.orgId;
 
 const notification = ref('');
 
@@ -109,6 +113,17 @@ const offerMetadata = ref({
     datasetId: '',
     accessURL: '',
     organizationId: '',
+    type: '',
+    price: number,
+    numOfShare: number,
+    numOfResell: number,
+    limitNumber: number,
+    limitFrequency: '',
+    license: '',
+    transferable: '',
+    region: '',
+    containsPersonalData: boolean,
+    isExclusive: boolean,
 });
 
 const selected = ref<
@@ -136,8 +151,19 @@ watch(selected, () => {
     }
     offerMetadata.value.datasetId = selected.value.offer.original_id || '';
     offerMetadata.value.distributionId = distribution?.id || '';
-    offerMetadata.value.organizationId =
-        selected.value.monetization?.[0]?.purchase_offer?.[0]?.publisher?.organization_id || '';
+    offerMetadata.value.organizationId = ownFactoryOrgId;
+    offerMetadata.value.type = selected.value.monetization?.[0]?.purchase_offer?.[0]?.type || '';
+    offerMetadata.value.price = selected.value.monetization?.[0]?.purchase_offer?.[0]?.price || 0;
+    offerMetadata.value.numOfShare = selected.value.monetization?.[0]?.purchase_offer?.[0]?.num_reshare || 999;
+    offerMetadata.value.numOfResell = selected.value.monetization?.[0]?.purchase_offer?.[0]?.num_resell || 999;
+    offerMetadata.value.limitNumber = selected.value.monetization?.[0]?.purchase_offer?.[0]?.limit_number || 999;
+    // offerMetadata.value.limitFrequency = selected.value.monetization?.[0]?.purchase_offer?.[0]?.limit_frequency || '';
+    offerMetadata.value.license = selected.value.monetization?.[0]?.purchase_offer?.[0]?.license?.label || '';
+    offerMetadata.value.transferable = selected.value.monetization?.[0]?.purchase_offer?.[0]?.transferable || '';
+    offerMetadata.value.region = selected.value.monetization?.[0]?.purchase_offer?.[0]?.spatial_availability || '';
+    offerMetadata.value.containsPersonalData =
+        selected.value.monetization?.[0]?.purchase_offer?.[0]?.personal_data_terms?.[0]?.contains_personal_data;
+    offerMetadata.value.isExclusive = selected.value.monetization?.[0]?.purchase_offer?.[0]?.is_exclusive;
 });
 
 const { data: datasetsData } = useFetch<Record<string, any>[]>(`/api/datasets/get-all-foreign-offers-valuation`, {
@@ -202,6 +228,7 @@ async function submit() {
     }
 
     const dvsUrl = `${offerMetadata.value.ownerFactoryURL}api/datavalue/`;
+    const proxyDvsRoute = `/api/datasets/get-valuation-data`;
 
     const dvsPayload = {
         originalAssetId: offerMetadata.value.datasetId,
@@ -215,6 +242,19 @@ async function submit() {
             acc[key] = item.value;
             return acc;
         }, {}),
+        monetization: {
+            type: offerMetadata.value.type,
+            price: offerMetadata.value.price,
+            numOfShare: offerMetadata.value.numOfShare,
+            numOfResell: offerMetadata.value.numOfResell,
+            limitNumber: offerMetadata.value.limitNumber,
+            // limitFrequency: offerMetadata.value.limitFrequency,
+            license: offerMetadata.value.license,
+            transferable: offerMetadata.value.transferable,
+            region: offerMetadata.value.region,
+            containsPersonalData: offerMetadata.value.containsPersonalData,
+            isExclusive: offerMetadata.value.isExclusive,
+        },
     };
 
     console.log('Submitting valuation to:', dvsUrl);
@@ -222,10 +262,10 @@ async function submit() {
     console.log('Submitting valuation with payload - stringified:', JSON.stringify(dvsPayload, null, 2));
 
     try {
-        const response = await fetch(dvsUrl, {
+        const response = await fetch(proxyDvsRoute, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dvsPayload),
+            body: JSON.stringify(dvsPayload, null, 2),
         });
 
         if (!response.ok) {
