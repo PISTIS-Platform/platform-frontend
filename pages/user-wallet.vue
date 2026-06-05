@@ -6,7 +6,7 @@ const { data: coinsBalance } = await useFetch<{ balance: number }>('/api/wallet/
 const { data: fiatBalance } = await useFetch<{ balance: number }>('/api/wallet/fiat-balance');
 
 const EXCHANGE_RATE = 0.85;
-const EXCHANGE_FEE = 1.5;
+const EXCHANGE_FEE = 0;
 const MIN_EXCHANGE = 10;
 const PLATFORM_IBAN = 'GR16 0110 1250 0000 0001 2300 695';
 
