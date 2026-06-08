@@ -13,9 +13,7 @@ export const useApiService = (pistisMode: string = 'cloud') => {
     if (pistisMode === 'openData') {
         searchUrl = `${baseUrl}/api/hub/search/`;
     }
-
-    // On the client, route search calls through the Nitro proxy to avoid CORS
-    const getSearchUrl = () => (process.client ? '/api/search' : searchUrl);
+    const getSearchUrl = () => searchUrl;
 
     const getRepoUrl = () => `${baseUrl}/srv/repo/`;
 
