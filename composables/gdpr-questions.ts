@@ -1,4 +1,4 @@
-export const useGdprQuestions = (datasetId: string) => {
+export const useGdprQuestions = (assetId: string | null) => {
     const { showSuccessMessage, showErrorMessage } = useAlertMessage();
     const questionKey = ref('q1');
     const answerRef = ref();
@@ -218,7 +218,7 @@ export const useGdprQuestions = (datasetId: string) => {
 
     const saveCurrentAnswer = () => {
         if (answerRef.value) {
-            answersLog.value['datasetId'] = datasetId;
+            answersLog.value['datasetId'] = assetId;
             answersLog.value[questionKey.value] = answerRef.value;
         }
     };
@@ -322,12 +322,16 @@ export const useGdprQuestions = (datasetId: string) => {
 
     const submit = async () => {
         if (submitting.value) return;
+        if (!assetId) {
+            showErrorMessage('Could not submit GDPR check: missing asset id for this distribution.');
+            return;
+        }
         submitting.value = true;
         try {
             await $fetch('/api/gdpr-checker/check-compliance', {
                 method: 'POST',
                 body: {
-                    assetId: datasetId,
+                    assetId,
                     questionnaire: buildQuestionnaire(),
                 },
             });

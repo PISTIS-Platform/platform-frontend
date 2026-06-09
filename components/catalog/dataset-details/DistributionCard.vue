@@ -311,7 +311,7 @@ const {
     showInfo,
     information,
     submitting,
-} = useGdprQuestions(props.datasetId);
+} = useGdprQuestions(getAssetIdFromDownloadUrl(props.downloadUrl));
 
 const handleLicenseOpen = (value) => {
     navigateTo(value.resource, {
