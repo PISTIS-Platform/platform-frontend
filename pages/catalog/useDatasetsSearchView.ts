@@ -58,11 +58,11 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     const isSearchAfterMode = computed(() => queryParams.searchAfter?.value === 'true');
     const selectedFacets = options.selectedFacets ? toRef(options.selectedFacets) : toRef(useSelectedFacets());
 
-    // const searchHeaders = computed(() => ({
-    //     ...(!searchQueryArgs.disableUserToken && authStore.user.token
-    //         ? { Authorization: `Bearer ${searchQueryArgs.forceUserToken ?? authStore.user.token}` }
-    //         : {}),
-    // }));
+    const { data: session } = useAuth();
+
+    const searchHeaders = computed(() => {
+        return session.value?.token ? { Authorization: `Bearer ${session.value.token}` } : {};
+    });
 
     // --- Dataset Scope: Model Toggles & Computed Flags ---
     const hvdModel = toRef(options?.hvdModel || false);
@@ -93,7 +93,7 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
             ...toRefs(selectedFacets.value),
             periodicity: isLivedata,
         },
-        // headers: searchHeaders,
+        headers: searchHeaders,
     });
 
     const searchMetaData = computed(() => {
