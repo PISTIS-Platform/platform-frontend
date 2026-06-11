@@ -358,34 +358,34 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                                     }"
                                 />
                                 <UButton
-                                    v-if="
-                                        (pistisMode === 'cloud' &&
-                                            props.hasPistisSchema &&
-                                            isOwnershipSet &&
-                                            isNotOwn) ||
-                                        pistisMode === 'factory'
-                                    "
                                     size="sm"
                                     variant="solid"
                                     :to="{
                                         path:
                                             pistisMode === 'cloud'
-                                                ? '/marketplace/data-quality'
+                                                ? '/marketplace/dataset-details/data-quality'
                                                 : '/catalog/dataset-details/data-quality',
-                                        query:
-                                            pistisMode === 'cloud'
-                                                ? {
-                                                      id: datasetId,
-                                                  }
-                                                : {
-                                                      datasetId,
-                                                      title,
-                                                      subtitle,
-                                                  },
+                                        query: {
+                                            datasetId,
+                                            title,
+                                            subtitle,
+                                        },
                                         external: true,
                                     }"
                                 >
-                                    {{ pistisMode === 'factory' ? 'Quality Assessment' : 'Quality Query' }}
+                                    Quality Assessment
+                                </UButton>
+                                <UButton
+                                    v-if="pistisMode === 'cloud' && props.hasPistisSchema && isOwnershipSet && isNotOwn"
+                                    size="sm"
+                                    variant="solid"
+                                    :to="{
+                                        path: '/marketplace/data-quality',
+                                        query: { id: datasetId },
+                                        external: true,
+                                    }"
+                                >
+                                    Quality Query
                                 </UButton>
                                 <UnpublishButton
                                     v-if="pistisMode === 'cloud' && isOwnershipSet && !isNotOwn"
