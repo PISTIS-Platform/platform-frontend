@@ -2,8 +2,10 @@
 const { organisationFullname } = useRuntimeConfig().public;
 const { data: session } = useAuth();
 
-const { data: coinsBalance } = await useFetch<{ balance: number }>('/api/wallet/coins-balance');
-const { data: fiatBalance } = await useFetch<{ balance: number }>('/api/wallet/fiat-balance');
+const { data: walletBalance, status: walletStatus } = useLazyFetch<{ dlt_amount: number }>('/api/wallet', {
+    method: 'POST',
+});
+const { data: fiatBalance, status: fiatStatus } = useLazyFetch<{ balance: number }>('/api/wallet/fiat-balance');
 
 const EXCHANGE_RATE = 0.85;
 const EXCHANGE_FEE = 0;
@@ -13,6 +15,7 @@ const PLATFORM_IBAN = 'GR16 0110 1250 0000 0001 2300 695';
 const isExchangeOpen = ref(false);
 const isDepositOpen = ref(false);
 const isWithdrawOpen = ref(false);
+const isSwapped = ref(false);
 
 const coinsAmount = ref<string>('0');
 const fiatAmount = ref<string>('0.00');
@@ -48,9 +51,26 @@ const onFiatInput = (val: string) => {
     coinsAmount.value = isNaN(num) ? '0' : (num / EXCHANGE_RATE).toFixed(2);
 };
 
+const swap = () => {
+    isSwapped.value = !isSwapped.value;
+};
+
+const coinsTouched = ref(false);
+
+const exchangeValidationError = computed(() => {
+    const coins = parseFloat(coinsAmount.value);
+    if (isNaN(coins) || coins < MIN_EXCHANGE) return `Minimum exchange is ${MIN_EXCHANGE} PISTIS Coins`;
+    const maxCoins = walletBalance.value?.dlt_amount;
+    if (maxCoins !== undefined && coins > maxCoins)
+        return `Cannot exceed your balance of ${maxCoins.toLocaleString()} PISTIS Coins`;
+    return null;
+});
+
 const cancel = () => {
     coinsAmount.value = '0';
     fiatAmount.value = '0.00';
+    isSwapped.value = false;
+    coinsTouched.value = false;
     isExchangeOpen.value = false;
 };
 
@@ -92,8 +112,9 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             <UIcon name="i-heroicons-globe-alt" class="w-5 h-5" />
                             PISTIS Coins Balance
                         </div>
-                        <span class="text-3xl font-bold text-primary-700">
-                            {{ coinsBalance?.balance.toLocaleString() }}
+                        <USkeleton v-if="walletStatus === 'pending'" class="h-9 w-32" />
+                        <span v-else class="text-3xl font-bold text-primary-700">
+                            {{ walletBalance?.dlt_amount?.toLocaleString() ?? 'N/A' }}
                         </span>
                         <span class="text-sm text-gray-400">PISTIS Coins</span>
                         <UBadge color="primary" variant="soft" class="w-fit">Digital Currency</UBadge>
@@ -106,7 +127,8 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             <UIcon name="i-heroicons-banknotes" class="w-5 h-5" />
                             FIAT Wallet Balance
                         </div>
-                        <span class="text-3xl font-bold text-green-700">
+                        <USkeleton v-if="fiatStatus === 'pending'" class="h-9 w-32" />
+                        <span v-else class="text-3xl font-bold text-green-700">
                             {{ fiatBalance?.balance.toLocaleString() }}
                         </span>
                         <span class="text-sm text-gray-400">EUR €</span>
@@ -135,23 +157,35 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                     />
                 </button>
 
-                <div v-if="isExchangeOpen" class="flex flex-col gap-4 p-6">
+                <div v-if="isExchangeOpen" class="flex flex-col gap-2 p-6">
                     <p class="text-sm text-gray-600">
                         Enter an amount in either field to calculate the exchange. Current rate:
                         <strong>1 PISTIS Coin = €{{ EXCHANGE_RATE }}</strong>
                     </p>
 
-                    <div class="flex items-end gap-4">
+                    <div class="flex items-end gap-6 mt-1">
                         <div class="flex-1 flex flex-col gap-1">
+                            <label class="text-xs font-semibold text-primary-500 tracking-wide uppercase">From</label>
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                                PISTIS Coins
+                                {{ isSwapped ? 'FIAT Money (EUR)' : 'PISTIS Coins' }}
                             </label>
                             <UInput
+                                v-if="!isSwapped"
                                 :model-value="coinsAmount"
                                 type="number"
                                 size="lg"
+                                :max="walletBalance?.dlt_amount"
                                 trailing-icon="i-heroicons-globe-alt"
                                 @update:model-value="onCoinsInput"
+                                @blur="coinsTouched = true"
+                            />
+                            <UInput
+                                v-else
+                                :model-value="fiatAmount"
+                                type="number"
+                                size="lg"
+                                trailing-icon="i-heroicons-currency-euro"
+                                @update:model-value="onFiatInput"
                             />
                         </div>
 
@@ -162,40 +196,60 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                 variant="solid"
                                 size="lg"
                                 class="rounded-full"
-                                @click="cancel"
+                                @click="swap"
                             />
                             <span class="text-xs text-gray-500">Exchange</span>
                         </div>
 
                         <div class="flex-1 flex flex-col gap-1">
+                            <label class="text-xs font-semibold text-primary-500 tracking-wide uppercase">To</label>
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                                FIAT Money (EUR)
+                                {{ isSwapped ? 'PISTIS Coins' : 'FIAT Money (EUR)' }}
                             </label>
                             <UInput
+                                v-if="!isSwapped"
                                 :model-value="fiatAmount"
                                 type="number"
                                 size="lg"
                                 trailing-icon="i-heroicons-currency-euro"
                                 @update:model-value="onFiatInput"
                             />
+                            <UInput
+                                v-else
+                                :model-value="coinsAmount"
+                                type="number"
+                                size="lg"
+                                :max="walletBalance?.dlt_amount"
+                                trailing-icon="i-heroicons-globe-alt"
+                                @update:model-value="onCoinsInput"
+                                @blur="coinsTouched = true"
+                            />
                         </div>
                     </div>
 
+                    <p
+                        v-if="coinsTouched && exchangeValidationError"
+                        class="text-xs text-red-500 flex items-center gap-1"
+                    >
+                        <UIcon name="i-heroicons-exclamation-circle" class="w-4 h-4" />
+                        {{ exchangeValidationError }}
+                    </p>
                     <p class="text-xs text-gray-500 flex items-center gap-1">
                         <UIcon name="i-heroicons-information-circle" class="w-4 h-4" />
                         Exchange fee: {{ EXCHANGE_FEE }}% | Minimum exchange: {{ MIN_EXCHANGE }} PISTIS Coins
                     </p>
 
-                    <div class="flex gap-3">
+                    <div class="flex gap-3 mt-2">
                         <UButton
                             color="primary"
                             variant="solid"
                             icon="i-heroicons-arrows-right-left"
+                            :disabled="!!exchangeValidationError"
                             @click="confirmExchange"
                         >
                             Confirm Exchange
                         </UButton>
-                        <UButton color="white" variant="solid" @click="cancel">Cancel</UButton>
+                        <UButton color="white" variant="solid" @mousedown.prevent @click="cancel">Cancel</UButton>
                     </div>
                 </div>
             </div>
