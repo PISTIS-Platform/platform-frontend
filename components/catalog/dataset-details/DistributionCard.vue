@@ -53,7 +53,11 @@ const hasPistisSchema = computed(() => !!props.pistisSchema);
 
 const fetchMetadata = async () => {
     try {
-        const response = await fetch(searchUrl);
+        const response = await fetch(searchUrl, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         const data = await response.json();
         copyData.topic = `ds-${data.result.id}`;
         catalog.value = data.result.catalog.id;

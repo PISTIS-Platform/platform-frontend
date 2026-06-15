@@ -120,7 +120,11 @@ const offerType = computed(() => {
 
 const fetchMetadata = async () => {
     try {
-        const response = await fetch(datasetUrl);
+        const response = await fetch(datasetUrl, {
+            headers: {
+                Authorization: `Bearer ${token.value}`,
+            },
+        });
         const data = await response.json();
         metadata.value = data;
         catalog.value = data.result.catalog.id;
