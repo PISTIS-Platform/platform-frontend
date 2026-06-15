@@ -18,7 +18,7 @@ export function useDcatApSearch() {
     const pistisMode = route.query.pm;
     const { getSearchUrl } = useApiService(pistisMode);
 
-    return defineHubSearch(
+    const sdk = defineHubSearch(
         {
             baseUrl: getSearchUrl(),
             index: 'dataset',
@@ -80,6 +80,25 @@ export function useDcatApSearch() {
             };
         },
     );
+
+    // Wrap the returned SDK's `useResource` so resource fetches include
+    // the logged-in user's bearer token automatically when available.
+    const originalUseResource = (sdk as any).useResource;
+    (sdk as any).useResource = function (id: any, options?: any) {
+        const { data: session } = useAuth();
+        const authHeaders = session?.value?.token ? { Authorization: `Bearer ${session.value.token}` } : {};
+        const mergedOptions = {
+            ...(options || {}),
+            headers: {
+                ...(options?.headers || {}),
+                ...authHeaders,
+            },
+        };
+
+        return originalUseResource.call(this, id, mergedOptions);
+    };
+
+    return sdk;
 }
 
 export function useDcatApCatalogSearch() {

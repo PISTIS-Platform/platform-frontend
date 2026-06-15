@@ -26,6 +26,8 @@ ensureDatasetId(datasetId);
 
 const { useResource: getDataset } = useDcatApSearch();
 
+const { data: session } = useAuth();
+
 const { isSuccess, query, resultEnhanced } = shallowReactive(getDataset(datasetId));
 
 const getFormattedDistributions = computed(() => {
@@ -79,7 +81,11 @@ const distributionMetadata = ref<any>(null);
 
 const fetchDistributionMetadata = async () => {
     try {
-        const response = await fetch(searchUrl);
+        const response = await fetch(searchUrl, {
+            headers: {
+                Authorization: `Bearer ${session.value?.token}`,
+            },
+        });
         distributionMetadata.value = await response.json();
         catalogId.value = distributionMetadata.value.result?.catalog?.id;
     } catch (error) {
