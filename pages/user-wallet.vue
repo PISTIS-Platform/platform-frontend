@@ -106,7 +106,7 @@ const withdrawAmountError = makeAmountValidator(
     () => withdrawForm.amount,
     () => fiatBalance.value?.balance,
     'Enter a valid amount',
-    (max) => `Cannot exceed your FIAT balance of €${max.toLocaleString()}`,
+    (max) => `Cannot exceed your FIAT balance of ${max.toLocaleString()} EUR`,
 );
 
 const onWithdrawAmountInput = (val: string | number) => {
@@ -212,14 +212,14 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                 <div v-if="isExchangeOpen" class="flex flex-col gap-2 p-6">
                     <p class="text-sm text-gray-600">
                         Enter an amount in either field to calculate the exchange. Current rate:
-                        <strong>1 PISTIS Coin = €{{ EXCHANGE_RATE }}</strong>
+                        <strong>1 PISTIS Coin = {{ EXCHANGE_RATE }} PC</strong>
                     </p>
 
                     <div class="flex items-end gap-6 mt-1">
                         <div class="flex-1 flex flex-col gap-1">
                             <label class="text-xs font-semibold text-primary-500 tracking-wide uppercase">From</label>
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                                {{ isSwapped ? 'FIAT Money (EUR)' : 'PISTIS Coins' }}
+                                {{ isSwapped ? 'FIAT Money (PC)' : 'PISTIS Coins' }}
                             </label>
                             <UInput
                                 v-if="!isSwapped"
@@ -237,7 +237,6 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 type="number"
                                 size="lg"
                                 placeholder="0.00"
-                                trailing-icon="i-heroicons-currency-euro"
                                 @update:model-value="(v) => onAmountInput(v, 'fiat')"
                             />
                         </div>
@@ -257,7 +256,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                         <div class="flex-1 flex flex-col gap-1">
                             <label class="text-xs font-semibold text-primary-500 tracking-wide uppercase">To</label>
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                                {{ isSwapped ? 'PISTIS Coins' : 'FIAT Money (EUR)' }}
+                                {{ isSwapped ? 'PISTIS Coins' : 'FIAT Money (PC)' }}
                             </label>
                             <UInput
                                 v-if="!isSwapped"
@@ -265,7 +264,6 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 type="number"
                                 size="lg"
                                 placeholder="0.00"
-                                trailing-icon="i-heroicons-currency-euro"
                                 @update:model-value="(v) => onAmountInput(v, 'fiat')"
                             />
                             <UInput
@@ -489,14 +487,13 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
 
                     <div v-if="depositMethod === 'card'" class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                            Amount to Deposit (EUR)
+                            Amount to Deposit (PC)
                         </label>
                         <UInput
                             v-model="cardForm.amount"
                             type="number"
                             size="lg"
                             placeholder="0.00"
-                            trailing-icon="i-heroicons-currency-euro"
                             @update:model-value="() => validateCardField('amount')"
                         />
                         <p v-if="cardErrors.amount" class="text-xs text-red-500">{{ cardErrors.amount }}</p>
@@ -541,7 +538,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
 
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                            Amount to Withdraw (EUR)
+                            Amount to Withdraw (PC)
                         </label>
                         <UInput
                             :model-value="withdrawForm.amount"
@@ -551,7 +548,6 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                             :max="fiatBalance?.balance"
                             size="lg"
                             placeholder="0.00"
-                            trailing-icon="i-heroicons-currency-euro"
                             @update:model-value="onWithdrawAmountInput"
                         />
                         <p v-if="withdrawAmountError || withdrawErrors.amount" class="text-xs text-red-500">

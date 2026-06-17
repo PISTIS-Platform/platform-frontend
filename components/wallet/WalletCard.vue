@@ -13,7 +13,7 @@ const props = defineProps({
     coin: {
         type: String,
         required: false,
-        default: 'EUR',
+        default: 'PC',
     },
     iconName: {
         type: String,

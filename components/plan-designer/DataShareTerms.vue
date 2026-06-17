@@ -300,7 +300,7 @@ const durationTextDisplay = computed(() => {
                                 <!--OPTION  1-->
                                 <span v-if="monetizationDetails.type === 'one-off'"
                                     >The Parties agree on that the Data Recipient shall pay the Data Provider
-                                    {{ monetizationDetails.price }} EUR (‘Fee’) for the license to access, copy and
+                                    {{ monetizationDetails.price }} PC (‘Fee’) for the license to access, copy and
                                     process the Data Set as defined herein on the Effective date. The Fee is exclusive
                                     of VAT or local sales tax or any other applicable taxes.</span
                                 >
@@ -308,7 +308,7 @@ const durationTextDisplay = computed(() => {
                                 <!-- OPTION 2 -->
                                 <span v-if="monetizationDetails.type === 'subscription'">
                                     The Parties agree on that Data Recipient shall pay Data Provider
-                                    {{ monetizationDetails.price }} EUR (‘Subscription Fee’) on a(n)
+                                    {{ monetizationDetails.price }} PC (‘Subscription Fee’) on a(n)
                                     {{ monetizationDetails.subscriptionFrequency }} basis, in advance, starting from the
                                     Effective Date and recurring on the same date of every following
                                     {{ recurrentPaymentText }}, for the license to access, copy and process the Data Set
