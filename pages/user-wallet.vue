@@ -149,7 +149,10 @@ const cancelExchange = () => {
 const confirmExchange = async () => await $fetch('/api/wallet/exchange', { method: 'POST' });
 const confirmWithdraw = async () => {
     if (!validateWithdrawForm()) return;
-    await $fetch('/api/wallet/withdraw', { method: 'POST' });
+    await $fetch('/api/wallet/withdraw', {
+        method: 'POST',
+        body: { amount: withdrawForm.amount, iban: withdrawForm.iban },
+    });
 };
 
 const cancelDeposit = makeCancel(cardForm, cardDefaults, cardErrors, () => (activeSection.value = null));
