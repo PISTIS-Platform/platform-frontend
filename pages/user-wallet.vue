@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { organisationFullname } = useRuntimeConfig().public;
+const { organisationFullname, factoryIban } = useRuntimeConfig().public;
 const { data: session } = useAuth();
 
 const { data: walletBalance, status: walletStatus } = useLazyFetch<{ dlt_amount: number }>('/api/wallet', {
@@ -10,7 +10,6 @@ const { data: fiatBalance, status: fiatStatus } = useLazyFetch<{ balance: number
 const EXCHANGE_RATE = 0.85;
 const EXCHANGE_FEE = 0;
 const MIN_EXCHANGE = 10;
-const PLATFORM_IBAN = 'GR16 0110 1250 0000 0001 2300 695';
 
 const isExchangeOpen = ref(false);
 const isDepositOpen = ref(false);
@@ -25,7 +24,31 @@ const depositAmount = ref<string>('');
 
 const cardholderName = ref<string>('');
 const cardNumber = ref<string>('');
+const cardNumberError = ref<string | undefined>(undefined);
+const validateCardNumber = () => {
+    cardNumberError.value = cardNumber.value.length !== 16 ? 'Card number must be 16 digits' : undefined;
+};
 const cardExpiry = ref<string>('');
+const cardExpiryError = ref<string | undefined>(undefined);
+const onExpiryInput = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '').slice(0, 4);
+    let formatted = digits;
+    if (digits.length >= 3) formatted = `${digits.slice(0, 2)} / ${digits.slice(2)}`;
+    else if (digits.length >= 2) formatted = `${digits.slice(0, 2)} / `;
+    cardExpiry.value = formatted;
+    input.value = formatted;
+    cardExpiryError.value = undefined;
+};
+const validateCardExpiry = () => {
+    const digits = cardExpiry.value.replace(/\D/g, '');
+    if (digits.length < 4) {
+        cardExpiryError.value = 'Enter a valid expiry date';
+        return;
+    }
+    const month = parseInt(digits.slice(0, 2));
+    cardExpiryError.value = month < 1 || month > 12 ? 'Month must be between 01 and 12' : undefined;
+};
 const cardCvv = ref<string>('');
 const cardBillingAddress = ref<string>('');
 const cardPostalCode = ref<string>('');
@@ -107,7 +130,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
         <div class="w-full mt-4">
             <div class="flex gap-4 mt-4">
                 <UCard class="flex-1">
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-2 h-full">
                         <div class="flex items-center gap-2 text-gray-500 text-sm">
                             <UIcon name="i-heroicons-globe-alt" class="w-5 h-5" />
                             PISTIS Coins Balance
@@ -116,13 +139,12 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                         <span v-else class="text-3xl font-bold text-primary-700">
                             {{ walletBalance?.dlt_amount?.toLocaleString() ?? 'N/A' }}
                         </span>
-                        <span class="text-sm text-gray-400">PISTIS Coins</span>
-                        <UBadge color="primary" variant="soft" class="w-fit">Digital Currency</UBadge>
+                        <UBadge color="primary" variant="soft" class="w-fit mt-auto">Digital Currency</UBadge>
                     </div>
                 </UCard>
 
                 <UCard class="flex-1">
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-2 h-full">
                         <div class="flex items-center gap-2 text-gray-500 text-sm">
                             <UIcon name="i-heroicons-banknotes" class="w-5 h-5" />
                             FIAT Wallet Balance
@@ -131,8 +153,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                         <span v-else class="text-3xl font-bold text-green-700">
                             {{ fiatBalance?.balance.toLocaleString() }}
                         </span>
-                        <span class="text-sm text-gray-400">EUR €</span>
-                        <UBadge color="green" variant="soft" class="w-fit text-green-700">Euro Balance</UBadge>
+                        <UBadge color="green" variant="soft" class="w-fit mt-auto text-green-700">Euro Balance</UBadge>
                     </div>
                 </UCard>
             </div>
@@ -327,7 +348,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             <p class="text-xs font-semibold text-primary-500 tracking-wide uppercase mb-1">
                                 PISTIS Platform IBAN
                             </p>
-                            <p class="text-xl font-bold text-gray-900 tracking-wider">{{ PLATFORM_IBAN }}</p>
+                            <p class="text-xl font-bold text-gray-900 tracking-wider">{{ factoryIban }}</p>
                         </div>
 
                         <div class="rounded-lg border border-yellow-300 bg-yellow-50 px-5 py-4 flex flex-col gap-2">
@@ -336,7 +357,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                 <strong>Remittance Information / Payment Reference</strong> field, include exactly:
                             </p>
                             <p class="font-bold text-gray-800">
-                                {{ userName }} · <span class="uppercase">{{ organisationFullname }}</span> · PISTIS
+                                PISTIS · <span class="uppercase">{{ organisationFullname }}</span> · {{ userName }}
                             </p>
                             <p class="text-sm text-yellow-700">
                                 Transfers without this reference may be delayed or rejected.
@@ -357,7 +378,15 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                 Card Number
                             </label>
-                            <UInput v-model="cardNumber" size="lg" placeholder="1234 5678 9012 3456" />
+                            <UInput
+                                v-model="cardNumber"
+                                size="lg"
+                                placeholder="1234 5678 9012 3456"
+                                maxlength="16"
+                                @keypress="(e: KeyboardEvent) => !/\d/.test(e.key) && e.preventDefault()"
+                                @blur="validateCardNumber"
+                            />
+                            <p v-if="cardNumberError" class="text-xs text-red-500">{{ cardNumberError }}</p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -365,7 +394,15 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                 <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                     Expiry Date
                                 </label>
-                                <UInput v-model="cardExpiry" size="lg" placeholder="MM / YY" />
+                                <UInput
+                                    v-model="cardExpiry"
+                                    size="lg"
+                                    placeholder="MM / YY"
+                                    maxlength="7"
+                                    @input="onExpiryInput"
+                                    @blur="validateCardExpiry"
+                                />
+                                <p v-if="cardExpiryError" class="text-xs text-red-500">{{ cardExpiryError }}</p>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
@@ -395,7 +432,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-1">
+                    <div v-if="depositMethod === 'card'" class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                             Amount to Deposit (EUR)
                         </label>
@@ -408,13 +445,8 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                         />
                     </div>
 
-                    <div class="flex gap-3">
-                        <UButton
-                            color="primary"
-                            variant="solid"
-                            :icon="depositMethod === 'card' ? 'i-heroicons-lock-closed' : 'i-heroicons-check'"
-                            @click="confirmDeposit"
-                        >
+                    <div v-if="depositMethod === 'card'" class="flex gap-3">
+                        <UButton color="primary" variant="solid" icon="i-heroicons-lock-closed" @click="confirmDeposit">
                             Confirm Deposit
                         </UButton>
                         <UButton color="white" variant="solid" @click="cancelDeposit">Cancel</UButton>
