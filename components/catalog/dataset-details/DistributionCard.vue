@@ -3,6 +3,7 @@ import type { PropertyTableEntryNode } from '@piveau/sdk-vue';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { toast } from 'vue-sonner';
 
 import { useApiService } from '~/services/apiService';
 
@@ -145,6 +146,7 @@ async function downloadFile() {
             console.error('Error downloading file:', error);
 
             alert('Failed to download the file.');
+            toast.error('Failed to download the file.', { position: 'bottom-center' });
         }
     }
 }
@@ -164,26 +166,26 @@ function getAssetIdFromDownloadUrl(url: string) {
 async function decryptFile() {
     if (!props.distributionId) {
         console.error('decryptFile: missing distributionId');
-        alert('Unable to decrypt: missing distribution id.');
+        toast.error('Unable to decrypt: missing distribution id.', { position: 'bottom-center' });
         return;
     }
 
     if (!catalog.value) {
         console.error('decryptFile: missing catalog id');
-        alert('Unable to decrypt: missing factory information.');
+        toast.error('Unable to decrypt: missing factory information.', { position: 'bottom-center' });
         return;
     }
 
     if (!token) {
         console.error('decryptFile: missing auth token');
-        alert('Unable to decrypt: no authentication token. Please login again.');
+        toast.error('Unable to decrypt: no authentication token. Please login again.', { position: 'bottom-center' });
         return;
     }
 
     const assetId = getAssetIdFromDownloadUrl(props.downloadUrl);
     if (!assetId) {
         console.error('decryptFile: missing assetId in downloadUrl', props.downloadUrl);
-        alert('Unable to decrypt: invalid download URL, missing asset UUID.');
+        toast.error('Unable to decrypt: invalid download URL, missing asset UUID.', { position: 'bottom-center' });
         return;
     }
 
@@ -203,7 +205,7 @@ async function decryptFile() {
         );
 
         // reload to show decrypted distribution
-        // window.location.reload();
+        window.location.reload();
     } catch (error) {
         console.error('Error decrypting distribution:', error);
 
@@ -215,7 +217,7 @@ async function decryptFile() {
             }
         }
 
-        alert(message);
+        toast.error(message, { position: 'bottom-center' });
     } finally {
         decryptInProgress.value = false;
     }
