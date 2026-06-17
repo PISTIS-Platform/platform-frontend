@@ -219,7 +219,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                         <div class="flex-1 flex flex-col gap-1">
                             <label class="text-xs font-semibold text-primary-500 tracking-wide uppercase">From</label>
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                                {{ isSwapped ? 'FIAT Money (PC)' : 'PISTIS Coins' }}
+                                {{ isSwapped ? 'FIAT Money (EUR)' : 'PISTIS Coins' }}
                             </label>
                             <UInput
                                 v-if="!isSwapped"
@@ -256,7 +256,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                         <div class="flex-1 flex flex-col gap-1">
                             <label class="text-xs font-semibold text-primary-500 tracking-wide uppercase">To</label>
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                                {{ isSwapped ? 'PISTIS Coins' : 'FIAT Money (PC)' }}
+                                {{ isSwapped ? 'PISTIS Coins' : 'FIAT Money (EUR)' }}
                             </label>
                             <UInput
                                 v-if="!isSwapped"
