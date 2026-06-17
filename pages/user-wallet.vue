@@ -1,4 +1,15 @@
 <script setup lang="ts">
+import type { ZodType } from 'zod';
+
+import {
+    cardDefaults,
+    type CardForm,
+    CardSchema,
+    withdrawDefaults,
+    type WithdrawForm,
+    WithdrawSchema,
+} from '~/schemas/user-wallet';
+
 const { organisationFullname, factoryIban } = useRuntimeConfig().public;
 const { data: session } = useAuth();
 
@@ -11,76 +22,26 @@ const EXCHANGE_RATE = 0.85;
 const EXCHANGE_FEE = 0;
 const MIN_EXCHANGE = 10;
 
-const isExchangeOpen = ref(false);
-const isDepositOpen = ref(false);
-const isWithdrawOpen = ref(false);
+const activeSection = ref<'exchange' | 'deposit' | 'withdraw' | null>(null);
 const isSwapped = ref(false);
-
-const coinsAmount = ref<string>('0');
-const fiatAmount = ref<string>('0.00');
-
+const coinsAmount = ref<string>('');
+const fiatAmount = ref<string>('');
 const depositMethod = ref<'bank' | 'card'>('bank');
-const depositAmount = ref<string>('');
 
-const cardholderName = ref<string>('');
-const cardNumber = ref<string>('');
-const cardNumberError = ref<string | undefined>(undefined);
-const validateCardNumber = () => {
-    cardNumberError.value = cardNumber.value.length !== 16 ? 'Card number must be 16 digits' : undefined;
-};
-const cardExpiry = ref<string>('');
-const cardExpiryError = ref<string | undefined>(undefined);
-const onExpiryInput = (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    const digits = input.value.replace(/\D/g, '').slice(0, 4);
-    let formatted = digits;
-    if (digits.length >= 3) formatted = `${digits.slice(0, 2)} / ${digits.slice(2)}`;
-    else if (digits.length >= 2) formatted = `${digits.slice(0, 2)} / `;
-    cardExpiry.value = formatted;
-    input.value = formatted;
-    cardExpiryError.value = undefined;
-};
-const validateCardExpiry = () => {
-    const digits = cardExpiry.value.replace(/\D/g, '');
-    if (digits.length < 4) {
-        cardExpiryError.value = 'Enter a valid expiry date';
-        return;
-    }
-    const month = parseInt(digits.slice(0, 2));
-    cardExpiryError.value = month < 1 || month > 12 ? 'Month must be between 01 and 12' : undefined;
-};
-const cardCvv = ref<string>('');
-const cardBillingAddress = ref<string>('');
-const cardPostalCode = ref<string>('');
+const cardForm = reactive<CardForm>({ ...cardDefaults });
+const cardErrors = reactive<Partial<Record<keyof CardForm, string>>>({});
 
-const withdrawAmount = ref<string>('');
-const withdrawIban = ref<string>('');
-const withdrawRecipientName = ref<string>('');
-const withdrawOrgName = ref<string>('');
-const withdrawBankName = ref<string>('');
-const withdrawBankAddress = ref<string>('');
+const withdrawForm = reactive<WithdrawForm>({ ...withdrawDefaults });
+const withdrawErrors = reactive<Partial<Record<keyof WithdrawForm, string>>>({});
 
 const userName = computed(() => session.value?.user?.name ?? '');
 
-const onCoinsInput = (val: string) => {
-    const num = parseFloat(val);
-    coinsAmount.value = val;
-    fiatAmount.value = isNaN(num) ? '0.00' : (num * EXCHANGE_RATE).toFixed(2);
-};
-
-const onFiatInput = (val: string) => {
-    const num = parseFloat(val);
-    fiatAmount.value = val;
-    coinsAmount.value = isNaN(num) ? '0' : (num / EXCHANGE_RATE).toFixed(2);
-};
-
-const swap = () => {
-    isSwapped.value = !isSwapped.value;
-};
-
-const coinsTouched = ref(false);
+const isExchangeOpen = computed(() => activeSection.value === 'exchange');
+const isDepositOpen = computed(() => activeSection.value === 'deposit');
+const isWithdrawOpen = computed(() => activeSection.value === 'withdraw');
 
 const exchangeValidationError = computed(() => {
+    if (coinsAmount.value === '') return null;
     const coins = parseFloat(coinsAmount.value);
     if (isNaN(coins) || coins < MIN_EXCHANGE) return `Minimum exchange is ${MIN_EXCHANGE} PISTIS Coins`;
     const maxCoins = walletBalance.value?.dlt_amount;
@@ -89,40 +50,68 @@ const exchangeValidationError = computed(() => {
     return null;
 });
 
-const cancel = () => {
-    coinsAmount.value = '0';
-    fiatAmount.value = '0.00';
+const makeFieldValidator =
+    <T extends object>(schema: ZodType<T>, form: T, errors: Partial<Record<keyof T, string>>) =>
+    (field: keyof T) => {
+        const result = schema.safeParse(form);
+        if (result.success) delete errors[field];
+        else {
+            const issue = result.error.issues.find((i) => i.path[0] === field);
+            if (issue) errors[field] = issue.message;
+            else delete errors[field];
+        }
+    };
+
+const makeCancel =
+    <T extends object>(form: T, defaults: T, errors: Partial<Record<keyof T, string>>, close: () => void) =>
+    () => {
+        Object.assign(form, { ...defaults });
+        (Object.keys(errors) as (keyof T)[]).forEach((k) => delete errors[k]);
+        close();
+    };
+
+const validateCardField = makeFieldValidator(CardSchema, cardForm, cardErrors);
+const validateWithdrawField = makeFieldValidator(WithdrawSchema, withdrawForm, withdrawErrors);
+
+const onExpiryInput = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '').slice(0, 4);
+    let formatted = digits;
+    if (digits.length >= 3) formatted = `${digits.slice(0, 2)} / ${digits.slice(2)}`;
+    else if (digits.length >= 2) formatted = `${digits.slice(0, 2)} / `;
+    cardForm.expiry = formatted;
+    input.value = formatted;
+    validateCardField('expiry');
+};
+
+const onCoinsInput = (val: string) => {
+    const num = parseFloat(val);
+    coinsAmount.value = val;
+    fiatAmount.value = val === '' || isNaN(num) ? '' : (num * EXCHANGE_RATE).toFixed(2);
+};
+
+const onFiatInput = (val: string) => {
+    const num = parseFloat(val);
+    fiatAmount.value = val;
+    coinsAmount.value = val === '' || isNaN(num) ? '' : (num / EXCHANGE_RATE).toFixed(2);
+};
+
+const toggleSection = (section: typeof activeSection.value) => {
+    activeSection.value = activeSection.value === section ? null : section;
+};
+
+const cancelExchange = () => {
+    coinsAmount.value = '';
+    fiatAmount.value = '';
     isSwapped.value = false;
-    coinsTouched.value = false;
-    isExchangeOpen.value = false;
+    activeSection.value = null;
 };
 
 const confirmExchange = async () => await $fetch('/api/wallet/exchange', { method: 'POST' });
-
-const cancelDeposit = () => {
-    depositAmount.value = '';
-    cardholderName.value = '';
-    cardNumber.value = '';
-    cardExpiry.value = '';
-    cardCvv.value = '';
-    cardBillingAddress.value = '';
-    cardPostalCode.value = '';
-    isDepositOpen.value = false;
-};
-
-const confirmDeposit = async () => await $fetch('/api/wallet/deposit', { method: 'POST' });
-
-const cancelWithdraw = () => {
-    withdrawAmount.value = '';
-    withdrawIban.value = '';
-    withdrawRecipientName.value = '';
-    withdrawOrgName.value = '';
-    withdrawBankName.value = '';
-    withdrawBankAddress.value = '';
-    isWithdrawOpen.value = false;
-};
-
 const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { method: 'POST' });
+
+const cancelDeposit = makeCancel(cardForm, cardDefaults, cardErrors, () => (activeSection.value = null));
+const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors, () => (activeSection.value = null));
 </script>
 
 <template>
@@ -163,7 +152,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                 <button
                     class="flex w-full items-center gap-3 py-3 px-4 transition-colors duration-150"
                     :class="isExchangeOpen ? 'bg-primary-50 hover:bg-primary-100' : 'bg-white hover:bg-primary-50'"
-                    @click="isExchangeOpen = !isExchangeOpen"
+                    @click="toggleSection('exchange')"
                 >
                     <div class="bg-primary-100 rounded-lg p-2">
                         <UIcon name="i-heroicons-arrows-right-left" class="w-5 h-5 text-primary-600" />
@@ -195,16 +184,17 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                 :model-value="coinsAmount"
                                 type="number"
                                 size="lg"
+                                placeholder="0"
                                 :max="walletBalance?.dlt_amount"
                                 trailing-icon="i-heroicons-globe-alt"
                                 @update:model-value="onCoinsInput"
-                                @blur="coinsTouched = true"
                             />
                             <UInput
                                 v-else
                                 :model-value="fiatAmount"
                                 type="number"
                                 size="lg"
+                                placeholder="0.00"
                                 trailing-icon="i-heroicons-currency-euro"
                                 @update:model-value="onFiatInput"
                             />
@@ -217,7 +207,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                 variant="solid"
                                 size="lg"
                                 class="rounded-full"
-                                @click="swap"
+                                @click="isSwapped = !isSwapped"
                             />
                             <span class="text-xs text-gray-500">Exchange</span>
                         </div>
@@ -232,6 +222,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                 :model-value="fiatAmount"
                                 type="number"
                                 size="lg"
+                                placeholder="0.00"
                                 trailing-icon="i-heroicons-currency-euro"
                                 @update:model-value="onFiatInput"
                             />
@@ -240,18 +231,15 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                 :model-value="coinsAmount"
                                 type="number"
                                 size="lg"
+                                placeholder="0"
                                 :max="walletBalance?.dlt_amount"
                                 trailing-icon="i-heroicons-globe-alt"
                                 @update:model-value="onCoinsInput"
-                                @blur="coinsTouched = true"
                             />
                         </div>
                     </div>
 
-                    <p
-                        v-if="coinsTouched && exchangeValidationError"
-                        class="text-xs text-red-500 flex items-center gap-1"
-                    >
+                    <p v-if="exchangeValidationError" class="text-xs text-red-500 flex items-center gap-1">
                         <UIcon name="i-heroicons-exclamation-circle" class="w-4 h-4" />
                         {{ exchangeValidationError }}
                     </p>
@@ -265,12 +253,14 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             color="primary"
                             variant="solid"
                             icon="i-heroicons-arrows-right-left"
-                            :disabled="!!exchangeValidationError"
+                            :disabled="coinsAmount === '' || !!exchangeValidationError"
                             @click="confirmExchange"
                         >
                             Confirm Exchange
                         </UButton>
-                        <UButton color="white" variant="solid" @mousedown.prevent @click="cancel">Cancel</UButton>
+                        <UButton color="white" variant="solid" @mousedown.prevent @click="cancelExchange"
+                            >Cancel</UButton
+                        >
                     </div>
                 </div>
             </div>
@@ -279,7 +269,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                 <button
                     class="flex w-full items-center gap-3 py-3 px-4 transition-colors duration-150"
                     :class="isDepositOpen ? 'bg-primary-50 hover:bg-primary-100' : 'bg-white hover:bg-primary-50'"
-                    @click="isDepositOpen = !isDepositOpen"
+                    @click="toggleSection('deposit')"
                 >
                     <div class="bg-green-100 rounded-lg p-2">
                         <UIcon name="i-heroicons-arrow-up-tray" class="w-5 h-5 text-green-600" />
@@ -371,7 +361,13 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                 Cardholder Name
                             </label>
-                            <UInput v-model="cardholderName" size="lg" placeholder="Jane Doe" />
+                            <UInput
+                                v-model="cardForm.name"
+                                size="lg"
+                                placeholder="Jane Doe"
+                                @update:model-value="() => validateCardField('name')"
+                            />
+                            <p v-if="cardErrors.name" class="text-xs text-red-500">{{ cardErrors.name }}</p>
                         </div>
 
                         <div class="flex flex-col gap-1">
@@ -379,14 +375,14 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                 Card Number
                             </label>
                             <UInput
-                                v-model="cardNumber"
+                                v-model="cardForm.number"
                                 size="lg"
-                                placeholder="1234 5678 9012 3456"
+                                placeholder="1234567890123456"
                                 maxlength="16"
                                 @keypress="(e: KeyboardEvent) => !/\d/.test(e.key) && e.preventDefault()"
-                                @blur="validateCardNumber"
+                                @update:model-value="() => validateCardField('number')"
                             />
-                            <p v-if="cardNumberError" class="text-xs text-red-500">{{ cardNumberError }}</p>
+                            <p v-if="cardErrors.number" class="text-xs text-red-500">{{ cardErrors.number }}</p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -395,39 +391,56 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                                     Expiry Date
                                 </label>
                                 <UInput
-                                    v-model="cardExpiry"
+                                    :value="cardForm.expiry"
                                     size="lg"
                                     placeholder="MM / YY"
                                     maxlength="7"
                                     @input="onExpiryInput"
-                                    @blur="validateCardExpiry"
                                 />
-                                <p v-if="cardExpiryError" class="text-xs text-red-500">{{ cardExpiryError }}</p>
+                                <p v-if="cardErrors.expiry" class="text-xs text-red-500">{{ cardErrors.expiry }}</p>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                     CVV / CVC
                                 </label>
                                 <UInput
-                                    v-model="cardCvv"
+                                    v-model="cardForm.cvv"
                                     size="lg"
                                     placeholder="···"
                                     type="password"
                                     maxlength="4"
                                     @keypress="(e: KeyboardEvent) => !/\d/.test(e.key) && e.preventDefault()"
+                                    @update:model-value="() => validateCardField('cvv')"
                                 />
+                                <p v-if="cardErrors.cvv" class="text-xs text-red-500">{{ cardErrors.cvv }}</p>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                     Billing Address
                                 </label>
-                                <UInput v-model="cardBillingAddress" size="lg" placeholder="Street, City" />
+                                <UInput
+                                    v-model="cardForm.billingAddress"
+                                    size="lg"
+                                    placeholder="Street, City"
+                                    @update:model-value="() => validateCardField('billingAddress')"
+                                />
+                                <p v-if="cardErrors.billingAddress" class="text-xs text-red-500">
+                                    {{ cardErrors.billingAddress }}
+                                </p>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                     Postal Code
                                 </label>
-                                <UInput v-model="cardPostalCode" size="lg" placeholder="12345" />
+                                <UInput
+                                    v-model="cardForm.postalCode"
+                                    size="lg"
+                                    placeholder="12345"
+                                    @update:model-value="() => validateCardField('postalCode')"
+                                />
+                                <p v-if="cardErrors.postalCode" class="text-xs text-red-500">
+                                    {{ cardErrors.postalCode }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -437,16 +450,18 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             Amount to Deposit (EUR)
                         </label>
                         <UInput
-                            v-model="depositAmount"
+                            v-model="cardForm.amount"
                             type="number"
                             size="lg"
                             placeholder="0.00"
                             trailing-icon="i-heroicons-currency-euro"
+                            @update:model-value="() => validateCardField('amount')"
                         />
+                        <p v-if="cardErrors.amount" class="text-xs text-red-500">{{ cardErrors.amount }}</p>
                     </div>
 
                     <div v-if="depositMethod === 'card'" class="flex gap-3">
-                        <UButton color="primary" variant="solid" icon="i-heroicons-lock-closed" @click="confirmDeposit">
+                        <UButton color="primary" variant="solid" icon="i-heroicons-lock-closed">
                             Confirm Deposit
                         </UButton>
                         <UButton color="white" variant="solid" @click="cancelDeposit">Cancel</UButton>
@@ -464,7 +479,7 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                 <button
                     class="flex w-full items-center gap-3 py-3 px-4 transition-colors duration-150"
                     :class="isWithdrawOpen ? 'bg-primary-50 hover:bg-primary-100' : 'bg-white hover:bg-primary-50'"
-                    @click="isWithdrawOpen = !isWithdrawOpen"
+                    @click="toggleSection('withdraw')"
                 >
                     <div class="bg-blue-100 rounded-lg p-2">
                         <UIcon name="i-heroicons-arrow-down-tray" class="w-5 h-5 text-blue-600" />
@@ -487,12 +502,14 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             Amount to Withdraw (EUR)
                         </label>
                         <UInput
-                            v-model="withdrawAmount"
+                            v-model="withdrawForm.amount"
                             type="number"
                             size="lg"
                             placeholder="0.00"
                             trailing-icon="i-heroicons-currency-euro"
+                            @update:model-value="() => validateWithdrawField('amount')"
                         />
+                        <p v-if="withdrawErrors.amount" class="text-xs text-red-500">{{ withdrawErrors.amount }}</p>
                     </div>
 
                     <div class="border-t border-gray-200" />
@@ -501,7 +518,13 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
 
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">IBAN</label>
-                        <UInput v-model="withdrawIban" size="lg" placeholder="GR__ ____ ____ ____ ____ ___" />
+                        <UInput
+                            v-model="withdrawForm.iban"
+                            size="lg"
+                            placeholder="GR__ ____ ____ ____ ____ ___"
+                            @update:model-value="() => validateWithdrawField('iban')"
+                        />
+                        <p v-if="withdrawErrors.iban" class="text-xs text-red-500">{{ withdrawErrors.iban }}</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -509,29 +532,57 @@ const confirmWithdraw = async () => await $fetch('/api/wallet/withdraw', { metho
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                 Recipient Name
                             </label>
-                            <UInput v-model="withdrawRecipientName" size="lg" placeholder="Jane Doe" />
+                            <UInput
+                                v-model="withdrawForm.recipientName"
+                                size="lg"
+                                placeholder="Jane Doe"
+                                @update:model-value="() => validateWithdrawField('recipientName')"
+                            />
+                            <p v-if="withdrawErrors.recipientName" class="text-xs text-red-500">
+                                {{ withdrawErrors.recipientName }}
+                            </p>
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                 Organisation Name
                             </label>
                             <UInput
-                                v-model="withdrawOrgName"
+                                v-model="withdrawForm.orgName"
                                 size="lg"
                                 :placeholder="organisationFullname?.toUpperCase()"
+                                @update:model-value="() => validateWithdrawField('orgName')"
                             />
+                            <p v-if="withdrawErrors.orgName" class="text-xs text-red-500">
+                                {{ withdrawErrors.orgName }}
+                            </p>
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                 Bank Name
                             </label>
-                            <UInput v-model="withdrawBankName" size="lg" placeholder="e.g. Alpha Bank" />
+                            <UInput
+                                v-model="withdrawForm.bankName"
+                                size="lg"
+                                placeholder="e.g. Alpha Bank"
+                                @update:model-value="() => validateWithdrawField('bankName')"
+                            />
+                            <p v-if="withdrawErrors.bankName" class="text-xs text-red-500">
+                                {{ withdrawErrors.bankName }}
+                            </p>
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                 Bank Address
                             </label>
-                            <UInput v-model="withdrawBankAddress" size="lg" placeholder="Street, City, Country" />
+                            <UInput
+                                v-model="withdrawForm.bankAddress"
+                                size="lg"
+                                placeholder="Street, City, Country"
+                                @update:model-value="() => validateWithdrawField('bankAddress')"
+                            />
+                            <p v-if="withdrawErrors.bankAddress" class="text-xs text-red-500">
+                                {{ withdrawErrors.bankAddress }}
+                            </p>
                         </div>
                     </div>
 
