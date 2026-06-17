@@ -20,7 +20,6 @@ export const WithdrawSchema = z.object({
     amount: z.string().min(1, 'Amount is required'),
     iban: z.string().min(1, 'IBAN is required'),
     recipientName: z.string().min(1, 'Recipient name is required'),
-    orgName: z.string().min(1, 'Organisation name is required'),
     bankName: z.string().min(1, 'Bank name is required'),
     bankAddress: z.string().min(1, 'Bank address is required'),
 });
