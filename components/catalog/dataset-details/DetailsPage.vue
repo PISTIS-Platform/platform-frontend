@@ -563,7 +563,7 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                             <div class="flex justify-between items-center">
                                 <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
                                 <div class="text-3xl font-bold text-primary-700">
-                                    {{ price }} PC
+                                    {{ price }} PSTC
                                     <span class="font-medium text-lg text-neutral-500">
                                         /
                                         {{
@@ -608,7 +608,7 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                             <div class="flex justify-between items-center">
                                 <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
                                 <div class="text-3xl font-bold text-primary-700">
-                                    <span v-if="price">{{ price }} PC</span>
+                                    <span v-if="price">{{ price }} PSTC</span>
                                     <span v-else>FREE</span>
                                 </div>
                             </div>
@@ -654,7 +654,7 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                         <div class="flex justify-between items-center">
                             <div class="text-md font-medium text-neutral-500 uppercase">Price</div>
                             <div class="text-3xl font-bold text-primary-700">
-                                <span v-if="investPrice">{{ investPrice }} PC</span>
+                                <span v-if="investPrice">{{ investPrice }} PSTC</span>
                                 <span v-else>-</span>
                                 <span class="font-medium text-lg text-neutral-500"> / share</span>
                             </div>

@@ -230,7 +230,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
 
                     <p class="text-sm text-gray-600">
                         Enter an amount in either field to calculate the exchange. Current rate:
-                        <strong>1 PISTIS Coin = {{ EXCHANGE_RATE }} PC</strong>
+                        <strong>1 PISTIS Coin = {{ EXCHANGE_RATE }} PSTC</strong>
                     </p>
 
                     <div class="flex items-end gap-6 mt-1">
@@ -510,7 +510,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
 
                     <div v-if="depositMethod === 'card'" class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                            Amount to Deposit (PC)
+                            Amount to Deposit (PSTC)
                         </label>
                         <UInput
                             v-model="cardForm.amount"
@@ -561,7 +561,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
 
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                            Amount to Withdraw (PC)
+                            Amount to Withdraw (PSTC)
                         </label>
                         <UInput
                             :model-value="withdrawForm.amount"

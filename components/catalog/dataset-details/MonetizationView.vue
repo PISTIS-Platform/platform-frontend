@@ -147,7 +147,7 @@ const handleLicenseOpen = (value) => {
 
                 <SummaryBox v-if="data.purchase_offer[0].price" :title="$t('monetization.price')">
                     <template #text>
-                        {{ data.purchase_offer[0].price + ' PC' }}
+                        {{ data.purchase_offer[0].price + ' PSTC' }}
                     </template>
                 </SummaryBox>
 
