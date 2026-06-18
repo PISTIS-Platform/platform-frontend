@@ -270,7 +270,7 @@ const customValidate = () => {
                                         type="numeric"
                                     >
                                         <template #trailing>
-                                            <span class="text-gray-500 text-xs">EUR</span>
+                                            <span class="text-gray-500 text-xs">PSTC</span>
                                         </template>
                                     </UInput>
                                     <template #error="{ error }">
@@ -323,7 +323,7 @@ const customValidate = () => {
                                             type="numeric"
                                         >
                                             <template #trailing>
-                                                <span class="text-gray-500 text-xs">EUR</span>
+                                                <span class="text-gray-500 text-xs">PSTC</span>
                                             </template>
                                         </UInput>
                                         <template #error="{ error }">
@@ -431,7 +431,7 @@ const customValidate = () => {
                                         type="numeric"
                                     >
                                         <template #trailing>
-                                            <span class="text-gray-500 text-xs">EUR</span>
+                                            <span class="text-gray-500 text-xs">PSTC</span>
                                         </template>
                                     </UInput>
                                     <template #error="{ error }">

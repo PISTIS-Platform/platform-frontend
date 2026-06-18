@@ -191,18 +191,18 @@ const generatePDF = () => {
                 text: selected.value.assetName,
             },
             { text: t('transactions.amount'), style: 'subheading' },
-            { text: selected.value.amount.toFixed(2) + ' EUR' },
+            { text: selected.value.amount.toFixed(2) + ' PSTC' },
             { text: t('transactions.amountToProvider'), style: 'subheading' },
             {
                 text: R.isNil(selected.value.transactionFee)
-                    ? `${selected.value.amount.toFixed(2)} EUR`
-                    : `${(selected.value.amount - selected.value.transactionFee).toFixed(2)} EUR`,
+                    ? `${selected.value.amount.toFixed(2)} PSTC`
+                    : `${(selected.value.amount - selected.value.transactionFee).toFixed(2)} PSTC`,
             },
             { text: t('transactions.transactionFee'), style: 'subheading' },
             {
                 text: R.isNil(selected.value.transactionFee)
                     ? 'None'
-                    : `${selected.value.transactionFee.toFixed(2)} EUR`,
+                    : `${selected.value.transactionFee.toFixed(2)} PSTC`,
             },
             { text: t('transactions.provider'), style: 'subheading' },
             { text: selected.value.factorySellerName },
@@ -218,8 +218,8 @@ const generatePDF = () => {
                 text: monetization.value?.is_free
                     ? t('data.designer.free')
                     : monetization.value?.type === 'subscription'
-                      ? monetization.value?.price.toFixed(2) + ' EUR ' + monetization.value?.subscription_frequency
-                      : monetization.value?.price.toFixed(2) + ' EUR',
+                      ? monetization.value?.price.toFixed(2) + ' PSTC ' + monetization.value?.subscription_frequency
+                      : monetization.value?.price.toFixed(2) + ' PSTC',
             },
             monetization.value?.type === 'subscription'
                 ? {
@@ -350,7 +350,7 @@ const generatePDF = () => {
                         <span class="text-gray-400">
                             {{ $t('transactions.fullAmount') }}
                         </span>
-                        <span>{{ selected.amount.toFixed(2) }} EUR</span>
+                        <span>{{ selected.amount.toFixed(2) }} PSTC</span>
                     </div>
 
                     <div class="flex flex-col gap-1">
@@ -358,8 +358,8 @@ const generatePDF = () => {
                             {{ $t('transactions.detailedAmount') }}
                         </span>
                         <span
-                            >{{ (selected.amount - selected.transactionFee).toFixed(2) }} EUR /
-                            {{ selected.transactionFee.toFixed(2) }} EUR</span
+                            >{{ (selected.amount - selected.transactionFee).toFixed(2) }} PSTC /
+                            {{ selected.transactionFee.toFixed(2) }} PSTC</span
                         >
                     </div>
 
@@ -391,7 +391,7 @@ const generatePDF = () => {
                         <span>{{
                             monetization?.is_free
                                 ? $t('data.designer.free') + ' ' + monetization?.subscription_frequency
-                                : monetization?.price.toFixed(2) + ' EUR ' + monetization?.subscription_frequency
+                                : monetization?.price.toFixed(2) + ' PSTC ' + monetization?.subscription_frequency
                         }}</span>
                     </div>
 
@@ -400,7 +400,7 @@ const generatePDF = () => {
                             {{ $t('data.designer.price') }}
                         </span>
                         <span>{{
-                            monetization?.is_free ? $t('data.designer.free') : monetization?.price.toFixed(2) + ' EUR '
+                            monetization?.is_free ? $t('data.designer.free') : monetization?.price.toFixed(2) + ' PSTC '
                         }}</span>
                     </div>
 
@@ -517,7 +517,7 @@ const generatePDF = () => {
 
                         <template #amount-data="{ row }">
                             <span class="flex items-center justify-center font-bold">
-                                {{ row.amount.toFixed(2) }} EUR
+                                {{ row.amount.toFixed(2) }} PSTC
                             </span>
                         </template>
 

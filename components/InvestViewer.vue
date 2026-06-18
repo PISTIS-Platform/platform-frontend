@@ -203,7 +203,7 @@ const numberOfSharesError = computed(() => {
                                         $t('invest.sharePrice')
                                     }}</span>
                                     <span
-                                        ><span class="text-base">{{ investmentPlan.price }} €</span>
+                                        ><span class="text-base">{{ investmentPlan.price }} PSTC</span>
                                         {{ $t('invest.perShare') }}</span
                                     >
                                 </div>
@@ -272,7 +272,7 @@ const numberOfSharesError = computed(() => {
                                     <span class="text-nowrap font-semibold text-gray-500 items-start"
                                         >Total
                                         <span class="text-primary font-bold text-xl ml-1">
-                                            {{ state.sharesToPurchase * investmentPlan.price }} €</span
+                                            {{ state.sharesToPurchase * investmentPlan.price }} PSTC</span
                                         ></span
                                     >
                                 </div>

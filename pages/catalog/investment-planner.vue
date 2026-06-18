@@ -396,7 +396,7 @@ const submitAll = async () => {
                                         :disabled="isLocked"
                                     >
                                         <template #trailing>
-                                            <span class="text-gray-500 text-xs">EUR</span>
+                                            <span class="text-gray-500 text-xs">PSTC</span>
                                         </template>
                                     </UInput>
                                 </UFormGroup>
@@ -435,7 +435,7 @@ const submitAll = async () => {
                                     >. Each share entitles the owner to
                                     <span class="font-bold">{{ percentageOfShare || '__' }}% </span>of the total
                                     revenue. Investors can purchase shares for
-                                    <span class="font-bold">{{ monetizationDetails.sharePrice || '__' }} EUR</span>
+                                    <span class="font-bold">{{ monetizationDetails.sharePrice || '__' }} PSTC</span>
                                     each, with a maximum of
                                     <span class="font-bold"
                                         >{{ monetizationDetails.maximumSharesToBuy || '__' }} shares</span
@@ -531,7 +531,7 @@ const submitAll = async () => {
                         <span class="text-sm font-semibold text-gray-400">{{
                             $t('data.investmentPlanner.sharePrice')
                         }}</span>
-                        <span>{{ monetizationDetails.sharePrice }} EUR</span>
+                        <span>{{ monetizationDetails.sharePrice }} PSTC</span>
                     </div>
                     <div class="flex gap-2 flex-col">
                         <span class="text-sm font-semibold text-gray-400">{{

@@ -2,21 +2,17 @@
 export default defineNuxtConfig({
     // Disable server-side rendering
     ssr: false,
-
     // Disable telemetry by Nuxt team
     telemetry: false,
-
     components: [
         {
             path: '~/components',
             pathPrefix: false,
         },
     ],
-
     alias: {
         cookie: 'cookie',
     },
-
     plugins: [
         '~/plugins/vue3-tags.js',
         '~/plugins/vue3-chartjs.js',
@@ -24,18 +20,14 @@ export default defineNuxtConfig({
         '~/plugins/primevue.js',
     ],
     devtools: { enabled: true },
-
     ui: {
         icons: ['heroicons', 'fa6-regular', 'formkit'],
     },
-
     css: ['primevue/resources/primevue.min.css', 'primevue/resources/themes/saga-blue/theme.css'],
-
     typescript: {
         strict: true,
         typeCheck: false, // Enabling this makes development slower, but performs proper type checking
     },
-
     nitro: {
         preset: 'node-server',
         experimental: {
@@ -53,13 +45,11 @@ export default defineNuxtConfig({
             },
         },
     },
-
     app: {
         head: {
             link: [{ rel: 'stylesheet', href: 'https://rsms.me/inter/inter.css' }],
         },
     },
-
     runtimeConfig: {
         public: {
             factoryUrl: '',
@@ -70,6 +60,7 @@ export default defineNuxtConfig({
             pistisMarketplaceCatalog: '',
             openDataPortalUrl: 'https://data.europa.eu',
             organisationFullname: '',
+            factoryIban: '',
         },
         keycloak: {
             issuer: '',
@@ -85,7 +76,6 @@ export default defineNuxtConfig({
         marketplaceApiKey: '',
         factoryName: '',
     },
-
     modules: [
         '@pinia/nuxt',
         '@nuxtjs/i18n',
@@ -96,13 +86,11 @@ export default defineNuxtConfig({
         'unplugin-icons/nuxt',
         'nuxt-pdfmake',
     ],
-
     // Modules Configuration
     i18n: {
         strategy: 'no_prefix',
         defaultLocale: 'en',
     },
-
     auth: {
         baseURL: '/_auth',
         provider: {
@@ -117,10 +105,8 @@ export default defineNuxtConfig({
             isEnabled: true,
         },
     },
-
     colorMode: {
         preference: 'light',
     },
-
     compatibilityDate: '2024-08-28',
 });
