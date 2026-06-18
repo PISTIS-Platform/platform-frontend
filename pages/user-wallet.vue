@@ -10,8 +10,7 @@ import {
     WithdrawSchema,
 } from '~/schemas/user-wallet';
 
-const { organisationFullname, factoryIban } = useRuntimeConfig().public;
-const { data: session } = useAuth();
+const { factoryIban } = useRuntimeConfig().public;
 
 const { data: walletBalance, status: walletStatus } = useLazyFetch<{ dlt_amount: number }>('/api/wallet', {
     method: 'POST',
@@ -34,7 +33,6 @@ const cardErrors = reactive<Partial<Record<keyof CardForm, string>>>({});
 const withdrawForm = reactive<WithdrawForm>({ ...withdrawDefaults });
 const withdrawErrors = reactive<Partial<Record<keyof WithdrawForm, string>>>({});
 
-const userName = computed(() => session.value?.user?.name ?? '');
 const walletError = computed(() => walletStatus.value === 'error');
 const isExchangeOpen = computed(() => activeSection.value === 'exchange');
 const isDepositOpen = computed(() => activeSection.value === 'deposit');
@@ -403,19 +401,6 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                             </p>
                             <p class="text-xl font-bold text-gray-900 tracking-wider">{{ factoryIban }}</p>
                         </div>
-
-                        <div class="rounded-lg border border-yellow-300 bg-yellow-50 px-5 py-4 flex flex-col gap-2">
-                            <p class="text-sm text-gray-700">
-                                📋 Please transfer funds to the IBAN above. In the
-                                <strong>Remittance Information / Payment Reference</strong> field, include exactly:
-                            </p>
-                            <p class="font-bold text-gray-800">
-                                PISTIS · <span class="uppercase">{{ organisationFullname }}</span> · {{ userName }}
-                            </p>
-                            <p class="text-sm text-yellow-700">
-                                Transfers without this reference may be delayed or rejected.
-                            </p>
-                        </div>
                     </div>
 
                     <!-- Credit Card details -->
@@ -427,7 +412,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                             <UInput
                                 v-model="cardForm.name"
                                 size="lg"
-                                placeholder="Jane Doe"
+                                placeholder="Cardholder name"
                                 @update:model-value="() => validateCardField('name')"
                             />
                             <p v-if="cardErrors.name" class="text-xs text-red-500">{{ cardErrors.name }}</p>
@@ -631,7 +616,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                         <UInput
                             v-model="withdrawForm.recipientName"
                             size="lg"
-                            placeholder="Jane Doe"
+                            placeholder="Account holder name"
                             @update:model-value="() => validateWithdrawField('recipientName')"
                         />
                         <p v-if="withdrawErrors.recipientName" class="text-xs text-red-500">
