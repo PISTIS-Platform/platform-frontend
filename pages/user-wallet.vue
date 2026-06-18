@@ -35,6 +35,7 @@ const withdrawForm = reactive<WithdrawForm>({ ...withdrawDefaults });
 const withdrawErrors = reactive<Partial<Record<keyof WithdrawForm, string>>>({});
 
 const userName = computed(() => session.value?.user?.name ?? '');
+const walletError = computed(() => walletStatus.value === 'error');
 const isExchangeOpen = computed(() => activeSection.value === 'exchange');
 const isDepositOpen = computed(() => activeSection.value === 'deposit');
 const isWithdrawOpen = computed(() => activeSection.value === 'withdraw');
@@ -213,6 +214,20 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                 </button>
 
                 <div v-if="isExchangeOpen" class="flex flex-col gap-2 p-6">
+                    <div
+                        v-if="walletError"
+                        class="rounded-lg border border-yellow-300 bg-yellow-50 px-5 py-4 flex items-start gap-2"
+                    >
+                        <UIcon
+                            name="i-heroicons-exclamation-triangle"
+                            class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5"
+                        />
+                        <p class="text-sm text-yellow-700">
+                            Your PISTIS Coins balance is currently unavailable. Exchanging is temporarily disabled.
+                            Please try again later.
+                        </p>
+                    </div>
+
                     <p class="text-sm text-gray-600">
                         Enter an amount in either field to calculate the exchange. Current rate:
                         <strong>1 PISTIS Coin = {{ EXCHANGE_RATE }} PC</strong>
@@ -231,6 +246,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 size="lg"
                                 placeholder="0"
                                 :max="walletBalance?.dlt_amount"
+                                :disabled="walletError"
                                 trailing-icon="i-heroicons-globe-alt"
                                 @update:model-value="(v) => onAmountInput(v, 'coins')"
                             />
@@ -240,6 +256,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 type="number"
                                 size="lg"
                                 placeholder="0.00"
+                                :disabled="walletError"
                                 @update:model-value="(v) => onAmountInput(v, 'fiat')"
                             />
                         </div>
@@ -251,6 +268,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 variant="solid"
                                 size="lg"
                                 class="rounded-full"
+                                :disabled="walletError"
                                 @click="isSwapped = !isSwapped"
                             />
                             <span class="text-xs text-gray-500">Exchange</span>
@@ -267,6 +285,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 type="number"
                                 size="lg"
                                 placeholder="0.00"
+                                :disabled="walletError"
                                 @update:model-value="(v) => onAmountInput(v, 'fiat')"
                             />
                             <UInput
@@ -276,6 +295,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 size="lg"
                                 placeholder="0"
                                 :max="walletBalance?.dlt_amount"
+                                :disabled="walletError"
                                 trailing-icon="i-heroicons-globe-alt"
                                 @update:model-value="(v) => onAmountInput(v, 'coins')"
                             />
@@ -296,7 +316,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                             color="primary"
                             variant="solid"
                             icon="i-heroicons-arrows-right-left"
-                            :disabled="coinsAmount === '' || !!exchangeValidationError"
+                            :disabled="walletError || coinsAmount === '' || !!exchangeValidationError"
                             @click="confirmExchange"
                         >
                             Confirm Exchange
