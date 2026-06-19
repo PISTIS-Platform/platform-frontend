@@ -33,7 +33,8 @@ const pistisMode = route.query.pm;
 
 const platform = pistisMode === 'cloud' ? 'marketplace' : 'catalog';
 
-const { getDatasetUrl, getUserFactoryUrl, getFeedbackUrl, getPurchaseUrl } = useApiService(pistisMode);
+const { getDatasetUrl, getUserFactoryUrl, getFeedbackUrl, getPurchaseUrl, getFactoryStatusUrl } =
+    useApiService(pistisMode);
 
 const datasetUrl = getDatasetUrl(props.datasetId);
 
@@ -42,6 +43,7 @@ const { data: session } = useAuth();
 const token = ref(session.value?.token);
 
 const userFactoryUrl = getUserFactoryUrl();
+const factoryStatusUrl = getFactoryStatusUrl();
 const distributionID = ref(null);
 const accessID = ref('');
 const backendUrl = ref('');
@@ -52,6 +54,7 @@ const factoryPrefix = ref('');
 const price = ref('');
 const investPrice = ref('');
 const monetizationData = ref();
+const publisherId = ref('');
 const offerId = ref('');
 const feedbackUrl = computed(() => getFeedbackUrl(props.datasetId));
 const rateDatasetUrl = computed(() => getFeedbackUrl(offerId.value));
@@ -142,6 +145,7 @@ const fetchMetadata = async () => {
                 monetizationData.value = monetization;
                 price.value = monetization.purchase_offer?.[0]?.price ?? null;
                 investPrice.value = monetization.investment_offer?.[0]?.price_per_share ?? null;
+                publisherId.value = monetization.purchase_offer?.[0]?.publisher?.organization_id;
             } else {
                 console.warn('No monetization data available.');
             }
@@ -177,6 +181,33 @@ const getUserFactory = async () => {
         console.error('Error getting data:', error);
     }
 };
+
+const factoryStatus = ref('');
+
+const getFactoryStatus = async () => {
+    try {
+        const response = await fetch(factoryStatusUrl, {
+            headers: {
+                Authorization: `Bearer ${token.value}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = await response.json();
+
+        const factory = data.find((item) => item.organizationId === publisherId.value);
+
+        if (factory) {
+            factoryStatus.value = factory.status;
+        } else {
+            console.warn('factory not found');
+        }
+    } catch (error) {
+        console.error('Error getting factory status:', error);
+    }
+};
+
+const isFactoryOffline = computed(() => factoryStatus.value === 'offline');
 
 const buyRequest = async () => {
     buyIsLoading.value = true;
@@ -275,6 +306,8 @@ const isOwnershipSet = ref(false);
 
 onMounted(async () => {
     await Promise.all([fetchMetadata(), getUserFactory()]);
+
+    await getFactoryStatus();
 
     isOwnershipSet.value = true;
 });
@@ -581,8 +614,12 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
 
                             <div class="sticky top-0 z-50">
                                 <UTooltip
-                                    v-if="datasetIsBought"
-                                    text="You have already subscribed to this asset"
+                                    v-if="datasetIsBought || isFactoryOffline"
+                                    :text="
+                                        datasetIsBought
+                                            ? 'You have already subscribed to this asset'
+                                            : 'The Data Provider is currently offline'
+                                    "
                                     class="w-full"
                                     :ui="{ width: 'max-w-xs', base: 'text-wrap' }"
                                 >
@@ -619,8 +656,12 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
 
                             <div class="sticky top-0 z-50">
                                 <UTooltip
-                                    v-if="datasetIsBought"
-                                    text="You have already bought this asset"
+                                    v-if="datasetIsBought || isFactoryOffline"
+                                    :text="
+                                        datasetIsBought
+                                            ? 'You have already bought this asset'
+                                            : 'The Data Provider is currently offline'
+                                    "
                                     class="w-full"
                                     :ui="{ width: 'max-w-xs', base: 'text-wrap' }"
                                 >
@@ -664,9 +705,20 @@ const showLinkedData = computed(() => devFactoryPrefixes.includes(factoryPrefix.
                             </div>
                         </div>
 
-                        <UButton variant="solid" size="lg" color="primary" block @click="investOpen = !investOpen"
-                            >Invest</UButton
+                        <UTooltip v-if="isFactoryOffline" text="The Data Provider is currently offline" class="w-full">
+                            <UButton variant="solid" size="lg" color="primary" block disabled> Invest </UButton>
+                        </UTooltip>
+
+                        <UButton
+                            v-else
+                            variant="solid"
+                            size="lg"
+                            color="primary"
+                            block
+                            @click="investOpen = !investOpen"
                         >
+                            Invest
+                        </UButton>
                     </div>
 
                     <UButton v-if="hasPurchaseOffer && isNotOwn" size="sm" variant="link" block :to="feedbackUrl"

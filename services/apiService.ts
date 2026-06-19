@@ -28,6 +28,8 @@ export const useApiService = (pistisMode: string = 'cloud') => {
 
     const getUserFactoryUrl = () => `${config.public.cloudUrl}/srv/factories-registry/api/factories/user-factory`;
 
+    const getFactoryStatusUrl = () => `${config.public.cloudUrl}/srv/factories-registry/api/factories/liveness`;
+
     const getInvestUrl = (datasetId: string) => `${config.public.factoryUrl}/invest/${datasetId}`;
 
     const getFeedbackUrl = (datasetId?: string) => `/marketplace/usage-analytics/${datasetId}/questionnaire`;
@@ -73,6 +75,7 @@ export const useApiService = (pistisMode: string = 'cloud') => {
         getDecryptionUrl,
         getMarketplaceDatasetUrl,
         getUserFactoryUrl,
+        getFactoryStatusUrl,
         getInvestUrl,
         getFeedbackUrl,
         getPurchaseUrl,
