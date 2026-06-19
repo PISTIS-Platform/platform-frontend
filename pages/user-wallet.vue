@@ -15,14 +15,16 @@ const { factoryIban } = useRuntimeConfig().public;
 const { data: walletBalance, status: walletStatus } = useLazyFetch<{ dlt_amount: number }>('/api/wallet', {
     method: 'POST',
 });
-const { data: fiatBalance, status: fiatStatus } = useLazyFetch<{ balance: number }>('/api/wallet/fiat-balance');
+const { data: fiatBalance, status: fiatStatus } = useLazyFetch<{ amount: string; currency: string }>(
+    '/api/wallet/fiat-balance',
+);
 
 const EXCHANGE_RATE = 0.85;
 const EXCHANGE_FEE = 0;
 const MIN_EXCHANGE = 10;
 
 const activeSection = ref<'exchange' | 'deposit' | 'withdraw' | null>(null);
-const isSwapped = ref(false);
+const isSwapped = ref(true);
 const coinsAmount = ref<string>('');
 const fiatAmount = ref<string>('');
 const depositMethod = ref<'bank' | 'card'>('bank');
@@ -34,23 +36,34 @@ const withdrawForm = reactive<WithdrawForm>({ ...withdrawDefaults });
 const withdrawErrors = reactive<Partial<Record<keyof WithdrawForm, string>>>({});
 
 const walletError = computed(() => walletStatus.value === 'error');
+const fiatWalletError = computed(() => fiatStatus.value === 'error');
 const isExchangeOpen = computed(() => activeSection.value === 'exchange');
 const isDepositOpen = computed(() => activeSection.value === 'deposit');
 const isWithdrawOpen = computed(() => activeSection.value === 'withdraw');
-const isWithdrawValid = computed(() => WithdrawSchema.safeParse(withdrawForm).success && !withdrawAmountError.value);
+const isFiatBalanceUnavailable = computed(() => fiatBalanceAmount.value === undefined);
+const isWithdrawValid = computed(
+    () =>
+        WithdrawSchema.safeParse(withdrawForm).success && !withdrawAmountError.value && !isFiatBalanceUnavailable.value,
+);
+const fiatBalanceAmount = computed(() => {
+    const num = parseFloat(fiatBalance.value?.amount ?? '');
+    return isNaN(num) ? undefined : num;
+});
 
 const makeAmountValidator = (
     getValue: () => string,
     getMax: () => number | undefined,
-    invalidMessage: string,
+    invalidMessage: string | (() => string),
     exceedMessage: (max: number) => string,
-    min = 0,
+    min: number | (() => number) = 0,
 ) =>
     computed(() => {
         const raw = getValue();
         if (raw === '') return null;
         const num = parseFloat(raw);
-        if (isNaN(num) || num <= 0 || num < min) return invalidMessage;
+        const minVal = typeof min === 'function' ? min() : min;
+        if (isNaN(num) || num <= 0 || num < minVal)
+            return typeof invalidMessage === 'function' ? invalidMessage() : invalidMessage;
         const max = getMax();
         if (max !== undefined && num > max) return exceedMessage(max);
         return null;
@@ -94,18 +107,18 @@ const validateWithdrawField = makeFieldValidator(WithdrawSchema, withdrawForm, w
 const validateWithdrawForm = makeFormValidator(WithdrawSchema, withdrawForm, withdrawErrors);
 
 const exchangeValidationError = makeAmountValidator(
-    () => coinsAmount.value,
-    () => walletBalance.value?.dlt_amount,
-    `Minimum exchange is ${MIN_EXCHANGE} PISTIS Coins`,
-    (max) => `Cannot exceed your balance of ${max.toLocaleString()} PISTIS Coins`,
-    MIN_EXCHANGE,
+    () => (isSwapped.value ? fiatAmount.value : coinsAmount.value),
+    () => (isSwapped.value ? fiatBalanceAmount.value : walletBalance.value?.dlt_amount),
+    () => (isSwapped.value ? 'Enter a valid amount' : `Minimum exchange is ${MIN_EXCHANGE} PISTIS Coins`),
+    () => (isSwapped.value ? 'Cannot exceed your FIAT balance' : 'Cannot exceed your PISTIS Coins balance'),
+    () => (isSwapped.value ? 0 : MIN_EXCHANGE),
 );
 
 const withdrawAmountError = makeAmountValidator(
     () => withdrawForm.amount,
-    () => fiatBalance.value?.balance,
+    () => fiatBalanceAmount.value,
     'Enter a valid amount',
-    (max) => `Cannot exceed your FIAT balance of ${max.toLocaleString()} EUR`,
+    () => 'Cannot exceed your FIAT balance',
 );
 
 const onWithdrawAmountInput = (val: string | number) => {
@@ -141,11 +154,15 @@ const toggleSection = (section: typeof activeSection.value) =>
 const cancelExchange = () => {
     coinsAmount.value = '';
     fiatAmount.value = '';
-    isSwapped.value = false;
+    isSwapped.value = true;
     activeSection.value = null;
 };
 
-const confirmExchange = async () => await $fetch('/api/wallet/exchange', { method: 'POST' });
+const confirmExchange = async () =>
+    await $fetch(isSwapped.value ? '/api/wallet/cash-in' : '/api/wallet/cash-out', {
+        method: 'POST',
+        body: { amount: fiatAmount.value },
+    });
 const confirmWithdraw = async () => {
     if (!validateWithdrawForm()) return;
     await $fetch('/api/wallet/withdraw', {
@@ -184,7 +201,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                         </div>
                         <USkeleton v-if="fiatStatus === 'pending'" class="h-9 w-32" />
                         <span v-else class="text-3xl font-bold text-green-700">
-                            {{ fiatBalance?.balance.toLocaleString() }}
+                            {{ fiatBalanceAmount?.toLocaleString() ?? 'N/A' }}
                         </span>
                         <UBadge color="green" variant="soft" class="w-fit mt-auto text-green-700">Euro Balance</UBadge>
                     </div>
@@ -214,7 +231,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                 <div v-if="isExchangeOpen" class="flex flex-col gap-2 p-6">
                     <div
                         v-if="walletError"
-                        class="rounded-lg border border-yellow-300 bg-yellow-50 px-5 py-4 flex items-start gap-2"
+                        class="rounded-lg border border-yellow-300 bg-yellow-50 px-5 py-4 flex items-start gap-2 mb-2"
                     >
                         <UIcon
                             name="i-heroicons-exclamation-triangle"
@@ -231,9 +248,55 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                         <strong>1 PISTIS Coin = {{ EXCHANGE_RATE }} PSTC</strong>
                     </p>
 
-                    <div class="flex items-end gap-6 mt-1">
+                    <!-- Direction selection -->
+                    <div class="flex gap-4">
+                        <button
+                            class="flex-1 min-w-0 flex items-center gap-3 rounded-lg border-2 px-4 py-3 transition-colors duration-150"
+                            :class="
+                                isSwapped
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-gray-200 bg-white hover:border-primary-300'
+                            "
+                            @click="isSwapped = true"
+                        >
+                            <div
+                                class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
+                                :class="isSwapped ? 'border-primary-500' : 'border-gray-400'"
+                            >
+                                <div v-if="isSwapped" class="w-2 h-2 rounded-full bg-primary-500" />
+                            </div>
+                            <UIcon name="i-heroicons-banknotes" class="w-5 h-5 text-green-600" />
+                            <div class="text-left">
+                                <div class="font-semibold text-gray-800 text-sm">Buy PISTIS Coins (Cash-In)</div>
+                                <div class="text-xs text-gray-500">Pay FIAT, receive PISTIS Coins</div>
+                            </div>
+                        </button>
+
+                        <button
+                            class="flex-1 min-w-0 flex items-center gap-3 rounded-lg border-2 px-4 py-3 transition-colors duration-150"
+                            :class="
+                                !isSwapped
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-gray-200 bg-white hover:border-primary-300'
+                            "
+                            @click="isSwapped = false"
+                        >
+                            <div
+                                class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
+                                :class="!isSwapped ? 'border-primary-500' : 'border-gray-400'"
+                            >
+                                <div v-if="!isSwapped" class="w-2 h-2 rounded-full bg-primary-500" />
+                            </div>
+                            <UIcon name="i-heroicons-globe-alt" class="w-5 h-5 text-primary-600" />
+                            <div class="text-left">
+                                <div class="font-semibold text-gray-800 text-sm">Sell PISTIS Coins (Cash-Out)</div>
+                                <div class="text-xs text-gray-500">Pay PISTIS Coins, receive FIAT</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="flex items-end gap-6 mt-4">
                         <div class="flex-1 flex flex-col gap-1">
-                            <label class="text-xs font-semibold text-primary-500 tracking-wide uppercase">From</label>
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                 {{ isSwapped ? 'FIAT Money (EUR)' : 'PISTIS Coins' }}
                             </label>
@@ -244,7 +307,6 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 size="lg"
                                 placeholder="0"
                                 :max="walletBalance?.dlt_amount"
-                                :disabled="walletError"
                                 trailing-icon="i-heroicons-globe-alt"
                                 @update:model-value="(v) => onAmountInput(v, 'coins')"
                             />
@@ -254,7 +316,6 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 type="number"
                                 size="lg"
                                 placeholder="0.00"
-                                :disabled="walletError"
                                 @update:model-value="(v) => onAmountInput(v, 'fiat')"
                             />
                         </div>
@@ -266,14 +327,12 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 variant="solid"
                                 size="lg"
                                 class="rounded-full"
-                                :disabled="walletError"
                                 @click="isSwapped = !isSwapped"
                             />
                             <span class="text-xs text-gray-500">Exchange</span>
                         </div>
 
                         <div class="flex-1 flex flex-col gap-1">
-                            <label class="text-xs font-semibold text-primary-500 tracking-wide uppercase">To</label>
                             <label class="text-xs font-semibold text-gray-500 tracking-wide uppercase">
                                 {{ isSwapped ? 'PISTIS Coins' : 'FIAT Money (EUR)' }}
                             </label>
@@ -283,7 +342,6 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 type="number"
                                 size="lg"
                                 placeholder="0.00"
-                                :disabled="walletError"
                                 @update:model-value="(v) => onAmountInput(v, 'fiat')"
                             />
                             <UInput
@@ -293,7 +351,6 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                                 size="lg"
                                 placeholder="0"
                                 :max="walletBalance?.dlt_amount"
-                                :disabled="walletError"
                                 trailing-icon="i-heroicons-globe-alt"
                                 @update:model-value="(v) => onAmountInput(v, 'coins')"
                             />
@@ -306,7 +363,9 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                     </p>
                     <p class="text-xs text-gray-500 flex items-center gap-1">
                         <UIcon name="i-heroicons-information-circle" class="w-4 h-4" />
-                        Exchange fee: {{ EXCHANGE_FEE }}% | Minimum exchange: {{ MIN_EXCHANGE }} PISTIS Coins
+                        Exchange fee: {{ EXCHANGE_FEE }}%<template v-if="!isSwapped">
+                            | Minimum exchange: {{ MIN_EXCHANGE }} PISTIS Coins</template
+                        >
                     </p>
 
                     <div class="flex gap-3 mt-2">
@@ -314,7 +373,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                             color="primary"
                             variant="solid"
                             icon="i-heroicons-arrows-right-left"
-                            :disabled="walletError || coinsAmount === '' || !!exchangeValidationError"
+                            :disabled="walletError || fiatWalletError || !!exchangeValidationError"
                             @click="confirmExchange"
                         >
                             Confirm Exchange
@@ -349,7 +408,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                     <!-- Method selection -->
                     <div class="flex gap-4">
                         <button
-                            class="flex-1 flex items-center gap-3 rounded-lg border-2 px-4 py-3 transition-colors duration-150"
+                            class="flex-1 min-w-0 flex items-center gap-3 rounded-lg border-2 px-4 py-3 transition-colors duration-150"
                             :class="
                                 depositMethod === 'bank'
                                     ? 'border-primary-500 bg-primary-50'
@@ -371,7 +430,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                         </button>
 
                         <button
-                            class="flex-1 flex items-center gap-3 rounded-lg border-2 px-4 py-3 transition-colors duration-150"
+                            class="flex-1 min-w-0 flex items-center gap-3 rounded-lg border-2 px-4 py-3 transition-colors duration-150"
                             :class="
                                 depositMethod === 'card'
                                     ? 'border-primary-500 bg-primary-50'
@@ -540,6 +599,19 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                 </button>
 
                 <div v-if="isWithdrawOpen" class="flex flex-col gap-4 p-6">
+                    <div
+                        v-if="fiatStatus !== 'pending' && isFiatBalanceUnavailable"
+                        class="rounded-lg border border-yellow-300 bg-yellow-50 px-5 py-4 flex items-start gap-2"
+                    >
+                        <UIcon
+                            name="i-heroicons-exclamation-triangle"
+                            class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5"
+                        />
+                        <p class="text-sm text-yellow-700">
+                            Your FIAT wallet balance is currently unavailable. Withdrawals are temporarily disabled.
+                            Please try again later.
+                        </p>
+                    </div>
                     <p class="text-sm text-gray-600">
                         Withdraw FIAT funds to your bank account. Processing time: 1–3 business days.
                     </p>
@@ -553,7 +625,7 @@ const cancelWithdraw = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors
                             type="number"
                             inputmode="decimal"
                             min="0"
-                            :max="fiatBalance?.balance"
+                            :max="fiatBalanceAmount"
                             size="lg"
                             placeholder="0.00"
                             @update:model-value="onWithdrawAmountInput"
