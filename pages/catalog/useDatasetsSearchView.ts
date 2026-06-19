@@ -61,6 +61,10 @@ export function useDatasetSearchView<TF extends string, TM, TS extends EnhancedS
     const { data: session } = useAuth();
 
     const searchHeaders = computed(() => {
+        if (unref(options.searchType) === 'openDataPortal') {
+            return {};
+        }
+
         return session.value?.token ? { Authorization: `Bearer ${session.value.token}` } : {};
     });
 
