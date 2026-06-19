@@ -60,7 +60,6 @@ export default defineNuxtConfig({
             pistisMarketplaceCatalog: '',
             openDataPortalUrl: 'https://data.europa.eu',
             organisationFullname: '',
-            factoryIban: '',
         },
         keycloak: {
             issuer: '',

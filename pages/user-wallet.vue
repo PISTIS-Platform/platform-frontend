@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { parseAmount } from '~/utils/wallet';
 
-const { factoryIban } = useRuntimeConfig().public;
-
 const { data: coinsData, status: coinsStatus } = useLazyFetch<{ dlt_amount: number }>('/api/wallet', {
     method: 'POST',
 });
@@ -10,6 +8,10 @@ const { data: coinsData, status: coinsStatus } = useLazyFetch<{ dlt_amount: numb
 const { data: fiatData, status: fiatStatus } = useLazyFetch<{ amount: string; currency: string }>(
     '/api/wallet/fiat-balance',
 );
+
+const { data: ibanData } = useLazyFetch<{ iban: string }>('/api/wallet/factory-iban');
+
+const factoryIban = computed(() => ibanData.value?.iban ?? '');
 
 const activeSection = ref<'exchange' | 'deposit' | 'withdraw' | null>(null);
 
