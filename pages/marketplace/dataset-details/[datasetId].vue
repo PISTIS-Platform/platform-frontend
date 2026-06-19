@@ -78,12 +78,15 @@ const searchUrl = getDatasetUrl(datasetId.value);
 
 const distributionMetadata = ref<any>(null);
 
+const headers: Record<string, string> = {};
+
+if (pistisMode !== 'openData') {
+    headers.Authorization = `Bearer ${session.value?.token}`;
+}
 const fetchDistributionMetadata = async () => {
     try {
         const response = await fetch(searchUrl, {
-            headers: {
-                Authorization: `Bearer ${session.value?.token}`,
-            },
+            headers,
         });
         distributionMetadata.value = await response.json();
     } catch (error) {

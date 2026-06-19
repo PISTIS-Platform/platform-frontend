@@ -121,12 +121,16 @@ const offerType = computed(() => {
     return 'none';
 });
 
+const headers: Record<string, string> = {};
+
+if (pistisMode !== 'openData') {
+    headers.Authorization = `Bearer ${session.value?.token}`;
+}
+
 const fetchMetadata = async () => {
     try {
         const response = await fetch(datasetUrl, {
-            headers: {
-                Authorization: `Bearer ${token.value}`,
-            },
+            headers,
         });
         const data = await response.json();
         metadata.value = data;
