@@ -86,12 +86,16 @@ export function useDcatApSearch() {
     const originalUseResource = (sdk as any).useResource;
     (sdk as any).useResource = function (id: any, options?: any) {
         const { data: session } = useAuth();
-        const authHeaders = session?.value?.token ? { Authorization: `Bearer ${session.value.token}` } : {};
+        const headers: Record<string, string> = {};
+
+        if (pistisMode !== 'openData') {
+            headers.Authorization = `Bearer ${session.value?.token}`;
+        }
         const mergedOptions = {
             ...(options || {}),
             headers: {
                 ...(options?.headers || {}),
-                ...authHeaders,
+                ...headers,
             },
         };
 

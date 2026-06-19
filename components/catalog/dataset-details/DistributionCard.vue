@@ -52,12 +52,16 @@ const showTable = ref(false);
 const searchUrl = getDatasetUrl(props.datasetId);
 const hasPistisSchema = computed(() => !!props.pistisSchema);
 
+const headers: Record<string, string> = {};
+
+if (pistisMode !== 'openData') {
+    headers.Authorization = `Bearer ${session.value?.token}`;
+}
+
 const fetchMetadata = async () => {
     try {
         const response = await fetch(searchUrl, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+            headers,
         });
         const data = await response.json();
         copyData.topic = `ds-${data.result.id}`;
