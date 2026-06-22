@@ -74,12 +74,69 @@
 
                 <div class="flex items-center justify-center mt-6">
                     <UButton
+                        :disabled="loadingValuation"
                         class="bg-secondary-500 text-white px-3 py-2 rounded text-sm hover:bg-secondary-600"
                         @click="submit"
                     >
+                        <UIcon v-if="loadingValuation" name="svg-spinners:270-ring-with-bg" class="mr-2" />
                         {{ t('data.valuation.submit') }}
                     </UButton>
                 </div>
+
+                <UAlert v-if="showValuationData" class="mt-8" variant="subtle" :color="valuationAlertColor">
+                    <template #title>
+                        <div class="w-full flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-4">
+                                <UIcon :name="valuationIcons[valuationRating] ?? 'ic:outline-star'" class="w-8 h-8" />
+                                <UButton
+                                    :color="valuationAlertColor"
+                                    :class="`cursor-default hover:bg-${valuationAlertColor}`"
+                                >
+                                    {{ (numberRating * 10).toFixed(1) }}
+                                </UButton>
+                            </div>
+                            <div class="flex items-center gap-4 text-gray-600">
+                                <span class="font-bold text-sm">{{ t('data.designer.valuation.title') }}</span>
+                                <UIcon name="streamline-ultimate:rating-star-ribbon-bold" class="w-6 h-6" />
+                            </div>
+                        </div>
+                    </template>
+
+                    <template #description>
+                        <div class="mt-6 grid gap-4 grid-cols-2 md:grid-cols-3 text-gray-600">
+                            <div v-for="key in Object.keys(valuationData)" :key="key" class="flex flex-col gap-2">
+                                <div class="flex items-center justify-between w-full">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold text-xs">{{
+                                            t(`data.designer.valuation.${key}`)
+                                        }}</span>
+                                        <UPopover mode="hover" :popper="{ placement: 'top' }" class="mt-1">
+                                            <UIcon name="mdi:information-outline" class="text-gray-500 h-4 w-4" />
+                                            <template #panel>
+                                                <div class="max-w-xl p-2 flex text-wrap text-xs">
+                                                    {{ explanations[key] }}
+                                                </div>
+                                            </template>
+                                        </UPopover>
+                                    </div>
+                                    <span class="font-semibold text-xs">
+                                        {{
+                                            valuationData[key] === 'N/A'
+                                                ? 'N/A'
+                                                : ((valuationData[key] as number) * 10).toFixed(1)
+                                        }}
+                                    </span>
+                                </div>
+                                <UProgress
+                                    :value="valuationData[key] === 'N/A' ? 0 : (valuationData[key] as number) * 10"
+                                    :min="0"
+                                    :max="10"
+                                    color="primary"
+                                />
+                            </div>
+                        </div>
+                    </template>
+                </UAlert>
             </div>
         </UCard>
     </UCard>
@@ -100,6 +157,35 @@ const runtimeConfig = useRuntimeConfig();
 const ownFactoryOrgId = runtimeConfig.public.orgId;
 
 const notification = ref('');
+const showValuationData = ref(false);
+const loadingValuation = ref(false);
+const valuationRating = ref('');
+const numberRating = ref(0);
+const valuationData = ref<Record<string, number | string>>({});
+
+const valuationColors = {
+    A: 'green',
+    B: 'yellow',
+    C: 'primary',
+    D: 'red',
+    E: 'red',
+} as const;
+
+const valuationAlertColor = computed(() => {
+    if (valuationRating.value && valuationRating.value in valuationColors) {
+        return valuationColors[valuationRating.value as keyof typeof valuationColors];
+    }
+
+    return 'blue';
+});
+
+const valuationIcons: Record<string, string> = {
+    A: 'emojione-monotone:letter-a',
+    B: 'emojione-monotone:letter-b',
+    C: 'emojione-monotone:letter-c',
+    D: 'emojione-monotone:letter-d',
+    E: 'emojione-monotone:letter-e',
+};
 
 // Notification logic
 function showNotification(msg) {
@@ -141,7 +227,13 @@ const selected = ref<
 
 watch(selected, () => {
     if (!selected.value) return;
+    showValuationData.value = false;
+    valuationRating.value = '';
+    numberRating.value = 0;
+    valuationData.value = {};
+
     const distribution = selected.value.distributions?.[0];
+    console.log('Selected offer:\n', selected.value);
     offerMetadata.value.accessURL = distribution?.access_url?.[0];
     try {
         const url = new URL(offerMetadata.value.accessURL || '');
@@ -201,6 +293,18 @@ const items = ref([
     { title: t('data.designer.valuation.dqa'), value: 0.5 },
 ]);
 
+const explanations = computed<Record<string, string>>(() => {
+    const keys = Object.keys(valuationData.value);
+    if (!keys.length) return {};
+
+    const explanationObject: Record<string, string> = {};
+    keys.forEach((key: string) => {
+        explanationObject[key] = t(`data.designer.valuation.${key}Explanation`);
+    });
+
+    return explanationObject;
+});
+
 // const submitUrl = computed(() => {
 //     return (route?.query?.submitUrl as string) || '';
 // });
@@ -232,7 +336,7 @@ async function submit() {
 
     const dvsPayload = {
         originalAssetId: offerMetadata.value.datasetId,
-        distributionId: offerMetadata.value.distributionId,
+        accessUrl: offerMetadata.value.accessURL,
         organizationId: offerMetadata.value.organizationId,
         weights: items.value.reduce((acc, item) => {
             let key = item.title.toLowerCase().replace(/\s+/g, '_');
@@ -261,6 +365,8 @@ async function submit() {
     // console.log('Submitting valuation with payload:', dvsPayload);
     console.log('Submitting valuation with payload - stringified:', JSON.stringify(dvsPayload, null, 2));
 
+    loadingValuation.value = true;
+    showValuationData.value = false;
     try {
         const response = await fetch(proxyDvsRoute, {
             method: 'POST',
@@ -276,8 +382,25 @@ async function submit() {
 
         const data = await response.json().catch(() => null);
         console.log('Configuration submitted successfully:', data || 'no JSON response');
+
+        const responseData = data?.data ?? data;
+        if (responseData) {
+            valuationRating.value = responseData.rating ?? '';
+            numberRating.value = responseData.agg_score ?? 0;
+            valuationData.value = {
+                accessibility: responseData.accessibility_score ?? 'N/A',
+                availability: responseData.availability_score ?? 'N/A',
+                format: responseData.format_score ?? 'N/A',
+                age: responseData.age_score ?? 'N/A',
+                legal: responseData.legal_score ?? 'N/A',
+                dqa: responseData.dqa_score ?? 'N/A',
+            };
+            showValuationData.value = true;
+        }
     } catch (error) {
         console.error('Submit error:', error);
+    } finally {
+        loadingValuation.value = false;
     }
 }
 </script>
