@@ -331,10 +331,11 @@ async function submit() {
         return;
     }
 
-    const dvsUrl = `${offerMetadata.value.ownerFactoryURL}api/datavalue/`;
+    const dvsUrl = `${offerMetadata.value.ownerFactoryURL}srv/data-valuation-service/api/datavalue/`;
     const proxyDvsRoute = `/api/datasets/get-valuation-data`;
 
     const dvsPayload = {
+        dvsUrl,
         originalAssetId: offerMetadata.value.datasetId,
         accessUrl: offerMetadata.value.accessURL,
         organizationId: offerMetadata.value.organizationId,
@@ -362,8 +363,7 @@ async function submit() {
     };
 
     console.log('Submitting valuation to:', dvsUrl);
-    // console.log('Submitting valuation with payload:', dvsPayload);
-    console.log('Submitting valuation with payload - stringified:', JSON.stringify(dvsPayload, null, 2));
+    console.log('Submitting valuation with payload - stringified:\n', JSON.stringify(dvsPayload, null, 2));
 
     loadingValuation.value = true;
     showValuationData.value = false;
@@ -385,8 +385,8 @@ async function submit() {
 
         const responseData = data?.data ?? data;
         if (responseData) {
-            valuationRating.value = responseData.rating ?? '';
-            numberRating.value = responseData.agg_score ?? 0;
+            valuationRating.value = responseData.weighted_rating ?? '';
+            numberRating.value = responseData.weighted_agg_score ?? 0;
             valuationData.value = {
                 accessibility: responseData.accessibility_score ?? 'N/A',
                 availability: responseData.availability_score ?? 'N/A',
