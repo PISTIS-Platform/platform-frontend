@@ -26,6 +26,7 @@
                     <span class="tab-icon">🕒</span> Compare Versions
                 </button>
                 <button
+                    v-if="isFactory"
                     :class="`tab-btn ${store.displayState === 'integrity' ? 'active' : ''}`"
                     @click="setDisplayState('integrity')"
                 >
@@ -91,7 +92,10 @@
                                 :selected-diff="store.selectedDiff"
                             />
                             <Compare v-if="store.displayState === 'diff'" :cloud-mode="!isFactory" />
-                            <DataIntegrity v-if="store.displayState === 'integrity'" :lineage-id="lineageID" />
+                            <DataIntegrity
+                                v-if="isFactory && store.displayState === 'integrity'"
+                                :lineage-id="lineageID"
+                            />
                         </div>
                     </div>
                 </template>
