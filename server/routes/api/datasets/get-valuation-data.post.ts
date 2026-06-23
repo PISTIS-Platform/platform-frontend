@@ -1,6 +1,6 @@
-// const {
-//     public: { factoryUrl },
-// } = useRuntimeConfig();
+const {
+    public: { factoryUrl },
+} = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const body = await readBody<Record<string, unknown>>(event);
@@ -8,17 +8,18 @@ export default defineEventHandler(async (event) => {
 
     const { dvsUrl, ...payload } = body;
     // TODO it should never use factoryURL
-    // const targetUrl = typeof dvsUrl === 'string' && dvsUrl.length
-    //     ? dvsUrl
-    //     : `${factoryUrl}/srv/data-valuation-service/api/datavalue/`;
-    if (typeof dvsUrl !== 'string' || !dvsUrl.length) {
-        throw createError({ statusCode: 400, statusMessage: 'Invalid dvsUrl' });
-    }
+    const targetUrl =
+        typeof dvsUrl === 'string' && dvsUrl.length
+            ? dvsUrl
+            : `${factoryUrl}/srv/data-valuation-service/api/datavalue/`;
+    // if (typeof dvsUrl !== 'string' || !dvsUrl.length) {
+    //     throw createError({ statusCode: 400, statusMessage: 'Invalid dvsUrl' });
+    // }
 
-    console.log('Proxy URL :: Submitting valuation to DVS at', dvsUrl, 'with payload:\n', payload);
+    console.log('Proxy URL :: Submitting valuation to DVS at', targetUrl, 'with payload:\n', payload);
 
     // DO NOT REMOVE THE TRAILING SLASH FROM THE URL
-    return $fetch(dvsUrl, {
+    return $fetch(targetUrl, {
         method: 'POST',
         body: payload,
         headers: {
