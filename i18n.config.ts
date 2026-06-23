@@ -477,7 +477,8 @@ export default defineI18nConfig(() => ({
                         dqaExplanation:
                             'Quality is a key factor for data value. We assess it for relevant metrics: accuracy, consistency, completeness, uniqueness, validity.',
                         privacy: 'Privacy',
-                        privacyExplanation: '',
+                        privacyExplanation:
+                            'If your data contains personal data, a combination of deanonymisation risk analysis methods is factored into the privacy score.',
                     },
                     numberOfResell: 'Number of times the dataset can be resold',
                     numberOfShare: 'Number of times the dataset can be shared',

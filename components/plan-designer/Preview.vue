@@ -96,6 +96,7 @@ const getValuationData = async () => {
                 age_score: number;
                 legal_score: number;
                 dqa_score: number;
+                privacy_score: number;
             };
         }>(`/api/datasets/get-valuation-data`, {
             method: 'POST',
@@ -116,6 +117,7 @@ const getValuationData = async () => {
             age: result?.data?.age_score ?? 'N/A',
             legal: result?.data?.legal_score ?? 'N/A',
             dqa: result?.data?.dqa_score ?? 'N/A',
+            privacy: result?.data?.privacy_score ?? 'N/A',
         };
         showValuationData.value = true;
     } catch (error) {

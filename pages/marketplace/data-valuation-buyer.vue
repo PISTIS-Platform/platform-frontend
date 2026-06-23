@@ -394,6 +394,7 @@ async function submit() {
                 age: responseData.age_score ?? 'N/A',
                 legal: responseData.legal_score ?? 'N/A',
                 dqa: responseData.dqa_score ?? 'N/A',
+                privacy: responseData.privacy_score ?? 'N/A',
             };
             showValuationData.value = true;
         }
