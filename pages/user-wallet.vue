@@ -1,13 +1,21 @@
 <script setup lang="ts">
 import { parseAmount } from '~/utils/wallet';
 
-const { data: coinsData, status: coinsStatus } = useLazyFetch<{ dlt_amount: number }>('/api/wallet', {
+const {
+    data: coinsData,
+    status: coinsStatus,
+    refresh: refreshCoins,
+} = useLazyFetch<{ dlt_amount: number }>('/api/wallet', {
     method: 'POST',
 });
 
-const { data: fiatData, status: fiatStatus } = useLazyFetch<{ amount: string; currency: string }>(
-    '/api/wallet/fiat-balance',
-);
+const {
+    data: fiatData,
+    status: fiatStatus,
+    refresh: refreshFiat,
+} = useLazyFetch<{ fiat_amount: string }>('/api/wallet/fiat-balance');
+
+const refreshBalances = () => Promise.all([refreshCoins(), refreshFiat()]);
 
 const { data: ibanData } = useLazyFetch<{ iban: string }>('/api/wallet/factory-iban');
 
@@ -20,7 +28,7 @@ const toggleSection = (section: typeof activeSection.value) =>
 const close = () => (activeSection.value = null);
 
 const coinsBalance = computed(() => parseAmount(coinsData.value?.dlt_amount));
-const fiatBalance = computed(() => parseAmount(fiatData.value?.amount));
+const fiatBalance = computed(() => parseAmount(fiatData.value?.fiat_amount));
 </script>
 
 <template>
@@ -54,7 +62,12 @@ const fiatBalance = computed(() => parseAmount(fiatData.value?.amount));
                 :open="activeSection === 'exchange'"
                 @toggle="toggleSection('exchange')"
             >
-                <WalletExchange :coins-balance="coinsBalance" :fiat-balance="fiatBalance" @close="close" />
+                <WalletExchange
+                    :coins-balance="coinsBalance"
+                    :fiat-balance="fiatBalance"
+                    @close="close"
+                    @success="refreshBalances"
+                />
             </WalletSection>
 
             <WalletSection
@@ -76,7 +89,12 @@ const fiatBalance = computed(() => parseAmount(fiatData.value?.amount));
                 :open="activeSection === 'withdraw'"
                 @toggle="toggleSection('withdraw')"
             >
-                <WalletWithdraw :fiat-balance="fiatBalance" :fiat-pending="fiatStatus === 'pending'" @close="close" />
+                <WalletWithdraw
+                    :fiat-balance="fiatBalance"
+                    :fiat-pending="fiatStatus === 'pending'"
+                    @close="close"
+                    @success="refreshBalances"
+                />
             </WalletSection>
         </div>
     </PageContainer>

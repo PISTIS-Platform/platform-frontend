@@ -1,16 +1,25 @@
 <script setup lang="ts">
 import { withdrawDefaults, type WithdrawForm, WithdrawSchema } from '~/schemas/user-wallet';
-import { amountError, makeCancel, makeFieldValidator, makeFormValidator, sanitizeDecimal } from '~/utils/wallet';
+import { amountError, makeFieldValidator, makeFormValidator, sanitizeDecimal } from '~/utils/wallet';
 
 const props = defineProps<{ fiatBalance?: number; fiatPending: boolean }>();
-const emit = defineEmits<{ close: [] }>();
+const emit = defineEmits<{ close: []; success: [] }>();
 
 const withdrawForm = reactive<WithdrawForm>({ ...withdrawDefaults });
 const withdrawErrors = reactive<Partial<Record<keyof WithdrawForm, string>>>({});
 
 const validateField = makeFieldValidator(WithdrawSchema, withdrawForm, withdrawErrors);
 const validateForm = makeFormValidator(WithdrawSchema, withdrawForm, withdrawErrors);
-const cancel = makeCancel(withdrawForm, withdrawDefaults, withdrawErrors, () => emit('close'));
+
+const resetForm = () => {
+    Object.assign(withdrawForm, { ...withdrawDefaults });
+    (Object.keys(withdrawErrors) as (keyof WithdrawForm)[]).forEach((k) => delete withdrawErrors[k]);
+};
+
+const cancel = () => {
+    resetForm();
+    emit('close');
+};
 
 const isFiatBalanceUnavailable = computed(() => props.fiatBalance === undefined);
 const amountErrorMessage = computed(() =>
@@ -30,12 +39,24 @@ const onAmountInput = (val: string | number) => {
     validateField('amount');
 };
 
+const { showErrorMessage } = useAlertMessage();
+const isSubmitting = ref(false);
+
 const confirm = async () => {
-    if (!validateForm()) return;
-    await $fetch('/api/wallet/withdraw', {
-        method: 'POST',
-        body: { amount: withdrawForm.amount, iban: withdrawForm.iban },
-    });
+    if (isSubmitting.value || !validateForm()) return;
+    isSubmitting.value = true;
+    try {
+        await $fetch('/api/wallet/withdraw', {
+            method: 'POST',
+            body: { amount: withdrawForm.amount, iban: withdrawForm.iban },
+        });
+        resetForm();
+        emit('success');
+    } catch {
+        showErrorMessage('Withdrawal failed. Please try again later.');
+    } finally {
+        isSubmitting.value = false;
+    }
 };
 </script>
 
@@ -126,7 +147,8 @@ const confirm = async () => {
                 color="red"
                 variant="solid"
                 icon="i-heroicons-arrow-down-tray"
-                :disabled="!isValid"
+                :loading="isSubmitting"
+                :disabled="isSubmitting || !isValid"
                 @click="confirm"
             >
                 Confirm Withdrawal

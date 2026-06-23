@@ -1,11 +1,9 @@
 import type { Currency, CurrencyInfo, DepositMethodOption, Direction, DirectionOption } from '~/interfaces/wallet';
 
-export const EXCHANGE_RATE = 0.85;
 export const EXCHANGE_FEE = 0;
-export const MIN_EXCHANGE = 10;
 
 export const CURRENCY: Record<Currency, CurrencyInfo> = {
-    fiat: { label: 'FIAT Money (EUR)', placeholder: '0.00' },
+    fiat: { label: 'FIAT Money (EUR)', placeholder: '0' },
     coins: { label: 'PISTIS Coins', placeholder: '0', icon: 'i-heroicons-globe-alt' },
 };
 

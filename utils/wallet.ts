@@ -1,8 +1,5 @@
 import type { ZodType } from 'zod';
 
-import { EXCHANGE_RATE } from '~/constants/wallet';
-import type { Direction } from '~/interfaces/wallet';
-
 // Parse a balance into a number, or undefined when it isn't a valid number.
 export const parseAmount = (value?: string | number | null): number | undefined => {
     const num = typeof value === 'number' ? value : parseFloat(value ?? '');
@@ -17,11 +14,15 @@ export const sanitizeDecimal = (val: string | number): string => {
     return sanitized;
 };
 
-// Convert the amount the user pays into the amount they receive for a direction.
-export const convertAmount = (payAmount: string, direction: Direction): string => {
-    const num = parseFloat(payAmount);
+// Keep only digits (integer values).
+export const sanitizeInteger = (val: string | number): string => String(val ?? '').replace(/[^0-9]/g, '');
+
+// Convert the amount the user pays into the amount they receive.
+// PISTIS Coins and FIAT exchange 1:1, integers only.
+export const convertAmount = (payAmount: string): string => {
+    const num = parseInt(payAmount, 10);
     if (payAmount === '' || isNaN(num)) return '';
-    return (direction === 'cash-in' ? num / EXCHANGE_RATE : num * EXCHANGE_RATE).toFixed(2);
+    return String(num);
 };
 
 // Returns an error message for an amount field, or null when valid.

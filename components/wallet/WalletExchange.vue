@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { CURRENCY, DIRECTION_OPTIONS, EXCHANGE_FEE, EXCHANGE_RATE, MIN_EXCHANGE, SIDES } from '~/constants/wallet';
+import { CURRENCY, DIRECTION_OPTIONS, EXCHANGE_FEE, SIDES } from '~/constants/wallet';
 import type { Direction } from '~/interfaces/wallet';
-import { amountError, convertAmount, sanitizeDecimal } from '~/utils/wallet';
+import { amountError, convertAmount, sanitizeInteger } from '~/utils/wallet';
 
 const props = defineProps<{
     coinsBalance?: number;
     fiatBalance?: number;
 }>();
 
-const emit = defineEmits<{ close: [] }>();
+const emit = defineEmits<{ close: []; success: [] }>();
 
 const direction = ref<Direction>('cash-in');
 const payAmount = ref<string>('');
@@ -17,7 +17,7 @@ const isCashIn = computed(() => direction.value === 'cash-in');
 const paySide = computed(() => CURRENCY[SIDES[direction.value].pay]);
 const receiveSide = computed(() => CURRENCY[SIDES[direction.value].receive]);
 // The user edits `payAmount`; the receive side is derived from the exchange rate.
-const receiveAmount = computed(() => convertAmount(payAmount.value, direction.value));
+const receiveAmount = computed(() => convertAmount(payAmount.value));
 // The cash-in/cash-out endpoints always take the FIAT amount.
 const exchangeFiatAmount = computed(() => (isCashIn.value ? payAmount.value : receiveAmount.value));
 
@@ -29,9 +29,8 @@ const validationError = computed(() =>
               tooLarge: 'Cannot exceed your FIAT balance',
           })
         : amountError(payAmount.value, {
-              min: MIN_EXCHANGE,
               max: props.coinsBalance,
-              tooSmall: `Minimum exchange is ${MIN_EXCHANGE} PISTIS Coins`,
+              tooSmall: 'Enter a valid amount',
               tooLarge: 'Cannot exceed your PISTIS Coins balance',
           }),
 );
@@ -44,20 +43,40 @@ const unavailableMessage = computed(() =>
         : 'Your PISTIS Coins balance is currently unavailable. Exchanging is temporarily disabled. Please try again later.',
 );
 
-const onPayAmountInput = (val: string | number) => (payAmount.value = sanitizeDecimal(val));
+const onPayAmountInput = (val: string | number) => (payAmount.value = sanitizeInteger(val));
 const toggleDirection = () => (direction.value = isCashIn.value ? 'cash-out' : 'cash-in');
 
-const cancel = () => {
+const resetForm = () => {
     payAmount.value = '';
     direction.value = 'cash-in';
+};
+
+const cancel = () => {
+    resetForm();
     emit('close');
 };
 
-const confirm = async () =>
-    await $fetch(isCashIn.value ? '/api/wallet/cash-in' : '/api/wallet/cash-out', {
-        method: 'POST',
-        body: { amount: exchangeFiatAmount.value },
-    });
+const { showErrorMessage } = useAlertMessage();
+const isSubmitting = ref(false);
+
+const confirm = async () => {
+    if (isSubmitting.value) return;
+    isSubmitting.value = true;
+    try {
+        await $fetch(isCashIn.value ? '/api/wallet/cash-in' : '/api/wallet/cash-out', {
+            method: 'POST',
+            body: { amount: exchangeFiatAmount.value },
+        });
+        resetForm();
+        emit('success');
+    } catch {
+        showErrorMessage(
+            isCashIn.value ? 'Cash-in failed. Please try again later.' : 'Cash-out failed. Please try again later.',
+        );
+    } finally {
+        isSubmitting.value = false;
+    }
+};
 </script>
 
 <template>
@@ -70,10 +89,7 @@ const confirm = async () =>
             <p class="text-sm text-yellow-700">{{ unavailableMessage }}</p>
         </div>
 
-        <p class="text-sm text-gray-600">
-            Enter the amount you want to exchange. Current rate:
-            <strong>1 PISTIS Coin = {{ EXCHANGE_RATE }} PSTC</strong>
-        </p>
+        <p class="text-sm text-gray-600">Enter the amount you want to exchange.</p>
 
         <!-- Direction selection -->
         <div class="flex gap-4">
@@ -108,11 +124,13 @@ const confirm = async () =>
                 <UInput
                     :model-value="payAmount"
                     type="number"
-                    inputmode="decimal"
+                    inputmode="numeric"
                     min="0"
+                    step="1"
                     size="lg"
                     :placeholder="paySide.placeholder"
                     :trailing-icon="paySide.icon"
+                    @keypress="(e: KeyboardEvent) => !/\d/.test(e.key) && e.preventDefault()"
                     @update:model-value="onPayAmountInput"
                 />
             </div>
@@ -150,9 +168,7 @@ const confirm = async () =>
         </p>
         <p class="text-xs text-gray-500 flex items-center gap-1">
             <UIcon name="i-heroicons-information-circle" class="w-4 h-4" />
-            Exchange fee: {{ EXCHANGE_FEE }}%<template v-if="!isCashIn">
-                | Minimum exchange: {{ MIN_EXCHANGE }} PISTIS Coins</template
-            >
+            Exchange fee: {{ EXCHANGE_FEE }}%
         </p>
 
         <div class="flex gap-3 mt-2">
@@ -160,7 +176,8 @@ const confirm = async () =>
                 color="primary"
                 variant="solid"
                 icon="i-heroicons-arrows-right-left"
-                :disabled="balanceUnavailable || !payAmount || !!validationError"
+                :loading="isSubmitting"
+                :disabled="isSubmitting || balanceUnavailable || !payAmount || !!validationError"
                 @click="confirm"
             >
                 Confirm Exchange

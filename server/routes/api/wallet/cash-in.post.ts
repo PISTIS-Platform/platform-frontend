@@ -11,9 +11,14 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'amount is required' });
     }
 
+    const numericAmount = Number(amount);
+    if (!Number.isFinite(numericAmount)) {
+        throw createError({ statusCode: 400, statusMessage: 'amount must be a number' });
+    }
+
     return $fetch(`${factoryUrl}/srv/payments/v0/fiat/cash-in`, {
         method: 'POST',
-        body: { amount, wallet_alias: walletAlias },
+        body: { amount: numericAmount, wallet_alias: walletAlias },
         headers: {
             Authorization: `Bearer ${session?.token}`,
         },
