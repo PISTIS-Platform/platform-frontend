@@ -34,7 +34,17 @@ const getUserSub = (profile: any) => {
     return profile.sub || '';
 };
 
-async function refreshAccessToken(sessionId: string, refreshToken: string) {
+// Tracks in-flight refreshes per session so concurrent requests (parallel /api
+// calls, the periodic client poll, window-focus refresh) share a single token
+// exchange instead of each POSTing the same one-time-use refresh token and
+// racing Keycloak's refresh-token rotation. Single-instance only; for multiple
+// instances this would need a distributed lock (e.g. Redis).
+const inflightRefreshes = new Map<
+    string,
+    Promise<{ access_token: string; id_token: string; refresh_token: string; expires_at: number } | null>
+>();
+
+async function doRefreshAccessToken(sessionId: string, refreshToken: string) {
     try {
         const response = await $fetch<{
             access_token: string;
@@ -76,9 +86,33 @@ async function refreshAccessToken(sessionId: string, refreshToken: string) {
 
         return { access_token, id_token, refresh_token: new_refresh_token, expires_at: expiresAt };
     } catch (err: any) {
-        console.error('[Auth] Token refresh failed:', err?.message || err);
+        // err.data holds Keycloak's body (e.g. { error: 'invalid_grant', ... }),
+        // which err.message hides behind just the status line.
+        const status = err?.status || err?.statusCode;
+        console.error('[Auth] Token refresh failed:', status, err?.data || err?.message || err);
+
+        // A 400 means the refresh token is permanently rejected (expired or
+        // already rotated). Drop the stored tokens so we stop retrying the dead
+        // token on every subsequent request/poll and force a clean re-login.
+        // Leave them in place for transient errors (network/5xx) so a later
+        // attempt can still succeed.
+        if (status === 400) {
+            await removeTokens(sessionId);
+        }
+
         return null;
     }
+}
+
+async function refreshAccessToken(sessionId: string, refreshToken: string) {
+    const existing = inflightRefreshes.get(sessionId);
+    if (existing) return existing;
+
+    const promise = doRefreshAccessToken(sessionId, refreshToken).finally(() => {
+        inflightRefreshes.delete(sessionId);
+    });
+    inflightRefreshes.set(sessionId, promise);
+    return promise;
 }
 
 export const authOptions = {
