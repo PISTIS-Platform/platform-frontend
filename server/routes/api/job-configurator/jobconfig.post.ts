@@ -6,17 +6,19 @@ const {
 
 export default defineEventHandler(async (event) => {
     /*const body = await readBody(event);*/
-    const form = await readMultipartFormData(event);
+    console.log('Entering jobconfig.post.ts');
+    const incoming = await readFormData(event);
 
     const session = event.context.session;
 
     const formData = new FormData();
 
-    for (const field of form) {
-        if (field.filename) {
-            formData.append(field.name, new Blob([field.data], { type: field.type }), field.filename);
+    for (const [name, value] of incoming.entries()) {
+        if (value instanceof File) {
+            const ab = await value.arrayBuffer();
+            formData.append(name, new Blob([ab], { type: value.type }), value.name);
         } else {
-            formData.append(field.name, field.data);
+            formData.append(name, String(value));
         }
     }
 
@@ -28,6 +30,6 @@ export default defineEventHandler(async (event) => {
     });
     const json_data = response.data;
 
-    console.error('Axios Response:' + JSON.stringify(json_data, null, 2));
+    console.log('Axios Response:' + JSON.stringify(json_data, null, 2));
     return json_data;
 });
