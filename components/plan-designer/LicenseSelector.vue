@@ -793,13 +793,14 @@ watch(
                 <div v-show="licenseDetails.license">
                     <p class="font-semibold text-sm mt-5 mb-1.5">{{ $t('licenseDetails') }}</p>
                     <DataShareTerms
-                        v-show="licenseDetails.license === LicenseCode.PISTIS"
+                        v-if="licenseDetails.license === LicenseCode.PISTIS"
                         :asset-offering-details="props.assetOfferingDetails"
                         :monetization-details="props.monetizationDetails"
                         :license-details="licenseDetails"
                         @update:contract-terms="(value: string) => updateContractTerms(value)"
                     />
-                    <div v-show="licenseDetails.license !== LicenseCode.PISTIS" class="border rounded-md p-4">
+                    <NFTLicense v-else-if="licenseDetails.license === LicenseCode.NFT" />
+                    <div v-else class="border rounded-md p-4">
                         {{ licenseRef?.description }}
                     </div>
                 </div>

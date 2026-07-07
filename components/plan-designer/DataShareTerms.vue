@@ -45,7 +45,7 @@ watch(
 
         emit('update:contract-terms', btoa(encodeURIComponent(termsDocContent)));
     },
-    { deep: true },
+    { deep: true, immediate: true },
 );
 
 const { durationSelections } = useLicenseSchema();
