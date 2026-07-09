@@ -4,11 +4,14 @@ import type {
     MarketInsightVolumeChangeByGranularity,
 } from '~/interfaces/market-insight-volume-change';
 
-const { t } = useI18n();
+const props = defineProps({
+    volumeChanges: {
+        type: Array as PropType<MarketInsightVolumeChangeByGranularity[]>,
+        required: true,
+    },
+});
 
-const { data, error } = await useLazyFetch<MarketInsightVolumeChangeByGranularity[]>(
-    '/api/market-insights/volume-changes',
-);
+const { t } = useI18n();
 
 const labels: Record<MarketInsightGranularity, string> = {
     day: t('intervals.daily'),
@@ -17,7 +20,7 @@ const labels: Record<MarketInsightGranularity, string> = {
 };
 
 const rows = computed(() =>
-    (data.value ?? []).map((item) => {
+    props.volumeChanges.map((item) => {
         // Backend volumeChangePct is a ratio (e.g. -0.2); display it as a rounded percentage.
         const percent = item.volumeChangePct == null ? null : Math.round(item.volumeChangePct * 1000) / 10;
         const positive = percent != null && percent > 0;
@@ -37,8 +40,7 @@ const rows = computed(() =>
 </script>
 
 <template>
-    <MarketInsightError v-if="error" class="h-full" />
-    <UCard v-else class="h-full" :ui="{ base: 'flex flex-col', body: { base: 'flex flex-1 flex-col' } }">
+    <UCard class="h-full" :ui="{ base: 'flex flex-col', body: { base: 'flex flex-1 flex-col' } }">
         <p class="text-center font-semibold first-letter:uppercase">
             {{ t('market.overview.changeIn') }} {{ t('market.overview.volume') }}
         </p>

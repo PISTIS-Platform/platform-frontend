@@ -60,9 +60,9 @@ const tiles = computed(() =>
                     />
                 </div>
                 <SalesVolumeCard :sales-volume="overview.salesVolume" class="w-full xl:flex-1" />
+                <VolumeChangeCard :volume-changes="overview.volumeChanges" class="w-full xl:flex-1" />
             </template>
-            <MarketInsightError v-else-if="overviewError" class="w-full xl:flex-[3]" />
-            <VolumeChangeCard class="w-full xl:flex-1" />
+            <MarketInsightError v-else-if="overviewError" class="w-full" />
         </div>
 
         <SalesTimelineChart class="mt-6" />

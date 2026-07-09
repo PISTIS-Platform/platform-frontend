@@ -1,3 +1,5 @@
+import type { MarketInsightVolumeChangeByGranularity } from './market-insight-volume-change';
+
 export interface MarketInsightSalesVolume {
     increasing: number;
     decreasing: number;
@@ -10,4 +12,5 @@ export interface MarketInsightOverview {
     totalMarketCap: number;
     averageSalesPerDay: number;
     salesVolume: MarketInsightSalesVolume;
+    volumeChanges: MarketInsightVolumeChangeByGranularity[];
 }
