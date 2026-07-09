@@ -6,7 +6,9 @@ import type {
 
 const { t } = useI18n();
 
-const { data } = await useLazyFetch<MarketInsightVolumeChangeByGranularity[]>('/api/market-insights/volume-changes');
+const { data, error } = await useLazyFetch<MarketInsightVolumeChangeByGranularity[]>(
+    '/api/market-insights/volume-changes',
+);
 
 const labels: Record<MarketInsightGranularity, string> = {
     day: t('intervals.daily'),
@@ -35,7 +37,8 @@ const rows = computed(() =>
 </script>
 
 <template>
-    <UCard class="h-full" :ui="{ base: 'flex flex-col', body: { base: 'flex flex-1 flex-col' } }">
+    <MarketInsightError v-if="error" class="h-full" />
+    <UCard v-else class="h-full" :ui="{ base: 'flex flex-col', body: { base: 'flex flex-1 flex-col' } }">
         <p class="text-center font-semibold first-letter:uppercase">
             {{ t('market.overview.changeIn') }} {{ t('market.overview.volume') }}
         </p>

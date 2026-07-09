@@ -3,7 +3,9 @@ import type { MarketInsightLatestTransaction } from '~/interfaces/market-insight
 
 const { t } = useI18n();
 
-const { data } = await useLazyFetch<MarketInsightLatestTransaction[]>('/api/market-insights/latest-transactions');
+const { data, error } = await useLazyFetch<MarketInsightLatestTransaction[]>(
+    '/api/market-insights/latest-transactions',
+);
 
 const pageCount = 5;
 const rows = computed(() => data.value ?? []);
@@ -21,7 +23,8 @@ const formatDate = (value: string) => new Date(value).toLocaleDateString('en-GB'
 </script>
 
 <template>
-    <UCard class="w-full">
+    <MarketInsightError v-if="error" />
+    <UCard v-else class="w-full">
         <div class="flex flex-col gap-4">
             <p class="font-semibold">{{ t('market.overview.latestTransactions') }}</p>
 

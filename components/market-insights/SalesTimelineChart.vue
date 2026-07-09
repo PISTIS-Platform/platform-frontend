@@ -17,7 +17,7 @@ ChartJS.register(CategoryScale, LinearScale, Title, Tooltip, Legend, PointElemen
 
 const { t } = useI18n();
 
-const { data } = await useLazyFetch<MarketInsightTimelinePoint[]>('/api/market-insights/timeline');
+const { data, error } = await useLazyFetch<MarketInsightTimelinePoint[]>('/api/market-insights/timeline');
 
 const chartData = computed(() => {
     const points = data.value ?? [];
@@ -63,7 +63,8 @@ const chartOptions = {
 </script>
 
 <template>
-    <UCard class="w-full">
+    <MarketInsightError v-if="error" />
+    <UCard v-else class="w-full">
         <div class="flex flex-col gap-4">
             <p class="font-semibold">{{ t('market.overview.timeline') }}</p>
             <div class="h-80 w-full">

@@ -764,6 +764,7 @@ export default defineI18nConfig(() => ({
                     changeIn: 'change in',
                     volume: 'volume',
                     timeline: 'Timeline of assets sales',
+                    loadError: 'Unable to load data. Please try again later.',
                 },
             },
             catalog: {
