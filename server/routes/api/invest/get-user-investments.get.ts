@@ -14,19 +14,28 @@ export default defineEventHandler(async (event) => {
         },
     );
 
-    const datasetResults: Record<string, any>[] = [];
+    if (!results.length) return [];
 
-    for (let i = 0; i < results.length; i++) {
-        const innerResult = await $fetch<Record<string, any>>(
-            `${cloudUrl}/srv/search/search?q=${results[i].cloudAssetId}&filters=dataset&includes=title,description`,
-            {
-                headers: {
-                    Authorization: `Bearer ${session?.token}`,
+    // Enrich each investment with the dataset title/description from the search
+    // service. These calls are best-effort: if the search service is down (503)
+    // or fails for a given asset, we fall back to 'N/A' below rather than failing
+    // the whole request.
+    const settled = await Promise.allSettled(
+        results.map((result: Record<string, any>) =>
+            $fetch<Record<string, any>>(
+                `${cloudUrl}/srv/search/search?q=${result.cloudAssetId}&filters=dataset&includes=title,description`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${session?.token}`,
+                    },
                 },
-            },
-        );
-        datasetResults.push(innerResult.result.results[0]);
-    }
+            ),
+        ),
+    );
+
+    const datasetResults = settled.map((outcome) =>
+        outcome.status === 'fulfilled' ? outcome.value?.result?.results?.[0] : undefined,
+    );
 
     const finalResults = results.map((result: Record<string, any>, index: number) => ({
         assetId: result.cloudAssetId,
